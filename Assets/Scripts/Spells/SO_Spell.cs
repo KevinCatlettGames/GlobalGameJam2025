@@ -17,8 +17,8 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected float spellCooldown = 1.0f;
 
     [Header("Pickup")]
-    [SerializeField] protected Mesh itermMesh;
-    [SerializeField] protected Material itemMaterial;
+    [SerializeField] public Mesh itermMesh;
+    [SerializeField] public Material itemMaterial;
 
     protected BasicBubble bubbleScript;
     public virtual float CastSpell(Vector3 position, Vector3 direction)

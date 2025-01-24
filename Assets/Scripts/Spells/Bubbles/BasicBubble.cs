@@ -14,11 +14,6 @@ public class BasicBubble : MonoBehaviour
     private Vector3 direction = Vector3.zero;
     private Coroutine rangeCoroutine;
 
-    void Start()
-    {
-        
-    }
-
     public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir)
     {
         damage = dmg;
