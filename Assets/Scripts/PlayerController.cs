@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -58,7 +59,7 @@ public class PlayerController : MonoBehaviour
     private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
-    
+    [SerializeField] private EventReference kockBackEvent;
     #region Unity
     private void Start()
     {
@@ -158,6 +159,7 @@ public class PlayerController : MonoBehaviour
         if (isSlippery) force *= slipperyModifier;
         direction.y = 0; // Ignore vertical knockback (optional)
         knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
+        RuntimeManager.PlayOneShotAttached(kockBackEvent, gameObject);
     }
     private IEnumerator SpellCooldown(float time, int spellID)
     {

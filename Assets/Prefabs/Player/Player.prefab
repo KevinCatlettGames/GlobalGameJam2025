@@ -55,6 +55,9 @@ MonoBehaviour:
   baseSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   firstSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   secondSpell: {fileID: 11400000, guid: fc0a8ef5d899c644aad1f4f1138a9c44, type: 2}
+  firstCooldownSlider: {fileID: 0}
+  secondCooldownSlider: {fileID: 0}
+  damageText: {fileID: 0}
   damageModifier: 0.05
   slipperyModifier: 2
   playerSpeed: 7
@@ -62,6 +65,13 @@ MonoBehaviour:
   rotationSpeed: 50
   moveSmoothTime: 0.1
   knockbackDecaySpeed: 5
+  kockBackEvent:
+    Guid:
+      Data1: 1118691880
+      Data2: 1166104448
+      Data3: 1040230820
+      Data4: 1737141532
+    Path: event:/sfx/player/player_knockback
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0
