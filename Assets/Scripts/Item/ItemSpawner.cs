@@ -25,7 +25,7 @@ public class ItemSpawner : MonoBehaviour
 
     public void Start()
     {
-        PlayerManager.Instance.OnPlayerWon += Reset;
+        GameManager.Instance.OnGameStarted += Reset;
         
         
         foreach (Transform t in startSpawnPoints)

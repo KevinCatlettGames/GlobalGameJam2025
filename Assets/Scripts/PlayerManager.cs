@@ -37,6 +37,7 @@ public class PlayerManager : MonoBehaviour
         foreach (GameObject player in players)
         {
             activePlayers++;
+            player.GetComponent<CharacterController>().enabled = false;
             player.GetComponent<MeshRenderer>().enabled = true;
             player.GetComponent<PlayerStateHandler>().Reset();
         }
@@ -48,6 +49,7 @@ public class PlayerManager : MonoBehaviour
         if (activePlayers <= 1)
         {
             activePlayers = 0; 
+            OnPlayerWon?.Invoke();
             GameManager.Instance.EndGame();
         }
     }
