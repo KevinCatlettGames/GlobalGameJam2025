@@ -12,8 +12,8 @@ public class Item : MonoBehaviour
     {
         int r = Random.Range(0, spells.Length);
         spell = spells[r];
-        meshFilter.mesh = spell.itemMesh;
-        meshRenderer.material = spell.itemMaterial;
+        meshFilter.mesh = spell.GetMesh();
+        meshRenderer.material = spell.GetMaterial();
 
     }
 

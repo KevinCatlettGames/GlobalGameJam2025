@@ -17,8 +17,8 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected float spellCooldown = 1.0f;
 
     [Header("Pickup")]
-    [SerializeField] public Mesh itemMesh;
-    [SerializeField] public Material itemMaterial;
+    [SerializeField] protected Mesh itemMesh;
+    [SerializeField] protected Material itemMaterial;
 
     protected BasicBubble bubbleScript;
     public virtual float CastSpell(Vector3 position, Vector3 direction)
@@ -28,5 +28,13 @@ public class SO_Spell : ScriptableObject
         bubbleScript = Instantiate(bubble, position, Quaternion.LookRotation(direction)).GetComponent<BasicBubble>();
         bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, direction);
         return spellCooldown;
+    }
+    public Mesh GetMesh()
+    {
+        return itemMesh;
+    }
+    public Material GetMaterial() 
+    {
+        return itemMaterial;
     }
 }
