@@ -28,7 +28,7 @@ public class SO_Spell : ScriptableObject
     public virtual float CastSpell(Vector3 pos, Vector3 dir)
     {
         dir.Normalize();
-        pos += dir * (bubbleSize / 2 + 1);
+        pos += dir * (bubbleSize / 2 + 2);
         bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
         bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, dir);
         RuntimeManager.PlayOneShotAttached(castEventStruct, bubbleScript.gameObject);
