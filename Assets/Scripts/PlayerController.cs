@@ -1,4 +1,5 @@
 using System.Collections;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,6 +16,10 @@ public class PlayerController : MonoBehaviour
     private Item itemToEquip;
     private bool isSlippery = false;
 
+    public GameObject firstCooldownSlider;
+    public GameObject secondCooldownSlider;
+    public TextMeshProUGUI damageText;
+    
     private float damage = 0;
     [Header("Knockback Modifiers")]
     [SerializeField] float damageModifier = .05f;
