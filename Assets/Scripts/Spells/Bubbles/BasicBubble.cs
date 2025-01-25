@@ -18,7 +18,7 @@ public class BasicBubble : MonoBehaviour
     
     [SerializeField] protected GameObject popEffect; 
     
-    public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir)
+    public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
     {
         damage = dmg;
         knockback = knb;
@@ -28,6 +28,7 @@ public class BasicBubble : MonoBehaviour
         direction = dir;
         transform.localScale *= size;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
     }
 
     private void FixedUpdate()
