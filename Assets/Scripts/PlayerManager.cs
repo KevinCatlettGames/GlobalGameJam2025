@@ -11,7 +11,6 @@ public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
-    private int spawnPointsUsed = -1;
     public int activePlayers = 0; 
     public List<GameObject> players;
     
@@ -44,6 +43,22 @@ public class PlayerManager : MonoBehaviour
         players.Add(input.gameObject);
         input.GetComponent<PlayerController>().firstCooldownSlider = firstPlayerCooldownSliders[input.playerIndex];
         input.GetComponent<PlayerController>().secondCooldownSlider = secondPlayerCooldownSliders[input.playerIndex];
+        
+        SkinnedMeshRenderer meshRenderer = input.GetComponent<PlayerStateHandler>().meshRenderer;
+
+        // Get the current materials array
+        Material[] materials = meshRenderer.materials;
+
+        // Check if the index is valid to avoid runtime errors
+        if (materials != null && materials.Length > 2)
+        {
+            // Replace the material at index 2
+            materials[2] = colorMaterials[input.playerIndex];
+    
+            // Assign the updated array back to the MeshRenderer
+            meshRenderer.materials = materials;
+        }
+        
         input.GetComponent<PlayerController>().damageText = damageTexts[input.playerIndex];
         // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
         firstSliderImages[input.playerIndex].color = colors[input.playerIndex];

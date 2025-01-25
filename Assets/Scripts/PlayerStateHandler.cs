@@ -5,6 +5,8 @@ public class PlayerStateHandler : MonoBehaviour
     public Vector3 spawnPosition;
     // Start is called before the first frame update
     public GameObject meshObject;
+    public SkinnedMeshRenderer meshRenderer;
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Deathzone"))

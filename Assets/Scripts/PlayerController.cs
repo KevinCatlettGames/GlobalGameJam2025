@@ -129,7 +129,7 @@ public class PlayerController : MonoBehaviour
         if (isFirstSpellReady && context.performed)
         {
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = firstSpell.CastSpell(transform.position,transform.forward);
+            float cooldown = firstSpell.CastSpell(transform.position, transform.forward);
             isFirstSpellReady = false;
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
         }

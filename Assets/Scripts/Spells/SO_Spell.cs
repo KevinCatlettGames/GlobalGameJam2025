@@ -6,10 +6,13 @@ using FMODUnity;
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
+    [Header("UI")]
+    public Sprite SpellIcon;
+
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
     [SerializeField] protected float bubbleDamage = 1.0f;
-    [SerializeField] protected float bubbleKockback = 1.0f;
+    [SerializeField] protected float bubbleKnockback = 1.0f;
     [SerializeField] protected float bubbleSpeed = 1.0f;
     [SerializeField] protected float bubbleRange = 1.0f;
     [SerializeField] protected float bubbleSize = 1.0f;
@@ -30,8 +33,7 @@ public class SO_Spell : ScriptableObject
         dir.Normalize();
         pos += dir * (bubbleSize / 2 + 2);
         bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, dir);
-        RuntimeManager.PlayOneShotAttached(castEventStruct, bubbleScript.gameObject);
+        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, dir, castEventStruct);
         return spellCooldown;
     }
     public Mesh GetMesh()
