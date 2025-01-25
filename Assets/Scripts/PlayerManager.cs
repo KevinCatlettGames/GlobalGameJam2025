@@ -45,7 +45,7 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<PlayerController>().firstCooldownSlider = firstPlayerCooldownSliders[input.playerIndex];
         input.GetComponent<PlayerController>().secondCooldownSlider = secondPlayerCooldownSliders[input.playerIndex];
         input.GetComponent<PlayerController>().damageText = damageTexts[input.playerIndex];
-        input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
+        // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
         firstSliderImages[input.playerIndex].color = colors[input.playerIndex];
         secondSliderImages[input.playerIndex].color = colors[input.playerIndex];
         firstPlayerCooldownSliders[input.playerIndex].SetActive(true);
@@ -64,7 +64,7 @@ public class PlayerManager : MonoBehaviour
             
             player.GetComponent<CharacterController>().enabled = false;
             
-            player.GetComponent<MeshRenderer>().enabled = true;
+           // player.GetComponent<MeshRenderer>().enabled = true;
             
             player.GetComponent<PlayerStateHandler>().Reset();
         }
