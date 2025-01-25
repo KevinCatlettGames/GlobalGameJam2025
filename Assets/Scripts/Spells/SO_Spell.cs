@@ -6,6 +6,9 @@ using FMODUnity;
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
+    [Header("UI")]
+    public Sprite SpellIcon;
+
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
     [SerializeField] protected float bubbleDamage = 1.0f;
