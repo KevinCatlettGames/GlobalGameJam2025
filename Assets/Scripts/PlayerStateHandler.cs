@@ -6,7 +6,7 @@ public class PlayerStateHandler : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spawnPosition = PlayerManager.Instance.GetNonUsedStartPosition(gameObject);
+        spawnPosition = PlayerManager.Instance.AddPlayer(gameObject);
         transform.position = spawnPosition;
     }
 

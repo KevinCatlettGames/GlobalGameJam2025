@@ -2,6 +2,10 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using FMODUnity;
+using TMPro;
+using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -10,7 +14,15 @@ public class PlayerManager : MonoBehaviour
     private int spawnPointsUsed = -1;
     public int activePlayers = 0; 
     public List<GameObject> players;
-
+    
+    public GameObject[] firstPlayerCooldownSliders;
+    public GameObject[] secondPlayerCooldownSliders;
+    public Image[] firstSliderImages;
+    public Image[] secondSliderImages;
+    public Material[] colorMaterials;
+    public TextMeshProUGUI[] damageTexts; 
+    
+    public Color[] colors;
     public Action OnPlayerWon; 
     
     void Awake()
@@ -24,10 +36,18 @@ public class PlayerManager : MonoBehaviour
         GameManager.Instance.OnGameStarted += ResetPlayers;
     }
 
-    public Vector3 GetNonUsedStartPosition(GameObject player)
+    public Vector3 AddPlayer(GameObject player)
     {
         activePlayers++; 
         players.Add(player);
+        player.GetComponent<PlayerController>().firstCooldownSlider = firstPlayerCooldownSliders[activePlayers - 1];
+        player.GetComponent<PlayerController>().secondCooldownSlider = secondPlayerCooldownSliders[activePlayers - 1];
+        player.GetComponent<PlayerController>().damageText = damageTexts[activePlayers - 1];
+        player.GetComponent<MeshRenderer>().material = colorMaterials[activePlayers - 1];
+        firstSliderImages[activePlayers - 1].color = colors[activePlayers - 1];
+        secondSliderImages[activePlayers - 1].color = colors[activePlayers - 1];
+        firstPlayerCooldownSliders[activePlayers - 1].SetActive(true);
+        secondPlayerCooldownSliders[activePlayers - 1].SetActive(true);
         spawnPointsUsed++; 
         return spawnPoints[spawnPointsUsed].position;
     }
@@ -37,8 +57,11 @@ public class PlayerManager : MonoBehaviour
         foreach (GameObject player in players)
         {
             activePlayers++;
+            
             player.GetComponent<CharacterController>().enabled = false;
+            
             player.GetComponent<MeshRenderer>().enabled = true;
+            
             player.GetComponent<PlayerStateHandler>().Reset();
         }
     }
