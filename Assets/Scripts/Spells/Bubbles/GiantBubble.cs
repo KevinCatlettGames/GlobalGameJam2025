@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -9,9 +10,9 @@ public class GiantBubble : BasicBubble
     private float healthIncrement = 0f;
     private float currentHealth = 1f;
 
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir)
+    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
     {
-        base.InitialiseBubble(dmg, knb, spd, rng, siz, dir);
+        base.InitialiseBubble(dmg, knb, spd, rng, siz, dir, soundEvent);
         healthIncrement = 1f / (float)healthPoints;
     }
 
