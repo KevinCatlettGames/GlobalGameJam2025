@@ -11,6 +11,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private SO_Spell baseSpell;
     [SerializeField] private SO_Spell firstSpell;
     [SerializeField] private SO_Spell secondSpell;
+    [SerializeField] private GameObject spellSpawnEffect; 
+    
     private bool isFirstSpellReady = true;
     private bool isSecondSpellReady = true;
     private Coroutine firstSpellCoroutine;
@@ -58,8 +60,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
-    #endregion
     [SerializeField] private EventReference kockBackEvent;
+    #endregion
+    
     #region Unity
     private void Start()
     {
@@ -125,6 +128,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isFirstSpellReady && context.performed)
         {
+            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = firstSpell.CastSpell(transform.position,transform.forward);
             isFirstSpellReady = false;
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
@@ -134,6 +138,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isSecondSpellReady && context.performed)
         {
+            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
             isSecondSpellReady = false;
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
