@@ -25,9 +25,6 @@ public class PlayerManager : MonoBehaviour
     public Color[] colors;
     public Action OnPlayerWon; 
     
-    [Header("Sound Events")]
-    [SerializeField] protected EventReference castEventStruct;
-    
     void Awake()
     {
         players = new List<GameObject>();
@@ -40,8 +37,6 @@ public class PlayerManager : MonoBehaviour
     }
     public void OnPlayerJoined(PlayerInput input)
     {
-        RuntimeManager.PlayOneShotAttached(castEventStruct, input.gameObject);
-        
         input.GetComponent<CharacterController>().enabled = false;
 
         input.transform.position = spawnPoints[input.playerIndex].position;
@@ -70,7 +65,7 @@ public class PlayerManager : MonoBehaviour
             player.GetComponent<CharacterController>().enabled = false;
             
            // player.GetComponent<MeshRenderer>().enabled = true;
-             RuntimeManager.PlayOneShotAttached(castEventStruct, player.gameObject);
+            
             player.GetComponent<PlayerStateHandler>().Reset();
         }
     }

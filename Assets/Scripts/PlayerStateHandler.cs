@@ -1,26 +1,17 @@
 using UnityEngine;
-using FMODUnity;
 
 public class PlayerStateHandler : MonoBehaviour
 {
     public Vector3 spawnPosition;
     // Start is called before the first frame update
     public GameObject meshObject;
-<<<<<<< Updated upstream
-=======
-    public SkinnedMeshRenderer meshRenderer;
-    
-    [Header("Sound Events")]
-    [SerializeField] protected EventReference castEventStruct;
->>>>>>> Stashed changes
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Deathzone"))
         {
             CharacterController controller = GetComponent<CharacterController>();
-            controller.Move(new Vector3(0,10,0));
-            RuntimeManager.PlayOneShotAttached(castEventStruct, this.gameObject);
-            Invoke(nameof(DisablePlayer), .5f);
+            controller.Move(new Vector3(0,10,0) * 25);
+            Invoke(nameof(DisablePlayer), 2f);
         }
     }
 
