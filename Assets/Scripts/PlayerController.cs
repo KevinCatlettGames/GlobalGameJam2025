@@ -13,10 +13,14 @@ public class PlayerController : MonoBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
+    private bool isSlippery = false;
 
     private float damage = 0;
+    [Header("Knockback Modifiers")]
     [SerializeField] float damageModifier = .05f;
+    [SerializeField] float slipperyModifier = 1.5f;
 
+    [Header("Player Stats")]
     #region Player Physics
     [SerializeField]
     private float playerSpeed = 2.0f;
@@ -134,6 +138,7 @@ public class PlayerController : MonoBehaviour
     public void ApplyKnockback(Vector3 direction, float force, float dmg)
     {
         damage += dmg;
+        if (isSlippery) force *= slipperyModifier;
         direction.y = 0; // Ignore vertical knockback (optional)
         knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
     }
@@ -197,6 +202,18 @@ public class PlayerController : MonoBehaviour
         else if (!isInRange && item == itemToEquip)
         {
             itemToEquip = null;
+        }
+    }
+    public void SetSlippy(bool slippy)
+    {
+        if (slippy)
+        {
+            knockbackVelocity *= slipperyModifier;
+            isSlippery = true;
+        }
+        else 
+        {
+            isSlippery = false;
         }
     }
 }
