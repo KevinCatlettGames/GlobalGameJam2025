@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -51,7 +52,16 @@ public class BasicBubble : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
-    { 
+    {
+        Reflector reflector;
+        if (collision.gameObject.TryGetComponent<Reflector>(out reflector))
+        {
+            if (reflector.GetIsReflecting())
+            {
+                Reflect(collision.GetContact(0).normal);
+                return;
+            }
+        }
         BubbleCollision(collision.gameObject);
     }
 
@@ -65,4 +75,8 @@ public class BasicBubble : MonoBehaviour
         Pop();
     }
 
+    private void Reflect(Vector3 normal)
+    {
+        direction = Vector3.Reflect(direction, normal);
+    }
 }
