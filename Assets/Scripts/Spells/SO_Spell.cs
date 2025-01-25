@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
@@ -20,13 +21,17 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected Mesh itemMesh;
     [SerializeField] protected Material itemMaterial;
 
+    [Header("Sound Events")]
+    [SerializeField] protected EventReference castEventStruct;
+
     protected BasicBubble bubbleScript;
-    public virtual float CastSpell(Vector3 position, Vector3 direction)
+    public virtual float CastSpell(Vector3 pos, Vector3 dir)
     {
-        direction.Normalize();
-        position += direction * (bubbleSize / 2 + 1);
-        bubbleScript = Instantiate(bubble, position, Quaternion.LookRotation(direction)).GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, direction);
+        dir.Normalize();
+        pos += dir * (bubbleSize / 2 + 1);
+        bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
+        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, dir);
+        RuntimeManager.PlayOneShotAttached(castEventStruct, bubbleScript.gameObject);
         return spellCooldown;
     }
     public Mesh GetMesh()

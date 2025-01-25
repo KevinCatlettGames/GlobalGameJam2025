@@ -14,8 +14,7 @@ GameObject:
   - component: {fileID: 2078046511075596644}
   - component: {fileID: 51952696765396276}
   - component: {fileID: 8333720517595282313}
-  - component: {fileID: -8165655608958758621}
-  - component: {fileID: -2425474343948898659}
+  - component: {fileID: 3235790210659217238}
   m_Layer: 7
   m_Name: BasicBubble
   m_TagString: Bubble
@@ -148,7 +147,7 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
---- !u!114 &-8165655608958758621
+--- !u!114 &3235790210659217238
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,13 +162,13 @@ MonoBehaviour:
   CollisionTag: 
   EventReference:
     Guid:
-      Data1: 1195998044
-      Data2: 1178387527
-      Data3: -1059374198
-      Data4: 1862568052
-    Path: event:/sfx/spells/basic_spell
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   Event: 
-  EventPlayTrigger: 1
+  EventPlayTrigger: 0
   EventStopTrigger: 0
   AllowFadeout: 1
   TriggerOnce: 0
@@ -177,36 +176,5 @@ MonoBehaviour:
   NonRigidbodyVelocity: 0
   Params: []
   OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
---- !u!114 &-2425474343948898659
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -986115471
-      Data2: 1150618628
-      Data3: 702136494
-      Data4: 1789774637
-    Path: event:/test_sound
-  Event: 
-  EventPlayTrigger: 2
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
+  OverrideMinDistance: -1
+  OverrideMaxDistance: -1
