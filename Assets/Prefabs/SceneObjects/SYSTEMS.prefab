@@ -124,6 +124,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1124112603073538366}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &3737377328279540851
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5395857063166275379}
+  - component: {fileID: 5289833586294818316}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5395857063166275379
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.90221053, y: -13.849571, z: 9.295787}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7349568484040912180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5289833586294818316
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8847693035411841ba80ba2e90ecd4c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4108901858045191531
 GameObject:
   m_ObjectHideFlags: 0
@@ -251,8 +295,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1124112603073538366}
+  - {fileID: 5395857063166275379}
   - {fileID: 1378864988898156826}
+  - {fileID: 1124112603073538366}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5127531587296251534
@@ -297,7 +342,7 @@ GameObject:
   - component: {fileID: 1124112603073538366}
   - component: {fileID: 2130259752331920523}
   m_Layer: 0
-  m_Name: ItemSpawner
+  m_Name: ItemManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -341,9 +386,10 @@ MonoBehaviour:
   - {fileID: 2197251191804606987}
   - {fileID: 7262810829513543688}
   - {fileID: 1154352255432135898}
-  spawnInterval: 1
-  xSpawnRange: {x: 20, y: -20}
-  zSpawnRange: {x: 20, y: -20}
+  minSpawnInterval: 1
+  maxSpawnInterval: 7
+  spawnRadius: 25
+  spawnedItems: []
   maxAmount: 5
   currentAmount: 0
 --- !u!1 &7263817019907230709

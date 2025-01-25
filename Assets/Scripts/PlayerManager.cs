@@ -19,6 +19,11 @@ public class PlayerManager : MonoBehaviour
         Instance = this; 
     }
 
+    private void Start()
+    {
+        GameManager.Instance.OnGameStarted += ResetPlayers;
+    }
+
     public Vector3 GetNonUsedStartPosition(GameObject player)
     {
         activePlayers++; 
@@ -27,10 +32,8 @@ public class PlayerManager : MonoBehaviour
         return spawnPoints[spawnPointsUsed].position;
     }
 
-    public void ResetPlayers()
+    void ResetPlayers()
     {
-        OnPlayerWon?.Invoke();
-        
         foreach (GameObject player in players)
         {
             activePlayers++;
@@ -45,7 +48,7 @@ public class PlayerManager : MonoBehaviour
         if (activePlayers <= 1)
         {
             activePlayers = 0; 
-            Invoke(nameof(ResetPlayers), 1f);
+            GameManager.Instance.EndGame();
         }
     }
 }
