@@ -15,7 +15,9 @@ public class BasicBubble : MonoBehaviour
     protected float size = 1.0f;
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
-
+    
+    [SerializeField] protected GameObject popEffect; 
+    
     public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir)
     {
         damage = dmg;
@@ -49,7 +51,10 @@ public class BasicBubble : MonoBehaviour
     {
         StopCoroutine(rangeCoroutine);
         //play sound
+        
         //pop effect
+        Instantiate(popEffect, transform.position, Quaternion.identity);
+        
         Destroy(gameObject);
     }
 
