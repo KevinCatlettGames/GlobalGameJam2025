@@ -35,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0.5, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 2, y: 2, z: 2}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -55,6 +55,8 @@ MonoBehaviour:
   baseSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   firstSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   secondSpell: {fileID: 11400000, guid: fc0a8ef5d899c644aad1f4f1138a9c44, type: 2}
+  spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
+    type: 3}
   firstCooldownSlider: {fileID: 0}
   secondCooldownSlider: {fileID: 0}
   damageText: {fileID: 0}
@@ -178,6 +180,10 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 7c11e2ba-bff6-4cf5-8533-14a3e235c25e
     m_ActionName: Player/SecondSpellEquip[/Keyboard/e]
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 08fa6a97-86cd-4420-aa2b-f89193e1b275
+    m_ActionName: Player/JoinAction[/Keyboard/enter]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Player

@@ -50,7 +50,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 1
+  playOnAwake: 0
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -4898,6 +4898,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6081551340156864742}
   - component: {fileID: 3014141589086803380}
+  - component: {fileID: 1566107180514272754}
   m_Layer: 0
   m_Name: PopEffect
   m_TagString: Untagged
@@ -4914,7 +4915,7 @@ Transform:
   m_GameObject: {fileID: 7883030796252567183}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -46.88237, y: -0.40766722, z: -13.971373}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -4934,3 +4935,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waitDuration: 3
+--- !u!114 &1566107180514272754
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7883030796252567183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 66e2f43d3c86e704fb3439c988421d2d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particleSystem: {fileID: 3580366476286885389}
+  sizeBurstRatio: 40
