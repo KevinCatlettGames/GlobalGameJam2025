@@ -6,7 +6,6 @@ public class DomeBounds : MonoBehaviour
 {
     private void OnTriggerExit(Collider other)
     {
-        Debug.Log(other.name);
         SlipBubble slipBubble;
         if (other.TryGetComponent<SlipBubble>(out slipBubble))
         {
