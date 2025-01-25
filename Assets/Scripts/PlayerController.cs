@@ -2,6 +2,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -14,6 +15,8 @@ public class PlayerController : MonoBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
+    private bool inFirstCooldown = false; 
+    private bool inSecondCooldown = false;
     private bool isSlippery = false;
 
     public GameObject firstCooldownSlider;
@@ -55,7 +58,7 @@ public class PlayerController : MonoBehaviour
     private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
-
+    
     #region Unity
     private void Start()
     {
@@ -66,6 +69,15 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
+        if (inFirstCooldown && firstCooldownSlider != null)
+            firstCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
+        
+        if (inSecondCooldown && secondCooldownSlider != null)
+            secondCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
+        
+        if(damageText != null)
+            damageText.text = damage.ToString();
+        
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
@@ -149,8 +161,34 @@ public class PlayerController : MonoBehaviour
     }
     private IEnumerator SpellCooldown(float time, int spellID)
     {
-        yield return new WaitForSeconds(time);
-        ResetSpell(spellID);
+        {
+            if (spellID == 1)
+            {
+                inFirstCooldown = true;
+                if (firstCooldownSlider != null)
+                {
+                    firstCooldownSlider.GetComponent<Slider>().maxValue = time;
+                    firstCooldownSlider.GetComponent<Slider>().value = 0;
+                }
+            }
+            else
+            {
+                inSecondCooldown = true;
+                if (secondCooldownSlider != null)
+                {
+                    secondCooldownSlider.GetComponent<Slider>().maxValue = time;
+                    secondCooldownSlider.GetComponent<Slider>().value = 0;
+                }
+            }
+
+            yield return new WaitForSeconds(time);
+            if (spellID == 1)
+                inFirstCooldown = false;
+            else
+                inSecondCooldown = false; 
+
+            ResetSpell(spellID);
+        }
     }
 
     public void ResetOnNewGame()
