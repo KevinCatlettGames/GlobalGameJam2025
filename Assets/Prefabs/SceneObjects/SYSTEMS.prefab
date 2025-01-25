@@ -168,6 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e8847693035411841ba80ba2e90ecd4c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  gameEnded: 0
   restartGameText: {fileID: 0}
 --- !u!1 &4108901858045191531
 GameObject:
@@ -315,6 +316,13 @@ MonoBehaviour:
   - {r: 0, g: 0.9500494, b: 1, a: 1}
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 1, g: 0.8735534, b: 0, a: 1}
+  castEventStruct:
+    Guid:
+      Data1: -1265705645
+      Data2: 1192276762
+      Data3: 978903957
+      Data4: 2076522920
+    Path: event:/sfx/player/player_spawn
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
@@ -586,7 +594,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &2948053536636108897
 Transform:
   m_ObjectHideFlags: 0

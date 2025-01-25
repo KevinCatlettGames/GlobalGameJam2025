@@ -11,6 +11,8 @@ public class PauseManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.Instance.gameEnded) return; 
+        
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton7))
         {
             TogglePause();
@@ -20,9 +22,9 @@ public class PauseManager : MonoBehaviour
     public void TogglePause()
     {
         pauseMenu.SetActive(!pauseMenu.activeSelf);
-        if (Time.timeScale > 0)
+        if (Time.timeScale == 1)
         {
-          eventSystem.SetSelectedGameObject(continueButton.gameObject);
+            eventSystem.SetSelectedGameObject(continueButton.gameObject);
             Time.timeScale = 0f;
         }
         else

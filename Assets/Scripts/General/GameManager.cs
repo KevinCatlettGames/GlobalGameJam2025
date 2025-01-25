@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance ; 
     
-    private bool gameEnded;
+    public bool gameEnded;
 
     public Action OnGameEnded;
     public Action OnGameStarted;
@@ -27,9 +27,11 @@ public class GameManager : MonoBehaviour
 
     public void EndGame()
     {
+        
         OnGameEnded?.Invoke();
         gameEnded = true;
         restartGameText.SetActive(true);
+        Time.timeScale = 0;
     }
 
     public void RestartGame()
@@ -37,5 +39,6 @@ public class GameManager : MonoBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false; 
         restartGameText.SetActive(false);
+        Time.timeScale = 1;
     }
 }

@@ -11,7 +11,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private SO_Spell baseSpell;
     [SerializeField] private SO_Spell firstSpell;
     [SerializeField] private SO_Spell secondSpell;
-    [SerializeField] private GameObject spellSpawnEffect; 
+    [SerializeField] private GameObject spellSpawnEffect;
+    [SerializeField] private Animator animator; 
+    
     
     private bool isFirstSpellReady = true;
     private bool isSecondSpellReady = true;
@@ -128,6 +130,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isFirstSpellReady && context.performed)
         {
+            animator.SetTrigger("Cast");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = firstSpell.CastSpell(transform.position,transform.forward);
             isFirstSpellReady = false;
@@ -138,6 +141,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isSecondSpellReady && context.performed)
         {
+            animator.SetTrigger("Cast");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
             isSecondSpellReady = false;
