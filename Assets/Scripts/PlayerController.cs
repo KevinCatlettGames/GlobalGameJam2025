@@ -1,9 +1,6 @@
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -16,14 +13,14 @@ public class PlayerController : MonoBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
-    private bool inFirstCooldown = false; 
-    private bool inSecondCooldown = false;
-    
-    
+    private bool isSlippery = false;
+
     private float damage = 0;
+    [Header("Knockback Modifiers")]
     [SerializeField] float damageModifier = .05f;
-    public TextMeshProUGUI damageText; 
-    
+    [SerializeField] float slipperyModifier = 1.5f;
+
+    [Header("Player Stats")]
     #region Player Physics
     [SerializeField]
     private float playerSpeed = 2.0f;
@@ -54,8 +51,6 @@ public class PlayerController : MonoBehaviour
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
 
-    public GameObject firstCooldownSlider; 
-    public GameObject secondCooldownSlider; 
     #region Unity
     private void Start()
     {
@@ -66,15 +61,6 @@ public class PlayerController : MonoBehaviour
     
     private void Update()
     {
-        if (inFirstCooldown && firstCooldownSlider != null)
-            firstCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
-        
-        if (inSecondCooldown && secondCooldownSlider != null)
-            secondCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
-        
-        if(damageText != null)
-            damageText.text = damage.ToString();
-        
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
@@ -152,36 +138,13 @@ public class PlayerController : MonoBehaviour
     public void ApplyKnockback(Vector3 direction, float force, float dmg)
     {
         damage += dmg;
+        if (isSlippery) force *= slipperyModifier;
         direction.y = 0; // Ignore vertical knockback (optional)
         knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
     }
     private IEnumerator SpellCooldown(float time, int spellID)
     {
-        if (spellID == 1)
-        {
-            inFirstCooldown = true;
-            if (firstCooldownSlider != null)
-            {
-                firstCooldownSlider.GetComponent<Slider>().maxValue = time;
-                firstCooldownSlider.GetComponent<Slider>().value = 0;
-            }
-        }
-        else
-        {
-            inSecondCooldown = true;
-            if (secondCooldownSlider != null)
-            {
-                secondCooldownSlider.GetComponent<Slider>().maxValue = time;
-                secondCooldownSlider.GetComponent<Slider>().value = 0;
-            }
-        }
-
         yield return new WaitForSeconds(time);
-        if (spellID == 1)
-            inFirstCooldown = false;
-        else
-            inSecondCooldown = false; 
-
         ResetSpell(spellID);
     }
 
@@ -239,6 +202,18 @@ public class PlayerController : MonoBehaviour
         else if (!isInRange && item == itemToEquip)
         {
             itemToEquip = null;
+        }
+    }
+    public void SetSlippy(bool slippy)
+    {
+        if (slippy)
+        {
+            knockbackVelocity *= slipperyModifier;
+            isSlippery = true;
+        }
+        else 
+        {
+            isSlippery = false;
         }
     }
 }
