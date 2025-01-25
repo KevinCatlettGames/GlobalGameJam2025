@@ -16,7 +16,7 @@ public class SlipBubble : BasicBubble
     }
     protected override void Pop()
     {
-        base.Pop();
         slimeTrail.StopTrail();
+        base.Pop();
     }
 }

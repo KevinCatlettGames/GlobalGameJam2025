@@ -11,9 +11,7 @@ public class ExplodingBubble : BasicBubble
     {
         StopCoroutine(rangeCoroutine);
         Explode();
-        //play sound
-        //pop effect
-        Destroy(gameObject);
+        base.Pop();
     }
     private void Explode()
     {
