@@ -10,10 +10,9 @@ public class ItemSpawner : MonoBehaviour
     
     [SerializeField] GameObject itemPrefab;
     [SerializeField] Transform[] startSpawnPoints;
-    [SerializeField] float spawnInterval;
-    [SerializeField] private Vector2 xSpawnRange;
-    [SerializeField] private Vector2 zSpawnRange;
-    
+    [SerializeField] private float minSpawnInterval = 1;
+    [SerializeField] private float maxSpawnInterval = 7;
+    [SerializeField] private float spawnRadius = 15;
     [SerializeField] List<GameObject> spawnedItems = new List<GameObject>();
     
     public int maxAmount; 
@@ -32,7 +31,7 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
-        Invoke(nameof(SpawnLoop), spawnInterval);
+        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
     }
 
     void SpawnLoop()
@@ -40,15 +39,17 @@ public class ItemSpawner : MonoBehaviour
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
 
-        Invoke(nameof(SpawnLoop), spawnInterval);
+        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
     }
 
     void SpawnItem(Vector3 location)
     {
         GameObject newItem; 
+        Vector3 center = new Vector3(0, 1, 0); // Center of the sphere
+        Vector3 randomPosition = center + Random.insideUnitSphere * spawnRadius;
         
         if(location == Vector3.zero)
-            newItem = Instantiate(itemPrefab, new Vector3(Random.Range(xSpawnRange.x, xSpawnRange.y), itemPrefab.transform.position.y, Random.Range(zSpawnRange.x, zSpawnRange.y)), Quaternion.identity);
+            newItem = Instantiate(itemPrefab, new Vector3(randomPosition.x, itemPrefab.transform.position.y, randomPosition.y), Quaternion.identity);
         else
             newItem = Instantiate(itemPrefab, new Vector3(location.x, itemPrefab.transform.position.y, location.z), Quaternion.identity);
         
@@ -67,6 +68,6 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
-        Invoke(nameof(SpawnLoop), spawnInterval);
+        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
     }
 }
