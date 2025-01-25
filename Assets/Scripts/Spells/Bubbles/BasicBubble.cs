@@ -53,8 +53,10 @@ public class BasicBubble : MonoBehaviour
         //play sound
         
         //pop effect
-        Instantiate(popEffect, transform.position, Quaternion.identity);
-        
+        GameObject effect = Instantiate(popEffect, transform.position, Quaternion.identity);
+        BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
+        bubbleEffect.Initialise(size);
+
         Destroy(gameObject);
     }
 
