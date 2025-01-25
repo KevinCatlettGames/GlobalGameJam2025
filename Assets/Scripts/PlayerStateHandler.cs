@@ -4,11 +4,6 @@ public class PlayerStateHandler : MonoBehaviour
 {
     public Vector3 spawnPosition;
     // Start is called before the first frame update
-    void Start()
-    {
-        spawnPosition = PlayerManager.Instance.AddPlayer(gameObject);
-        transform.position = spawnPosition;
-    }
 
     private void OnTriggerEnter(Collider other)
     {

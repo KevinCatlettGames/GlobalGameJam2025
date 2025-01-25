@@ -14,6 +14,7 @@ GameObject:
   - component: {fileID: 2078046511075596644}
   - component: {fileID: 8333720517595282313}
   - component: {fileID: 5962117118813620173}
+  - component: {fileID: 1926165191136904018}
   m_Layer: 7
   m_Name: SlipBubble
   m_TagString: Bubble
@@ -148,3 +149,34 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   slimeTrailObject: {fileID: 3888945628873494597, guid: 0af37c6b0d0ac6a4e9504ad8ceb9212f,
     type: 3}
+--- !u!114 &1926165191136904018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 366959647
+      Data2: 1151551879
+      Data3: -112388947
+      Data4: -577813777
+    Path: event:/sfx/pops/basic_pop
+  Event: 
+  EventPlayTrigger: 2
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
