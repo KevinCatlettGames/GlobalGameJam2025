@@ -52,7 +52,8 @@ public class BasicBubble : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            //knockbackplayer
+            PlayerController player = other.GetComponent<PlayerController>();
+            player.ApplyKnockback(direction, kockback, damage);
         }
         Pop();
     }

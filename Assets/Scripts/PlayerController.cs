@@ -1,9 +1,21 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private SO_Spell firstSpell;
+    [SerializeField] private SO_Spell secondSpell;
+    private bool isFirstSpellReady = true;
+    private bool isSecondSpellReady = true;
+    private Coroutine firstSpellCoroutine;
+    private Coroutine secondSpellCoroutine;
+    private Item itemToEquip;
+
+    private float damage = 0;
+    [SerializeField] float damageModifier = .05f;
+
     #region Player Physics
     [SerializeField]
     private float playerSpeed = 2.0f;
@@ -33,17 +45,12 @@ public class PlayerController : MonoBehaviour
     private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
-    
+
+    #region Unity
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
     }
-
-    public void OnMove(InputAction.CallbackContext context)
-    {
-        movementInput = context.ReadValue<Vector2>();
-    }
-
     private void Update()
     {
         groundedPlayer = controller.isGrounded;
@@ -81,19 +88,100 @@ public class PlayerController : MonoBehaviour
         playerVelocity.y += gravityValue * Time.deltaTime;
         controller.Move(playerVelocity * Time.deltaTime);
     }
-    
-    public void ApplyKnockback(Vector3 direction, float force)
+    #endregion
+    public void OnMove(InputAction.CallbackContext context)
     {
-        direction.y = 0; // Ignore vertical knockback (optional)
-        knockbackVelocity = direction.normalized * force;
+        movementInput = context.ReadValue<Vector2>();
     }
-    
-    private void OnTriggerEnter(Collider other)
+    public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (other.CompareTag("Bullet"))
+        if (isFirstSpellReady && context.performed)
         {
-            Vector3 knockbackDirection = transform.position - other.transform.position;
-            ApplyKnockback(knockbackDirection, 10f); // Adjust the force value as needed
+            float cooldown = firstSpell.CastSpell(transform.position,transform.forward);
+            isFirstSpellReady = false;
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+        }
+    }
+    public void OnSecondSpell(InputAction.CallbackContext context)
+    {
+        if (isSecondSpellReady && context.performed)
+        {
+            float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
+            isSecondSpellReady = false;
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
+    }
+    public void OnFistSpellEquip(InputAction.CallbackContext context)
+    {
+        if (itemToEquip != null && context.performed)
+        {
+            EquipSpell(1);
+        }
+    }
+    public void OnSecondSpellEquip(InputAction.CallbackContext context)
+    {
+        if (itemToEquip != null && context.performed)
+        {
+            EquipSpell(2);
+        }
+    }
+    public void ApplyKnockback(Vector3 direction, float force, float dmg)
+    {
+        damage += dmg;
+        direction.y = 0; // Ignore vertical knockback (optional)
+        knockbackVelocity += direction.normalized * force * (1 + (damage * damageModifier));
+    }
+    private IEnumerator SpellCooldown(float time, int spellID)
+    {
+        yield return new WaitForSeconds(time);
+        ResetSpell(spellID);
+    }
+    private void ResetSpell(int spellID)
+    {
+        switch (spellID)
+        {
+            case 1:
+                if (firstSpellCoroutine != null) StopCoroutine(firstSpellCoroutine);
+                firstSpellCoroutine = null;
+                isFirstSpellReady = true;
+                break;
+            case 2:
+                if (secondSpellCoroutine != null) StopCoroutine(secondSpellCoroutine);
+                secondSpellCoroutine = null;
+                isSecondSpellReady = true;
+                break;
+            default:
+                Debug.Log("Spell Reset Error");
+                break;
+        }
+    }
+    private void EquipSpell(int spellID)
+    {
+        switch (spellID)
+        {
+            case 1:
+                firstSpell = itemToEquip.EquipSpell();
+                itemToEquip = null;
+                break;
+            case 2:
+                secondSpell = itemToEquip.EquipSpell();
+                itemToEquip= null;
+                break;
+            default:
+                Debug.Log("Spell Equip Error");
+                break;
+        }
+        ResetSpell(spellID);
+    }
+    public void UpdateItemToEquip(Item item, bool isInRange)
+    {
+        if (isInRange)
+        {
+            itemToEquip = item;
+        }
+        else if (!isInRange && item == itemToEquip)
+        {
+            itemToEquip = null;
         }
     }
 }

@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 8396514454906109850}
   - component: {fileID: 5391527640114850242}
   - component: {fileID: 4161366380558500022}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -50,10 +50,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c8b565ce00134442970582b178ac0ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
+  secondSpell: {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   playerSpeed: 4.5
   gravityValue: -9.81
-  rotationSpeed: 10
+  rotationSpeed: 50
   moveSmoothTime: 0.1
+  knockbackDecaySpeed: 5
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,6 +99,70 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 4b2e685a-02cf-43c0-9c9e-e016f3042ddc
     m_ActionName: Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7196035049087285683}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnFirstSpell
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2f7e5864-ef78-49c2-a4b1-cbb38a6d8ac5
+    m_ActionName: Player/FirstSpell[/Mouse/leftButton]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7196035049087285683}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnSecondSpell
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 2dac245d-5654-48ca-aa38-b721e36750e2
+    m_ActionName: Player/SecondSpell[/Mouse/rightButton]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7196035049087285683}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnFistSpellEquip
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 9ad28cf6-bc2d-423c-8416-935545e8b051
+    m_ActionName: Player/FistSpellEquip[/Keyboard/q]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7196035049087285683}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnSecondSpellEquip
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 7c11e2ba-bff6-4cf5-8533-14a3e235c25e
+    m_ActionName: Player/SecondSpellEquip[/Keyboard/e]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Player

@@ -17,14 +17,14 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected float spellCooldown = 1.0f;
 
     [Header("Pickup")]
-    [SerializeField] public Mesh itermMesh;
+    [SerializeField] public Mesh itemMesh;
     [SerializeField] public Material itemMaterial;
 
     protected BasicBubble bubbleScript;
     public virtual float CastSpell(Vector3 position, Vector3 direction)
     {
         direction.Normalize();
-        position += direction * bubbleSize;
+        position += direction * (bubbleSize / 2 + 1);
         bubbleScript = Instantiate(bubble, position, Quaternion.LookRotation(direction)).GetComponent<BasicBubble>();
         bubbleScript.InitialiseBubble(bubbleDamage, bubbleKockback, bubbleSpeed, bubbleRange, bubbleSize, direction);
         return spellCooldown;
