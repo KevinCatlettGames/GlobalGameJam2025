@@ -5,27 +5,34 @@ using UnityEngine.UIElements;
 
 public class BasicBubble : MonoBehaviour
 {
-    private Rigidbody rigidBody;
-    private float damage = 1.0f;
-    private float kockback = 1.0f;
-    private float speed = 1.0f;
-    private float range = 1.0f;
-    private float size = 1.0f;
-    private Vector3 direction = Vector3.zero;
-    private Coroutine rangeCoroutine;
+    protected float damage = 1.0f;
+    protected float knockback = 1.0f;
+    protected float speed = 1.0f;
+    protected float range = 1.0f;
+    protected float size = 1.0f;
+    protected Vector3 direction = Vector3.zero;
+    protected Coroutine rangeCoroutine;
 
     public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir)
     {
         damage = dmg;
-        kockback = knb;
+        knockback = knb;
         speed = spd;
         range = rng;
         size = siz;
         direction = dir;
-        rigidBody = GetComponent<Rigidbody>();
         transform.localScale *= size;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-        rigidBody.velocity = direction * speed;
+    }
+
+    private void FixedUpdate()
+    {
+        BubbleMovement();
+    }
+
+    protected virtual void BubbleMovement()
+    {
+        transform.position += direction * speed * Time.fixedDeltaTime;
     }
     private IEnumerator BubbleRangeLimit()
     {
@@ -44,16 +51,16 @@ public class BasicBubble : MonoBehaviour
     }
 
     private void OnCollisionEnter(Collision collision)
-    {
+    { 
         BubbleCollision(collision.gameObject);
     }
 
-    public void BubbleCollision(GameObject other)
+    public virtual void BubbleCollision(GameObject other)
     {
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, kockback, damage);
+            player.ApplyKnockback(direction, knockback, damage);
         }
         Pop();
     }
