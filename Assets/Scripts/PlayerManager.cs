@@ -11,7 +11,6 @@ public class PlayerManager : MonoBehaviour
 {
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
-    private int spawnPointsUsed = -1;
     public int activePlayers = 0; 
     public List<GameObject> players;
     
