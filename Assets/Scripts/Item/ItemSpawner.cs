@@ -1,17 +1,34 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class ItemSpawner : MonoBehaviour
 {
+    public static ItemSpawner Instance;
+    
     [SerializeField] GameObject itemPrefab;
     [SerializeField] Transform[] startSpawnPoints;
     [SerializeField] float spawnInterval;
     [SerializeField] private Vector2 xSpawnRange;
     [SerializeField] private Vector2 zSpawnRange;
     
+    [SerializeField] List<GameObject> spawnedItems = new List<GameObject>();
+    
+    public int maxAmount; 
+    public int currentAmount;
+
+    private void Awake()
+    {
+        Instance = this; 
+    }
+
     public void Start()
     {
+        PlayerManager.Instance.OnPlayerWon += Reset;
+        
+        
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
@@ -20,7 +37,9 @@ public class ItemSpawner : MonoBehaviour
 
     void SpawnLoop()
     {
-        SpawnItem(Vector3.zero);
+        if (currentAmount < maxAmount)
+            SpawnItem(Vector3.zero);
+
         Invoke(nameof(SpawnLoop), spawnInterval);
     }
 
@@ -33,6 +52,21 @@ public class ItemSpawner : MonoBehaviour
         else
             newItem = Instantiate(itemPrefab, new Vector3(location.x, itemPrefab.transform.position.y, location.z), Quaternion.identity);
         
-       
+       currentAmount++;
+       spawnedItems.Add(newItem);
+    }
+
+    public void Reset()
+    {
+        foreach (GameObject item in spawnedItems)
+        { 
+            Destroy(item);
+            currentAmount = 0; 
+        }
+        
+        foreach (Transform t in startSpawnPoints)
+            SpawnItem(t.position);
+
+        Invoke(nameof(SpawnLoop), spawnInterval);
     }
 }

@@ -26,6 +26,7 @@ public class Item : MonoBehaviour
     private IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
+        ItemSpawner.Instance.currentAmount--;
         Destroy(gameObject);
     }
 

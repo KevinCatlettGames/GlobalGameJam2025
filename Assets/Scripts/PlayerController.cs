@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] private SO_Spell baseSpell;
     [SerializeField] private SO_Spell firstSpell;
     [SerializeField] private SO_Spell secondSpell;
     private bool isFirstSpellReady = true;
@@ -50,7 +51,10 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
+
+        PlayerManager.Instance.OnPlayerWon += ResetOnNewGame;
     }
+    
     private void Update()
     {
         groundedPlayer = controller.isGrounded;
@@ -74,8 +78,8 @@ public class PlayerController : MonoBehaviour
             knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); // Decay knockback over time
         }
 
-        // Move the player
-        controller.Move(move);
+        if(controller.enabled) 
+            controller.Move(move);
 
         // Smoothly rotate the player to face the movement direction
         if (targetDirection != Vector3.zero)
@@ -86,7 +90,9 @@ public class PlayerController : MonoBehaviour
 
         // Gravity
         playerVelocity.y += gravityValue * Time.deltaTime;
-        controller.Move(playerVelocity * Time.deltaTime);
+        
+        if(controller.enabled)
+            controller.Move(playerVelocity * Time.deltaTime);
     }
     #endregion
     public void OnMove(InputAction.CallbackContext context)
@@ -129,13 +135,22 @@ public class PlayerController : MonoBehaviour
     {
         damage += dmg;
         direction.y = 0; // Ignore vertical knockback (optional)
-        knockbackVelocity += direction.normalized * force * (1 + (damage * damageModifier));
+        knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
     }
     private IEnumerator SpellCooldown(float time, int spellID)
     {
         yield return new WaitForSeconds(time);
         ResetSpell(spellID);
     }
+
+    public void ResetOnNewGame()
+    {
+        firstSpell = baseSpell;
+        ResetSpell(1);
+        secondSpell = baseSpell;
+        ResetSpell(2);
+    }
+    
     private void ResetSpell(int spellID)
     {
         switch (spellID)

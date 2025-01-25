@@ -25,7 +25,7 @@ Transform:
   m_GameObject: {fileID: 61092729554853498}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 0, z: -5}
+  m_LocalPosition: {x: 5, y: 5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -56,7 +56,7 @@ Transform:
   m_GameObject: {fileID: 821592302112545939}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: 5}
+  m_LocalPosition: {x: -5, y: 5, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -118,7 +118,7 @@ Transform:
   m_GameObject: {fileID: 2219113819574046348}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -10, y: 0, z: 5}
+  m_LocalPosition: {x: -5, y: 5, z: -5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -220,6 +220,8 @@ MonoBehaviour:
   - {fileID: 1647630035624308313}
   - {fileID: 3164768564512664138}
   - {fileID: 8757892686786655870}
+  activePlayers: 0
+  players: []
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
@@ -339,9 +341,11 @@ MonoBehaviour:
   - {fileID: 2197251191804606987}
   - {fileID: 7262810829513543688}
   - {fileID: 1154352255432135898}
-  spawnInterval: 10
-  xSpawnRange: {x: -10, y: 10}
-  zSpawnRange: {x: -10, y: 10}
+  spawnInterval: 1
+  xSpawnRange: {x: 20, y: -20}
+  zSpawnRange: {x: 20, y: -20}
+  maxAmount: 5
+  currentAmount: 0
 --- !u!1 &7263817019907230709
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +371,7 @@ Transform:
   m_GameObject: {fileID: 7263817019907230709}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 10, y: 0, z: -5}
+  m_LocalPosition: {x: 5, y: 0, z: 5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
