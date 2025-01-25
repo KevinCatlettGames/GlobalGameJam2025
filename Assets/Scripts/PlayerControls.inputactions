@@ -49,6 +49,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "JoinAction",
+                    "type": "Button",
+                    "id": "08fa6a97-86cd-4420-aa2b-f89193e1b275",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -225,6 +234,28 @@
                     "processors": "",
                     "groups": "Gamepad",
                     "action": "SecondSpellEquip",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "f0da8330-3b17-4fdb-9cde-4341ef42d881",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Keyboard",
+                    "action": "JoinAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "238c3c63-1e3a-4f52-81a3-44ea43ebfbe6",
+                    "path": "<Gamepad>/start",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "JoinAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
