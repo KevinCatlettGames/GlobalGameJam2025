@@ -7,7 +7,7 @@ public class Item : MonoBehaviour
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private SO_Spell[] spells;
-    private SO_Spell spell;
+    public SO_Spell spell;
     private void Start()
     {
         int r = Random.Range(0, spells.Length);

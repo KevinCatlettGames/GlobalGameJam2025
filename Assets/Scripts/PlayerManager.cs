@@ -14,10 +14,10 @@ public class PlayerManager : MonoBehaviour
     public int activePlayers = 0; 
     public List<GameObject> players;
     
-    public GameObject[] firstPlayerCooldownSliders;
-    public GameObject[] secondPlayerCooldownSliders;
-    public Image[] firstSliderImages;
-    public Image[] secondSliderImages;
+    public GameObject[] firstCoverImage;
+    public GameObject[] secondCoolDownCover;
+    public Image[] firstCoolDownImage;
+    public Image[] secondCoolDownImage;
     public Material[] colorMaterials;
     public TextMeshProUGUI[] damageTexts; 
     
@@ -41,9 +41,10 @@ public class PlayerManager : MonoBehaviour
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
         players.Add(input.gameObject);
-        input.GetComponent<PlayerController>().firstCooldownSlider = firstPlayerCooldownSliders[input.playerIndex];
-        input.GetComponent<PlayerController>().secondCooldownSlider = secondPlayerCooldownSliders[input.playerIndex];
-        
+        input.GetComponent<PlayerController>().firstCoolDownCover = firstCoverImage[input.playerIndex];
+        input.GetComponent<PlayerController>().secondCoolDownCover = secondCoolDownCover[input.playerIndex];
+        input.GetComponent<PlayerController>().firstCoolDownImage = firstCoolDownImage[input.playerIndex];
+        input.GetComponent<PlayerController>().secondCoolDownImage = secondCoolDownImage[input.playerIndex];
         SkinnedMeshRenderer meshRenderer = input.GetComponent<PlayerStateHandler>().meshRenderer;
 
         // Get the current materials array
@@ -61,10 +62,9 @@ public class PlayerManager : MonoBehaviour
         
         input.GetComponent<PlayerController>().damageText = damageTexts[input.playerIndex];
         // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
-        firstSliderImages[input.playerIndex].color = colors[input.playerIndex];
-        secondSliderImages[input.playerIndex].color = colors[input.playerIndex];
-        firstPlayerCooldownSliders[input.playerIndex].SetActive(true);
-        secondPlayerCooldownSliders[input.playerIndex].SetActive(true);
+       
+        firstCoverImage[input.playerIndex].SetActive(true);
+        secondCoolDownCover[input.playerIndex].SetActive(true);
 
         input.GetComponent<CharacterController>().enabled = true;
         activePlayers++;

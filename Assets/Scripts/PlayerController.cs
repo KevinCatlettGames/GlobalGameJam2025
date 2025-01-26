@@ -3,6 +3,7 @@ using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
@@ -22,8 +23,10 @@ public class PlayerController : MonoBehaviour
     private bool inSecondCooldown = false;
     private bool isSlippery = false;
 
-    public GameObject firstCooldownSlider;
-    public GameObject secondCooldownSlider;
+    public GameObject firstCoolDownCover;
+    public GameObject secondCoolDownCover;
+    public Image firstCoolDownImage;
+    public Image secondCoolDownImage;
     public TextMeshProUGUI damageText;
     
     private float damage = 0;
@@ -62,7 +65,11 @@ public class PlayerController : MonoBehaviour
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     [SerializeField] private EventReference kockBackEvent;
     #endregion
-    
+
+    public float firstCooldownDuration;
+    public float secondCooldownDuration;
+    private float firstCurrentCooldownTimer;
+    private float secondCurrentCooldownTimer;
     #region Unity
     private void Start()
     {
@@ -71,13 +78,32 @@ public class PlayerController : MonoBehaviour
         PlayerManager.Instance.OnPlayerWon += ResetOnNewGame;
     }
     
+    private void UpdateCooldown(Image imageToUse, ref float currentCooldownTimer, float cooldownDuration)
+    {
+        Debug.Log("Updating Cooldown");
+        if (currentCooldownTimer < cooldownDuration)
+        {
+            currentCooldownTimer += Time.deltaTime;
+
+            // Normalize the value (map it to a 0-1 range)
+            float normalizedValue = currentCooldownTimer / cooldownDuration;
+
+            // Update the fill amount
+            imageToUse.fillAmount = normalizedValue;
+        }
+    }
+
     private void Update()
     {
-        if (inFirstCooldown && firstCooldownSlider != null)
-            firstCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
-        
-        if (inSecondCooldown && secondCooldownSlider != null)
-            secondCooldownSlider.GetComponent<Slider>().value += Time.deltaTime;
+        if (inFirstCooldown && firstCoolDownCover != null)
+        {
+            UpdateCooldown(firstCoolDownCover.GetComponent<Image>(), ref firstCurrentCooldownTimer, firstCooldownDuration);
+        }
+
+        if (inSecondCooldown && secondCoolDownCover != null)
+        {
+            UpdateCooldown(secondCoolDownCover.GetComponent<Image>(), ref secondCurrentCooldownTimer, secondCooldownDuration);
+        }
         
         if(damageText != null)
             damageText.text = damage.ToString();
@@ -171,28 +197,36 @@ public class PlayerController : MonoBehaviour
         {
             if (spellID == 1)
             {
+                Debug.Log("Starting first spell");
                 inFirstCooldown = true;
-                if (firstCooldownSlider != null)
+                if (firstCoolDownCover != null)
                 {
-                    firstCooldownSlider.GetComponent<Slider>().maxValue = time;
-                    firstCooldownSlider.GetComponent<Slider>().value = 0;
+                    firstCooldownDuration = time;
+                    firstCoolDownCover.GetComponent<Image>().fillAmount = 0;
                 }
             }
             else
             {
+                Debug.Log("Starting second spell");
                 inSecondCooldown = true;
-                if (secondCooldownSlider != null)
+                if (secondCoolDownCover != null)
                 {
-                    secondCooldownSlider.GetComponent<Slider>().maxValue = time;
-                    secondCooldownSlider.GetComponent<Slider>().value = 0;
+                    secondCooldownDuration = time;
+                    secondCoolDownCover.GetComponent<Image>().fillAmount = 0;
                 }
             }
 
             yield return new WaitForSeconds(time);
             if (spellID == 1)
+            {
+                firstCurrentCooldownTimer = 0; 
                 inFirstCooldown = false;
+            }
             else
-                inSecondCooldown = false; 
+            {
+                secondCurrentCooldownTimer = 0;
+                inSecondCooldown = false;
+            }
 
             ResetSpell(spellID);
         }
@@ -231,10 +265,12 @@ public class PlayerController : MonoBehaviour
         {
             case 1:
                 firstSpell = itemToEquip.EquipSpell();
+                firstCoolDownImage.GetComponent<Image>().sprite = firstSpell.SpellIcon;
                 itemToEquip = null;
                 break;
             case 2:
                 secondSpell = itemToEquip.EquipSpell();
+                secondCoolDownImage.GetComponent<Image>().sprite = secondSpell.SpellIcon;
                 itemToEquip= null;
                 break;
             default:
