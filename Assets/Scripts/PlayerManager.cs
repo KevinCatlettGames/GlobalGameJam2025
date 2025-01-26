@@ -9,6 +9,7 @@ using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
+    
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
     public int activePlayers = 0; 
@@ -20,8 +21,10 @@ public class PlayerManager : MonoBehaviour
     public Image[] firstCoolDownImage;
     public Image[] secondCoolDownImage;
     public Material[] colorMaterials;
-    public TextMeshProUGUI[] damageTexts; 
-    
+    public TextMeshProUGUI[] damageTexts;
+    public Sprite[] playerSprites;
+    public Image[] playerPortraits;
+    public Image[] playerUIBoxes; 
     public Color[] colors;
     public Action OnPlayerWon; 
     
@@ -42,10 +45,13 @@ public class PlayerManager : MonoBehaviour
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
         players.Add(input.gameObject);
+        playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         input.GetComponent<PlayerController>().firstCoolDownCover = firstCoverImage[input.playerIndex];
         input.GetComponent<PlayerController>().secondCoolDownCover = secondCoolDownCover[input.playerIndex];
         input.GetComponent<PlayerController>().firstCoolDownImage = firstCoolDownImage[input.playerIndex];
         input.GetComponent<PlayerController>().secondCoolDownImage = secondCoolDownImage[input.playerIndex];
+        playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
+        
         SkinnedMeshRenderer meshRenderer = input.GetComponent<PlayerStateHandler>().meshRenderer;
 
         // Get the current materials array

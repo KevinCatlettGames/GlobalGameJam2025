@@ -1,11 +1,13 @@
 using UnityEngine;
-
+using FMODUnity;
 public class PlayerStateHandler : MonoBehaviour
 {
+    
     public Vector3 spawnPosition;
     // Start is called before the first frame update
     public GameObject meshObject;
     public SkinnedMeshRenderer meshRenderer;
+    [SerializeField] private EventReference deathEvent;
     
     private void OnTriggerEnter(Collider other)
     {
@@ -13,6 +15,7 @@ public class PlayerStateHandler : MonoBehaviour
         {
             CharacterController controller = GetComponent<CharacterController>();
             controller.Move(new Vector3(0,10,0) * 25);
+            RuntimeManager.PlayOneShot(deathEvent);
             Invoke(nameof(DisablePlayer), 2f);
         }
     }
