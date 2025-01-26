@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using FMOD.Studio;
 using FMODUnity;
 using TMPro;
 using UnityEngine.Serialization;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
+    [SerializeField] private EventReference winSound;
     
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
@@ -96,6 +98,7 @@ public class PlayerManager : MonoBehaviour
         activePlayers--;
         if (activePlayers <= 1)
         {
+            RuntimeManager.PlayOneShotAttached(winSound, transform.gameObject);
             activePlayers = 0; 
             OnPlayerWon?.Invoke();
             GameManager.Instance.EndGame();
