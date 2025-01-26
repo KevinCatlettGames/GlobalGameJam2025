@@ -9,6 +9,11 @@ using UnityEngine.UI;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
+    [Header("Sound Events")]
+    [SerializeField] private EventReference deathEvent;
+    [SerializeField] private EventReference knockBackEvent;
+
+    [Header("Spells")]
     [SerializeField] private SO_Spell baseSpell;
     [SerializeField] private SO_Spell firstSpell;
     [SerializeField] private SO_Spell secondSpell;
@@ -63,7 +68,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField]
     private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
-    [SerializeField] private EventReference kockBackEvent;
     #endregion
 
     public float firstCooldownDuration;
@@ -190,7 +194,7 @@ public class PlayerController : MonoBehaviour
         if (isSlippery) force *= slipperyModifier;
         direction.y = 0; // Ignore vertical knockback (optional)
         knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
-        RuntimeManager.PlayOneShotAttached(kockBackEvent, gameObject);
+        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
     }
     private IEnumerator SpellCooldown(float time, int spellID)
     {
