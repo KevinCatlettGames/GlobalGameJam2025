@@ -24,7 +24,7 @@ public class PlayerStateHandler : MonoBehaviour
         {
             endTriggered = true; 
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
-            Invoke(nameof(DisablePlayer), 5f);
+            Invoke(nameof(DisablePlayer), 2f);
         }
     }
 
