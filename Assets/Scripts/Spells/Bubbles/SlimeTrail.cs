@@ -14,7 +14,7 @@ public class SlimeTrail : MonoBehaviour
     }
     public void InitialiseTrail(float speed)
     {
-        trailSpeed = speed * .09f;
+        trailSpeed = speed * .45f;
     }
     void FixedUpdate()
     {

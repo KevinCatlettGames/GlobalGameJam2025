@@ -15,6 +15,7 @@ public class BasicBubble : MonoBehaviour
     protected float size = 1.0f;
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
+    protected bool hasPopped = false;
     
     [SerializeField] protected GameObject popEffect; 
     
@@ -50,6 +51,8 @@ public class BasicBubble : MonoBehaviour
 
     protected virtual void Pop()
     {
+        if(hasPopped) return;
+        hasPopped = true;
         StopCoroutine(rangeCoroutine);
         //play sound
         

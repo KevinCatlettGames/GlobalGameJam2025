@@ -21,7 +21,6 @@ public class RevolverBubble : BasicBubble
         range = rng;
         size = siz;
         direction = dir;
-        transform.position -= dir * (size / 2 + 2); ;
         this.soundEvent = soundEvent;
         StartCoroutine(EmptyBarrel());
     }
@@ -40,7 +39,6 @@ public class RevolverBubble : BasicBubble
         {
             float f = (float)i - ((float)maxAmmo / 2f);
             dir = Quaternion.AngleAxis(spread * f, Vector3.up) * direction;
-            pos += dir * (size / 2 + 2);
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
             bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, dir, soundEvent);
             yield return new WaitForSeconds(delayBetweenShots);
