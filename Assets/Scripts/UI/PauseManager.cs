@@ -1,3 +1,5 @@
+using FMOD.Studio;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -5,6 +7,7 @@ using UnityEngine.UI;
 
 public class PauseManager : MonoBehaviour
 {
+    public EventReference togglePauseSound; 
     public GameObject pauseMenu; 
     public EventSystem eventSystem;
     public Button continueButton;
@@ -19,6 +22,7 @@ public class PauseManager : MonoBehaviour
 
     public void TogglePause()
     {
+        RuntimeManager.PlayOneShot(togglePauseSound, gameObject.transform.position);
         pauseMenu.SetActive(!pauseMenu.activeSelf);
         if (Time.timeScale > 0)
         {
