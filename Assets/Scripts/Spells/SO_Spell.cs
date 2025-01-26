@@ -41,7 +41,7 @@ public class SO_Spell : ScriptableObject
     {
         return itemMesh;
     }
-    public Material GetMaterial() 
+    public virtual Material GetMaterial() 
     {
         return itemMaterial;
     }
