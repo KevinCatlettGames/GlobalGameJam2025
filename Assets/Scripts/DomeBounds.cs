@@ -4,31 +4,27 @@ using UnityEngine;
 
 public class DomeBounds : MonoBehaviour
 {
-    public Animator deadAnimation;
+    private PlayerManager playerManager;
 
     private void Start()
     {
-        deadAnimation = GetComponent<Animator>();
+        // Get reference to the PlayerManager instance
+        playerManager = PlayerManager.Instance;
     }
+
     private void OnTriggerExit(Collider other)
     {
-        SlipBubble slipBubble;
-        if (other.TryGetComponent<SlipBubble>(out slipBubble))
+        // Handle SlipBubble collisions
+        if (other.TryGetComponent<SlipBubble>(out SlipBubble slipBubble))
         {
             slipBubble.BubbleCollision(this.gameObject);
             return;
         }
+
+        // Check if the object is a player
         if (other.CompareTag("Player"))
         {
-            // Get all Animator components in the player's children
-            Animator[] childAnimators = other.GetComponentsInChildren<Animator>();
-
-            foreach (Animator animator in childAnimators)
-            {
-                // Trigger the death animation for each animator
-                animator.SetBool("IsDead", true);
-            }
+            other.gameObject.GetComponentInChildren<Animator>().SetBool("IsDead", true);                                   
         }
-
     }
 }

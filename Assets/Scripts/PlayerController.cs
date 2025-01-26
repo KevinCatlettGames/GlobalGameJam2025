@@ -253,7 +253,11 @@ public class PlayerController : MonoBehaviour
 
     public void ResetOnNewGame()
     {
-        damage = 0; 
+        if (mainAnimator.gameObject.activeSelf)
+        {
+            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
+        }
+        damage = 0;
         firstSpell = baseSpell;
         ResetSpell(1);
         secondSpell = baseSpell;
@@ -326,4 +330,5 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
+
 }
