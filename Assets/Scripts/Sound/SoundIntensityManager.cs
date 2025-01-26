@@ -13,8 +13,8 @@ public class MusicIntensityManager : MonoBehaviour
     private bool canUpdateAudio = false;
     private EventInstance musicInstance; // FMOD music instance
     private PlayerManager currentPlayer; // Reference to PlayerManager
-
-    private int musicDelay = 10; // Delay before the music intensity starts adjusting
+    private bool setValueConstant = true; 
+    private int musicDelay = 20; // Delay before the music intensity starts adjusting
 
     private void Start()
     {
@@ -42,10 +42,10 @@ public class MusicIntensityManager : MonoBehaviour
     {
         // Wait for the delay time before starting to adjust the music intensity
         yield return new WaitForSeconds(musicDelay);
-
+        setValueConstant = false; 
         canUpdateAudio = true;
     }
-
+    
     private void OnDisable()
     {
         // Stop and release the music instance when the script is disabled
@@ -58,6 +58,9 @@ public class MusicIntensityManager : MonoBehaviour
 
     private void Update()
     {
+        if(setValueConstant) 
+            FMODUnity.RuntimeManager.StudioSystem.setParameterByName("PlayerCount", 4);
+            
         // Only update intensity if the number of players has changed
         if (currentRegisteredPlayers != currentPlayer.activePlayers)
         {

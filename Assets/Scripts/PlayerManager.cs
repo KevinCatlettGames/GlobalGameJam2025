@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+using FMOD.Studio;
 using FMODUnity;
 using TMPro;
 using UnityEngine.Serialization;
@@ -9,6 +10,7 @@ using UnityEngine.UI;
 
 public class PlayerManager : MonoBehaviour
 {
+    [SerializeField] private EventReference winSound;
     
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
@@ -46,6 +48,7 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
+        input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex]; 
         players.Add(input.gameObject);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         input.GetComponent<PlayerController>().firstCoolDownCover = firstCoverImage[input.playerIndex];
@@ -95,6 +98,7 @@ public class PlayerManager : MonoBehaviour
         activePlayers--;
         if (activePlayers <= 1)
         {
+            RuntimeManager.PlayOneShotAttached(winSound, transform.gameObject);
             activePlayers = 0; 
             OnPlayerWon?.Invoke();
             GameManager.Instance.EndGame();

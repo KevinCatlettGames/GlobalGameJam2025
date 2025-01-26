@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class DomeBounds : MonoBehaviour
 {
+    public Animator deadAnimation;
+
+    private void Start()
+    {
+        deadAnimation = GetComponent<Animator>();
+    }
     private void OnTriggerExit(Collider other)
     {
         SlipBubble slipBubble;
@@ -12,5 +18,17 @@ public class DomeBounds : MonoBehaviour
             slipBubble.BubbleCollision(this.gameObject);
             return;
         }
+        if (other.CompareTag("Player"))
+        {
+            // Get all Animator components in the player's children
+            Animator[] childAnimators = other.GetComponentsInChildren<Animator>();
+
+            foreach (Animator animator in childAnimators)
+            {
+                // Trigger the death animation for each animator
+                animator.SetBool("IsDead", true);
+            }
+        }
+
     }
 }

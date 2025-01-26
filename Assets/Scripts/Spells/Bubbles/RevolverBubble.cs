@@ -1,10 +1,6 @@
 using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UIElements;
-using static UnityEditor.PlayerSettings;
-
 public class RevolverBubble : BasicBubble
 {
     [SerializeField] private int maxAmmo = 6;
