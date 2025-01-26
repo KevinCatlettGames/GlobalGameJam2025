@@ -26,6 +26,7 @@ public class SO_Spell : ScriptableObject
 
     [Header("Sound Events")]
     [SerializeField] protected EventReference castEventStruct;
+    [SerializeField] protected EventReference spellEventStruct;
 
     protected BasicBubble bubbleScript;
     public virtual float CastSpell(Vector3 pos, Vector3 dir)
@@ -43,5 +44,9 @@ public class SO_Spell : ScriptableObject
     public Material GetMaterial() 
     {
         return itemMaterial;
+    }
+    public EventReference GetSpellEventStruct() 
+    {
+        return spellEventStruct;
     }
 }
