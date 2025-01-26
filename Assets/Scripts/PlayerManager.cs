@@ -13,7 +13,8 @@ public class PlayerManager : MonoBehaviour
     public Transform[] spawnPoints; // Array of spawn points
     public int activePlayers = 0; 
     public List<GameObject> players;
-    
+
+    public GameObject[] playerPanelParent;
     public GameObject[] firstCoverImage;
     public GameObject[] secondCoolDownCover;
     public Image[] firstCoolDownImage;
@@ -36,8 +37,8 @@ public class PlayerManager : MonoBehaviour
     }
     public void OnPlayerJoined(PlayerInput input)
     {
+        playerPanelParent[input.playerIndex].SetActive(true);
         input.GetComponent<CharacterController>().enabled = false;
-
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
         players.Add(input.gameObject);
