@@ -16,6 +16,9 @@ public class BasicBubble : MonoBehaviour
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
     protected bool hasPopped = false;
+    protected float inflationSpeed = 8f;
+    protected SphereCollider sphereCollider;
+    protected float currentSize = 0.01f;
     
     [SerializeField] protected GameObject popEffect; 
     
@@ -27,9 +30,15 @@ public class BasicBubble : MonoBehaviour
         range = rng;
         size = siz;
         direction = dir;
-        transform.localScale *= size;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+        sphereCollider = GetComponent<SphereCollider>();
+        if (sphereCollider != null) 
+        {
+            UnityEngine.Debug.Log("Inflate");
+            sphereCollider.enabled = false;
+            StartCoroutine(Inflate());
+        }
     }
 
     private void FixedUpdate()
@@ -89,6 +98,19 @@ public class BasicBubble : MonoBehaviour
         Pop();
     }
 
+    protected IEnumerator Inflate()
+    {
+        Vector3 currentScale = Vector3.one;
+        while (currentSize < size) 
+        {
+            currentSize += inflationSpeed * Time.deltaTime;
+            transform.localScale = Vector3.one * currentSize;
+            if (currentSize > size) currentSize = size;
+            transform.localScale = currentScale * currentSize;
+            yield return new WaitForEndOfFrame();
+        }
+        sphereCollider.enabled = true;
+    }
     private void Reflect(Vector3 normal)
     {
         direction = Vector3.Reflect(direction, normal);

@@ -28,7 +28,7 @@ public class RevolverBubble : BasicBubble
     private IEnumerator EmptyBarrel() 
     {
         Vector3 dir;
-        Vector3 pos = transform.position;
+        Vector3 pos = transform.position + direction;
         BasicBubble bubbleScript;
 
         for (int i = 0; i < maxAmmo; i++) 
