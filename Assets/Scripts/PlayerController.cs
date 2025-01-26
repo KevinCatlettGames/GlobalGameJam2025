@@ -162,6 +162,7 @@ public class PlayerController : MonoBehaviour
             float cooldown = firstSpell.CastSpell(transform.position, transform.forward);
             isFirstSpellReady = false;
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+            RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(),gameObject);
         }
     }
     public void OnSecondSpell(InputAction.CallbackContext context)
@@ -172,6 +173,7 @@ public class PlayerController : MonoBehaviour
             float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
             isSecondSpellReady = false;
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+            RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
         }
     }
     public void OnFistSpellEquip(InputAction.CallbackContext context)

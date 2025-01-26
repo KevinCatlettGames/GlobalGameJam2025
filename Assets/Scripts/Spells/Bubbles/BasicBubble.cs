@@ -56,7 +56,7 @@ public class BasicBubble : MonoBehaviour
         //pop effect
         GameObject effect = Instantiate(popEffect, transform.position, Quaternion.identity);
         BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
-        bubbleEffect.Initialise(size);
+        bubbleEffect?.Initialise(size);
 
         Destroy(gameObject);
     }
