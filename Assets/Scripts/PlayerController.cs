@@ -93,7 +93,7 @@ public class PlayerController : MonoBehaviour
             float normalizedValue = currentCooldownTimer / cooldownDuration;
 
             // Update the fill amount
-            imageToUse.fillAmount = normalizedValue;
+            imageToUse.fillAmount = 1 - normalizedValue;
         }
     }
 
