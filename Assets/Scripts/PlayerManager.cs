@@ -46,6 +46,7 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
+        input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex]; 
         players.Add(input.gameObject);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         input.GetComponent<PlayerController>().firstCoolDownCover = firstCoverImage[input.playerIndex];

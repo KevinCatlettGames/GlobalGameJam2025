@@ -1,15 +1,18 @@
 using System;
 using UnityEngine;
 using FMODUnity;
+using UnityEngine.UI;
 public class PlayerStateHandler : MonoBehaviour
 {
     
     public Vector3 spawnPosition;
     // Start is called before the first frame update
     public GameObject meshObject;
+    public Image aimIndicator; 
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
     private bool endTriggered = false; 
+    
     private void Start()
     {
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
