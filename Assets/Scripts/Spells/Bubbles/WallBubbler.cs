@@ -17,7 +17,7 @@ public class WallBubbler : BasicBubble
         range = rng;
         size = siz;
         direction = dir;
-        this.soundEvent = soundEvent;
+        RuntimeManager.PlayOneShotAttached(soundEvent,gameObject);
         segmentDistance = siz * 1.2f;
         StartCoroutine(MakeWall());
     }
