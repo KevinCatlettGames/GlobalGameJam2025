@@ -12,14 +12,14 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private SO_Spell baseSpell;
     [SerializeField] private SO_Spell firstSpell;
     [SerializeField] private SO_Spell secondSpell;
-    [SerializeField] private GameObject spellSpawnEffect; 
-    
+    [SerializeField] private GameObject spellSpawnEffect;
+
     private bool isFirstSpellReady = true;
     private bool isSecondSpellReady = true;
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
-    private bool inFirstCooldown = false; 
+    private bool inFirstCooldown = false;
     private bool inSecondCooldown = false;
     private bool isSlippery = false;
 
@@ -28,7 +28,7 @@ public class PlayerController : MonoBehaviour
     public Image firstCoolDownImage;
     public Image secondCoolDownImage;
     public TextMeshProUGUI damageText;
-    
+
     private float damage = 0;
     [Header("Knockback Modifiers")]
     [SerializeField] float damageModifier = .05f;
@@ -70,6 +70,8 @@ public class PlayerController : MonoBehaviour
     public float secondCooldownDuration;
     private float firstCurrentCooldownTimer;
     private float secondCurrentCooldownTimer;
+
+    public Animator animator;
     #region Unity
     private void Start()
     {
@@ -77,10 +79,10 @@ public class PlayerController : MonoBehaviour
 
         PlayerManager.Instance.OnPlayerWon += ResetOnNewGame;
     }
-    
+
     private void UpdateCooldown(Image imageToUse, ref float currentCooldownTimer, float cooldownDuration)
     {
-        Debug.Log("Updating Cooldown");
+        /*Debug.Log("Updating Cooldown");*/
         if (currentCooldownTimer < cooldownDuration)
         {
             currentCooldownTimer += Time.deltaTime;
@@ -104,10 +106,10 @@ public class PlayerController : MonoBehaviour
         {
             UpdateCooldown(secondCoolDownCover.GetComponent<Image>(), ref secondCurrentCooldownTimer, secondCooldownDuration);
         }
-        
-        if(damageText != null)
+
+        if (damageText != null)
             damageText.text = damage.ToString();
-        
+
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
@@ -117,6 +119,14 @@ public class PlayerController : MonoBehaviour
         // Handle input movement
         targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
         targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
+        if (targetDirection.sqrMagnitude > 0)
+        {
+            animator.SetBool("IsWalking", true);
+        }
+        else
+        {
+            animator.SetBool("IsWalking", false);
+        }
 
         // Smoothly interpolate movement direction
         smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
@@ -129,7 +139,7 @@ public class PlayerController : MonoBehaviour
             knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); // Decay knockback over time
         }
 
-        if(controller.enabled) 
+        if (controller.enabled)
             controller.Move(move);
 
         // Smoothly rotate the player to face the movement direction
@@ -141,8 +151,8 @@ public class PlayerController : MonoBehaviour
 
         // Gravity
         playerVelocity.y += gravityValue * Time.deltaTime;
-        
-        if(controller.enabled)
+
+        if (controller.enabled)
             controller.Move(playerVelocity * Time.deltaTime);
     }
     #endregion
@@ -154,6 +164,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isFirstSpellReady && context.performed)
         {
+            animator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = firstSpell.CastSpell(transform.position, transform.forward);
             isFirstSpellReady = false;
@@ -164,6 +175,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isSecondSpellReady && context.performed)
         {
+            animator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
             isSecondSpellReady = false;
@@ -219,7 +231,7 @@ public class PlayerController : MonoBehaviour
             yield return new WaitForSeconds(time);
             if (spellID == 1)
             {
-                firstCurrentCooldownTimer = 0; 
+                firstCurrentCooldownTimer = 0;
                 inFirstCooldown = false;
             }
             else
@@ -239,7 +251,7 @@ public class PlayerController : MonoBehaviour
         secondSpell = baseSpell;
         ResetSpell(2);
     }
-    
+
     private void ResetSpell(int spellID)
     {
         switch (spellID)
@@ -271,7 +283,7 @@ public class PlayerController : MonoBehaviour
             case 2:
                 secondSpell = itemToEquip.EquipSpell();
                 secondCoolDownImage.GetComponent<Image>().sprite = secondSpell.SpellIcon;
-                itemToEquip= null;
+                itemToEquip = null;
                 break;
             default:
                 Debug.Log("Spell Equip Error");
@@ -297,7 +309,7 @@ public class PlayerController : MonoBehaviour
             knockbackVelocity *= slipperyModifier;
             isSlippery = true;
         }
-        else 
+        else
         {
             isSlippery = false;
         }

@@ -56,8 +56,10 @@ MonoBehaviour:
   secondSpell: {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
-  firstCooldownSlider: {fileID: 0}
-  secondCooldownSlider: {fileID: 0}
+  firstCoolDownCover: {fileID: 0}
+  secondCoolDownCover: {fileID: 0}
+  firstCoolDownImage: {fileID: 0}
+  secondCoolDownImage: {fileID: 0}
   damageText: {fileID: 0}
   damageModifier: 0.05
   slipperyModifier: 2
@@ -73,6 +75,9 @@ MonoBehaviour:
       Data3: 1040230820
       Data4: 1737141532
     Path: event:/sfx/player/player_knockback
+  firstCooldownDuration: 0
+  secondCooldownDuration: 0
+  animator: {fileID: 4380665689001301181}
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -250,6 +255,7 @@ MonoBehaviour:
   spawnPosition: {x: 0, y: 0, z: 0}
   meshObject: {fileID: 3298693486134837082}
   meshRenderer: {fileID: 655972233618968572}
+  animator: {fileID: 4380665689001301181}
 --- !u!114 &3815870263738624890
 MonoBehaviour:
   m_ObjectHideFlags: 0
