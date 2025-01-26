@@ -26,6 +26,8 @@ public class PlayerManager : MonoBehaviour
     public Image[] playerPortraits;
     public Image[] playerUIBoxes; 
     public Color[] colors;
+    public Sprite baseSpellSprite; 
+    
     public Action OnPlayerWon; 
     
     void Awake()
@@ -50,22 +52,9 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<PlayerController>().secondCoolDownCover = secondCoolDownCover[input.playerIndex];
         input.GetComponent<PlayerController>().firstCoolDownImage = firstCoolDownImage[input.playerIndex];
         input.GetComponent<PlayerController>().secondCoolDownImage = secondCoolDownImage[input.playerIndex];
+        input.GetComponent<PlayerController>().characters[input.playerIndex].SetActive(true);
+        input.GetComponent<PlayerController>().mainAnimator = input.GetComponent<PlayerController>().characters[input.playerIndex].GetComponent<Animator>();
         playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
-        
-        SkinnedMeshRenderer meshRenderer = input.GetComponent<PlayerStateHandler>().meshRenderer;
-
-        // Get the current materials array
-        Material[] materials = meshRenderer.materials;
-
-        // Check if the index is valid to avoid runtime errors
-        if (materials != null && materials.Length > 2)
-        {
-            // Replace the material at index 2
-            materials[2] = colorMaterials[input.playerIndex];
-    
-            // Assign the updated array back to the MeshRenderer
-            meshRenderer.materials = materials;
-        }
         
         input.GetComponent<PlayerController>().damageText = damageTexts[input.playerIndex];
         // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
@@ -80,6 +69,15 @@ public class PlayerManager : MonoBehaviour
 
     void ResetPlayers()
     {
+        foreach (Image sprite in firstCoolDownImage)
+        {
+            sprite.sprite = baseSpellSprite;
+        }
+        foreach (Image sprite in secondCoolDownImage)
+        {
+            sprite.sprite = baseSpellSprite;
+        }
+        
         foreach (GameObject player in players)
         {
             activePlayers++;

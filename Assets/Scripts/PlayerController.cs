@@ -10,7 +10,6 @@ using UnityEngine.UI;
 public class PlayerController : MonoBehaviour
 {
     [Header("Sound Events")]
-    [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference knockBackEvent;
 
     [Header("Spells")]
@@ -75,7 +74,9 @@ public class PlayerController : MonoBehaviour
     private float firstCurrentCooldownTimer;
     private float secondCurrentCooldownTimer;
 
-    public Animator animator;
+    public Animator mainAnimator;
+    public GameObject[] characters; 
+    
     #region Unity
     private void Start()
     {
@@ -125,11 +126,11 @@ public class PlayerController : MonoBehaviour
         targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
         if (targetDirection.sqrMagnitude > 0)
         {
-            animator.SetBool("IsWalking", true);
+            mainAnimator.SetBool("IsWalking", true);
         }
         else
         {
-            animator.SetBool("IsWalking", false);
+            mainAnimator.SetBool("IsWalking", false);
         }
 
         // Smoothly interpolate movement direction
@@ -168,7 +169,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isFirstSpellReady && context.performed)
         {
-            animator.SetTrigger("SlapTrigger");
+            mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = firstSpell.CastSpell(transform.position, transform.forward);
             isFirstSpellReady = false;
@@ -180,7 +181,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isSecondSpellReady && context.performed)
         {
-            animator.SetTrigger("SlapTrigger");
+            mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = secondSpell.CastSpell(transform.position, transform.forward);
             isSecondSpellReady = false;
@@ -252,6 +253,7 @@ public class PlayerController : MonoBehaviour
 
     public void ResetOnNewGame()
     {
+        damage = 0; 
         firstSpell = baseSpell;
         ResetSpell(1);
         secondSpell = baseSpell;
@@ -283,12 +285,16 @@ public class PlayerController : MonoBehaviour
         {
             case 1:
                 firstSpell = itemToEquip.EquipSpell();
+                inFirstCooldown = false; 
                 firstCoolDownImage.GetComponent<Image>().sprite = firstSpell.SpellIcon;
+                firstCoolDownCover.GetComponent<Image>().fillAmount = 0;
                 itemToEquip = null;
                 break;
             case 2:
                 secondSpell = itemToEquip.EquipSpell();
+                inSecondCooldown = false; 
                 secondCoolDownImage.GetComponent<Image>().sprite = secondSpell.SpellIcon;
+                secondCoolDownCover.GetComponent<Image>().fillAmount = 0;
                 itemToEquip = null;
                 break;
             default:

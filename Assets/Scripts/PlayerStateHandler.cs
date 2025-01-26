@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using FMODUnity;
 public class PlayerStateHandler : MonoBehaviour
@@ -6,17 +7,21 @@ public class PlayerStateHandler : MonoBehaviour
     public Vector3 spawnPosition;
     // Start is called before the first frame update
     public GameObject meshObject;
-    public SkinnedMeshRenderer meshRenderer;
     [SerializeField] private EventReference deathEvent;
-    
+    [SerializeField] private EventReference startEvent;
+    private bool endTriggered = false; 
+    private void Start()
+    {
+        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
+    }
+
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Deathzone"))
+        if (other.CompareTag("Deathzone") && !endTriggered)
         {
-            CharacterController controller = GetComponent<CharacterController>();
-            controller.Move(new Vector3(0,10,0) * 25);
-            RuntimeManager.PlayOneShot(deathEvent);
-            Invoke(nameof(DisablePlayer), 2f);
+            endTriggered = true; 
+            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+            Invoke(nameof(DisablePlayer), 5f);
         }
     }
 
@@ -33,7 +38,9 @@ public class PlayerStateHandler : MonoBehaviour
         CharacterController controller = GetComponent<CharacterController>();
         controller.enabled = false;
         meshObject.SetActive(true);
+        endTriggered = false; 
         transform.position = spawnPosition;
+        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
     }
 }
