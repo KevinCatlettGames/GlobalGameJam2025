@@ -80,6 +80,7 @@ public class BasicBubble : MonoBehaviour
 
     public virtual void BubbleCollision(GameObject other)
     {
+        if (hasPopped) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
