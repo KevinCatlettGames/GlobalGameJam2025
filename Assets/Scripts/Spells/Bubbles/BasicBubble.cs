@@ -16,13 +16,15 @@ public class BasicBubble : MonoBehaviour
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
     protected bool hasPopped = false;
-    protected float inflationSpeed = 8f;
+    [SerializeField] protected float inflationSpeed = 8f;
     protected SphereCollider sphereCollider;
     protected float currentSize = 0.01f;
+    public bool isSlippy = false;
+    protected float slippMod = 2f;
     
     [SerializeField] protected GameObject popEffect; 
     
-    public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
+    public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         damage = dmg;
         knockback = knb;
@@ -35,7 +37,7 @@ public class BasicBubble : MonoBehaviour
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null) 
         {
-            UnityEngine.Debug.Log("Inflate");
+            if(playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, true);
             sphereCollider.enabled = false;
             StartCoroutine(Inflate());
         }
@@ -75,6 +77,7 @@ public class BasicBubble : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        if (hasPopped) return;
         Reflector reflector;
         if (collision.gameObject.TryGetComponent<Reflector>(out reflector))
         {
@@ -114,5 +117,17 @@ public class BasicBubble : MonoBehaviour
     private void Reflect(Vector3 normal)
     {
         direction = Vector3.Reflect(direction, normal);
+        StopCoroutine(rangeCoroutine);
+        rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+    }
+    public virtual void SetSlippy()
+    {
+        UnityEngine.Debug.Log("slip bubble");
+        if(!isSlippy)
+        {
+            isSlippy = true;
+            speed *= slippMod;
+        }
+        
     }
 }

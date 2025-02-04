@@ -23,8 +23,8 @@ public class DomeBounds : MonoBehaviour
 
         // Check if the object is a player
         if (other.CompareTag("Player"))
-        {
-            other.gameObject.GetComponentInChildren<Animator>().SetBool("IsDead", true);                                   
+        {   
+            other.gameObject.GetComponent<PlayerController>().Die();
         }
     }
 }

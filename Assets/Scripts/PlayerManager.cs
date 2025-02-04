@@ -11,6 +11,7 @@ using UnityEngine.UI;
 public class PlayerManager : MonoBehaviour
 {
     [SerializeField] private EventReference winSound;
+    [SerializeField] private PlayerHUD[] playerHUDs;
     
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
@@ -44,22 +45,20 @@ public class PlayerManager : MonoBehaviour
     }
     public void OnPlayerJoined(PlayerInput input)
     {
-        playerPanelParent[input.playerIndex].SetActive(true);
+        playerHUDs[input.playerIndex].gameObject.SetActive(true);
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex]; 
         players.Add(input.gameObject);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
-        input.GetComponent<PlayerController>().firstCoolDownCover = firstCoverImage[input.playerIndex];
-        input.GetComponent<PlayerController>().secondCoolDownCover = secondCoolDownCover[input.playerIndex];
-        input.GetComponent<PlayerController>().firstCoolDownImage = firstCoolDownImage[input.playerIndex];
-        input.GetComponent<PlayerController>().secondCoolDownImage = secondCoolDownImage[input.playerIndex];
-        input.GetComponent<PlayerController>().characters[input.playerIndex].SetActive(true);
-        input.GetComponent<PlayerController>().mainAnimator = input.GetComponent<PlayerController>().characters[input.playerIndex].GetComponent<Animator>();
+        PlayerController playerController = input.GetComponent<PlayerController>();
+        playerController.characters[input.playerIndex].SetActive(true);
+        playerController.mainAnimator = input.GetComponent<PlayerController>().characters[input.playerIndex].GetComponent<Animator>();
+        playerController.SetPlayerHUD(playerHUDs[input.playerIndex]);
         playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
         
-        input.GetComponent<PlayerController>().damageText = damageTexts[input.playerIndex];
+
         // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
        
         firstCoverImage[input.playerIndex].SetActive(true);

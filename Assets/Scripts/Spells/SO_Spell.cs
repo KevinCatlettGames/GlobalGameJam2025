@@ -29,12 +29,12 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected EventReference spellEventStruct;
 
     protected BasicBubble bubbleScript;
-    public virtual float CastSpell(Vector3 pos, Vector3 dir)
+    public virtual float CastSpell(Vector3 pos, Vector3 dir, Collider playerCollider)
     {
         dir.Normalize();
-        pos += dir * (bubbleSize / 2 + 2.5f);
+        pos += dir * (bubbleSize / 2f + 1f);
         bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, dir, castEventStruct);
+        bubbleScript.InitialiseBubble(bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, dir, castEventStruct, playerCollider);
         return spellCooldown;
     }
     public Mesh GetMesh()

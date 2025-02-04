@@ -8,8 +8,9 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private float spread = 2f;
     [SerializeField] GameObject bubble;
     private EventReference soundEvent;
+    private Collider playerCollider;
 
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
+    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         damage = dmg;
         knockback = knb;
@@ -18,6 +19,7 @@ public class RevolverBubble : BasicBubble
         size = siz;
         direction = dir;
         this.soundEvent = soundEvent;
+        this.playerCollider = playerCollider;
         StartCoroutine(EmptyBarrel());
     }
 
@@ -36,7 +38,7 @@ public class RevolverBubble : BasicBubble
             float f = (float)i - ((float)maxAmmo / 2f);
             dir = Quaternion.AngleAxis(spread * f, Vector3.up) * direction;
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, dir, soundEvent);
+            bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, dir, soundEvent, playerCollider);
             yield return new WaitForSeconds(delayBetweenShots);
         }
 

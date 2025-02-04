@@ -35,11 +35,13 @@ public class BubbleExplosion : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            effectedPlayers.Add(other.GetComponent<PlayerController>());
+            PlayerController player = other.GetComponent<PlayerController>();
+            if(!effectedPlayers.Contains(player)) effectedPlayers.Add(other.GetComponent<PlayerController>());
         }
         else if (other.CompareTag("Bubble"))
         {
-            effectedBubbles.Add(other.GetComponent<BasicBubble>());
+            BasicBubble bubble = other.GetComponent<BasicBubble>();
+            if(!effectedBubbles.Contains(bubble)) effectedBubbles.Add(bubble);
         }
     }
     private void OnTriggerExit(Collider other)
@@ -53,4 +55,6 @@ public class BubbleExplosion : MonoBehaviour
             effectedBubbles.Remove(other.GetComponent<BasicBubble>());
         }
     }
+
+
 }

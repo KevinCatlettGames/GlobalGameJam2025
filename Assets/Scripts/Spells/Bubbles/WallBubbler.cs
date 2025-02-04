@@ -9,7 +9,7 @@ public class WallBubbler : BasicBubble
     [SerializeField] private int wallSegents = 3;
     [SerializeField] GameObject bubble;
     private float segmentDistance;
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
+    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         damage = dmg;
         knockback = knb;
@@ -35,9 +35,9 @@ public class WallBubbler : BasicBubble
 
         for (int i = 0; i < wallSegents; i++)
         {
-            pos = transform.position + offset * (i - 1);
+            pos = transform.position + direction + offset * (i - 1);
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(direction)).GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, direction, soundEvent);
+            bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, direction, soundEvent, null);
             yield return new WaitForSeconds(0.04f);
         }
 
