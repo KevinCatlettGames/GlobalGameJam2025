@@ -15,7 +15,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] private float spawnRadius = 15;
     [SerializeField] List<GameObject> spawnedItems = new List<GameObject>();
     
-    public int maxAmount; 
+    public int maxAmount = 2; 
     public int currentAmount;
 
     private void Awake()
@@ -55,6 +55,18 @@ public class ItemSpawner : MonoBehaviour
         
        currentAmount++;
        spawnedItems.Add(newItem);
+    }
+
+    public void ChangeMaxItemAmount(bool increase)
+    {
+        if (increase)
+        {
+            maxAmount++;
+        }
+        else
+        {
+            maxAmount--;
+        }
     }
 
     public void Reset()

@@ -35,7 +35,7 @@ public class WallBubbler : BasicBubble
 
         for (int i = 0; i < wallSegents; i++)
         {
-            pos = transform.position + direction + offset * (i - 1);
+            pos = transform.position + direction + offset * (i - 2);
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(direction)).GetComponent<BasicBubble>();
             bubbleScript.InitialiseBubble(damage, knockback, speed, range, size, direction, soundEvent, null);
             yield return new WaitForSeconds(0.04f);

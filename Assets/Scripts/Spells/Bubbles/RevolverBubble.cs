@@ -8,7 +8,6 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private float spread = 2f;
     [SerializeField] GameObject bubble;
     private EventReference soundEvent;
-    private Collider playerCollider;
 
     public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {

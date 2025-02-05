@@ -21,6 +21,7 @@ public class BasicBubble : MonoBehaviour
     protected float currentSize = 0.01f;
     public bool isSlippy = false;
     protected float slippMod = 2f;
+    protected Collider playerCollider;
     
     [SerializeField] protected GameObject popEffect; 
     
@@ -35,6 +36,7 @@ public class BasicBubble : MonoBehaviour
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         sphereCollider = GetComponent<SphereCollider>();
+        this.playerCollider = playerCollider;
         if (sphereCollider != null) 
         {
             if(playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, true);
@@ -116,7 +118,9 @@ public class BasicBubble : MonoBehaviour
     }
     private void Reflect(Vector3 normal)
     {
+        if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
         direction = Vector3.Reflect(direction, normal);
+        direction = new Vector3(direction.x, 0, direction.z);
         StopCoroutine(rangeCoroutine);
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }

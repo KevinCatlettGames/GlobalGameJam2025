@@ -66,6 +66,7 @@ public class PlayerManager : MonoBehaviour
 
         input.GetComponent<CharacterController>().enabled = true;
         activePlayers++;
+        ItemSpawner.Instance.ChangeMaxItemAmount(true);
     }
 
 
