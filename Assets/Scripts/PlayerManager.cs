@@ -13,10 +13,12 @@ public class PlayerManager : MonoBehaviour
     [SerializeField] private EventReference winSound;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Spell[] startingSpells;
-    
-    public static PlayerManager Instance; 
+    private int firstSpellIndex = 0;
+    private int secondSpellIndex = 0;
+
+    public static PlayerManager Instance;
     public Transform[] spawnPoints; // Array of spawn points
-    public int activePlayers = 0; 
+    public int activePlayers = 0;
     public List<GameObject> players;
 
     public GameObject[] playerPanelParent;
@@ -28,68 +30,73 @@ public class PlayerManager : MonoBehaviour
     public TextMeshProUGUI[] damageTexts;
     public Sprite[] playerSprites;
     public Image[] playerPortraits;
-    public Image[] playerUIBoxes; 
+    public Image[] playerUIBoxes;
     public Color[] colors;
-    public Sprite baseSpellSprite; 
-    
-    public Action OnPlayerWon; 
-    
-    void Awake()
+
+    public Action OnPlayerWon;
+
+    private void Awake()
     {
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
         players = new List<GameObject>();
-        Instance = this; 
+        RerollSpells();
     }
 
     private void Start()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
     }
+
     public void OnPlayerJoined(PlayerInput input)
     {
         playerHUDs[input.playerIndex].gameObject.SetActive(true);
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[input.playerIndex].position;
         input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
-        input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex]; 
+        input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex];
         players.Add(input.gameObject);
-        playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         PlayerController playerController = input.GetComponent<PlayerController>();
-        playerController.characters[input.playerIndex].SetActive(true);
-        playerController.mainAnimator = input.GetComponent<PlayerController>().characters[input.playerIndex].GetComponent<Animator>();
-        playerController.SetPlayerHUD(playerHUDs[input.playerIndex]);
+        Debug.Log(playerController);
+        playerController.SetUpPlayer(input.playerIndex, playerHUDs[input.playerIndex]);
+        playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
+        playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
-        
 
-        // input.GetComponent<MeshRenderer>().material = colorMaterials[input.playerIndex];
-       
-        firstCoverImage[input.playerIndex].SetActive(true);
-        secondCoolDownCover[input.playerIndex].SetActive(true);
+        //secondCoolDownCover[input.playerIndex].SetActive(true);
+        //firstCoverImage[input.playerIndex].SetActive(true);
 
         input.GetComponent<CharacterController>().enabled = true;
         activePlayers++;
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
     }
 
-
-    void ResetPlayers()
+    private void ResetPlayers()
     {
-        SO_Spell firstSpell;
-        SO_Spell secondSpell;
-        int r = UnityEngine.Random.Range(0, startingSpells.Length);
-        firstSpell = startingSpells[r];
-        r = UnityEngine.Random.Range(0, startingSpells.Length);
-        secondSpell = startingSpells[r];
+        RerollSpells();
 
         foreach (GameObject player in players)
         {
             activePlayers++;
-            
+
             player.GetComponent<CharacterController>().enabled = false;
-            
+
             player.GetComponent<PlayerStateHandler>().Reset();
 
-            player.GetComponent<PlayerController>().SetSpells(firstSpell, secondSpell);
+            player.GetComponent<PlayerController>().SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
         }
+    }
+
+    private void RerollSpells()
+    {
+        firstSpellIndex = UnityEngine.Random.Range(0, startingSpells.Length);
+        secondSpellIndex = UnityEngine.Random.Range(0,startingSpells.Length);
     }
 
     public void ReducePlayers()
@@ -98,9 +105,14 @@ public class PlayerManager : MonoBehaviour
         if (activePlayers <= 1)
         {
             RuntimeManager.PlayOneShotAttached(winSound, transform.gameObject);
-            activePlayers = 0; 
+            activePlayers = 0;
             OnPlayerWon?.Invoke();
             GameManager.Instance.EndGame();
         }
+    }
+
+    public void AddScore(int playerID)
+    {
+        playerHUDs[playerID].AddScore();
     }
 }

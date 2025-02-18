@@ -9,16 +9,16 @@ public class SlipBubble : BasicBubble
     [SerializeField] private GameObject slimePuddleObject;
     private SlimeTrail slimeTrail;
 
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
         GameObject trail = Instantiate(slimeTrailObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
         slimeTrail = trail.GetComponent<SlimeTrail>();
         slimeTrail.InitialiseTrail(speed);
     }
     protected override void Pop()
     {
-        slimeTrail.StopTrail();
+        slimeTrail?.StopTrail();
 
         base.Pop();
     }
@@ -28,7 +28,7 @@ public class SlipBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, knockback, damage);
+            player.ApplyKnockback(OwnerID, direction, knockback, damage);
             GameObject puddle = Instantiate(slimePuddleObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
             puddle.gameObject.GetComponent<SlimeTrail>().StopTrail();
         }

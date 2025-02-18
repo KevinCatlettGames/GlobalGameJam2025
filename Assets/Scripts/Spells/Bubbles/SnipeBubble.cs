@@ -9,7 +9,7 @@ public class SnipeBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, knockback, damage);
+            player.ApplyKnockback(OwnerID, direction, knockback, damage);
             Pop();
         }
     }

@@ -21,11 +21,13 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] Gradient damageTextColorGradient;
     [Header("Score")]
     [SerializeField] private TextMeshProUGUI scoreText;
+    private int score = 0;
 
     private void Start()
     {
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
+        scoreText.text = "K: " + score.ToString();
     }
     private void Update()
     {
@@ -92,6 +94,12 @@ public class PlayerHUD : MonoBehaviour
 
     public void SetScore(int score)
     {
-        scoreText.text = "W: " + score.ToString();
+        this.score = score;
+        scoreText.text = "K: " + score.ToString();
+    }
+    public void AddScore()
+    {
+        score++;
+        scoreText.text = "K: " + score.ToString();
     }
 }

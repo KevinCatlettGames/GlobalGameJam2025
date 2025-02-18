@@ -140,8 +140,8 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_StaticEditorFlags: 2147483647
+  m_IsActive: 0
 --- !u!64 &37372366
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -149,7 +149,7 @@ MeshCollider:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 37372365}
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 13400000, guid: 25caea5f29d81da439c06b0095e63d89, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -528,7 +528,7 @@ PrefabInstance:
     - target: {fileID: 554898241285871599, guid: 96a15f54fded15a4789625a2c94bd513,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2809715840393146800, guid: 96a15f54fded15a4789625a2c94bd513,
         type: 3}
@@ -609,6 +609,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2238884220519955441, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
+      propertyPath: m_UseGravity
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2238884220519955441, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
       propertyPath: m_Constraints
       value: 126
       objectReference: {fileID: 0}
@@ -620,7 +625,12 @@ PrefabInstance:
     - target: {fileID: 5391527640114850242, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: m_Radius
-      value: 0.6
+      value: 0.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7196035049087285683, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: gravityValue
+      value: -100
       objectReference: {fileID: 0}
     - target: {fileID: 7196035049087285683, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
