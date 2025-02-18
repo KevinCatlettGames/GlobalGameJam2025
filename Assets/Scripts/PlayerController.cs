@@ -122,12 +122,9 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            if(killCreditID != -1)
+            if(killCreditID != -1 && controller.isGrounded)
             {
-                if (Physics.Raycast(transform.position, transform.up * -1f, 5f, groundedLayerMask))
-                {
-                    killCreditID = -1;
-                }
+                killCreditID = -1;
             }
         }
 
@@ -306,7 +303,7 @@ public class PlayerController : MonoBehaviour
     {
         isDead = true;
         mainAnimator.SetBool("isDead", true);
-        if (killCreditID != -1)
+        if (killCreditID != -1 && killCreditID != playerID)
         {
             PlayerManager.Instance.AddScore(killCreditID);
         }
