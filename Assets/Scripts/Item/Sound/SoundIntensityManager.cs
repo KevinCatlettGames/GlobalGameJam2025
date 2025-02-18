@@ -35,7 +35,6 @@ public class MusicIntensityManager : MonoBehaviour
     {
         // Set the music intensity to 4 (maximum) when all players are active
         FMODUnity.RuntimeManager.StudioSystem.setParameterByName("PlayerCount", 4);
-        Debug.Log("Initial music intensity set to maximum (level 4).");
     }
 
     private IEnumerator HandleFirstPlayerDelay()

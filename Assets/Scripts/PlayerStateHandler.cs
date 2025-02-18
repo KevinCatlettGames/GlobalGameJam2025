@@ -12,18 +12,21 @@ public class PlayerStateHandler : MonoBehaviour
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
     private bool endTriggered = false; 
+    private PlayerController playerController;
     
     private void Start()
     {
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
+        playerController = gameObject.GetComponent<PlayerController>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Deathzone") && !endTriggered)
+        if (!endTriggered == other.CompareTag("Deathzone"))
         {
             endTriggered = true; 
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+            playerController.Die();
             Invoke(nameof(DisablePlayer), 2f);
         }
     }
@@ -43,6 +46,7 @@ public class PlayerStateHandler : MonoBehaviour
         meshObject.SetActive(true);
         endTriggered = false; 
         transform.position = spawnPosition;
+        playerController.ResetOnNewGame();
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
     }
