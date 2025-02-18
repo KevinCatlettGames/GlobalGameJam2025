@@ -6,6 +6,7 @@ public class BubbleExplosion : MonoBehaviour
 {
     private List<PlayerController> effectedPlayers = new List<PlayerController>();
     private List<BasicBubble> effectedBubbles = new List<BasicBubble>();
+    [HideInInspector] public int OwnerID;
 
     public void Explode(float knockback, float damage)
     {
@@ -16,7 +17,7 @@ public class BubbleExplosion : MonoBehaviour
                 if (player != null)
                 {
                     Vector3 kockbackDirection = player.transform.position - transform.position;
-                    player.ApplyKnockback(kockbackDirection, knockback, damage);
+                    player.ApplyKnockback(OwnerID, kockbackDirection, knockback, damage);
                 }
             }
         }

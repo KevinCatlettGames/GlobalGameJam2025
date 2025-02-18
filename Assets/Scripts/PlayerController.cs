@@ -13,9 +13,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private EventReference knockBackEvent;
 
     [Header("Spells")]
-    [SerializeField] private SO_Spell baseSpell;
-    [SerializeField] private SO_Spell firstSpell;
-    [SerializeField] private SO_Spell secondSpell;
+    private SO_Spell firstSpell;
+    private SO_Spell secondSpell;
     [SerializeField] private GameObject spellSpawnEffect;
 
     private bool isFirstSpellReady = true;
@@ -27,7 +26,8 @@ public class PlayerController : MonoBehaviour
     private PlayerHUD playerHUD;
     private int score = 0;
 
-   
+    private int killCreditID = -1;
+    private int playerID = 0;
     private bool isDead = false;
     private ParticleSystem particleSystem;
 
@@ -68,21 +68,18 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     public Animator mainAnimator;
-    public GameObject[] characters; 
+    [SerializeField] private GameObject[] characters;
+    [SerializeField] private LayerMask groundedLayerMask;
     
     #region Unity
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
-
+        
         PlayerManager.Instance.OnPlayerWon += ResetOnNewGame;
-
-        playerHUD.SetSpell(1, firstSpell.SpellIcon);
-        playerHUD.SetSpell(2, secondSpell.SpellIcon);
-
+        
         particleSystem = gameObject.GetComponent<ParticleSystem>();
-        playerHUD.UpdateDamageText((int)damage);
-        playerHUD.SetScore(score);
+
     }
 
     private void Update()
@@ -106,11 +103,11 @@ public class PlayerController : MonoBehaviour
         }
         if (targetDirection.sqrMagnitude > 0)
         {
-            mainAnimator.SetBool("IsWalking", true);
+            mainAnimator?.SetBool("IsWalking", true);
         }
         else
         {
-            mainAnimator.SetBool("IsWalking", false);
+            mainAnimator?.SetBool("IsWalking", false);
         }
 
         // Smoothly interpolate movement direction
@@ -122,6 +119,16 @@ public class PlayerController : MonoBehaviour
         {
             move += knockbackVelocity * Time.deltaTime; // Add knockback to movement
             knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); // Decay knockback over time
+        }
+        else
+        {
+            if(killCreditID != -1)
+            {
+                if (Physics.Raycast(transform.position, transform.up * -1f, 5f, groundedLayerMask))
+                {
+                    killCreditID = -1;
+                }
+            }
         }
 
         if (controller.enabled)
@@ -141,6 +148,7 @@ public class PlayerController : MonoBehaviour
             controller.Move(playerVelocity * Time.deltaTime);
     }
     #endregion
+
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
@@ -151,7 +159,7 @@ public class PlayerController : MonoBehaviour
         {
             mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = firstSpell.CastSpell(transform.position, transform.forward, controller);
+            float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
             isFirstSpellReady = false;
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
             RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(),gameObject);
@@ -163,7 +171,7 @@ public class PlayerController : MonoBehaviour
         {
             mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = secondSpell.CastSpell(transform.position, transform.forward, controller);
+            float cooldown = secondSpell.CastSpell(playerID, transform.position, transform.forward, controller);
             isSecondSpellReady = false;
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
             RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
@@ -183,11 +191,16 @@ public class PlayerController : MonoBehaviour
             EquipSpell(2);
         }
     }
-    public void ApplyKnockback(Vector3 direction, float force, float dmg)
+    public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
     {
         if (isSlippery) force *= slipperyModifier;
         direction.y = 0; // Ignore vertical knockback (optional)
-        knockbackVelocity += direction.normalized * (force * (1 + (damage * damageModifier)));
+        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
+        {
+            killCreditID = ID;
+        }
+        knockbackVelocity += knockback;
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
@@ -200,7 +213,6 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(time);
         ResetSpell(spellID);
     }
-
     public void ResetOnNewGame()
     {
         if (mainAnimator.gameObject.activeSelf)
@@ -209,17 +221,15 @@ public class PlayerController : MonoBehaviour
         }
         damage = 0;
         playerHUD.UpdateDamageText((int)damage);
-       
-
-        if (!isDead)
-        {
-            score++;
-            playerHUD.SetScore(score);
-        }
+        //if (!isDead)
+        //{
+        //    score++;
+        //    playerHUD.SetScore(score);
+        //}
         isDead = false;
         isSlippery = false;
+        killCreditID = -1;
     }
-
     private void ResetSpell(int spellID)
     {
         switch (spellID)
@@ -282,18 +292,25 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
-
-    public void SetPlayerHUD(PlayerHUD playerHUD)
+    public void SetUpPlayer(int playerID,PlayerHUD playerHUD)
     {
         this.playerHUD = playerHUD;
-    }
+        this.playerID = playerID;
+        characters[playerID].SetActive(true);
+        mainAnimator = characters[playerID].GetComponent<Animator>();
 
+        playerHUD.UpdateDamageText((int)damage);
+        playerHUD.SetScore(score);
+    }
     public void Die()
     {
         isDead = true;
         mainAnimator.SetBool("isDead", true);
+        if (killCreditID != -1)
+        {
+            PlayerManager.Instance.AddScore(killCreditID);
+        }
     }
-
     public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
     {
         this.firstSpell = firstSpell;

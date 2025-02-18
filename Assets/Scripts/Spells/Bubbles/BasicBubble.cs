@@ -22,11 +22,14 @@ public class BasicBubble : MonoBehaviour
     public bool isSlippy = false;
     protected float slippMod = 2f;
     protected Collider playerCollider;
+    [HideInInspector] public int OwnerID = -1;
+    
     
     [SerializeField] protected GameObject popEffect; 
     
-    public virtual void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
+        OwnerID = ID;
         damage = dmg;
         knockback = knb;
         speed = spd;
@@ -85,6 +88,7 @@ public class BasicBubble : MonoBehaviour
         {
             if (reflector.GetIsReflecting())
             {
+                OwnerID = reflector.OwnerID;
                 Reflect(collision.GetContact(0).normal);
                 return;
             }
@@ -98,7 +102,7 @@ public class BasicBubble : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, knockback, damage);
+            player.ApplyKnockback(OwnerID, direction, knockback, damage);
         }
         Pop();
     }

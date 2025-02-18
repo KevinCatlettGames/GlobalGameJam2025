@@ -14,13 +14,20 @@ public class GameManager : MonoBehaviour
     public GameObject restartGameText; 
     private void Awake()
     {
-        Instance = this; 
+        if (Instance == null)
+        {
+            Instance = this; 
+        }
+        else
+        {
+            Destroy(this);
+        }
         Cursor.visible = false;
     }
     
     private void Update()
     {
-        if (gameEnded && Input.anyKeyDown)
+        if (gameEnded && Input.GetKeyDown(KeyCode.JoystickButton7))
         {
             RestartGame();
         }
