@@ -100,6 +100,10 @@ public class PlayerController : MonoBehaviour
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
 
         }
+        else
+        {
+            targetDirection = knockbackVelocity * 0.1f;
+        }
         if (targetDirection.sqrMagnitude > 0)
         {
             mainAnimator.SetBool("IsWalking", true);
@@ -205,12 +209,7 @@ public class PlayerController : MonoBehaviour
         }
         damage = 0;
         playerHUD.UpdateDamageText((int)damage);
-        firstSpell = baseSpell;
-        secondSpell = baseSpell;       
-        ResetSpell(1);
-        ResetSpell(2);
-        playerHUD.SetSpell(1, firstSpell.SpellIcon);
-        playerHUD.SetSpell(2, secondSpell.SpellIcon);
+       
 
         if (!isDead)
         {
@@ -293,5 +292,15 @@ public class PlayerController : MonoBehaviour
     {
         isDead = true;
         mainAnimator.SetBool("isDead", true);
+    }
+
+    public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
+    {
+        this.firstSpell = firstSpell;
+        this.secondSpell = secondSpell;
+        ResetSpell(1);
+        ResetSpell(2);
+        playerHUD.SetSpell(1, firstSpell.SpellIcon);
+        playerHUD.SetSpell(2, secondSpell.SpellIcon);
     }
 }

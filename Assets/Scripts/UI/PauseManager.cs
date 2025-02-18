@@ -26,11 +26,14 @@ public class PauseManager : MonoBehaviour
         pauseMenu.SetActive(!pauseMenu.activeSelf);
         if (Time.timeScale > 0)
         {
-          eventSystem.SetSelectedGameObject(continueButton.gameObject);
+            eventSystem.SetSelectedGameObject(continueButton.gameObject);
             Time.timeScale = 0f;
         }
         else
+        {
             Time.timeScale = 1f;
+            Cursor.visible = false;
+        }
     }
 
     public void RestartGame()

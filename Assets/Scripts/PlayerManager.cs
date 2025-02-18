@@ -12,6 +12,7 @@ public class PlayerManager : MonoBehaviour
 {
     [SerializeField] private EventReference winSound;
     [SerializeField] private PlayerHUD[] playerHUDs;
+    [SerializeField] private SO_Spell[] startingSpells;
     
     public static PlayerManager Instance; 
     public Transform[] spawnPoints; // Array of spawn points
@@ -72,24 +73,22 @@ public class PlayerManager : MonoBehaviour
 
     void ResetPlayers()
     {
-        foreach (Image sprite in firstCoolDownImage)
-        {
-            sprite.sprite = baseSpellSprite;
-        }
-        foreach (Image sprite in secondCoolDownImage)
-        {
-            sprite.sprite = baseSpellSprite;
-        }
-        
+        SO_Spell firstSpell;
+        SO_Spell secondSpell;
+        int r = UnityEngine.Random.Range(0, startingSpells.Length);
+        firstSpell = startingSpells[r];
+        r = UnityEngine.Random.Range(0, startingSpells.Length);
+        secondSpell = startingSpells[r];
+
         foreach (GameObject player in players)
         {
             activePlayers++;
             
             player.GetComponent<CharacterController>().enabled = false;
             
-           // player.GetComponent<MeshRenderer>().enabled = true;
-            
             player.GetComponent<PlayerStateHandler>().Reset();
+
+            player.GetComponent<PlayerController>().SetSpells(firstSpell, secondSpell);
         }
     }
 

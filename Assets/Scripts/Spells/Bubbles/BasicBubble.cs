@@ -126,7 +126,6 @@ public class BasicBubble : MonoBehaviour
     }
     public virtual void SetSlippy()
     {
-        UnityEngine.Debug.Log("slip bubble");
         if(!isSlippy)
         {
             isSlippy = true;

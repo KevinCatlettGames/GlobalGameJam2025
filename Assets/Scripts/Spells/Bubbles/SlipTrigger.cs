@@ -15,7 +15,6 @@ public class SlipTrigger : MonoBehaviour
         }
         else if (other.CompareTag("Bubble"))
         {
-            Debug.Log("bublle");
             BasicBubble bubble = other.GetComponent<BasicBubble>();
             bubble.SetSlippy();
         }
