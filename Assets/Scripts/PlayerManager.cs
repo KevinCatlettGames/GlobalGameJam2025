@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using FMOD.Studio;
 using FMODUnity;
 using TMPro;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Unity.VisualScripting;
 
 public class PlayerManager : MonoBehaviour
 {
@@ -21,13 +21,6 @@ public class PlayerManager : MonoBehaviour
     public int activePlayers = 0;
     public List<GameObject> players;
 
-    public GameObject[] playerPanelParent;
-    public GameObject[] firstCoverImage;
-    public GameObject[] secondCoolDownCover;
-    public Image[] firstCoolDownImage;
-    public Image[] secondCoolDownImage;
-    public Material[] colorMaterials;
-    public TextMeshProUGUI[] damageTexts;
     public Sprite[] playerSprites;
     public Image[] playerPortraits;
     public Image[] playerUIBoxes;
@@ -63,7 +56,14 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex];
         players.Add(input.gameObject);
         PlayerController playerController = input.GetComponent<PlayerController>();
-        playerController.SetUpPlayer(input.playerIndex, playerHUDs[input.playerIndex]);
+        Gamepad gamePad = input.GetDevice<Gamepad>();
+        ControllerRumbler rumbler = null;
+        if (gamePad != null)
+        {
+            rumbler = input.AddComponent<ControllerRumbler>();
+            rumbler.SetController(gamePad);
+        }
+        playerController.SetUpPlayer(input.playerIndex, playerHUDs[input.playerIndex], rumbler);
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];

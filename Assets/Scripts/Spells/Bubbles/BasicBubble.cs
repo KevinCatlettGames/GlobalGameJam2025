@@ -57,7 +57,7 @@ public class BasicBubble : MonoBehaviour
     {
         transform.position += direction * speed * Time.fixedDeltaTime;
     }
-    private IEnumerator BubbleRangeLimit()
+    protected IEnumerator BubbleRangeLimit()
     {
         float killTime = 0;
         killTime = range / speed;
@@ -70,9 +70,6 @@ public class BasicBubble : MonoBehaviour
         if(hasPopped) return;
         hasPopped = true;
         StopCoroutine(rangeCoroutine);
-        //play sound
-        
-        //pop effect
         GameObject effect = Instantiate(popEffect, transform.position, Quaternion.identity);
         BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
         bubbleEffect?.Initialise(size);

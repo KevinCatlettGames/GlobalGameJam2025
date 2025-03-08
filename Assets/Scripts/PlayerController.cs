@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour
     [Header("Damage")]
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
+    [SerializeField] float rumbleDurationFactor = .01f;
+    private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
     #region Player Physics
@@ -276,15 +278,22 @@ public class PlayerController : MonoBehaviour
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         particleSystem.Play();
+        if (controllerRumbler != null) 
+        {
+            float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
+            controllerRumbler.Rumble(duration, force, dmg);
+        }
     }
     public void Die()
     {
+        if (isDead) return;
         isDead = true;
-        mainAnimator.SetBool("isDead", true);
+        mainAnimator.SetBool("IsDead", true);
         if (killCreditID != -1 && killCreditID != playerID)
         {
             PlayerManager.Instance.AddScore(killCreditID);
         }
+        playerHUD.DisplayDeath();
     }
     public void SetSlippy(bool slippy)
     {
@@ -298,6 +307,10 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
+    //private IEnumerator RumbleController()
+    //{
+
+    //}
     #endregion
 
     #region PlayerManager
@@ -312,6 +325,7 @@ public class PlayerController : MonoBehaviour
     {
         damage = 0;
         playerHUD.UpdateDamageText((int)damage);
+        playerHUD.Reset();
         //if (!isDead)
         //{
         //    score++;
@@ -321,7 +335,7 @@ public class PlayerController : MonoBehaviour
         isSlippery = false;
         killCreditID = -1;
     }
-    public void SetUpPlayer(int playerID,PlayerHUD playerHUD)
+    public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler)
     {
         this.playerHUD = playerHUD;
         this.playerID = playerID;
@@ -330,6 +344,11 @@ public class PlayerController : MonoBehaviour
 
         playerHUD.UpdateDamageText((int)damage);
         playerHUD.SetScore(score);
+        
+        if (controllerRumbler != null)
+        {
+            this.controllerRumbler = controllerRumbler;
+        }
     }
     #endregion
 }

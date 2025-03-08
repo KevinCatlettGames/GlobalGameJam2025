@@ -12,6 +12,20 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
         bubbleExplosion.OwnerID = ID;
     }
+    public override void BubbleCollision(GameObject other)
+    {
+        if (hasPopped) return;
+        if (other.CompareTag("Player"))
+        {
+            PlayerController player = other.GetComponent<PlayerController>();
+            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+        }
+        else if (other.CompareTag("Bubble"))
+        {
+            bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID;
+        }
+        Pop();
+    }
     protected override void Pop()
     {
         if (hasPopped) return;

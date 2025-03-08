@@ -38,5 +38,7 @@ public class GiantBubble : BasicBubble
             return;
         }
         transform.localScale = size * currentHealth * Vector3.one;
+        damage *= 2f;
+        speed *= 2f;
     }
 }

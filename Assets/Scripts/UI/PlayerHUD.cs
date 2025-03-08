@@ -17,8 +17,12 @@ public class PlayerHUD : MonoBehaviour
     private float secondCDRate = 1f;
     [Header("Damage")]
     [SerializeField] private TextMeshProUGUI damageText;
-    [SerializeField] float gradientEvalueateFactor = 0.005f;
-    [SerializeField] Gradient damageTextColorGradient;
+    [SerializeField] private float gradientEvalueateFactor = 0.005f;
+    [SerializeField] private Gradient damageTextColorGradient;
+    [Header("Portrait")]
+    [SerializeField] private Image portrait;
+    [SerializeField] Color deathColor;
+    [SerializeField] private GameObject UICover;
     [Header("Score")]
     [SerializeField] private TextMeshProUGUI scoreText;
     private int score = 0;
@@ -101,5 +105,15 @@ public class PlayerHUD : MonoBehaviour
     {
         score++;
         scoreText.text = "K: " + score.ToString();
+    }
+    public void DisplayDeath()
+    {
+        portrait.color = deathColor;
+        UICover.SetActive(true);    
+    }
+    public void Reset()
+    {
+        portrait.color = Color.white;
+        UICover.SetActive(false);
     }
 }
