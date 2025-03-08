@@ -14,7 +14,6 @@ public class Item : MonoBehaviour
         spell = spells[r];
         meshFilter.mesh = spell.GetMesh();
         meshRenderer.material = spell.GetMaterial();
-
     }
 
     public SO_Spell EquipSpell()
