@@ -29,13 +29,13 @@ public class PlayerController : MonoBehaviour
     private int killCreditID = -1;
     private int playerID = 0;
     private bool isDead = false;
-    private ParticleSystem particleSystem;
 
     private float damage = 0;
     [Header("Damage")]
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
+    [SerializeField] private ParticleSystem particleSystem;
     private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
@@ -78,9 +78,6 @@ public class PlayerController : MonoBehaviour
         controller = gameObject.GetComponent<CharacterController>();
         
         PlayerManager.Instance.OnPlayerWon += OnWin;
-        
-        particleSystem = gameObject.GetComponent<ParticleSystem>();
-
     }
     private void Update()
     {
