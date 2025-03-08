@@ -69,19 +69,17 @@ public class PlayerController : MonoBehaviour
 
     public Animator mainAnimator;
     [SerializeField] private GameObject[] characters;
-    [SerializeField] private LayerMask groundedLayerMask;
     
     #region Unity
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
         
-        PlayerManager.Instance.OnPlayerWon += ResetOnNewGame;
+        PlayerManager.Instance.OnPlayerWon += OnWin;
         
         particleSystem = gameObject.GetComponent<ParticleSystem>();
 
     }
-
     private void Update()
     {
         groundedPlayer = controller.isGrounded;
@@ -146,6 +144,7 @@ public class PlayerController : MonoBehaviour
     }
     #endregion
 
+    #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
         movementInput = context.ReadValue<Vector2>();
@@ -188,62 +187,18 @@ public class PlayerController : MonoBehaviour
             EquipSpell(2);
         }
     }
-    public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
+    #endregion
+
+    #region Items
+    public void UpdateItemToEquip(Item item, bool isInRange)
     {
-        if (isSlippery) force *= slipperyModifier;
-        direction.y = 0; // Ignore vertical knockback (optional)
-        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
-        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
+        if (isInRange)
         {
-            killCreditID = ID;
+            itemToEquip = item;
         }
-        knockbackVelocity += knockback;
-        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
-        damage += dmg;
-        playerHUD.UpdateDamageText((int)damage);
-        particleSystem.Play();
-    }
-    private IEnumerator SpellCooldown(float time, int spellID)
-    {
-        float cooldownRate = 1f/time;
-        playerHUD.SetSpellCooldown(spellID, cooldownRate);
-        yield return new WaitForSeconds(time);
-        ResetSpell(spellID);
-    }
-    public void ResetOnNewGame()
-    {
-        if (mainAnimator.gameObject.activeSelf)
+        else if (!isInRange && item == itemToEquip)
         {
-            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
-        }
-        damage = 0;
-        playerHUD.UpdateDamageText((int)damage);
-        //if (!isDead)
-        //{
-        //    score++;
-        //    playerHUD.SetScore(score);
-        //}
-        isDead = false;
-        isSlippery = false;
-        killCreditID = -1;
-    }
-    private void ResetSpell(int spellID)
-    {
-        switch (spellID)
-        {
-            case 1:
-                if (firstSpellCoroutine != null) StopCoroutine(firstSpellCoroutine);
-                firstSpellCoroutine = null;
-                isFirstSpellReady = true;
-                break;
-            case 2:
-                if (secondSpellCoroutine != null) StopCoroutine(secondSpellCoroutine);
-                secondSpellCoroutine = null;
-                isSecondSpellReady = true;
-                break;
-            default:
-                Debug.Log("Spell Reset Error");
-                break;
+            itemToEquip = null;
         }
     }
     private void EquipSpell(int spellID)
@@ -266,15 +221,69 @@ public class PlayerController : MonoBehaviour
         }
         ResetSpell(spellID);
     }
-    public void UpdateItemToEquip(Item item, bool isInRange)
+    #endregion
+
+    #region Spells
+    private IEnumerator SpellCooldown(float time, int spellID)
     {
-        if (isInRange)
+        float cooldownRate = 1f/time;
+        playerHUD.SetSpellCooldown(spellID, cooldownRate);
+        yield return new WaitForSeconds(time);
+        ResetSpell(spellID);
+    }
+    public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
+    {
+        this.firstSpell = firstSpell;
+        this.secondSpell = secondSpell;
+        ResetSpell(1);
+        ResetSpell(2);
+        playerHUD.SetSpell(1, firstSpell.SpellIcon);
+        playerHUD.SetSpell(2, secondSpell.SpellIcon);
+    }
+    private void ResetSpell(int spellID)
+    {
+        switch (spellID)
         {
-            itemToEquip = item;
+            case 1:
+                if (firstSpellCoroutine != null) StopCoroutine(firstSpellCoroutine);
+                firstSpellCoroutine = null;
+                isFirstSpellReady = true;
+                break;
+            case 2:
+                if (secondSpellCoroutine != null) StopCoroutine(secondSpellCoroutine);
+                secondSpellCoroutine = null;
+                isSecondSpellReady = true;
+                break;
+            default:
+                Debug.Log("Spell Reset Error");
+                break;
         }
-        else if (!isInRange && item == itemToEquip)
+    }
+    #endregion
+
+    #region Damage
+    public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
+    {
+        if (isSlippery) force *= slipperyModifier;
+        direction.y = 0; // Ignore vertical knockback (optional)
+        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
         {
-            itemToEquip = null;
+            killCreditID = ID;
+        }
+        knockbackVelocity += knockback;
+        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        damage += dmg;
+        playerHUD.UpdateDamageText((int)damage);
+        particleSystem.Play();
+    }
+    public void Die()
+    {
+        isDead = true;
+        mainAnimator.SetBool("isDead", true);
+        if (killCreditID != -1 && killCreditID != playerID)
+        {
+            PlayerManager.Instance.AddScore(killCreditID);
         }
     }
     public void SetSlippy(bool slippy)
@@ -289,6 +298,29 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
+    #endregion
+
+    #region PlayerManager
+    public void OnWin()
+    {
+        if (mainAnimator.gameObject.activeSelf)
+        {
+            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
+        }
+    }
+    public void ResetOnNewGame()
+    {
+        damage = 0;
+        playerHUD.UpdateDamageText((int)damage);
+        //if (!isDead)
+        //{
+        //    score++;
+        //    playerHUD.SetScore(score);
+        //}
+        isDead = false;
+        isSlippery = false;
+        killCreditID = -1;
+    }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD)
     {
         this.playerHUD = playerHUD;
@@ -299,22 +331,5 @@ public class PlayerController : MonoBehaviour
         playerHUD.UpdateDamageText((int)damage);
         playerHUD.SetScore(score);
     }
-    public void Die()
-    {
-        isDead = true;
-        mainAnimator.SetBool("isDead", true);
-        if (killCreditID != -1 && killCreditID != playerID)
-        {
-            PlayerManager.Instance.AddScore(killCreditID);
-        }
-    }
-    public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
-    {
-        this.firstSpell = firstSpell;
-        this.secondSpell = secondSpell;
-        ResetSpell(1);
-        ResetSpell(2);
-        playerHUD.SetSpell(1, firstSpell.SpellIcon);
-        playerHUD.SetSpell(2, secondSpell.SpellIcon);
-    }
+    #endregion
 }

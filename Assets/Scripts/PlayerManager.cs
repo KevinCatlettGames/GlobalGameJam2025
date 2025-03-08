@@ -63,7 +63,6 @@ public class PlayerManager : MonoBehaviour
         input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex];
         players.Add(input.gameObject);
         PlayerController playerController = input.GetComponent<PlayerController>();
-        Debug.Log(playerController);
         playerController.SetUpPlayer(input.playerIndex, playerHUDs[input.playerIndex]);
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];

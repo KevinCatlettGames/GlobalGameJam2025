@@ -12,14 +12,8 @@ public class DomeBounds : MonoBehaviour
         playerManager = PlayerManager.Instance;
     }
 
-    private void OnTriggerExit(Collider other)
-    {
-        // Handle SlipBubble collisions
-        if (other.TryGetComponent<SlipBubble>(out SlipBubble slipBubble))
-        {
-            slipBubble.BubbleCollision(this.gameObject);
-            return;
-        }
+    private void OnTriggerEnter(Collider other)
+    {   
 
         // Check if the object is a player
         if (other.CompareTag("Player"))

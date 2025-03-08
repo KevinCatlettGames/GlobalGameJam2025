@@ -7,6 +7,7 @@ public class SlipBubble : BasicBubble
 {
     [SerializeField] private GameObject slimeTrailObject;
     [SerializeField] private GameObject slimePuddleObject;
+    [SerializeField] private LayerMask groundedLayerMask;
     private SlimeTrail slimeTrail;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -22,6 +23,15 @@ public class SlipBubble : BasicBubble
 
         base.Pop();
     }
+
+    private void Update()
+    {
+        if (slimeTrail != null && !Physics.Raycast(transform.position, transform.up * -1, 5f, groundedLayerMask)) 
+        {
+            slimeTrail?.StopTrail();
+        }
+    }
+
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped) return;
