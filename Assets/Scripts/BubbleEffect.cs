@@ -9,6 +9,7 @@ public class BubbleEffect : MonoBehaviour
 
     public void Initialise(float size)
     {
+        if (particleSystem == null) return;
         ParticleSystem.Burst burst = new ParticleSystem.Burst();
         burst.count = size * sizeBurstRatio;
         particleSystem.emission.SetBurst(0, burst);
