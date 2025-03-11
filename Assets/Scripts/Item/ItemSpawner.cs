@@ -38,7 +38,7 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
     }
 
     void SpawnLoop()
@@ -46,7 +46,7 @@ public class ItemSpawner : MonoBehaviour
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
 
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
     }
 
     void SpawnItem(Vector3 location)

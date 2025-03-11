@@ -77,8 +77,7 @@ public class Item : MonoBehaviour
             yield return new WaitForSeconds(itemBlinkIntervall);
             duration -= itemBlinkIntervall;
         }
-        ItemSpawner.Instance.currentAmount--;
-        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        ItemSpawner.Instance.currentAmount--;      
         Destroy(gameObject);
     }
 }
