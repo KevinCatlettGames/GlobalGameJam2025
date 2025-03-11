@@ -7,6 +7,7 @@ public class Item : MonoBehaviour
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private SO_Spell[] spells;
+    [SerializeField] private GameObject pickUpEffect;
     public SO_Spell spell;
     private void Start()
     {
@@ -26,6 +27,7 @@ public class Item : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         ItemSpawner.Instance.currentAmount--;
+        if(pickUpEffect != null) Instantiate(pickUpEffect);
         Destroy(gameObject);
     }
 
