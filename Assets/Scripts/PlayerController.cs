@@ -44,6 +44,11 @@ public class PlayerController : MonoBehaviour
     private float playerSpeed = 2.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
+    [SerializeField] private float playerSprintSpeed = 24f;
+    [SerializeField] private float playerSprintDuration = .5f;
+    [SerializeField] private float sprintCooldown = 3f;
+    private bool canSprint = true;
+    private Coroutine sprintCoroutine;
     #endregion
 
     #region Player Controller
@@ -185,6 +190,24 @@ public class PlayerController : MonoBehaviour
         {
             EquipSpell(2);
         }
+    }
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (canSprint && context.performed && sprintCoroutine == null) 
+        {
+            sprintCoroutine = StartCoroutine(SprintCoroutine());
+        }
+    }
+    private IEnumerator SprintCoroutine()
+    {
+        canSprint = false;
+        float moveSpeed = playerSpeed;
+        playerSpeed = playerSprintSpeed;
+        yield return new WaitForSeconds(playerSprintDuration);
+        playerSpeed = moveSpeed;
+        yield return new WaitForSeconds(sprintCooldown);
+        sprintCoroutine = null;
+        canSprint = true;
     }
     #endregion
 

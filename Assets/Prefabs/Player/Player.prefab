@@ -5058,6 +5058,9 @@ MonoBehaviour:
   particleSystem: {fileID: 1527836326199805677}
   playerSpeed: 12
   gravityValue: -9.81
+  playerSprintSpeed: 50
+  playerSprintDuration: 0.2
+  sprintCooldown: 1
   rotationSpeed: 50
   moveSmoothTime: 0.1
   knockbackDecaySpeed: 5
@@ -5177,6 +5180,22 @@ MonoBehaviour:
       m_Calls: []
     m_ActionId: 08fa6a97-86cd-4420-aa2b-f89193e1b275
     m_ActionName: Player/JoinAction[/Keyboard/enter]
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7196035049087285683}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: OnSprint
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 43a7a658-dd0e-44b5-9a84-4296e6c14761
+    m_ActionName: Player/Sprint[/Keyboard/space,/XInputControllerWindows/buttonSouth]
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Player
