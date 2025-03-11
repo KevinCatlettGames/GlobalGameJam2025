@@ -36,7 +36,7 @@ public class Item : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         ItemSpawner.Instance.currentAmount--;
-        if(pickUpEffect != null) Instantiate(pickUpEffect);
+        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         Destroy(gameObject);
     }
 
@@ -77,5 +77,8 @@ public class Item : MonoBehaviour
             yield return new WaitForSeconds(itemBlinkIntervall);
             duration -= itemBlinkIntervall;
         }
+        ItemSpawner.Instance.currentAmount--;
+        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        Destroy(gameObject);
     }
 }
