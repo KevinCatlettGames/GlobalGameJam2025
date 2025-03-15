@@ -46,7 +46,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
     public float SprintCooldown { get { return sprintCooldown; } }
-    public UnityEvent OnBeginSprint; 
+    public UnityEvent OnBeginSprint;
+    public UnityEvent OnEndSprint; 
 
     private bool canSprint = true;
     private Coroutine sprintCoroutine;
@@ -207,6 +208,7 @@ public class PlayerController : MonoBehaviour
         OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
+        OnEndSprint?.Invoke();
         yield return new WaitForSeconds(sprintCooldown);
         sprintCoroutine = null;
         canSprint = true;
