@@ -1,10 +1,8 @@
 using FMODUnity;
+using UnityEngine.Events;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -47,6 +45,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
+    public float SprintCooldown { get { return sprintCooldown; } }
+    public UnityEvent OnBeginSprint; 
+
     private bool canSprint = true;
     private Coroutine sprintCoroutine;
     #endregion
@@ -203,6 +204,7 @@ public class PlayerController : MonoBehaviour
         canSprint = false;
         float moveSpeed = playerSpeed;
         playerSpeed = playerSprintSpeed;
+        OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
         yield return new WaitForSeconds(sprintCooldown);
