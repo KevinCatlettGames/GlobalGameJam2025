@@ -342,7 +342,7 @@ public class PlayerController : MonoBehaviour
     {
         if (mainAnimator.gameObject.activeSelf)
         {
-            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
+            mainAnimator.SetBool("Victory", true); // Trigger the victory animation
         }
     }
     public void ResetOnNewGame()
@@ -358,6 +358,11 @@ public class PlayerController : MonoBehaviour
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        
+        if (mainAnimator.gameObject.activeSelf)
+        {
+            mainAnimator.SetBool("Victory", false); // Trigger the victory animation
+        }
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler)
     {
