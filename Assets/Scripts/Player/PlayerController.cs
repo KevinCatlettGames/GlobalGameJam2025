@@ -1,10 +1,8 @@
 using FMODUnity;
+using UnityEngine.Events;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
-using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -44,6 +42,15 @@ public class PlayerController : MonoBehaviour
     private float playerSpeed = 2.0f;
     [SerializeField]
     private float gravityValue = -9.81f;
+    [SerializeField] private float playerSprintSpeed = 24f;
+    [SerializeField] private float playerSprintDuration = .5f;
+    [SerializeField] private float sprintCooldown = 3f;
+    public float SprintCooldown { get { return sprintCooldown; } }
+    public UnityEvent OnBeginSprint;
+    public UnityEvent OnEndSprint; 
+
+    private bool canSprint = true;
+    private Coroutine sprintCoroutine;
     #endregion
 
     #region Player Controller
@@ -186,6 +193,26 @@ public class PlayerController : MonoBehaviour
             EquipSpell(2);
         }
     }
+    public void OnSprint(InputAction.CallbackContext context)
+    {
+        if (canSprint && context.performed && sprintCoroutine == null)
+        {
+            sprintCoroutine = StartCoroutine(SprintCoroutine());
+        }
+    }
+    private IEnumerator SprintCoroutine()
+    {
+        canSprint = false;
+        float moveSpeed = playerSpeed;
+        playerSpeed = playerSprintSpeed;
+        OnBeginSprint?.Invoke();
+        yield return new WaitForSeconds(playerSprintDuration);
+        playerSpeed = moveSpeed;
+        OnEndSprint?.Invoke();
+        yield return new WaitForSeconds(sprintCooldown);
+        sprintCoroutine = null;
+        canSprint = true;
+    }
     #endregion
 
     #region Items
@@ -315,7 +342,7 @@ public class PlayerController : MonoBehaviour
     {
         if (mainAnimator.gameObject.activeSelf)
         {
-            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
+            mainAnimator.SetBool("Victory", true); // Trigger the victory animation
         }
     }
     public void ResetOnNewGame()
@@ -331,6 +358,11 @@ public class PlayerController : MonoBehaviour
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        
+        if (mainAnimator.gameObject.activeSelf)
+        {
+            mainAnimator.SetBool("Victory", false); // Trigger the victory animation
+        }
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler)
     {
