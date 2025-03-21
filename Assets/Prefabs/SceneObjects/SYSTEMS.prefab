@@ -149,8 +149,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3737377328279540851}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.90221053, y: -13.849571, z: 9.295787}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -280,26 +280,48 @@ MonoBehaviour:
       Data3: -2084654960
       Data4: 754965626
     Path: event:/voice/win_voice
-  playerHUDs:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  startingSpells:
-  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
-  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
-  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
-  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
-  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
-  - {fileID: 11400000, guid: 0cdccf3f71aa9b244b8b743c08e32f29, type: 2}
-  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
   spawnPoints:
   - {fileID: 2737577178785275174}
   - {fileID: 1647630035624308313}
-  - {fileID: 8757892686786655870}
   - {fileID: 3164768564512664138}
+  - {fileID: 8757892686786655870}
   activePlayers: 0
   players: []
+  playerPanelParent:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  firstCoverImage:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  secondCoolDownCover:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  firstCoolDownImage:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  secondCoolDownImage:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  colorMaterials:
+  - {fileID: 2100000, guid: afdaeda2a86ada94da01d05c8ea24dad, type: 2}
+  - {fileID: 2100000, guid: 52d8f101e907e664ba76387632eee4b8, type: 2}
+  - {fileID: 2100000, guid: 36ea78b1536628b4fbfcca1bee794f8f, type: 2}
+  - {fileID: 2100000, guid: e9c8661410522c144a22de974e62f1bb, type: 2}
+  damageTexts:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   playerSprites:
   - {fileID: 21300000, guid: 33bb442eb20cd5a4595e0942194542d7, type: 3}
   - {fileID: 21300000, guid: 14abb3ac60fb09140b4a812a66acc61c, type: 3}
@@ -320,6 +342,7 @@ MonoBehaviour:
   - {r: 0, g: 0.9500494, b: 1, a: 1}
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 1, g: 0, b: 0.76150465, a: 1}
+  baseSpellSprite: {fileID: 21300000, guid: aa09cb0d783fb814cab32823a4722adf, type: 3}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
@@ -442,10 +465,10 @@ MonoBehaviour:
   - {fileID: 7262810829513543688}
   - {fileID: 1154352255432135898}
   minSpawnInterval: 1
-  maxSpawnInterval: 6
-  spawnRadius: 21
+  maxSpawnInterval: 10
+  spawnRadius: 25
   spawnedItems: []
-  maxAmount: 2
+  maxAmount: 4
   currentAmount: 0
 --- !u!1 &7263817019907230709
 GameObject:
