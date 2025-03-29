@@ -134,6 +134,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5395857063166275379}
   - component: {fileID: 5289833586294818316}
+  - component: {fileID: 4986987256573549342}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -169,6 +170,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   restartGameText: {fileID: 0}
+--- !u!114 &4986987256573549342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91858892d98b5df448229fbc613e07f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4108901858045191531
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,6 +293,8 @@ MonoBehaviour:
       Data3: -2084654960
       Data4: 754965626
     Path: event:/voice/win_voice
+  playerHUDs: []
+  startingSpells: []
   spawnPoints:
   - {fileID: 2737577178785275174}
   - {fileID: 1647630035624308313}
@@ -287,41 +302,6 @@ MonoBehaviour:
   - {fileID: 8757892686786655870}
   activePlayers: 0
   players: []
-  playerPanelParent:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  firstCoverImage:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  secondCoolDownCover:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  firstCoolDownImage:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  secondCoolDownImage:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  colorMaterials:
-  - {fileID: 2100000, guid: afdaeda2a86ada94da01d05c8ea24dad, type: 2}
-  - {fileID: 2100000, guid: 52d8f101e907e664ba76387632eee4b8, type: 2}
-  - {fileID: 2100000, guid: 36ea78b1536628b4fbfcca1bee794f8f, type: 2}
-  - {fileID: 2100000, guid: e9c8661410522c144a22de974e62f1bb, type: 2}
-  damageTexts:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
   playerSprites:
   - {fileID: 21300000, guid: 33bb442eb20cd5a4595e0942194542d7, type: 3}
   - {fileID: 21300000, guid: 14abb3ac60fb09140b4a812a66acc61c, type: 3}
@@ -342,7 +322,6 @@ MonoBehaviour:
   - {r: 0, g: 0.9500494, b: 1, a: 1}
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 1, g: 0, b: 0.76150465, a: 1}
-  baseSpellSprite: {fileID: 21300000, guid: aa09cb0d783fb814cab32823a4722adf, type: 3}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
