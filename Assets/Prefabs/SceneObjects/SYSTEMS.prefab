@@ -134,6 +134,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5395857063166275379}
   - component: {fileID: 5289833586294818316}
+  - component: {fileID: 4986987256573549342}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -149,8 +150,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3737377328279540851}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.90221053, y: -13.849571, z: 9.295787}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -169,6 +170,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   restartGameText: {fileID: 0}
+--- !u!114 &4986987256573549342
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91858892d98b5df448229fbc613e07f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4108901858045191531
 GameObject:
   m_ObjectHideFlags: 0
@@ -280,24 +293,13 @@ MonoBehaviour:
       Data3: -2084654960
       Data4: 754965626
     Path: event:/voice/win_voice
-  playerHUDs:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  startingSpells:
-  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
-  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
-  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
-  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
-  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
-  - {fileID: 11400000, guid: 0cdccf3f71aa9b244b8b743c08e32f29, type: 2}
-  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
+  playerHUDs: []
+  startingSpells: []
   spawnPoints:
   - {fileID: 2737577178785275174}
   - {fileID: 1647630035624308313}
-  - {fileID: 8757892686786655870}
   - {fileID: 3164768564512664138}
+  - {fileID: 8757892686786655870}
   activePlayers: 0
   players: []
   playerSprites:
@@ -442,10 +444,10 @@ MonoBehaviour:
   - {fileID: 7262810829513543688}
   - {fileID: 1154352255432135898}
   minSpawnInterval: 1
-  maxSpawnInterval: 6
-  spawnRadius: 21
+  maxSpawnInterval: 10
+  spawnRadius: 25
   spawnedItems: []
-  maxAmount: 2
+  maxAmount: 4
   currentAmount: 0
 --- !u!1 &7263817019907230709
 GameObject:

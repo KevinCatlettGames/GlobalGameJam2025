@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-        if (gameEnded && Input.GetKeyDown(KeyCode.JoystickButton7))
+        if ((gameEnded && Input.GetKeyDown(KeyCode.JoystickButton7)) || (gameEnded && Input.GetKeyDown(KeyCode.Return)))
         {
             RestartGame();
         }

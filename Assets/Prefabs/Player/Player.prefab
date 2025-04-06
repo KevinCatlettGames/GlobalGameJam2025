@@ -51,6 +51,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4906,7 +4909,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7789029051489516485
 Transform:
   m_ObjectHideFlags: 0
@@ -4940,6 +4943,9 @@ TrailRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4964,7 +4970,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Time: 0.8
+  m_Time: 0.9
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
@@ -5052,7 +5058,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &7398229155492928204
 Transform:
   m_ObjectHideFlags: 0
@@ -5062,7 +5068,7 @@ Transform:
   m_GameObject: {fileID: 436688624210437269}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.13931473, y: -1.3426754, z: 0.3747841}
+  m_LocalPosition: {x: -0.13931473, y: -1, z: 1.7}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5086,10 +5092,13 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: ead46e87d5c8df04d91f11aa61084fd8, type: 2}
+  - {fileID: 2100000, guid: 6833f6c2429172745b7790fae38c2604, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -5215,7 +5224,7 @@ ParticleSystem:
       m_PreInfinity: 2
       m_PostInfinity: 2
       m_RotationOrder: 4
-  moveWithTransform: 1
+  moveWithTransform: 0
   moveWithCustomTransform: {fileID: 0}
   scalingMode: 1
   randomSeed: 0
@@ -5225,7 +5234,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.5
+      scalar: 0.25
       minScalar: 0.3
       maxCurve:
         serializedVersion: 2
@@ -9952,7 +9961,7 @@ RectTransform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 534293088871002601}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.451}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.021624692, y: 0.021624692, z: 0.021624692}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -9962,7 +9971,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.028, y: -2.23}
+  m_AnchoredPosition: {x: 0, y: -2.2}
   m_SizeDelta: {x: 93.2925, y: 33.4491}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &9043488124445663144
@@ -10297,7 +10306,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &4537104220363167256
 Transform:
   m_ObjectHideFlags: 0
@@ -10331,6 +10340,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -15199,7 +15211,7 @@ Transform:
   m_GameObject: {fileID: 3441453709348038487}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 1, z: 0, w: 0}
-  m_LocalPosition: {x: 0.009, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3, y: 3, z: 3}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -15234,7 +15246,7 @@ MonoBehaviour:
   slipperyModifier: 2
   rumbleDurationFactor: 0.007
   particleSystem: {fileID: 1527836326199805677}
-  playerSpeed: 10
+  playerSpeed: 11
   gravityValue: -9.81
   playerSprintSpeed: 60
   playerSprintDuration: 0.1
@@ -15355,7 +15367,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 4b2e685a-02cf-43c0-9c9e-e016f3042ddc
-    m_ActionName: Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]
+    m_ActionName: 'Player/Movement[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7196035049087285683}
@@ -15371,7 +15383,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 2f7e5864-ef78-49c2-a4b1-cbb38a6d8ac5
-    m_ActionName: Player/FirstSpell[/Mouse/leftButton]
+    m_ActionName: 'Player/FirstSpell[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7196035049087285683}
@@ -15387,7 +15399,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 2dac245d-5654-48ca-aa38-b721e36750e2
-    m_ActionName: Player/SecondSpell[/Mouse/rightButton]
+    m_ActionName: 'Player/SecondSpell[/Mouse/rightButton]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7196035049087285683}
@@ -15403,7 +15415,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 9ad28cf6-bc2d-423c-8416-935545e8b051
-    m_ActionName: Player/FistSpellEquip[/Keyboard/q]
+    m_ActionName: 'Player/FistSpellEquip[/Keyboard/q]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7196035049087285683}
@@ -15419,11 +15431,11 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 7c11e2ba-bff6-4cf5-8533-14a3e235c25e
-    m_ActionName: Player/SecondSpellEquip[/Keyboard/e]
+    m_ActionName: 'Player/SecondSpellEquip[/Keyboard/e]'
   - m_PersistentCalls:
       m_Calls: []
     m_ActionId: 08fa6a97-86cd-4420-aa2b-f89193e1b275
-    m_ActionName: Player/JoinAction[/Keyboard/enter]
+    m_ActionName: 'Player/JoinAction[/Keyboard/enter]'
   - m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7196035049087285683}
@@ -15439,7 +15451,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
     m_ActionId: 58ed049e-d8f8-494b-9bc4-1479ddbb262f
-    m_ActionName: Player/Sprint[/Keyboard/space]
+    m_ActionName: 'Player/Sprint[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: Keyboard
   m_DefaultActionMap: Player
@@ -15460,7 +15472,6 @@ CharacterController:
     serializedVersion: 2
     m_Bits: 0
   m_LayerOverridePriority: 0
-  m_IsTrigger: 0
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
@@ -16901,7 +16912,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4376072512400170643, guid: c1f95ab11b19ab045a9f63421aa46bf2,
         type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb,
         type: 3}
@@ -16932,7 +16943,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &565358166179898799
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -16946,6 +16957,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -17034,7 +17046,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4376072512400170643, guid: f17ef20ad05c6864ea573b539386630a,
         type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb,
         type: 3}
@@ -17059,7 +17071,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &6983796474908679595
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -17073,6 +17085,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -17167,7 +17180,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4376072512400170643, guid: 6f9584112c6672e4fae4d9af9634a522,
         type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb,
         type: 3}
@@ -17192,7 +17205,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &1797522227832940381
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -17206,6 +17219,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
@@ -17300,7 +17314,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4376072512400170643, guid: 9e54ed21300bf5b46a8bc08154c5a774,
         type: 3}
-      propertyPath: m_Materials.Array.data[0]
+      propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb,
         type: 3}
@@ -17325,7 +17339,7 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &2819150888423569823
 Animator:
-  serializedVersion: 5
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -17339,6 +17353,7 @@ Animator:
   m_ApplyRootMotion: 0
   m_LinearVelocityBlending: 0
   m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
   m_WarningMessage: 
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
