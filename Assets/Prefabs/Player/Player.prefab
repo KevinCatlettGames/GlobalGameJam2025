@@ -15245,7 +15245,7 @@ MonoBehaviour:
   damageModifier: 0.15
   slipperyModifier: 2
   rumbleDurationFactor: 0.007
-  particleSystem: {fileID: 1527836326199805677}
+  damageParticleSystem: {fileID: 1527836326199805677}
   playerSpeed: 11
   gravityValue: -9.81
   playerSprintSpeed: 60
@@ -15477,7 +15477,7 @@ CharacterController:
   serializedVersion: 3
   m_Height: 1.83
   m_Radius: 0.5
-  m_SlopeLimit: 45
+  m_SlopeLimit: 0
   m_StepOffset: 0
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
@@ -17250,6 +17250,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -5269736602529242269, guid: 1d2d73099034b294f99c9a78cb3ef958,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 1d2d73099034b294f99c9a78cb3ef958,
         type: 3}

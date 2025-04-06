@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
-    [SerializeField] private ParticleSystem particleSystem;
+    [SerializeField] private ParticleSystem damageParticleSystem;
     private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
@@ -301,7 +301,7 @@ public class PlayerController : MonoBehaviour
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
-        particleSystem.Play();
+        damageParticleSystem.Play();
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -331,10 +331,6 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
-    //private IEnumerator RumbleController()
-    //{
-
-    //}
     #endregion
 
     #region PlayerManager
