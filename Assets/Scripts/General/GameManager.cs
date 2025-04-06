@@ -4,7 +4,7 @@ using TMPro;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance ; 
+    public static GameManager Instance; 
     
     private bool gameEnded;
 
@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour
     public Action OnGameStarted;
 
     public GameObject restartGameText; 
+
+    
+
     private void Awake()
     {
         if (Instance == null)
@@ -27,7 +30,7 @@ public class GameManager : MonoBehaviour
     
     private void Update()
     {
-        if ((gameEnded && Input.GetKeyDown(KeyCode.JoystickButton7)) || (gameEnded && Input.GetKeyDown(KeyCode.Return)))
+        if (gameEnded && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
             RestartGame();
         }

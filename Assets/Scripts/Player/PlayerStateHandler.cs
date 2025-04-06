@@ -4,14 +4,12 @@ using FMODUnity;
 using UnityEngine.UI;
 public class PlayerStateHandler : MonoBehaviour
 {
-    
     public Vector3 spawnPosition;
-    // Start is called before the first frame update
     public GameObject meshObject;
     public Image aimIndicator; 
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
-    private bool endTriggered = false; 
+    private bool isDead = false; 
     private PlayerController playerController;
     
     private void Start()
@@ -22,9 +20,9 @@ public class PlayerStateHandler : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!endTriggered == other.CompareTag("Deathzone"))
+        if (!isDead == other.CompareTag("Deathzone"))
         {
-            endTriggered = true; 
+            isDead = true;
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
             playerController.Die();
             Invoke(nameof(DisablePlayer), 2f);
@@ -44,7 +42,7 @@ public class PlayerStateHandler : MonoBehaviour
         CharacterController controller = GetComponent<CharacterController>();
         controller.enabled = false;
         meshObject.SetActive(true);
-        endTriggered = false; 
+        isDead = false; 
         transform.position = spawnPosition;
         playerController.ResetOnNewGame();
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);

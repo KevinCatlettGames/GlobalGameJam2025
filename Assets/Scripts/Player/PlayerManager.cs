@@ -67,10 +67,6 @@ public class PlayerManager : MonoBehaviour
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
         playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
         playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
-
-        //secondCoolDownCover[input.playerIndex].SetActive(true);
-        //firstCoverImage[input.playerIndex].SetActive(true);
-
         input.GetComponent<CharacterController>().enabled = true;
         activePlayers++;
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
