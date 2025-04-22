@@ -115,5 +115,6 @@ public class PlayerHUD : MonoBehaviour
     {
         portrait.color = Color.white;
         UICover.SetActive(false);
+        UpdateDamageText(0);
     }
 }

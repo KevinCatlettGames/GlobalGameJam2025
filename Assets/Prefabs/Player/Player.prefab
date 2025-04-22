@@ -15240,6 +15240,13 @@ MonoBehaviour:
       Data3: 1040230820
       Data4: 1737141532
     Path: event:/sfx/player/player_knockback
+  deathEvent:
+    Guid:
+      Data1: -39424842
+      Data2: 1198672893
+      Data3: -486185590
+      Data4: -1926625252
+    Path: event:/sfx/player/player_death
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
   damageModifier: 0.15
@@ -15320,12 +15327,12 @@ MonoBehaviour:
   rotationSpeed: 70
   moveSmoothTime: 0.1
   knockbackDecaySpeed: 5
-  mainAnimator: {fileID: 0}
   characters:
   - {fileID: 8295572641469117973}
   - {fileID: 2624352903803563165}
   - {fileID: 33805751722447948}
   - {fileID: 883912630866757157}
+  aimIndicator: {fileID: 8395055839412904799}
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15494,9 +15501,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eb960489570eca84dbbc830ee20313a7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  spawnPosition: {x: 0, y: 0, z: 0}
   meshObject: {fileID: 7771303576425662369}
-  aimIndicator: {fileID: 8395055839412904799}
   deathEvent:
     Guid:
       Data1: -39424842
@@ -15690,7 +15695,7 @@ GameObject:
   - component: {fileID: 8395055839412904799}
   - component: {fileID: 4481563806700755523}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: Aim Indicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

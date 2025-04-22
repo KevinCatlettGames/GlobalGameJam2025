@@ -3,17 +3,19 @@ using UnityEngine.Events;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
     [Header("Sound Events")]
     [SerializeField] private EventReference knockBackEvent;
+    [SerializeField] private EventReference deathEvent;
 
     [Header("Spells")]
+    [SerializeField] private GameObject spellSpawnEffect;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
-    [SerializeField] private GameObject spellSpawnEffect;
 
     private bool isFirstSpellReady = true;
     private bool isSecondSpellReady = true;
@@ -22,10 +24,10 @@ public class PlayerController : MonoBehaviour
     private Item itemToEquip;
     private bool isSlippery = false;
     private PlayerHUD playerHUD;
-    private int score = 0;
 
     private int killCreditID = -1;
     private int playerID = 0;
+    public int PlayerID { get { return playerID; } }
     private bool isDead = false;
 
     private float damage = 0;
@@ -38,10 +40,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Player Stats")]
     #region Player Physics
-    [SerializeField]
-    private float playerSpeed = 2.0f;
-    [SerializeField]
-    private float gravityValue = -9.81f;
+    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
@@ -76,15 +76,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
 
-    public Animator mainAnimator;
+    private Animator mainAnimator;
     [SerializeField] private GameObject[] characters;
+    [SerializeField] private Image aimIndicator;
     
     #region Unity
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
-        
-        PlayerManager.Instance.OnPlayerWon += OnWin;
     }
     private void Update()
     {
@@ -291,7 +290,7 @@ public class PlayerController : MonoBehaviour
     public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
     {
         if (isSlippery) force *= slipperyModifier;
-        direction.y = 0; // Ignore vertical knockback (optional)
+        direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
         {
@@ -313,10 +312,9 @@ public class PlayerController : MonoBehaviour
         if (isDead) return;
         isDead = true;
         mainAnimator.SetBool("IsDead", true);
-        if (killCreditID != -1 && killCreditID != playerID)
-        {
-            PlayerManager.Instance.AddScore(killCreditID);
-        }
+        RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+        if (playerID == killCreditID) killCreditID = -1;
+        GameManager.Instance.DeathReport(playerID, killCreditID);  
         playerHUD.DisplayDeath();
     }
     public void SetSlippy(bool slippy)
@@ -334,41 +332,35 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region PlayerManager
-    public void OnWin()
+    public void Victory()
     {
         if (mainAnimator.gameObject.activeSelf)
         {
-            mainAnimator.SetBool("Victory", true); // Trigger the victory animation
+            mainAnimator.SetBool("Victory", true);
         }
     }
-    public void ResetOnNewGame()
+    public void ResetPlayerController()
     {
         damage = 0;
-        playerHUD.UpdateDamageText((int)damage);
         playerHUD.Reset();
-        //if (!isDead)
-        //{
-        //    score++;
-        //    playerHUD.SetScore(score);
-        //}
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
         
         if (mainAnimator.gameObject.activeSelf)
         {
-            mainAnimator.SetBool("Victory", false); // Trigger the victory animation
+            mainAnimator.SetBool("Victory", false);
         }
     }
-    public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler)
+    public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
         this.playerHUD = playerHUD;
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
+        aimIndicator.color = color;
 
         playerHUD.UpdateDamageText((int)damage);
-        playerHUD.SetScore(score);
         
         if (controllerRumbler != null)
         {

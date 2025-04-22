@@ -2,9 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-using FMOD.Studio;
 using FMODUnity;
-using TMPro;
 using UnityEngine.UI;
 using Unity.VisualScripting;
 
@@ -17,14 +15,14 @@ public class PlayerManager : MonoBehaviour
     private int secondSpellIndex = 0;
 
     public static PlayerManager Instance;
-    public Transform[] spawnPoints; // Array of spawn points
-    public int activePlayers = 0;
+
+    [SerializeField] private Transform[] spawnPoints; // Array of spawn points
     public List<GameObject> players;
 
-    public Sprite[] playerSprites;
-    public Image[] playerPortraits;
-    public Image[] playerUIBoxes;
-    public Color[] colors;
+    [SerializeField] private Sprite[] playerSprites;
+    [SerializeField] private Image[] playerPortraits;
+    [SerializeField] private Image[] playerUIBoxes;
+    [SerializeField] private Color[] colors;
 
     public Action OnPlayerWon;
 
@@ -49,11 +47,10 @@ public class PlayerManager : MonoBehaviour
 
     public void OnPlayerJoined(PlayerInput input)
     {
-        playerHUDs[input.playerIndex].gameObject.SetActive(true);
+        int playerID = input.playerIndex;
+        playerHUDs[playerID].gameObject.SetActive(true);
         input.GetComponent<CharacterController>().enabled = false;
-        input.transform.position = spawnPoints[input.playerIndex].position;
-        input.GetComponent<PlayerStateHandler>().spawnPosition = spawnPoints[input.playerIndex].position;
-        input.GetComponent<PlayerStateHandler>().aimIndicator.color = colors[input.playerIndex];
+        input.transform.position = spawnPoints[playerID].position;
         players.Add(input.gameObject);
         PlayerController playerController = input.GetComponent<PlayerController>();
         Gamepad gamePad = input.GetDevice<Gamepad>();
@@ -63,13 +60,14 @@ public class PlayerManager : MonoBehaviour
             rumbler = input.AddComponent<ControllerRumbler>();
             rumbler.SetController(gamePad);
         }
-        playerController.SetUpPlayer(input.playerIndex, playerHUDs[input.playerIndex], rumbler);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
-        playerPortraits[input.playerIndex].sprite = playerSprites[input.playerIndex];
-        playerUIBoxes[input.playerIndex].color = colors[input.playerIndex];
+        playerPortraits[playerID].sprite = playerSprites[playerID];
+        playerUIBoxes[playerID].color = colors[playerID];
         input.GetComponent<CharacterController>().enabled = true;
-        activePlayers++;
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
+        GameManager.Instance.ChangePlayerState(playerID, PlayerState.alive);
     }
 
     private void ResetPlayers()
@@ -78,11 +76,7 @@ public class PlayerManager : MonoBehaviour
 
         foreach (GameObject player in players)
         {
-            activePlayers++;
-
-            player.GetComponent<CharacterController>().enabled = false;
-
-            player.GetComponent<PlayerStateHandler>().Reset();
+            player.GetComponent<PlayerStateHandler>().ResetPlayer();
 
             player.GetComponent<PlayerController>().SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
         }
@@ -94,20 +88,8 @@ public class PlayerManager : MonoBehaviour
         secondSpellIndex = UnityEngine.Random.Range(0,startingSpells.Length);
     }
 
-    public void ReducePlayers()
+    public void ResetPlayerPosition(int playerID)
     {
-        activePlayers--;
-        if (activePlayers <= 1)
-        {
-            RuntimeManager.PlayOneShotAttached(winSound, transform.gameObject);
-            activePlayers = 0;
-            OnPlayerWon?.Invoke();
-            GameManager.Instance.EndGame();
-        }
-    }
-
-    public void AddScore(int playerID)
-    {
-        playerHUDs[playerID].AddScore();
+        players[playerID].transform.position = spawnPoints[playerID].transform.position;
     }
 }
