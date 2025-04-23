@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            playerHUDs[killCredit].AddScore();
+            playerHUDs[killCredit].AddKill();
         }
         CheckForRoundEnd();
     }

@@ -34,6 +34,7 @@ public class SingleEliminationGM : GameManager
             if (playerStates[i] == PlayerState.alive)
             {
                 players[i].Victory();
+                playerHUDs[i].AddWin();
                 Debug.Log("Player " + i + " Victory");
             }
         }

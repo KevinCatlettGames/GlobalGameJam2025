@@ -342,7 +342,7 @@ public class PlayerController : MonoBehaviour
     public void ResetPlayerController()
     {
         damage = 0;
-        playerHUD.Reset();
+        playerHUD.ResetHUD();
         isDead = false;
         isSlippery = false;
         killCreditID = -1;

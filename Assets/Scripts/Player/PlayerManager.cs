@@ -20,8 +20,6 @@ public class PlayerManager : MonoBehaviour
     public List<GameObject> players;
 
     [SerializeField] private Sprite[] playerSprites;
-    [SerializeField] private Image[] playerPortraits;
-    [SerializeField] private Image[] playerUIBoxes;
     [SerializeField] private Color[] colors;
 
     public Action OnPlayerWon;
@@ -49,6 +47,7 @@ public class PlayerManager : MonoBehaviour
     {
         int playerID = input.playerIndex;
         playerHUDs[playerID].gameObject.SetActive(true);
+        playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[playerID].position;
         players.Add(input.gameObject);
@@ -62,8 +61,6 @@ public class PlayerManager : MonoBehaviour
         }
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
-        playerPortraits[playerID].sprite = playerSprites[playerID];
-        playerUIBoxes[playerID].color = colors[playerID];
         input.GetComponent<CharacterController>().enabled = true;
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
