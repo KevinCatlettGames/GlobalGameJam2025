@@ -36,6 +36,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
     [SerializeField] private ParticleSystem damageParticleSystem;
+    [SerializeField] private GameObject dashStartEffect;
     private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
@@ -63,10 +64,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
-    [SerializeField]
-    private float rotationSpeed = 10f; // Adjust for smoother rotation
-    [SerializeField]
-    private float moveSmoothTime = 0.1f; // Smoothing duration
+    [SerializeField] private float rotationSpeed = 10f; // Adjust for smoother rotation
+    [SerializeField] private float moveSmoothTime = 0.1f; // Smoothing duration
     private Vector3 moveVelocity = Vector3.zero;
     #endregion
 
@@ -197,6 +196,7 @@ public class PlayerController : MonoBehaviour
         if (canSprint && context.performed && sprintCoroutine == null)
         {
             sprintCoroutine = StartCoroutine(SprintCoroutine());
+            Instantiate(dashStartEffect, transform.position, transform.rotation);
         }
     }
     private IEnumerator SprintCoroutine()
