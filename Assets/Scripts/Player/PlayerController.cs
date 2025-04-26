@@ -86,6 +86,9 @@ public class PlayerController : NetworkBehaviour
     
     private void Start()
     {
+        foreach(GameObject character in characters)
+            character.SetActive(false);
+        
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
