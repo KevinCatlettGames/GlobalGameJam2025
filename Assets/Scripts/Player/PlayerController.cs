@@ -37,7 +37,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
     [SerializeField] private ParticleSystem damageParticleSystem;
-    [SerializeField] private GameObject dashStartEffect;
+    [SerializeField] private NetworkObject dashStartEffectPrefab;
     private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
@@ -218,9 +218,20 @@ public class PlayerController : NetworkBehaviour
         if (canSprint && context.performed && sprintCoroutine == null)
         {
             sprintCoroutine = StartCoroutine(SprintCoroutine());
-            Instantiate(dashStartEffect, transform.position, transform.rotation);
+            SpawnDashEffectServerRpc();
         }
     }
+    
+    [ServerRpc]
+    private void SpawnDashEffectServerRpc()
+    {
+        if (dashStartEffectPrefab != null)
+        {
+            NetworkObject dashEffect = Instantiate(dashStartEffectPrefab, transform.position, transform.rotation);
+            dashEffect.Spawn(true); // true = spawn with ownership default (server owns it)
+        }
+    }
+    
     private IEnumerator SprintCoroutine()
     {
         canSprint = false;
