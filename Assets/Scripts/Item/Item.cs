@@ -45,7 +45,7 @@ public class Item : MonoBehaviour
         if (other.gameObject.CompareTag("Player")) 
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, true);
+           // player.UpdateItemToEquip(this, true);
         }
     }
 
@@ -54,7 +54,7 @@ public class Item : MonoBehaviour
         if (other.gameObject.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, false);
+           // player.UpdateItemToEquip(this, false);
         }
     }
 

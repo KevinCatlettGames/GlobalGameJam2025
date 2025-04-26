@@ -3,10 +3,11 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using FMODUnity;
+using Unity.Netcode;
 using UnityEngine.UI;
 using Unity.VisualScripting;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
     [SerializeField] private EventReference winSound;
     [SerializeField] private PlayerHUD[] playerHUDs;
@@ -17,13 +18,13 @@ public class PlayerManager : MonoBehaviour
     public static PlayerManager Instance;
 
     [SerializeField] private Transform[] spawnPoints; // Array of spawn points
-    public List<GameObject> players;
-
+    public NetworkList<NetworkObjectReference> players;
     [SerializeField] private Sprite[] playerSprites;
     [SerializeField] private Color[] colors;
-
+    public Button startGameButton; 
     public Action OnPlayerWon;
-
+    private int playersInitializedCount = 0; 
+    
     private void Awake()
     {
         if (Instance == null)
@@ -32,36 +33,79 @@ public class PlayerManager : MonoBehaviour
         }
         else
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
-        players = new List<GameObject>();
+
+        players = new NetworkList<NetworkObjectReference>();
         RerollSpells();
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerServerRpc(NetworkObjectReference input)
+    {
+        players.Add(input);
+    }
+
+    public void AddToPlayers(PlayerInput playerInput)
+    {
+        NetworkObjectReference tempInput = new NetworkObjectReference(playerInput.GetComponent<NetworkObject>());
+        AddPlayer(tempInput);
+    }
+
+    [ClientRpc]
+    public void InitializeCallClientRpc()
+    {
+        Debug.Log(players.Count);
+        foreach (NetworkObjectReference playerRef in players)
+        {
+            if (playerRef.TryGet(out NetworkObject networkObject))
+            {
+                networkObject.GetComponent<PlayerController>().Initialize();
+            }
+        }
     }
 
     private void Start()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
     }
-
+    
+    public void AddPlayer(NetworkObjectReference input)
+    {
+        players.Add(input);
+    }
+    
     public void OnPlayerJoined(PlayerInput input)
     {
-        int playerID = input.playerIndex;
+        int playerID = playersInitializedCount;
+        playersInitializedCount++;
+        if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
+        {
+            Debug.LogError("Too many players for available HUDs or spawn points!");
+            return;
+        }
+
         playerHUDs[playerID].gameObject.SetActive(true);
         playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
+        
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[playerID].position;
-        players.Add(input.gameObject);
+        
         PlayerController playerController = input.GetComponent<PlayerController>();
-        Gamepad gamePad = input.GetDevice<Gamepad>();
+        //Gamepad gamePad = input.GetDevice<Gamepad>();
         ControllerRumbler rumbler = null;
-        if (gamePad != null)
-        {
-            rumbler = input.AddComponent<ControllerRumbler>();
-            rumbler.SetController(gamePad);
-        }
+
+        // if (gamePad != null)
+        // {
+        //     rumbler = input.AddComponent<ControllerRumbler>();
+        //     rumbler.SetController(gamePad);
+        // }
+
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
         playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
+        
         input.GetComponent<CharacterController>().enabled = true;
+        
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
         GameManager.Instance.ChangePlayerState(playerID, PlayerState.alive);
@@ -71,22 +115,43 @@ public class PlayerManager : MonoBehaviour
     {
         RerollSpells();
 
-        foreach (GameObject player in players)
+        foreach (var playerRef in players)
         {
-            player.GetComponent<PlayerStateHandler>().ResetPlayer();
-
-            player.GetComponent<PlayerController>().SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
+            if (playerRef.TryGet(out NetworkObject networkObject))
+            {
+                GameObject player = networkObject.gameObject;
+                player.GetComponent<PlayerStateHandler>().ResetPlayer();
+                player.GetComponent<PlayerController>().SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
+            }
+            else
+            {
+                Debug.LogWarning("Failed to resolve player reference.");
+            }
         }
     }
 
     private void RerollSpells()
     {
         firstSpellIndex = UnityEngine.Random.Range(0, startingSpells.Length);
-        secondSpellIndex = UnityEngine.Random.Range(0,startingSpells.Length);
+        secondSpellIndex = UnityEngine.Random.Range(0, startingSpells.Length);
     }
 
     public void ResetPlayerPosition(int playerID)
     {
-        players[playerID].transform.position = spawnPoints[playerID].transform.position;
+        if (playerID >= players.Count)
+        {
+            Debug.LogError("Invalid playerID for ResetPlayerPosition.");
+            return;
+        }
+
+        if (players[playerID].TryGet(out NetworkObject networkObject))
+        {
+            GameObject playerGameObject = networkObject.gameObject;
+            playerGameObject.transform.position = spawnPoints[playerID].transform.position;
+        }
+        else
+        {
+            Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+        }
     }
 }

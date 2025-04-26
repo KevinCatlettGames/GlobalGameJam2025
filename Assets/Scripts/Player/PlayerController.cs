@@ -4,9 +4,10 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using Unity.Netcode; 
 
 [RequireComponent(typeof(CharacterController))]
-public class PlayerController : MonoBehaviour
+public class PlayerController : NetworkBehaviour
 {
     [Header("Sound Events")]
     [SerializeField] private EventReference knockBackEvent;
@@ -79,13 +80,31 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image aimIndicator;
     
+    public bool initialized = false; 
+    
     #region Unity
+    
     private void Start()
     {
-        controller = gameObject.GetComponent<CharacterController>();
+        if (IsOwner)
+        {
+            var netObj = GetComponent<NetworkObject>();
+            PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
+        }
     }
+
+    public void Initialize()
+    {
+        if(IsOwner) GetComponent<PlayerInput>().enabled = true;
+        controller = gameObject.GetComponent<CharacterController>(); 
+        PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
+        initialized = true;
+    }
+    
     private void Update()
     {
+        if (!initialized || !IsOwner) return; 
+        
         groundedPlayer = controller.isGrounded;
         if (groundedPlayer && playerVelocity.y < 0)
         {
@@ -97,7 +116,6 @@ public class PlayerController : MonoBehaviour
         {
             targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
-
         }
         else
         {
@@ -146,6 +164,7 @@ public class PlayerController : MonoBehaviour
         if (controller.enabled)
             controller.Move(playerVelocity * Time.deltaTime);
     }
+    
     #endregion
 
     #region Inputs

@@ -1,6 +1,7 @@
 using System;
 using UnityEngine;
 using FMODUnity;
+using Unity.VisualScripting;
 using UnityEngine.UI;
 
 public enum PlayerState
@@ -25,9 +26,11 @@ public class PlayerStateHandler : MonoBehaviour
         playerController = gameObject.GetComponent<PlayerController>();
         controller = gameObject.GetComponent<CharacterController>();
     }
-
+    
     private void OnTriggerEnter(Collider other)
     {
+        if (!playerController.initialized || !playerController.IsOwner) return; 
+        
         if (!isDead && other.CompareTag("Deathzone"))
         {
             isDead = true;
