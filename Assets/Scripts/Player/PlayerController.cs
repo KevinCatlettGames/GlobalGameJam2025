@@ -1,9 +1,8 @@
 using FMODUnity;
+using UnityEngine.Events;
 using System.Collections;
-using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
@@ -11,11 +10,12 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Sound Events")]
     [SerializeField] private EventReference knockBackEvent;
+    [SerializeField] private EventReference deathEvent;
 
     [Header("Spells")]
+    [SerializeField] private GameObject spellSpawnEffect;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
-    [SerializeField] private GameObject spellSpawnEffect;
 
     private bool isFirstSpellReady = true;
     private bool isSecondSpellReady = true;
@@ -24,10 +24,10 @@ public class PlayerController : MonoBehaviour
     private Item itemToEquip;
     private bool isSlippery = false;
     private PlayerHUD playerHUD;
-    private int score = 0;
 
     private int killCreditID = -1;
     private int playerID = 0;
+    public int PlayerID { get { return playerID; } }
     private bool isDead = false;
 
     private float damage = 0;
@@ -35,18 +35,21 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
-    [SerializeField] private ParticleSystem particleSystem;
+    [SerializeField] private ParticleSystem damageParticleSystem;
+    [SerializeField] private GameObject dashStartEffect;
     private ControllerRumbler controllerRumbler = null;
 
     [Header("Player Stats")]
     #region Player Physics
-    [SerializeField]
-    private float playerSpeed = 2.0f;
-    [SerializeField]
-    private float gravityValue = -9.81f;
+    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
+    public float SprintCooldown { get { return sprintCooldown; } }
+    public UnityEvent OnBeginSprint;
+    public UnityEvent OnEndSprint; 
+
     private bool canSprint = true;
     private Coroutine sprintCoroutine;
     #endregion
@@ -61,10 +64,8 @@ public class PlayerController : MonoBehaviour
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
-    [SerializeField]
-    private float rotationSpeed = 10f; // Adjust for smoother rotation
-    [SerializeField]
-    private float moveSmoothTime = 0.1f; // Smoothing duration
+    [SerializeField] private float rotationSpeed = 10f; // Adjust for smoother rotation
+    [SerializeField] private float moveSmoothTime = 0.1f; // Smoothing duration
     private Vector3 moveVelocity = Vector3.zero;
     #endregion
 
@@ -74,15 +75,14 @@ public class PlayerController : MonoBehaviour
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
 
-    public Animator mainAnimator;
+    private Animator mainAnimator;
     [SerializeField] private GameObject[] characters;
+    [SerializeField] private Image aimIndicator;
     
     #region Unity
     private void Start()
     {
         controller = gameObject.GetComponent<CharacterController>();
-        
-        PlayerManager.Instance.OnPlayerWon += OnWin;
     }
     private void Update()
     {
@@ -196,6 +196,7 @@ public class PlayerController : MonoBehaviour
         if (canSprint && context.performed && sprintCoroutine == null)
         {
             sprintCoroutine = StartCoroutine(SprintCoroutine());
+            Instantiate(dashStartEffect, transform.position, transform.rotation);
         }
     }
     private IEnumerator SprintCoroutine()
@@ -203,8 +204,10 @@ public class PlayerController : MonoBehaviour
         canSprint = false;
         float moveSpeed = playerSpeed;
         playerSpeed = playerSprintSpeed;
+        OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
+        OnEndSprint?.Invoke();
         yield return new WaitForSeconds(sprintCooldown);
         sprintCoroutine = null;
         canSprint = true;
@@ -287,7 +290,7 @@ public class PlayerController : MonoBehaviour
     public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
     {
         if (isSlippery) force *= slipperyModifier;
-        direction.y = 0; // Ignore vertical knockback (optional)
+        direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
         {
@@ -297,7 +300,7 @@ public class PlayerController : MonoBehaviour
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
-        particleSystem.Play();
+        damageParticleSystem.Play();
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -309,10 +312,9 @@ public class PlayerController : MonoBehaviour
         if (isDead) return;
         isDead = true;
         mainAnimator.SetBool("IsDead", true);
-        if (killCreditID != -1 && killCreditID != playerID)
-        {
-            PlayerManager.Instance.AddScore(killCreditID);
-        }
+        RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+        if (playerID == killCreditID) killCreditID = -1;
+        GameManager.Instance.DeathReport(playerID, killCreditID);  
         playerHUD.DisplayDeath();
     }
     public void SetSlippy(bool slippy)
@@ -327,43 +329,38 @@ public class PlayerController : MonoBehaviour
             isSlippery = false;
         }
     }
-    //private IEnumerator RumbleController()
-    //{
-
-    //}
     #endregion
 
     #region PlayerManager
-    public void OnWin()
+    public void Victory()
     {
         if (mainAnimator.gameObject.activeSelf)
         {
-            mainAnimator.SetTrigger("VictoryTrigger"); // Trigger the victory animation
+            mainAnimator.SetBool("Victory", true);
         }
     }
-    public void ResetOnNewGame()
+    public void ResetPlayerController()
     {
         damage = 0;
-        playerHUD.UpdateDamageText((int)damage);
-        playerHUD.Reset();
-        //if (!isDead)
-        //{
-        //    score++;
-        //    playerHUD.SetScore(score);
-        //}
+        playerHUD.ResetHUD();
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        
+        if (mainAnimator.gameObject.activeSelf)
+        {
+            mainAnimator.SetBool("Victory", false);
+        }
     }
-    public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler)
+    public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
         this.playerHUD = playerHUD;
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
+        aimIndicator.color = color;
 
         playerHUD.UpdateDamageText((int)damage);
-        playerHUD.SetScore(score);
         
         if (controllerRumbler != null)
         {

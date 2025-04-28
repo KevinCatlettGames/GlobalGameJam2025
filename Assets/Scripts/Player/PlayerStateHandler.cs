@@ -2,30 +2,36 @@ using System;
 using UnityEngine;
 using FMODUnity;
 using UnityEngine.UI;
+
+public enum PlayerState
+{
+    alive,
+    dead,
+    disabled,
+    missing
+}
 public class PlayerStateHandler : MonoBehaviour
 {
-    
-    public Vector3 spawnPosition;
-    // Start is called before the first frame update
-    public GameObject meshObject;
-    public Image aimIndicator; 
+    [SerializeField] private GameObject meshObject;
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
-    private bool endTriggered = false; 
+    private bool isDead = false;
     private PlayerController playerController;
+    private CharacterController controller;
     
     private void Start()
     {
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         playerController = gameObject.GetComponent<PlayerController>();
+        controller = gameObject.GetComponent<CharacterController>();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!endTriggered == other.CompareTag("Deathzone"))
+        if (!isDead && other.CompareTag("Deathzone"))
         {
-            endTriggered = true; 
-            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+            isDead = true;
+            GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.dead);
             playerController.Die();
             Invoke(nameof(DisablePlayer), 2f);
         }
@@ -33,21 +39,21 @@ public class PlayerStateHandler : MonoBehaviour
 
     void DisablePlayer()
     {
-        PlayerManager.Instance.ReducePlayers();
         meshObject.SetActive(false);
-        CharacterController controller = GetComponent<CharacterController>();
         controller.enabled = false;
+        GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.disabled);
     }
 
-    public void Reset()
+    public void ResetPlayer()
     {
-        CharacterController controller = GetComponent<CharacterController>();
+        CancelInvoke();
         controller.enabled = false;
         meshObject.SetActive(true);
-        endTriggered = false; 
-        transform.position = spawnPosition;
-        playerController.ResetOnNewGame();
+        isDead = false;
+        PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
+        playerController.ResetPlayerController();
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
+        GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.alive);
     }
 }

@@ -19,19 +19,24 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private float gradientEvalueateFactor = 0.005f;
     [SerializeField] private Gradient damageTextColorGradient;
-    [Header("Portrait")]
+    [Header("UI Elements")]
     [SerializeField] private Image portrait;
     [SerializeField] Color deathColor;
     [SerializeField] private GameObject UICover;
+    [SerializeField] private Image[] coloredUI;
     [Header("Score")]
-    [SerializeField] private TextMeshProUGUI scoreText;
-    private int score = 0;
+    [SerializeField] private TextMeshProUGUI winsText;
+    [SerializeField] private TextMeshProUGUI killsText;
+
+    private int kills = 0;
+    private int wins = 0;
 
     private void Start()
     {
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
-        scoreText.text = "K: " + score.ToString();
+        killsText.text = kills.ToString();
+        winsText.text = wins.ToString();
     }
     private void Update()
     {
@@ -96,24 +101,33 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
-    public void SetScore(int score)
+    public void AddWin()
     {
-        this.score = score;
-        scoreText.text = "K: " + score.ToString();
+        wins++;
+        winsText.text = wins.ToString();
     }
-    public void AddScore()
+    public void AddKill()
     {
-        score++;
-        scoreText.text = "K: " + score.ToString();
+        kills++;
+        killsText.text = kills.ToString();
     }
     public void DisplayDeath()
     {
         portrait.color = deathColor;
         UICover.SetActive(true);    
     }
-    public void Reset()
+    public void ResetHUD()
     {
         portrait.color = Color.white;
         UICover.SetActive(false);
+        UpdateDamageText(0);
+    }
+    public void InitialisePlayerHUD(Color playerColor, Sprite playerPortrait)
+    {
+        for (int i = 0; i < coloredUI.Length; i++)
+        {
+            coloredUI[i].color = playerColor;
+        }
+        portrait.sprite = playerPortrait;
     }
 }

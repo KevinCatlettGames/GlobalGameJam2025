@@ -28,6 +28,10 @@ public class GiantBubble : BasicBubble
         {
             DamageBubble();
         }
+        else
+        {
+            Pop();
+        }
     }
     private void DamageBubble()
     {

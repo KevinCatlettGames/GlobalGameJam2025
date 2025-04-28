@@ -26,7 +26,7 @@ public class MusicIntensityManager : MonoBehaviour
         musicInstance.start(); // Start the music
 
         // Initialize the global parameter for PlayerCount
-        UpdateMusicIntensity();
+        //UpdateMusicIntensity();
         SetInitialMusicIntensity();
 
     }
@@ -61,25 +61,25 @@ public class MusicIntensityManager : MonoBehaviour
             FMODUnity.RuntimeManager.StudioSystem.setParameterByName("PlayerCount", 4);
             
         // Only update intensity if the number of players has changed
-        if (currentRegisteredPlayers != currentPlayer.activePlayers)
-        {
-            currentRegisteredPlayers = currentPlayer.activePlayers;
-            UpdateMusicIntensity();
-        }
+        //if (currentRegisteredPlayers != currentPlayer.activePlayers)
+        //{
+        //    currentRegisteredPlayers = currentPlayer.activePlayers;
+        //    UpdateMusicIntensity();
+        //}
     }
 
-    private void UpdateMusicIntensity()
-    {
-        if (canUpdateAudio == false)
-        {
-            return;
-        }
-        // Reverse the intensity logic: fewer players = higher intensity, more players = lower intensity
-        // You can modify the mapping logic here for smoother transitions if needed
-        float clampedPlayers = Mathf.Clamp(currentPlayer.activePlayers, 2, 4);
-        float intensityValue = 4 - clampedPlayers; // Intensity is higher with fewer players
+    //private void UpdateMusicIntensity()
+    //{
+    //    if (canUpdateAudio == false)
+    //    {
+    //        return;
+    //    }
+    //    // Reverse the intensity logic: fewer players = higher intensity, more players = lower intensity
+    //    // You can modify the mapping logic here for smoother transitions if needed
+    //    //float clampedPlayers = Mathf.Clamp(currentPlayer.activePlayers, 2, 4);
+    //    float intensityValue = 4 - clampedPlayers; // Intensity is higher with fewer players
 
-        // Update the global parameter 'PlayerCount' in FMOD
-        FMODUnity.RuntimeManager.StudioSystem.setParameterByName("PlayerCount", intensityValue);
-    }
+    //    // Update the global parameter 'PlayerCount' in FMOD
+    //    FMODUnity.RuntimeManager.StudioSystem.setParameterByName("PlayerCount", intensityValue);
+    //}
 }

@@ -49,11 +49,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-<<<<<<< Updated upstream
-  m_Motion: {fileID: -7910911242364806791, guid: 7e91939667dd2f4488ec1d46306c2e00,
-=======
-  m_Motion: {fileID: -7910911242364806791, guid: f2fd2daedaa44bd4a91cf79803608d59,
->>>>>>> Stashed changes
+  m_Motion: {fileID: -7910911242364806791, guid: 66f186e0e57fcf14ebf9308c3434e06e,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -77,9 +73,9 @@ AnimatorStateTransition:
   m_Mute: 0
   m_IsExit: 0
   serializedVersion: 3
-  m_TransitionDuration: 0.68368125
-  m_TransitionOffset: 0.2584465
-  m_ExitTime: 0.68482924
+  m_TransitionDuration: 0.18517855
+  m_TransitionOffset: 0
+  m_ExitTime: 0.70989245
   m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
@@ -146,17 +142,13 @@ AnimatorStateMachine:
   m_ChildStates:
   - serializedVersion: 1
     m_State: {fileID: -8560463020661026625}
-    m_Position: {x: 270, y: 120, z: 0}
+    m_Position: {x: 270, y: 110, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4791360673137616291}
     m_Position: {x: 270, y: 200, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 5334797919416387185}
-<<<<<<< Updated upstream
-    m_Position: {x: -10, y: 200, z: 0}
-=======
-    m_Position: {x: 10, y: 200, z: 0}
->>>>>>> Stashed changes
+    m_Position: {x: 10, y: 190, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 4963797091832667514}
     m_Position: {x: 610, y: 200, z: 0}
@@ -165,7 +157,7 @@ AnimatorStateMachine:
     m_Position: {x: 50, y: 20, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 764181490733650909}
-    m_Position: {x: 380, y: 360, z: 0}
+    m_Position: {x: 420, y: 340, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -203,8 +195,8 @@ AnimatorController:
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 9100000}
-  - m_Name: VictoryTrigger
-    m_Type: 9
+  - m_Name: Victory
+    m_Type: 4
     m_DefaultFloat: 0
     m_DefaultInt: 0
     m_DefaultBool: 0
@@ -254,7 +246,10 @@ AnimatorStateTransition:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: 
-  m_Conditions: []
+  m_Conditions:
+  - m_ConditionMode: 2
+    m_ConditionEvent: Victory
+    m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: -8560463020661026625}
   m_Solo: 0
@@ -264,7 +259,7 @@ AnimatorStateTransition:
   m_TransitionDuration: 0.25
   m_TransitionOffset: 0
   m_ExitTime: 0.875
-  m_HasExitTime: 1
+  m_HasExitTime: 0
   m_HasFixedDuration: 1
   m_InterruptionSource: 0
   m_OrderedInterruption: 1
@@ -290,11 +285,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-<<<<<<< Updated upstream
-  m_Motion: {fileID: 6349102352469348379, guid: 7e91939667dd2f4488ec1d46306c2e00,
-=======
-  m_Motion: {fileID: -405636848000277172, guid: f2fd2daedaa44bd4a91cf79803608d59,
->>>>>>> Stashed changes
+  m_Motion: {fileID: 6349102352469348379, guid: 66f186e0e57fcf14ebf9308c3434e06e,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -310,7 +301,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: VictoryTrigger
+    m_ConditionEvent: Victory
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 764181490733650909}
@@ -360,7 +351,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: VictoryTrigger
+    m_ConditionEvent: Victory
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 764181490733650909}
@@ -400,11 +391,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-<<<<<<< Updated upstream
-  m_Motion: {fileID: 7273883930258772241, guid: 7e91939667dd2f4488ec1d46306c2e00,
-=======
-  m_Motion: {fileID: 7273883930258772241, guid: f2fd2daedaa44bd4a91cf79803608d59,
->>>>>>> Stashed changes
+  m_Motion: {fileID: 7273883930258772241, guid: 66f186e0e57fcf14ebf9308c3434e06e,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -459,12 +446,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-<<<<<<< Updated upstream
-  m_Motion: {fileID: 444421818648581200, guid: 7e91939667dd2f4488ec1d46306c2e00, type: 3}
-=======
-  m_Motion: {fileID: -156588275658814884, guid: f2fd2daedaa44bd4a91cf79803608d59,
-    type: 3}
->>>>>>> Stashed changes
+  m_Motion: {fileID: 444421818648581200, guid: 66f186e0e57fcf14ebf9308c3434e06e, type: 3}
   m_Tag: 
   m_SpeedParameter: 
   m_MirrorParameter: 
@@ -518,11 +500,7 @@ AnimatorState:
   m_MirrorParameterActive: 0
   m_CycleOffsetParameterActive: 0
   m_TimeParameterActive: 0
-<<<<<<< Updated upstream
-  m_Motion: {fileID: -1123410679578920458, guid: 7e91939667dd2f4488ec1d46306c2e00,
-=======
-  m_Motion: {fileID: -5238137107113060400, guid: f2fd2daedaa44bd4a91cf79803608d59,
->>>>>>> Stashed changes
+  m_Motion: {fileID: 6349102352469348379, guid: 66f186e0e57fcf14ebf9308c3434e06e,
     type: 3}
   m_Tag: 
   m_SpeedParameter: 
@@ -588,7 +566,7 @@ AnimatorStateTransition:
   m_Name: 
   m_Conditions:
   - m_ConditionMode: 1
-    m_ConditionEvent: VictoryTrigger
+    m_ConditionEvent: Victory
     m_EventTreshold: 0
   m_DstStateMachine: {fileID: 0}
   m_DstState: {fileID: 764181490733650909}
