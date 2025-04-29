@@ -1,3 +1,4 @@
+using Febucci.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -16,6 +17,7 @@ public class PlayerHUD : MonoBehaviour
     private float secondCoverFill = 0f;
     private float secondCDRate = 1f;
     [Header("Damage")]
+    [SerializeField] private TypewriterByWord typewriter;
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private float gradientEvalueateFactor = 0.005f;
     [SerializeField] private Gradient damageTextColorGradient;
@@ -76,7 +78,8 @@ public class PlayerHUD : MonoBehaviour
     {
         if (damageText != null)
         {
-            damageText.text = damage.ToString();
+            typewriter.ShowText(damage.ToString());
+            //damageText.text = damage.ToString();
             float colorValue = damage * gradientEvalueateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
         }
