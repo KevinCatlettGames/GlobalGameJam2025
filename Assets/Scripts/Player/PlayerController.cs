@@ -346,11 +346,7 @@ public class PlayerController : MonoBehaviour
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
-        
-        if (mainAnimator.gameObject.activeSelf)
-        {
-            mainAnimator.SetBool("Victory", false);
-        }
+        mainAnimator.SetBool("Victory", false);       
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {

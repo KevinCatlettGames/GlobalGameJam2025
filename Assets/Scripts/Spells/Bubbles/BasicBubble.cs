@@ -16,18 +16,21 @@ public class BasicBubble : MonoBehaviour
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
     protected bool hasPopped = false;
-    [SerializeField] protected float inflationSpeed = 8f;
+    protected float inflationSpeed = 8f;
     protected SphereCollider sphereCollider;
     protected float currentSize = 0.01f;
     public bool isSlippy = false;
     protected float slippMod = 2f;
     protected Collider playerCollider;
     [HideInInspector] public int OwnerID = -1;
-    
-    
-    [SerializeField] protected GameObject popEffect; 
-    
-    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+
+    [SerializeField] protected GameObject popEffect;
+
+    private void Start()
+    {
+        GameManager.Instance.OnGameStarted += DestroyBubble;
+    }
+    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
         damage = dmg;
@@ -36,6 +39,7 @@ public class BasicBubble : MonoBehaviour
         range = rng;
         size = siz;
         direction = dir;
+        inflationSpeed = inf;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         sphereCollider = GetComponent<SphereCollider>();
@@ -133,5 +137,13 @@ public class BasicBubble : MonoBehaviour
             speed *= slippMod;
         }
         
+    }
+    private void DestroyBubble()
+    {
+        Destroy(gameObject);
+    }
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnGameStarted -= DestroyBubble;
     }
 }
