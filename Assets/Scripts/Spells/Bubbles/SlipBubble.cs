@@ -10,9 +10,9 @@ public class SlipBubble : BasicBubble
     [SerializeField] private LayerMask groundedLayerMask;
     private SlimeTrail slimeTrail;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         GameObject trail = Instantiate(slimeTrailObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
         slimeTrail = trail.GetComponent<SlimeTrail>();
         slimeTrail.InitialiseTrail(speed);
