@@ -1,3 +1,4 @@
+using System.Collections;
 using Unity.VisualScripting;
 using UnityEngine;
 
@@ -15,8 +16,7 @@ public class SingleEliminationGM : GameManager
         }
         if (alivePlayers <= 1)
         {
-            Debug.Log("GameEnded");
-            Invoke(nameof(EndGame), gameEndDelay);
+            StartCoroutine(AwardVictory());
         }
     }
     private void Update()
@@ -27,17 +27,43 @@ public class SingleEliminationGM : GameManager
         }
     }
 
-    public override void EndGame()
+    private IEnumerator AwardVictory()
     {
+        yield return new WaitForSeconds(gameEndDelay);
+        int winnerID = -1;
         for (int i = 0; i < playerStates.Length; i++)
         {
             if (playerStates[i] == PlayerState.alive)
             {
-                players[i].Victory();
-                playerHUDs[i].AddWin();
-                Debug.Log("Player " + i + " Victory");
+                winnerID = i;
+                players[winnerID].Victory();
+                break;
             }
         }
-        base.EndGame();
+        victoryAnimator.gameObject.SetActive(true);
+        switch (winnerID)
+        {
+            case 0:
+                victoryAnimator.Play("P0");
+                break;
+            case 1:
+                victoryAnimator.Play("P1");
+                break;
+            case 2:
+                victoryAnimator.Play("P2");
+                break;
+            case 3:
+                victoryAnimator.Play("P3");
+                break;
+            default:
+                victoryAnimator.gameObject.SetActive(false);
+                EndGame();
+                yield break;
+        }
+        yield return new WaitForSeconds(1f);
+        playerHUDs[winnerID].AddWin();
+        victoryAnimator.gameObject.SetActive(false);
+        EndGame();
     }
+
 }

@@ -12,7 +12,8 @@ public class GameManager : MonoBehaviour
     public Action OnGameEnded;
     public Action OnGameStarted;
 
-    public GameObject restartGameText; 
+    [SerializeField] protected GameObject restartGameText;
+    [SerializeField] protected Animator victoryAnimator;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];

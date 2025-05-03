@@ -137,9 +137,8 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        move += playerVelocity * Time.deltaTime;
-        if (controller.enabled)
-            controller.Move(move);
+        if (!isDead) move += playerVelocity * Time.deltaTime;
+        if (controller.enabled) controller.Move(move);
 
         // Smoothly rotate the player to face the movement direction
         if (targetDirection != Vector3.zero)
@@ -347,6 +346,7 @@ public class PlayerController : MonoBehaviour
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        mainAnimator.SetBool("IsDead", false);
         mainAnimator.SetBool("Victory", false);       
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
