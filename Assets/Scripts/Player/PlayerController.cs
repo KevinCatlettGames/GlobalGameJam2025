@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
     public float SprintCooldown { get { return sprintCooldown; } }
     public UnityEvent OnBeginSprint;
     public UnityEvent OnEndSprint; 
-
+    private bool freezeMovement = false;
     private bool canSprint = true;
     private Coroutine sprintCoroutine;
     #endregion
@@ -57,7 +57,7 @@ public class PlayerController : MonoBehaviour
     #region Player Controller
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
+    //private bool groundedPlayer;
     #endregion
 
     #region Input Movement 
@@ -86,10 +86,13 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+        if (controller.isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
+        }
+        else 
+        {
+            playerVelocity.y += gravityValue * Time.deltaTime;
         }
 
         // Handle input movement
@@ -97,7 +100,6 @@ public class PlayerController : MonoBehaviour
         {
             targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
-
         }
         else
         {
@@ -130,6 +132,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        move += playerVelocity * Time.deltaTime;
         if (controller.enabled)
             controller.Move(move);
 
@@ -139,12 +142,6 @@ public class PlayerController : MonoBehaviour
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
-
-        // Gravity
-        playerVelocity.y += gravityValue * Time.deltaTime;
-
-        if (controller.enabled)
-            controller.Move(playerVelocity * Time.deltaTime);
     }
     #endregion
 
