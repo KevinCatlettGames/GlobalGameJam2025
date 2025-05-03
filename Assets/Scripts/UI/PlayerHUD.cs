@@ -19,7 +19,7 @@ public class PlayerHUD : MonoBehaviour
     [Header("Damage")]
     [SerializeField] private TypewriterByWord damageTypewriter;
     [SerializeField] private TextMeshProUGUI damageText;
-    [SerializeField] private float gradientEvalueateFactor = 0.005f;
+    [SerializeField] private float gradientEvaluateFactor = 0.005f;
     [SerializeField] private Gradient damageTextColorGradient;
     [Header("UI Elements")]
     [SerializeField] private Image portrait;
@@ -80,7 +80,7 @@ public class PlayerHUD : MonoBehaviour
         {
             damageTypewriter.ShowText(damage.ToString());
             //damageText.text = damage.ToString();
-            float colorValue = damage * gradientEvalueateFactor;
+            float colorValue = damage * gradientEvaluateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
         }
     }
