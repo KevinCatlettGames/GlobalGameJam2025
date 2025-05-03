@@ -13,7 +13,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private EventReference deathEvent;
 
     [Header("Spells")]
-    [SerializeField] private GameObject spellSpawnEffect;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
 
@@ -35,14 +34,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
-    [SerializeField] private ParticleSystem damageParticleSystem;
-    [SerializeField] private GameObject dashStartEffect;
     private ControllerRumbler controllerRumbler = null;
 
-    [Header("Player Stats")]
+    [Header("Effects")]
+    [SerializeField] private GameObject dashStartEffect;
+    [SerializeField] private GameObject spellSpawnEffect;
+    [SerializeField] private ParticleSystem damageParticleSystem;
+
+
     #region Player Physics
+    [Header("Player Stats")]
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
+
+    [Header("Sprint")]
     [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
@@ -57,7 +62,6 @@ public class PlayerController : MonoBehaviour
     #region Player Controller
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
     #endregion
 
     #region Input Movement 
@@ -77,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
     private Animator mainAnimator;
     [SerializeField] private GameObject[] characters;
-    [SerializeField] private Image aimIndicator;
+    [SerializeField] private Image[] coloredElements;
     
     #region Unity
     private void Start()
@@ -86,10 +90,13 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+        if (controller.isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
+        }
+        else
+        {
+            playerVelocity.y += gravityValue * Time.deltaTime;
         }
 
         // Handle input movement
@@ -130,6 +137,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        move += playerVelocity * Time.deltaTime;
         if (controller.enabled)
             controller.Move(move);
 
@@ -140,11 +148,6 @@ public class PlayerController : MonoBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
-        // Gravity
-        playerVelocity.y += gravityValue * Time.deltaTime;
-
-        if (controller.enabled)
-            controller.Move(playerVelocity * Time.deltaTime);
     }
     #endregion
 
@@ -301,6 +304,7 @@ public class PlayerController : MonoBehaviour
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
+        mainAnimator.SetTrigger("Flinch");
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -334,10 +338,7 @@ public class PlayerController : MonoBehaviour
     #region PlayerManager
     public void Victory()
     {
-        if (mainAnimator.gameObject.activeSelf)
-        {
-            mainAnimator.SetBool("Victory", true);
-        }
+        mainAnimator.SetBool("Victory", true);        
     }
     public void ResetPlayerController()
     {
@@ -354,7 +355,10 @@ public class PlayerController : MonoBehaviour
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
-        aimIndicator.color = color;
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].color = color;
+        }
 
         playerHUD.UpdateDamageText((int)damage);
         
