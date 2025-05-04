@@ -1,89 +1,100 @@
-using System;
-using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ItemSpawner : MonoBehaviour
+public class ItemSpawner : NetworkBehaviour
 {
     public static ItemSpawner Instance;
-    
+
     [SerializeField] GameObject itemPrefab;
     [SerializeField] Transform[] startSpawnPoints;
-    [SerializeField] private float minSpawnInterval = 1;
-    [SerializeField] private float maxSpawnInterval = 7;
-    [SerializeField] private float spawnRadius = 15;
-    [SerializeField] List<GameObject> spawnedItems = new List<GameObject>();
-    
-    public int maxAmount = 2; 
+    [SerializeField] float minSpawnInterval = 1;
+    [SerializeField] float maxSpawnInterval = 7;
+    [SerializeField] float spawnRadius = 15;
+
+    public int maxAmount = 2;
     public int currentAmount;
+
+    private List<GameObject> spawnedItems = new List<GameObject>();
 
     private void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-        }
         else
+            Destroy(gameObject);
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
         {
-            Destroy(this);
+            GameManager.Instance.OnGameStarted += ResetSpawner;
+
+            foreach (Transform t in startSpawnPoints)
+                SpawnItem(t.position);
+
+            Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
         }
     }
 
-    public void Start()
+    private void SpawnLoop()
     {
-        GameManager.Instance.OnGameStarted += Reset;
-        
-        
-        foreach (Transform t in startSpawnPoints)
-            SpawnItem(t.position);
+        if (!IsServer) return;
 
-        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
-    }
-
-    void SpawnLoop()
-    {
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
 
-        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
+        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
     }
 
-    void SpawnItem(Vector3 location)
+    private void SpawnItem(Vector3 location)
     {
-        GameObject newItem; 
-        Vector3 center = new Vector3(0, 1, 0); // Center of the sphere
-        Vector3 randomPosition = center + Random.insideUnitSphere * spawnRadius;
-        
-        if(location == Vector3.zero)
-            newItem = Instantiate(itemPrefab, new Vector3(randomPosition.x, itemPrefab.transform.position.y, randomPosition.y), Quaternion.identity);
+        Vector3 spawnPosition;
+        if (location == Vector3.zero)
+        {
+            Vector3 randomPos = Random.insideUnitSphere * spawnRadius;
+            randomPos.y = itemPrefab.transform.position.y;
+            spawnPosition = new Vector3(randomPos.x, itemPrefab.transform.position.y, randomPos.z);
+        }
         else
-            newItem = Instantiate(itemPrefab, new Vector3(location.x, itemPrefab.transform.position.y, location.z), Quaternion.identity);
+        {
+            spawnPosition = new Vector3(location.x, itemPrefab.transform.position.y, location.z);
+        }
+
+        GameObject itemInstance = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
         
-       currentAmount++;
-       spawnedItems.Add(newItem);
+        // Important: the prefab must have a NetworkObject component
+        itemInstance.GetComponent<NetworkObject>().Spawn(true);
+
+        spawnedItems.Add(itemInstance);
+        currentAmount++;
     }
 
     public void ChangeMaxItemAmount(bool increase)
     {
+        if (!IsServer) return;
+
         if (increase)
-        {
             maxAmount++;
-        }
         else
-        {
             maxAmount--;
-        }
     }
 
-    public void Reset()
+    public void ResetSpawner()
     {
+        if (!IsServer) return;
+
         foreach (GameObject item in spawnedItems)
-        { 
-            Destroy(item);
-            currentAmount = 0; 
+        {
+            if (item != null)
+                Destroy(item);
         }
-        
+
+        spawnedItems.Clear();
+        currentAmount = 0;
+
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 

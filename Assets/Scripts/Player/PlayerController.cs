@@ -14,6 +14,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private EventReference deathEvent;
 
     [Header("Spells")]
+    [SerializeField]
+    private SO_Spell[] allSpells;
+    
     [SerializeField] private GameObject spellSpawnEffect;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
@@ -199,20 +202,84 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
         }
     }
+    
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (itemToEquip != null && context.performed)
+        if (context.performed)
         {
-            EquipSpell(1);
+            EquipSpellServerRpc(1);
         }
     }
+
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
-        if (itemToEquip != null && context.performed)
+        if (context.performed)
         {
-            EquipSpell(2);
+            EquipSpellServerRpc(2);
         }
     }
+
+    [ServerRpc]
+    private void EquipSpellServerRpc(int spellID)
+    {
+        if (itemToEquip == null) return;
+
+        switch (spellID)
+        {
+            case 1:
+                firstSpell = itemToEquip.EquipSpell();
+                playerHUD.SetSpell(1, firstSpell.SpellIcon);
+                break;
+            case 2:
+                secondSpell = itemToEquip.EquipSpell();
+                playerHUD.SetSpell(2, secondSpell.SpellIcon);
+                break;
+            default:
+                Debug.LogWarning("Invalid spell ID");
+                return;
+        }
+        
+        ResetSpell(spellID);
+
+        // Call the ClientRpc to send the spell data to the client
+        EquipSpellClientRpc(spellID);
+          itemToEquip = null;
+    }
+
+    // ClientRpc to notify the client about the spell change
+    [ClientRpc]
+    private void EquipSpellClientRpc(int spellID)
+    {
+        // Retrieve the correct spell for the client side
+        SO_Spell equippedSpell = GetSpellByID(spellID);
+        if (equippedSpell == null)
+        {
+            Debug.LogWarning("Spell ID not found on client.");
+            return;
+        }
+
+        // Update client-side spell data based on the spell ID
+        if (spellID == 1)
+        {
+            playerHUD.SetSpell(1, equippedSpell.SpellIcon);
+        }
+        else if (spellID == 2)
+        {
+            playerHUD.SetSpell(2, equippedSpell.SpellIcon);
+        }
+    }
+
+    // Helper function to find a spell by ID
+    private SO_Spell GetSpellByID(int spellID)
+    {
+        // Simple lookup by ID
+        if (spellID >= 1 && spellID <= allSpells.Length)
+        {
+            return allSpells[spellID - 1];
+        }
+        return null;
+    }
+    
     public void OnSprint(InputAction.CallbackContext context)
     {
         if (canSprint && context.performed && sprintCoroutine == null)
@@ -258,26 +325,6 @@ public class PlayerController : NetworkBehaviour
         {
             itemToEquip = null;
         }
-    }
-    private void EquipSpell(int spellID)
-    {
-        switch (spellID)
-        {
-            case 1:
-                firstSpell = itemToEquip.EquipSpell();
-                itemToEquip = null;
-                playerHUD.SetSpell(1, firstSpell.SpellIcon);
-                break;
-            case 2:
-                secondSpell = itemToEquip.EquipSpell();
-                itemToEquip = null;
-                playerHUD.SetSpell(2, secondSpell.SpellIcon);
-                break;
-            default:
-                Debug.Log("Spell Equip Error");
-                break;
-        }
-        ResetSpell(spellID);
     }
     #endregion
 
