@@ -6,7 +6,7 @@ using UnityEngine;
 public class SlimeTrail : NetworkBehaviour
 {
     private float trailSpeed = 0f;
-    private bool isStopped = false;
+    public bool isStopped = false;
     [SerializeField] private float trailDuration = 10f;
 
     private void Start()
