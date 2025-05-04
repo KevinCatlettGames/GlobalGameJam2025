@@ -342,13 +342,48 @@ public class PlayerController : NetworkBehaviour
     }
     public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
     {
+        ApplySpells(firstSpell, secondSpell);
+
+        if (IsServer)
+            SetSpellsClientRpc(firstSpell.spellIndex, secondSpell.spellIndex);
+    }
+
+    [ClientRpc]
+    public void SetSpellsClientRpc(int firstSpellIndex, int secondSpellIndex)
+    {
+        SO_Spell first = null, second = null;
+
+        foreach (SO_Spell spell in allSpells)
+        {
+            if (spell.spellIndex == firstSpellIndex)
+                first = spell;
+            if (spell.spellIndex == secondSpellIndex)
+                second = spell;
+        }
+
+        if (first != null && second != null)
+        {
+            ApplySpells(first, second);
+        }
+        else
+        {
+            Debug.LogError("Could not resolve one or both spells from index!");
+        }
+    }
+
+    private void ApplySpells(SO_Spell firstSpell, SO_Spell secondSpell)
+    {
         this.firstSpell = firstSpell;
         this.secondSpell = secondSpell;
+
         ResetSpell(1);
         ResetSpell(2);
+
         playerHUD.SetSpell(1, firstSpell.SpellIcon);
         playerHUD.SetSpell(2, secondSpell.SpellIcon);
     }
+
+    
     private void ResetSpell(int spellID)
     {
         switch (spellID)
