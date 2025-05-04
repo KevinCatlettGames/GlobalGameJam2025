@@ -60,7 +60,7 @@ public class SingleEliminationGM : GameManager
                 EndGame();
                 yield break;
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(2f);
         playerHUDs[winnerID].AddWin();
         victoryAnimator.gameObject.SetActive(false);
         EndGame();
