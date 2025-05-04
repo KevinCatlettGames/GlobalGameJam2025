@@ -6,9 +6,6 @@ using FMODUnity;
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
-
-    public int spellID; 
-    
     [Header("UI")]
     public Sprite SpellIcon;
 

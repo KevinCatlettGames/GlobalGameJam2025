@@ -16,7 +16,7 @@ public class Item : NetworkBehaviour
     [SerializeField] private Material itemMaterial;
 
     private Material spellMaterial;
-    private SO_Spell spell;
+    public SO_Spell spell;
 
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private bool isBlinking = false;

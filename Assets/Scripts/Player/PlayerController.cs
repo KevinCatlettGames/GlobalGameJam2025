@@ -251,33 +251,27 @@ public class PlayerController : NetworkBehaviour
     private void EquipSpellClientRpc(int spellID)
     {
         // Retrieve the correct spell for the client side
-        SO_Spell equippedSpell = GetSpellByID(spellID);
+        SO_Spell equippedSpell = itemToEquip.spell;
         if (equippedSpell == null)
         {
             Debug.LogWarning("Spell ID not found on client.");
             return;
         }
 
-        // Update client-side spell data based on the spell ID
-        if (spellID == 1)
+        switch (spellID)
         {
-            playerHUD.SetSpell(1, equippedSpell.SpellIcon);
+            case 1:
+                firstSpell = equippedSpell;
+                playerHUD.SetSpell(1, firstSpell.SpellIcon);
+                break;
+            case 2:
+                secondSpell = equippedSpell;
+                playerHUD.SetSpell(2, secondSpell.SpellIcon);
+                break;
+            default:
+                Debug.LogWarning("Invalid spell ID");
+                return;
         }
-        else if (spellID == 2)
-        {
-            playerHUD.SetSpell(2, equippedSpell.SpellIcon);
-        }
-    }
-
-    // Helper function to find a spell by ID
-    private SO_Spell GetSpellByID(int spellID)
-    {
-        // Simple lookup by ID
-        if (spellID >= 1 && spellID <= allSpells.Length)
-        {
-            return allSpells[spellID - 1];
-        }
-        return null;
     }
     
     public void OnSprint(InputAction.CallbackContext context)
@@ -320,12 +314,22 @@ public class PlayerController : NetworkBehaviour
         if (isInRange)
         {
             itemToEquip = item;
+            var itemNetworkObject = item.GetComponent<NetworkObject>();
+            UpdateItemToEquipClientRpc(itemNetworkObject);
         }
         else if (!isInRange && item == itemToEquip)
         {
             itemToEquip = null;
         }
     }
+
+    [ClientRpc]
+    public void UpdateItemToEquipClientRpc(NetworkObjectReference item)
+    {
+        if (item.TryGet(out NetworkObject itemNetObj))
+            itemToEquip = itemNetObj.GetComponent<Item>();
+    }
+    
     #endregion
 
     #region Spells
