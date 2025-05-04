@@ -179,29 +179,77 @@ public class PlayerController : NetworkBehaviour
         movementInput = context.ReadValue<Vector2>();
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
+{
+    if (isFirstSpellReady && context.performed && !isDead)
     {
-        if (isFirstSpellReady && context.performed && !isDead)
-        {
-            mainAnimator.SetTrigger("SlapTrigger");
-            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
-            isFirstSpellReady = false;
-            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
-            RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(),gameObject);
-        }
+        CastSpellServerRpc(true); // Request to cast first spell
     }
-    public void OnSecondSpell(InputAction.CallbackContext context)
+}
+
+public void OnSecondSpell(InputAction.CallbackContext context)
+{
+    if (isSecondSpellReady && context.performed && !isDead)
     {
-        if (isSecondSpellReady && context.performed && !isDead)
-        {
-            mainAnimator.SetTrigger("SlapTrigger");
-            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = secondSpell.CastSpell(playerID, transform.position, transform.forward, controller);
-            isSecondSpellReady = false;
-            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
-            RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
-        }
+        CastSpellServerRpc(false); // Request to cast second spell
     }
+}
+
+[ServerRpc]
+private void CastSpellServerRpc(bool isFirstSpell)
+{
+    SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+
+    // Server validates if spell is ready (you can add logic here)
+    float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
+
+    // Trigger client VFX/SFX and start local cooldown visuals
+    CastSpellClientRpc(isFirstSpell, cooldown);
+
+    // Start server cooldown logic (authoritative)
+    if (isFirstSpell)
+        firstSpellCoroutine = StartCoroutine(ServerCooldownCoroutine(cooldown, 1));
+    else
+        secondSpellCoroutine = StartCoroutine(ServerCooldownCoroutine(cooldown, 2));
+}
+
+[ClientRpc]
+private void CastSpellClientRpc(bool isFirstSpell, float cooldown)
+{
+    mainAnimator.SetTrigger("SlapTrigger");
+    Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
+
+    SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+    RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
+
+    // Start local cooldown visuals
+    StartCoroutine(SpellCooldown(cooldown, isFirstSpell ? 1 : 2));
+
+    // Lock the spell input locally
+    if (isFirstSpell)
+        isFirstSpellReady = false;
+    else
+        isSecondSpellReady = false;
+}
+
+private IEnumerator ServerCooldownCoroutine(float time, int spellID)
+{
+    yield return new WaitForSeconds(time);
+
+    // Notify clients when cooldown is over
+    CooldownCompleteClientRpc(spellID);
+}
+
+[ClientRpc]
+private void CooldownCompleteClientRpc(int spellID)
+{
+    ResetSpell(spellID);
+    if (spellID == 1)
+        isFirstSpellReady = true;
+    else
+        isSecondSpellReady = true;
+}
+
+
     
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
