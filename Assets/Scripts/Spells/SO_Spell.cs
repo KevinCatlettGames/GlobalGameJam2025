@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
+using Unity.Netcode; 
 
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
@@ -32,12 +33,21 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected EventReference spellEventStruct;
 
     protected BasicBubble bubbleScript;
-    public virtual float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
+    public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
     {
         dir.Normalize();
         pos += dir * (bubbleSize / 2f + 1f);
-        bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
+
+        GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
+    
+        // ✅ Network it
+        NetworkObject networkObj = bubbleInstance.GetComponent<NetworkObject>();
+        if (networkObj != null)
+            networkObj.Spawn(); // Broadcast to clients
+
+        bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
         bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, dir, castEventStruct, playerCollider);
+    
         return spellCooldown;
     }
     public Mesh GetMesh()

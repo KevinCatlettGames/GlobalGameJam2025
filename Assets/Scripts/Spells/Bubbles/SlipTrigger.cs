@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class SlipTrigger : MonoBehaviour
+public class SlipTrigger : NetworkBehaviour
 {
     private List<PlayerController> sliperyPlayers = new List<PlayerController>();
     private void OnTriggerEnter(Collider other)

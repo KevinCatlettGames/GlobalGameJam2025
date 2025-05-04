@@ -1,37 +1,47 @@
 using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode;
 
 public class SnipeBubble : BasicBubble
 {
     [SerializeField] private float minDamage = 10f;
     [SerializeField] private float damageRampUpDistance = 25f;
-    private float damageScaleing = 0f;
+
+    private float damageScaling = 0f;
     private float maxDamage = 0f;
+    private float currentDamage = 0f;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
+
         maxDamage = dmg;
-        damage = minDamage;
-        damageScaleing = (maxDamage - minDamage) / damageRampUpDistance;
+        currentDamage = minDamage;
+        damageScaling = (maxDamage - minDamage) / damageRampUpDistance;
     }
+
     protected override void BubbleMovement()
     {
         base.BubbleMovement();
-        if (damage < maxDamage)
+
+        if (!IsServer) return;
+
+        if (currentDamage < maxDamage)
         {
-            damage += speed * Time.fixedDeltaTime * damageScaleing;
-            if (damage > maxDamage) damage = maxDamage; 
+            currentDamage += speed * Time.fixedDeltaTime * damageScaling;
+            if (currentDamage > maxDamage) currentDamage = maxDamage;
         }
     }
+
     public override void BubbleCollision(GameObject other)
     {
+        if (!IsServer || hasPopped.Value) return;
+
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, currentDamage);
             Pop();
         }
         else if (other.CompareTag("Bubble"))

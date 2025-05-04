@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode; 
 
-public class BubbleExplosion : MonoBehaviour
+public class BubbleExplosion : NetworkBehaviour
 {
     private List<PlayerController> effectedPlayers = new List<PlayerController>();
     private List<BasicBubble> effectedBubbles = new List<BasicBubble>();

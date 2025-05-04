@@ -21,7 +21,7 @@ public class GiantBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID ,direction, knockback * currentHealth, damage);
+            player.ApplyKnockback(OwnerID.Value ,direction.Value, knockback * currentHealth, damage);
             Pop();
         }
         else if (other.CompareTag("Bubble"))
@@ -41,7 +41,7 @@ public class GiantBubble : BasicBubble
             Pop();
             return;
         }
-        transform.localScale = size * currentHealth * Vector3.one;
+        transform.localScale = size.Value * currentHealth * Vector3.one;
         damage *= 2f;
         speed *= 2f;
     }

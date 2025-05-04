@@ -11,13 +11,13 @@ public class RevolverBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        OwnerID = ID;
+        OwnerID.Value = ID;
         damage = dmg;
         knockback = knb;
         speed = spd;
         range = rng;
-        size = siz;
-        direction = dir;
+        size.Value = siz;
+        direction.Value = dir;
         this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
         StartCoroutine(EmptyBarrel());
@@ -30,15 +30,15 @@ public class RevolverBubble : BasicBubble
     private IEnumerator EmptyBarrel() 
     {
         Vector3 dir;
-        Vector3 pos = transform.position + direction;
+        Vector3 pos = transform.position + direction.Value;
         BasicBubble bubbleScript;
 
         for (int i = 0; i < maxAmmo; i++) 
         {
             float f = (float)i - ((float)maxAmmo / 2f);
-            dir = Quaternion.AngleAxis(spread * f, Vector3.up) * direction;
+            dir = Quaternion.AngleAxis(spread * f, Vector3.up) * direction.Value;
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID.Value, damage, knockback, speed, range, size.Value, dir, soundEvent, playerCollider);
             yield return new WaitForSeconds(delayBetweenShots);
         }
 

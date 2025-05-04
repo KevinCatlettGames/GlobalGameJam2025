@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class SlimeTrail : MonoBehaviour
+public class SlimeTrail : NetworkBehaviour
 {
     private float trailSpeed = 0f;
     private bool isStopped = false;

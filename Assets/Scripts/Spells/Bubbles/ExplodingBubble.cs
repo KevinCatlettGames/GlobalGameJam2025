@@ -14,21 +14,21 @@ public class ExplodingBubble : BasicBubble
     }
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped.Value) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
         }
         else if (other.CompareTag("Bubble"))
         {
-            bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID;
+            bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID.Value;
         }
         Pop();
     }
     protected override void Pop()
     {
-        if (hasPopped) return;
+        if (hasPopped.Value) return;
         bubbleExplosion.Explode(knockback, damage);
         base.Pop();
     }

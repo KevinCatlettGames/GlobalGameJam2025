@@ -34,11 +34,11 @@ public class SlipBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped.Value) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
             GameObject puddle = Instantiate(slimePuddleObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
             puddle.gameObject.GetComponent<SlimeTrail>().StopTrail();
         }
