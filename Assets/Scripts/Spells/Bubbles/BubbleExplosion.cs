@@ -6,6 +6,7 @@ public class BubbleExplosion : MonoBehaviour
 {
     private List<PlayerController> effectedPlayers = new List<PlayerController>();
     private List<BasicBubble> effectedBubbles = new List<BasicBubble>();
+    [SerializeField] private GameObject indicator;
     [HideInInspector] public int OwnerID;
 
     public void Explode(float knockback, float damage)
@@ -57,5 +58,10 @@ public class BubbleExplosion : MonoBehaviour
         }
     }
 
-
+    public void SetExplosionSize(float radius)
+    {
+        SphereCollider explosionCollider = GetComponent<SphereCollider>();
+        explosionCollider.radius = radius;
+        indicator.transform.localScale *= radius;
+    }
 }

@@ -110,13 +110,11 @@ public class BasicBubble : MonoBehaviour
 
     protected IEnumerator Inflate()
     {
-        Vector3 currentScale = Vector3.one;
         while (currentSize < size) 
         {
             currentSize += inflationSpeed * Time.deltaTime;
-            transform.localScale = Vector3.one * currentSize;
             if (currentSize > size) currentSize = size;
-            transform.localScale = currentScale * currentSize;
+            transform.localScale = Vector3.one * currentSize;
             yield return new WaitForEndOfFrame();
         }
         sphereCollider.enabled = true;
