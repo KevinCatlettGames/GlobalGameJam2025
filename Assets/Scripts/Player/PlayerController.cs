@@ -87,7 +87,8 @@ public class PlayerController : NetworkBehaviour
     
     #region Unity
     
-    private void Start()
+    [ClientRpc]
+    public void InitializeClientRpc()
     {
         foreach(GameObject character in characters)
             character.SetActive(false);
@@ -97,10 +98,6 @@ public class PlayerController : NetworkBehaviour
             var netObj = GetComponent<NetworkObject>();
             PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
         }
-    }
-
-    public void Initialize()
-    {
         if(IsOwner) GetComponent<PlayerInput>().enabled = true;
         controller = gameObject.GetComponent<CharacterController>(); 
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());

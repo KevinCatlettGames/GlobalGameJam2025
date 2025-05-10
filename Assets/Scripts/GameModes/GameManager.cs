@@ -1,11 +1,13 @@
 using System;
 using UnityEngine;
-using Unity.Netcode; 
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance; 
-    
+    public GameObject playerPrefab;
     protected bool gameEnded;
     protected static int maxPlayers = 4;
     protected float gameEndDelay = 1f;
@@ -30,12 +32,33 @@ public class GameManager : NetworkBehaviour
         {
             Destroy(this);
         }
+        
+        Cursor.visible = false;
         for (int i = 0; i < maxPlayers; i++)
         {
             playerStates[i] = PlayerState.missing;
         }
-        ChangePlayerStatesServerRpc(playerStates);
-        Cursor.visible = false;
+        
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManagerOnOnLoadEventCompleted;
+    }
+
+    private void SceneManagerOnOnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    {
+        if (IsServer)
+        {
+
+            ChangePlayerStatesServerRpc(playerStates);
+
+            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            {
+                GameObject player = Instantiate(playerPrefab);
+                player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+                PlayerManager.Instance.AddPlayerServerRpc(player);
+            }
+        }
+        
+        PlayerManager.Instance.Initialize();
+        ItemSpawner.Instance.InitialSpawn();
     }
 
     [ServerRpc(RequireOwnership = false)]

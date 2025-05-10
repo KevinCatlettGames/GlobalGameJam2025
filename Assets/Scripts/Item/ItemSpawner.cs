@@ -26,7 +26,7 @@ public class ItemSpawner : NetworkBehaviour
             Destroy(gameObject);
     }
 
-    public override void OnNetworkSpawn()
+    public void InitialSpawn()
     {
         if (IsServer)
         {

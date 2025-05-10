@@ -54,7 +54,7 @@ public class TestingNetcodeUI : NetworkBehaviour
     private void StartGameClientRpc()
     {
         // Example: Call your player manager to initialize stuff
-        PlayerManager.Instance.InitializeCallClientRpc();
+        PlayerManager.Instance.Initialize();
         // Resume game
         Time.timeScale = 1;
         Hide();

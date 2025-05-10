@@ -52,16 +52,15 @@ public class PlayerManager : NetworkBehaviour
         NetworkObjectReference tempInput = new NetworkObjectReference(playerInput.GetComponent<NetworkObject>());
         AddPlayer(tempInput);
     }
-
-    [ClientRpc]
-    public void InitializeCallClientRpc()
+    
+    public void Initialize()
     {
         Debug.Log(players.Count);
         foreach (NetworkObjectReference playerRef in players)
         {
             if (playerRef.TryGet(out NetworkObject networkObject))
             {
-                networkObject.GetComponent<PlayerController>().Initialize();
+                networkObject.GetComponent<PlayerController>().InitializeClientRpc();
             }
         }
     }
