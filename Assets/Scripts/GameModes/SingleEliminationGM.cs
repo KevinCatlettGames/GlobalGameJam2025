@@ -1,9 +1,11 @@
 using Unity.VisualScripting;
 using UnityEngine;
+using Unity.Netcode; 
 
 public class SingleEliminationGM : GameManager
 {
-    public override void CheckForRoundEnd()
+    [ServerRpc(RequireOwnership = false)]
+    public override void CheckForRoundEndServerRpc()
     {
         int alivePlayers = 0;
         for (int i = 0; i < playerStates.Length; i++)
@@ -15,10 +17,17 @@ public class SingleEliminationGM : GameManager
         }
         if (alivePlayers <= 1)
         {
-            Debug.Log("GameEnded");
-            Invoke(nameof(EndGame), gameEndDelay);
+           CallGameEndClientRpc();
         }
     }
+
+    [ClientRpc]
+    void CallGameEndClientRpc()
+    {
+        Debug.Log("GameEnded");
+        Invoke(nameof(EndGame), gameEndDelay);
+    }
+    
     private void Update()
     {
         if (gameEnded && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
@@ -26,7 +35,7 @@ public class SingleEliminationGM : GameManager
             RestartGame();
         }
     }
-
+    
     public override void EndGame()
     {
         for (int i = 0; i < playerStates.Length; i++)

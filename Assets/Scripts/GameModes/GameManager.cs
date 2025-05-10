@@ -1,7 +1,8 @@
 using System;
 using UnityEngine;
+using Unity.Netcode; 
 
-public class GameManager : MonoBehaviour
+public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance; 
     
@@ -33,9 +34,23 @@ public class GameManager : MonoBehaviour
         {
             playerStates[i] = PlayerState.missing;
         }
+        ChangePlayerStatesServerRpc(playerStates);
         Cursor.visible = false;
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    void ChangePlayerStatesServerRpc(PlayerState[] playerStates)
+    {
+        this.playerStates = playerStates;
+        ChangePlayerStatesClientRpc(this.playerStates);
+    }
+
+    [ClientRpc]
+    void ChangePlayerStatesClientRpc(PlayerState[] playerStates)
+    {
+        this.playerStates = playerStates;
+    }
+    
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
@@ -44,6 +59,18 @@ public class GameManager : MonoBehaviour
     }
 
     public virtual void RestartGame()
+    {
+        RestartGameServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void RestartGameServerRpc()
+    {
+        RestartGameClientRpc();
+    }
+    
+    [ClientRpc]
+    void RestartGameClientRpc()
     {
         OnGameStarted?.Invoke();
         gameEnded = false; 
@@ -56,23 +83,38 @@ public class GameManager : MonoBehaviour
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
     }
-
-    public virtual void DeathReport(int playerID, int killCredit) 
+    
+    [ServerRpc(RequireOwnership = false)]
+    public virtual void DeathReportServerRpc(int playerID, int killCredit) 
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            playerHUDs[killCredit].AddKill();
+            ChangePlayerHUDClientRpc(killCredit);
         }
-        CheckForRoundEnd();
+        CheckForRoundEndServerRpc();
+    }
+
+    [ClientRpc]
+    void ChangePlayerHUDClientRpc(int killCredit)
+    {
+        playerHUDs[killCredit].AddKill();
     }
     
-    public virtual void ChangePlayerState(int playerID, PlayerState playerState)
+    [ServerRpc(RequireOwnership = false)]
+    public virtual void ChangePlayerStateServerRpc(int playerID, PlayerState playerState)
+    {
+      ChangePlayerStatesClientRpc(playerID, playerState);
+    }
+
+    [ClientRpc]
+    void ChangePlayerStatesClientRpc(int playerID, PlayerState playerState)
     {
         if (playerID < 0 || playerID >= maxPlayers) return;
         playerStates[playerID] = playerState;
     }
 
-    public virtual void CheckForRoundEnd()
+    [ServerRpc(RequireOwnership = false)]
+    public virtual void CheckForRoundEndServerRpc()
     {
         return;
     }

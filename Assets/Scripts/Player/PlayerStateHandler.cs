@@ -34,7 +34,7 @@ public class PlayerStateHandler : MonoBehaviour
         if (!isDead && other.CompareTag("Deathzone"))
         {
             isDead = true;
-            GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.dead);
+            GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
             playerController.Die();
             Invoke(nameof(DisablePlayer), 2f);
         }
@@ -44,7 +44,7 @@ public class PlayerStateHandler : MonoBehaviour
     {
         meshObject.SetActive(false);
         controller.enabled = false;
-        GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.disabled);
+        GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.disabled);
     }
 
     public void ResetPlayer()
@@ -57,6 +57,6 @@ public class PlayerStateHandler : MonoBehaviour
         playerController.ResetPlayerController();
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
-        GameManager.Instance.ChangePlayerState(playerController.PlayerID, PlayerState.alive);
+        GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
     }
 }

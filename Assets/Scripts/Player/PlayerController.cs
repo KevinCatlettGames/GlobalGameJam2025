@@ -481,7 +481,7 @@ private void CooldownCompleteClientRpc(int spellID)
         mainAnimator.SetBool("IsDead", true);
         RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
         if (playerID == killCreditID) killCreditID = -1;
-        GameManager.Instance.DeathReport(playerID, killCreditID);  
+        GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);  
         playerHUD.DisplayDeath();
     }
     public void SetSlippy(bool slippy)

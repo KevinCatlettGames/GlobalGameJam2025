@@ -110,7 +110,7 @@ public class PlayerManager : NetworkBehaviour
         
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
-        GameManager.Instance.ChangePlayerState(playerID, PlayerState.alive);
+        GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
     }
 
     private void ResetPlayers()
