@@ -13,6 +13,11 @@ public class SlipTrigger : MonoBehaviour
             player.SetSlippy(true);
             sliperyPlayers.Add(player);
         }
+        else if (other.CompareTag("Bubble"))
+        {
+            BasicBubble bubble = other.GetComponent<BasicBubble>();
+            bubble.SetSlippy();
+        }
     }
     private void OnTriggerExit(Collider other)
     {
@@ -22,6 +27,7 @@ public class SlipTrigger : MonoBehaviour
             player.SetSlippy(false);
             sliperyPlayers.Remove(player);
         }
+       
     }
     private void OnDestroy()
     {

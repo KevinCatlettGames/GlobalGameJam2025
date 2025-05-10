@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class SlimeTrail : MonoBehaviour
 {
-    private float trailSpeed = 1.0f;
+    private float trailSpeed = 0f;
     private bool isStopped = false;
     [SerializeField] private float trailDuration = 10f;
 

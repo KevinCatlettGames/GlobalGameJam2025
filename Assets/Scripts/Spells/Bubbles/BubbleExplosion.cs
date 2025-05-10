@@ -6,6 +6,7 @@ public class BubbleExplosion : MonoBehaviour
 {
     private List<PlayerController> effectedPlayers = new List<PlayerController>();
     private List<BasicBubble> effectedBubbles = new List<BasicBubble>();
+    [HideInInspector] public int OwnerID;
 
     public void Explode(float knockback, float damage)
     {
@@ -16,7 +17,7 @@ public class BubbleExplosion : MonoBehaviour
                 if (player != null)
                 {
                     Vector3 kockbackDirection = player.transform.position - transform.position;
-                    player.ApplyKnockback(kockbackDirection, knockback, damage);
+                    player.ApplyKnockback(OwnerID, kockbackDirection, knockback, damage);
                 }
             }
         }
@@ -35,11 +36,13 @@ public class BubbleExplosion : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            effectedPlayers.Add(other.GetComponent<PlayerController>());
+            PlayerController player = other.GetComponent<PlayerController>();
+            if(!effectedPlayers.Contains(player)) effectedPlayers.Add(other.GetComponent<PlayerController>());
         }
         else if (other.CompareTag("Bubble"))
         {
-            effectedBubbles.Add(other.GetComponent<BasicBubble>());
+            BasicBubble bubble = other.GetComponent<BasicBubble>();
+            if(!effectedBubbles.Contains(bubble)) effectedBubbles.Add(bubble);
         }
     }
     private void OnTriggerExit(Collider other)
@@ -53,4 +56,6 @@ public class BubbleExplosion : MonoBehaviour
             effectedBubbles.Remove(other.GetComponent<BasicBubble>());
         }
     }
+
+
 }

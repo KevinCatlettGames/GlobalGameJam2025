@@ -10,9 +10,9 @@ public class GiantBubble : BasicBubble
     private float healthIncrement = 0f;
     private float currentHealth = 1f;
 
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(dmg, knb, spd, rng, siz, dir, soundEvent);
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         healthIncrement = 1f / (float)healthPoints;
     }
 
@@ -21,12 +21,16 @@ public class GiantBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, knockback * currentHealth, damage * currentHealth);
+            player.ApplyKnockback(OwnerID ,direction, knockback * currentHealth, damage);
             Pop();
         }
         else if (other.CompareTag("Bubble"))
         {
             DamageBubble();
+        }
+        else
+        {
+            Pop();
         }
     }
     private void DamageBubble()
@@ -38,5 +42,7 @@ public class GiantBubble : BasicBubble
             return;
         }
         transform.localScale = size * currentHealth * Vector3.one;
+        damage *= 2f;
+        speed *= 2f;
     }
 }

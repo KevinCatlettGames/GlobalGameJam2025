@@ -15,12 +15,19 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] private float spawnRadius = 15;
     [SerializeField] List<GameObject> spawnedItems = new List<GameObject>();
     
-    public int maxAmount; 
+    public int maxAmount = 2; 
     public int currentAmount;
 
     private void Awake()
     {
-        Instance = this; 
+        if (Instance == null)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
     }
 
     public void Start()
@@ -31,7 +38,7 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
     }
 
     void SpawnLoop()
@@ -39,7 +46,7 @@ public class ItemSpawner : MonoBehaviour
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
 
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        Invoke(nameof(SpawnLoop), (Random.Range(minSpawnInterval, maxSpawnInterval) + currentAmount));
     }
 
     void SpawnItem(Vector3 location)
@@ -55,6 +62,18 @@ public class ItemSpawner : MonoBehaviour
         
        currentAmount++;
        spawnedItems.Add(newItem);
+    }
+
+    public void ChangeMaxItemAmount(bool increase)
+    {
+        if (increase)
+        {
+            maxAmount++;
+        }
+        else
+        {
+            maxAmount--;
+        }
     }
 
     public void Reset()

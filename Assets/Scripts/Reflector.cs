@@ -6,6 +6,7 @@ public class Reflector : MonoBehaviour
 {
     [SerializeField] private bool isReflecting = false;
     private Coroutine refletEffect;
+    public int OwnerID = -1;
 
     public void SetReflect(bool reflect)
     {
