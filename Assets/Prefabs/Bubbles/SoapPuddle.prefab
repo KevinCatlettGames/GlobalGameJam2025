@@ -97,8 +97,8 @@ GameObject:
   m_Component:
   - component: {fileID: 7788634883322622023}
   - component: {fileID: 8724758330154585215}
-  - component: {fileID: 2667422377131027726}
   - component: {fileID: 4309508553781274052}
+  - component: {fileID: 4589955469819661359}
   m_Layer: 7
   m_Name: SoapPuddle
   m_TagString: Untagged
@@ -134,8 +134,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b14ce72234b601541b410735c161a603, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!135 &2667422377131027726
-SphereCollider:
+--- !u!114 &4309508553781274052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db0e79a35a131c4cae17ee04369b9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  waitDuration: 5
+  destroyOnRestart: 1
+--- !u!136 &4589955469819661359
+CapsuleCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -152,20 +166,8 @@ SphereCollider:
   m_IsTrigger: 1
   m_ProvidesContacts: 0
   m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1
+  serializedVersion: 2
+  m_Radius: 0.65
+  m_Height: 1.85
+  m_Direction: 2
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4309508553781274052
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5835028745261568127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0db0e79a35a131c4cae17ee04369b9e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  waitDuration: 5
-  destroyOnRestart: 1

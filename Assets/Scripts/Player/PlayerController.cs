@@ -40,6 +40,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
+    [SerializeField] private float materialSwapDuration = .1f;
 
 
     #region Player Physics
@@ -80,6 +81,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     private Animator mainAnimator;
+    private MaterialSwapper materialSwapper;
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     
@@ -304,6 +306,7 @@ public class PlayerController : MonoBehaviour
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
         mainAnimator.SetTrigger("Flinch");
+        materialSwapper?.SwapMaterials(materialSwapDuration);
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -355,6 +358,7 @@ public class PlayerController : MonoBehaviour
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
+        materialSwapper = characters[playerID].GetComponentInChildren<MaterialSwapper>();
         for (int i = 0; i < coloredElements.Length; i++)
         {
             coloredElements[i].color = color;
