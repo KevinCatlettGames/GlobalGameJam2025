@@ -1,26 +1,19 @@
-using Unity.Netcode;
+using System;
 using UnityEngine;
 using System.Collections;
 
-public class DestroyAfterDuration : NetworkBehaviour
+public class DestroyAfterDuration : MonoBehaviour
 {
     [SerializeField] private float waitDuration = 5f;
 
-    public override void OnNetworkSpawn()
+    private void Awake()
     {
-        if (IsServer)
-        {
-            StartCoroutine(DespawnAfterDelay(waitDuration));
-        }
+        StartCoroutine(DespawnAfterDelay(waitDuration));
     }
 
     private IEnumerator DespawnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay);
-
-        if (NetworkObject != null && NetworkObject.IsSpawned)
-        {
-            NetworkObject.Despawn(true); // true = destroy the GameObject after despawn
-        }
+        Destroy(gameObject);
     }
 }
