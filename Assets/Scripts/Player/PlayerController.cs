@@ -216,6 +216,13 @@ public class PlayerController : MonoBehaviour
         sprintCoroutine = null;
         canSprint = true;
     }
+    public void OnEmote(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            mainAnimator.SetTrigger("EmoteUp");
+        }
+    }
     #endregion
 
     #region Items
