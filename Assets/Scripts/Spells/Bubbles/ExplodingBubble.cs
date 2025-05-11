@@ -18,7 +18,7 @@ public class ExplodingBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
+            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
         }
         else if (other.CompareTag("Bubble"))
         {

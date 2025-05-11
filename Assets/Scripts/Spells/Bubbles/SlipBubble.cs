@@ -64,7 +64,7 @@ public class SlipBubble : BasicBubble
             if (IsServer)
             {
                 PlayerController player = other.GetComponent<PlayerController>();
-                player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
+                player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
 
                 // Create slime puddle only on the server, then sync to clients
                 CreateSlimePuddleServerRpc(transform.position);

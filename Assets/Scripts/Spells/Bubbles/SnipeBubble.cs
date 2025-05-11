@@ -41,7 +41,7 @@ public class SnipeBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, currentDamage);
+            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, currentDamage);
             Pop();
         }
         else if (other.CompareTag("Bubble"))

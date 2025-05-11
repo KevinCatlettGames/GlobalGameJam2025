@@ -79,7 +79,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
     #endregion
 
-    private Animator mainAnimator;
+    public Animator mainAnimator;
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image aimIndicator;
     
@@ -451,7 +451,15 @@ private void CooldownCompleteClientRpc(int spellID)
     #endregion
 
     #region Damage
-    public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
+    {
+        ApplyKnockbackClientRpc(ID, direction, force, dmg);
+    }
+    
+    [ClientRpc]
+    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
         if (isSlippery) force *= slipperyModifier;
         direction.y = 0;

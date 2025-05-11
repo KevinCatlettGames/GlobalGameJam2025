@@ -39,10 +39,15 @@ public class GameManager : NetworkBehaviour
             playerStates[i] = PlayerState.missing;
         }
         
-        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += SceneManagerOnOnLoadEventCompleted;
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += WaitAndStartGame;
     }
 
-    private void SceneManagerOnOnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    void WaitAndStartGame(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    {
+        Invoke(nameof(SceneManagerOnOnLoadEventCompletedleted), 5f);
+    }
+    
+    private void SceneManagerOnOnLoadEventCompletedleted()
     {
         if (IsServer)
         {

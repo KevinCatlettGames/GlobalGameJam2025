@@ -6,6 +6,7 @@ using FMODUnity;
 using Unity.Netcode;
 using UnityEngine.UI;
 using Unity.VisualScripting;
+using System.Collections; 
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -19,7 +20,7 @@ public class PlayerManager : NetworkBehaviour
     public static PlayerManager Instance;
 
     [SerializeField] private Transform[] spawnPoints; // Array of spawn points
-    public NetworkList<NetworkObjectReference> players;
+    public NetworkList<NetworkObjectReference> players = new NetworkList<NetworkObjectReference>();
     [SerializeField] private Sprite[] playerSprites;
     [SerializeField] private Color[] colors;
     public Button startGameButton; 
@@ -36,21 +37,17 @@ public class PlayerManager : NetworkBehaviour
         {
             Destroy(gameObject);
         }
-
-        players = new NetworkList<NetworkObjectReference>();
-        // RerollSpells();
+    }
+    
+    private void Start()
+    {
+        GameManager.Instance.OnGameStarted += ResetPlayers;
     }
     
     [ServerRpc(RequireOwnership = false)]
     public void AddPlayerServerRpc(NetworkObjectReference input)
     {
         players.Add(input);
-    }
-
-    public void AddToPlayers(PlayerInput playerInput)
-    {
-        NetworkObjectReference tempInput = new NetworkObjectReference(playerInput.GetComponent<NetworkObject>());
-        AddPlayer(tempInput);
     }
     
     public void Initialize()
@@ -63,16 +60,6 @@ public class PlayerManager : NetworkBehaviour
                 networkObject.GetComponent<PlayerController>().InitializeClientRpc();
             }
         }
-    }
-
-    private void Start()
-    {
-        GameManager.Instance.OnGameStarted += ResetPlayers;
-    }
-    
-    public void AddPlayer(NetworkObjectReference input)
-    {
-        players.Add(input);
     }
     
     public void OnPlayerJoined(PlayerInput input)
@@ -92,14 +79,14 @@ public class PlayerManager : NetworkBehaviour
         input.transform.position = spawnPoints[playerID].position;
         
         PlayerController playerController = input.GetComponent<PlayerController>();
-        //Gamepad gamePad = input.GetDevice<Gamepad>();
+        Gamepad gamePad = input.GetDevice<Gamepad>();
         ControllerRumbler rumbler = null;
 
-        // if (gamePad != null)
-        // {
-        //     rumbler = input.AddComponent<ControllerRumbler>();
-        //     rumbler.SetController(gamePad);
-        // }
+         if (gamePad != null)
+         {
+             rumbler = input.AddComponent<ControllerRumbler>();
+             rumbler.SetController(gamePad);
+         }
 
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
         RerollSpells();
@@ -123,6 +110,7 @@ public class PlayerManager : NetworkBehaviour
                 GameObject player = networkObject.gameObject;
                 player.GetComponent<PlayerStateHandler>().ResetPlayer();
                 player.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+                player.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
             }
             else
             {

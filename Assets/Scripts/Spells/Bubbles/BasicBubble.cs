@@ -140,7 +140,7 @@ public class BasicBubble : NetworkBehaviour
             if (collisionNetObj.CompareTag("Player"))
             {
                 PlayerController player = collisionNetObj.GetComponent<PlayerController>();
-                player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
+                player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
             }
 
             Pop();
@@ -154,7 +154,7 @@ public class BasicBubble : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID.Value, direction.Value, knockback, damage);
+            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
         }
         Pop();
     }
