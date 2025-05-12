@@ -346,6 +346,10 @@ public class PlayerController : MonoBehaviour
         if (playerID == killCreditID) killCreditID = -1;
         GameManager.Instance.DeathReport(playerID, killCreditID);  
         playerHUD.DisplayDeath();
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].enabled = false;
+        }
     }
     public void SetSlippy(bool slippy)
     {
@@ -374,7 +378,11 @@ public class PlayerController : MonoBehaviour
         isSlippery = false;
         killCreditID = -1;
         mainAnimator.SetBool("IsDead", false);
-        mainAnimator.SetBool("Victory", false);       
+        mainAnimator.SetBool("Victory", false);
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].enabled = true;
+        }
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
