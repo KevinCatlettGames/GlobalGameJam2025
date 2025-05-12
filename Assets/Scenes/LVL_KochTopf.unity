@@ -809,11 +809,11 @@ Camera:
     y: 0
     width: 1
     height: 1
-  near clip plane: 0.01
-  far clip plane: 1000
-  field of view: 60
+  near clip plane: 0.1
+  far clip plane: 5000
+  field of view: 40
   orthographic: 0
-  orthographic size: 40
+  orthographic size: 10
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -838,7 +838,7 @@ Transform:
   m_GameObject: {fileID: 146870773}
   serializedVersion: 2
   m_LocalRotation: {x: 0.4848096, y: -0, z: -0, w: 0.8746197}
-  m_LocalPosition: {x: 0, y: 34.8, z: -30.6}
+  m_LocalPosition: {x: 0, y: 57.5, z: -41.1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -1044,6 +1044,18 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 7349568484040912180, guid: fcb4f7d39024c7e41a042d4f16f9370b,
     type: 3}
   m_PrefabInstance: {fileID: 1728067934}
+  m_PrefabAsset: {fileID: 0}
+--- !u!95 &453813423 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2586243695198736759, guid: ef310da78073cd04982db8f49e852300,
+    type: 3}
+  m_PrefabInstance: {fileID: 3739134}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &453813424 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5699327107670439900, guid: ef310da78073cd04982db8f49e852300,
+    type: 3}
+  m_PrefabInstance: {fileID: 3739134}
   m_PrefabAsset: {fileID: 0}
 --- !u!1001 &640312377
 PrefabInstance:
@@ -2545,6 +2557,16 @@ PrefabInstance:
       propertyPath: maxSpawnInterval
       value: 6
       objectReference: {fileID: 0}
+    - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: restartGameText
+      value: 
+      objectReference: {fileID: 453813424}
+    - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: victoryAnimator
+      value: 
+      objectReference: {fileID: 453813423}
     - target: {fileID: 4712817074558644018, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: m_Name

@@ -4,11 +4,24 @@ using System.Collections;
 
 public class DestroyAfterDuration : MonoBehaviour
 {
-    [SerializeField] private float waitDuration = 5f;
+    [SerializeField] private float waitDuration;
+    [SerializeField] private bool destroyOnRestart = true;
 
-    private void Awake()
+    private void Start()
     {
+        if(destroyOnRestart) GameManager.Instance.OnGameStarted += DestroyOnRestart;
+        Destroy(gameObject, waitDuration);
         StartCoroutine(DespawnAfterDelay(waitDuration));
+    }
+
+    private void DestroyOnRestart()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        if(destroyOnRestart) GameManager.Instance.OnGameStarted -= DestroyOnRestart;
     }
 
     private IEnumerator DespawnAfterDelay(float delay)

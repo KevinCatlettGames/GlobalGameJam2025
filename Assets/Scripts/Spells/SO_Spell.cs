@@ -20,6 +20,7 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected float bubbleSpeed = 1.0f;
     [SerializeField] protected float bubbleRange = 1.0f;
     [SerializeField] protected float bubbleSize = 1.0f;
+    [SerializeField] protected float inflationSpeed = 1.0f;
 
     [Header("Spell")]
     [SerializeField] protected float spellCooldown = 1.0f;
@@ -44,9 +45,9 @@ public class SO_Spell : ScriptableObject
         NetworkObject networkObj = bubbleInstance.GetComponent<NetworkObject>();
         if (networkObj != null)
             networkObj.Spawn(); // Broadcast to clients
-
-        bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, dir, castEventStruct, playerCollider);
+        
+        bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
+        bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
     
         return spellCooldown;
     }

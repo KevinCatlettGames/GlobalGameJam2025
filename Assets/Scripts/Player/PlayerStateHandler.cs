@@ -13,7 +13,6 @@ public enum PlayerState
 }
 public class PlayerStateHandler : MonoBehaviour
 {
-    [SerializeField] private GameObject meshObject;
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
     private bool isDead = false;
@@ -42,7 +41,6 @@ public class PlayerStateHandler : MonoBehaviour
 
     void DisablePlayer()
     {
-        meshObject.SetActive(false);
         controller.enabled = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.disabled);
     }
@@ -51,10 +49,7 @@ public class PlayerStateHandler : MonoBehaviour
     {
         CancelInvoke();
         controller.enabled = false;
-        meshObject.SetActive(true);
-        isDead = false;
         PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
-        playerController.ResetPlayerController();
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);

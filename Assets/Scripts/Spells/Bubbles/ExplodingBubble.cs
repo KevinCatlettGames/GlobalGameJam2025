@@ -6,11 +6,13 @@ using UnityEngine;
 public class ExplodingBubble : BasicBubble
 {
     [SerializeField] private BubbleExplosion bubbleExplosion;
+    [SerializeField] private float explosionRadius = 5f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion.OwnerID = ID;
+        bubbleExplosion.SetExplosionSize(explosionRadius / size);
     }
     public override void BubbleCollision(GameObject other)
     {

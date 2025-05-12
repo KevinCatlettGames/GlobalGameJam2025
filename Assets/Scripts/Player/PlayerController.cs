@@ -41,12 +41,17 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] float rumbleDurationFactor = .01f;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private NetworkObject dashStartEffectPrefab;
+    [SerializeField] private GameObject spellSpawnEffect;
+    [SerializeField] private float materialSwapDuration = .1f;
     private ControllerRumbler controllerRumbler = null;
 
-    [Header("Player Stats")]
+
     #region Player Physics
+    [Header("Player Stats")]
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
+
+    [Header("Sprint")]
     [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = .5f;
     [SerializeField] private float sprintCooldown = 3f;
@@ -61,7 +66,6 @@ public class PlayerController : NetworkBehaviour
     #region Player Controller
     private CharacterController controller;
     private Vector3 playerVelocity;
-    private bool groundedPlayer;
     #endregion
 
     #region Input Movement 
@@ -80,8 +84,9 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     public Animator mainAnimator;
+    private MaterialSwapper materialSwapper;
     [SerializeField] private GameObject[] characters;
-    [SerializeField] private Image aimIndicator;
+    [SerializeField] private Image[] coloredElements;
     
     public bool initialized = false; 
     
@@ -112,6 +117,10 @@ public class PlayerController : NetworkBehaviour
         if (groundedPlayer && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
+        }
+        else
+        {
+            playerVelocity.y += gravityValue * Time.deltaTime;
         }
 
         // Handle input movement
@@ -151,8 +160,8 @@ public class PlayerController : NetworkBehaviour
             }
         }
 
-        if (controller.enabled)
-            controller.Move(move);
+        if (!isDead) move += playerVelocity * Time.deltaTime;
+        if (controller.enabled) controller.Move(move);
 
         // Smoothly rotate the player to face the movement direction
         if (targetDirection != Vector3.zero)
@@ -161,11 +170,6 @@ public class PlayerController : NetworkBehaviour
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
-        // Gravity
-        playerVelocity.y += gravityValue * Time.deltaTime;
-
-        if (controller.enabled)
-            controller.Move(playerVelocity * Time.deltaTime);
     }
     
     #endregion
@@ -351,6 +355,13 @@ private void CooldownCompleteClientRpc(int spellID)
         sprintCoroutine = null;
         canSprint = true;
     }
+    public void OnEmote(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            mainAnimator.SetTrigger("EmoteUp");
+        }
+    }
     #endregion
 
     #region Items
@@ -473,6 +484,8 @@ private void CooldownCompleteClientRpc(int spellID)
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
+        mainAnimator.SetTrigger("Flinch");
+        materialSwapper?.SwapMaterials(materialSwapDuration);
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -506,10 +519,7 @@ private void CooldownCompleteClientRpc(int spellID)
     #region PlayerManager
     public void Victory()
     {
-        if (mainAnimator.gameObject.activeSelf)
-        {
-            mainAnimator.SetBool("Victory", true);
-        }
+        mainAnimator.SetBool("Victory", true);        
     }
     public void ResetPlayerController()
     {
@@ -518,11 +528,8 @@ private void CooldownCompleteClientRpc(int spellID)
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
-        
-        if (mainAnimator.gameObject.activeSelf)
-        {
-            mainAnimator.SetBool("Victory", false);
-        }
+        mainAnimator.SetBool("IsDead", false);
+        mainAnimator.SetBool("Victory", false);       
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
@@ -530,7 +537,11 @@ private void CooldownCompleteClientRpc(int spellID)
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
-        aimIndicator.color = color;
+        materialSwapper = characters[playerID].GetComponentInChildren<MaterialSwapper>();
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].color = color;
+        }
 
         playerHUD.UpdateDamageText((int)damage);
         

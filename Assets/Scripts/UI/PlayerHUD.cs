@@ -1,3 +1,4 @@
+using Febucci.UI;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -16,6 +17,7 @@ public class PlayerHUD : MonoBehaviour
     private float secondCoverFill = 0f;
     private float secondCDRate = 1f;
     [Header("Damage")]
+    [SerializeField] private TypewriterByWord damageTypewriter;
     [SerializeField] private TextMeshProUGUI damageText;
     [SerializeField] private float gradientEvalueateFactor = 0.005f;
     [SerializeField] private Gradient damageTextColorGradient;
@@ -25,8 +27,8 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
     [Header("Score")]
-    [SerializeField] private TextMeshProUGUI winsText;
-    [SerializeField] private TextMeshProUGUI killsText;
+    [SerializeField] private TypewriterByWord winsTypewriter;
+    [SerializeField] private TypewriterByWord killsTypewriter;
 
     private int kills = 0;
     private int wins = 0;
@@ -35,8 +37,8 @@ public class PlayerHUD : MonoBehaviour
     {
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
-        killsText.text = kills.ToString();
-        winsText.text = wins.ToString();
+        killsTypewriter.ShowText(kills.ToString());
+        winsTypewriter.ShowText(wins.ToString());
     }
     private void Update()
     {
@@ -76,7 +78,8 @@ public class PlayerHUD : MonoBehaviour
     {
         if (damageText != null)
         {
-            damageText.text = damage.ToString();
+            damageTypewriter.ShowText(damage.ToString());
+            //damageText.text = damage.ToString();
             float colorValue = damage * gradientEvalueateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
         }
@@ -104,12 +107,12 @@ public class PlayerHUD : MonoBehaviour
     public void AddWin()
     {
         wins++;
-        winsText.text = wins.ToString();
+        winsTypewriter.ShowText(wins.ToString());
     }
     public void AddKill()
     {
         kills++;
-        killsText.text = kills.ToString();
+        killsTypewriter.ShowText(kills.ToString());
     }
     public void DisplayDeath()
     {

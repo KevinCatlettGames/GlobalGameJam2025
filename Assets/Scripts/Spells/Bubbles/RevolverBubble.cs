@@ -12,7 +12,7 @@ public class RevolverBubble : BasicBubble
 
     private EventReference soundEvent;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         if (!IsServer) return;
 
@@ -23,6 +23,7 @@ public class RevolverBubble : BasicBubble
         range = rng;
         size.Value = siz;
         direction.Value = dir;
+        inflationSpeed = inf;
         this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
 
@@ -49,7 +50,7 @@ public class RevolverBubble : BasicBubble
             netObj.Spawn();
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID.Value, damage, knockback, speed, range, size.Value, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
 
             yield return new WaitForSeconds(delayBetweenShots);
         }

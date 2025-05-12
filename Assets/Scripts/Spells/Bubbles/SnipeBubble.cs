@@ -12,10 +12,9 @@ public class SnipeBubble : BasicBubble
     private float maxDamage = 0f;
     private float currentDamage = 0f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, dir, soundEvent, playerCollider);
-
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         maxDamage = dmg;
         currentDamage = minDamage;
         damageScaling = (maxDamage - minDamage) / damageRampUpDistance;
@@ -51,6 +50,10 @@ public class SnipeBubble : BasicBubble
                 snipeComponent.Pop();
                 Pop();
             }
+        }
+        else 
+        {
+            Pop();
         }
     }
 }

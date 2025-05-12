@@ -20,13 +20,16 @@ public class BasicBubble : NetworkBehaviour
     public SphereCollider sphereCollider;
     public float currentSize = 0.01f;
     public Collider playerCollider;
-
+    public bool isSlippy = false;
     [SerializeField] public GameObject popEffect;
     [SerializeField] public float inflationSpeed = 8f;
     [SerializeField] public float slippMod = 2f;
 
-    // Initialize Bubble (called on the server)
-    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    private void Start()
+    {
+        GameManager.Instance.OnGameStarted += DestroyBubble;
+    }
+    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         if (!IsServer) return; // Only the server can initialize the bubble
 
@@ -37,7 +40,7 @@ public class BasicBubble : NetworkBehaviour
         range = rng;
         size.Value = siz;
         direction.Value = dir;
-
+        inflationSpeed = inf;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         this.playerCollider = playerCollider;
@@ -161,13 +164,11 @@ public class BasicBubble : NetworkBehaviour
 
     protected IEnumerator Inflate()
     {
-        Vector3 currentScale = Vector3.one;
         while (currentSize < size.Value)
         {
             currentSize += inflationSpeed * Time.deltaTime;
             transform.localScale = Vector3.one * currentSize;
             if (currentSize > size.Value) currentSize = size.Value;
-            transform.localScale = currentScale * currentSize;
             yield return new WaitForEndOfFrame();
         }
         sphereCollider.enabled = true;
@@ -197,5 +198,14 @@ public class BasicBubble : NetworkBehaviour
         GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
         BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
         bubbleEffect?.Initialise(scale);
+    }
+    
+    private void DestroyBubble()
+    {
+        Destroy(gameObject);
+    }
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnGameStarted -= DestroyBubble;
     }
 }
