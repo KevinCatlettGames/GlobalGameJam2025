@@ -220,7 +220,24 @@ public class PlayerController : MonoBehaviour
     {
         if (context.performed)
         {
-            mainAnimator.SetTrigger("EmoteUp");
+            Vector2 value = context.ReadValue<Vector2>();
+            switch (value.x, value.y)
+            {
+                case (0,1):
+                    mainAnimator.SetTrigger("EmoteUp");
+                    break;
+                case (0,-1):
+                    //EmoteDown
+                    break;
+                case (-1, 0):
+                    //EmoteLeft
+                    break;
+                case (1, 0):
+                    //EmoteRight
+                    break;
+                default:
+                    break;
+            }
         }
     }
     #endregion
