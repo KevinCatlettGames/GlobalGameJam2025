@@ -1,10 +1,6 @@
 using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UIElements;
 using FMODUnity;
-using FMOD;
 
 public class BasicBubble : MonoBehaviour
 {
@@ -13,17 +9,16 @@ public class BasicBubble : MonoBehaviour
     protected float speed = 1.0f;
     protected float range = 1.0f;
     protected float size = 1.0f;
+    protected float currentSize = 0.01f;
+    protected float inflationSpeed = 8f;
     protected Vector3 direction = Vector3.zero;
     protected Coroutine rangeCoroutine;
     protected bool hasPopped = false;
-    protected float inflationSpeed = 8f;
     protected SphereCollider sphereCollider;
-    protected float currentSize = 0.01f;
-    public bool isSlippy = false;
+    [HideInInspector] public bool isSlippy = false;
     protected float slippMod = 2f;
     protected Collider playerCollider;
     [HideInInspector] public int OwnerID = -1;
-
     [SerializeField] protected GameObject popEffect;
 
     private void Start()
