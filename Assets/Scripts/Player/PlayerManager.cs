@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using FMODUnity;
-using UnityEngine.UI;
 using Unity.VisualScripting;
 
 public class PlayerManager : MonoBehaviour

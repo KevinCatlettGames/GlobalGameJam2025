@@ -66,6 +66,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Input Movement 
+    private Vector3 move = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
@@ -100,36 +101,22 @@ public class PlayerController : MonoBehaviour
         {
             playerVelocity.y += gravityValue * Time.deltaTime;
         }
-
-        // Handle input movement
         if (!isDead)
         {
             targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
-
+            smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
+            move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
         }
         else
         {
-            targetDirection = knockbackVelocity * 0.1f;
+            targetDirection = Vector3.zero;
+            move = Vector3.zero;
         }
-        if (targetDirection.sqrMagnitude > 0)
-        {
-            mainAnimator?.SetBool("IsWalking", true);
-        }
-        else
-        {
-            mainAnimator?.SetBool("IsWalking", false);
-        }
-
-        // Smoothly interpolate movement direction
-        smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
-        Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
-
-        // Apply knockback if it exists
         if (knockbackVelocity.magnitude > 0.1f)
         {
-            move += knockbackVelocity * Time.deltaTime; // Add knockback to movement
-            knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); // Decay knockback over time
+            move += knockbackVelocity * Time.deltaTime; 
+            knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); 
         }
         else
         {
@@ -142,13 +129,21 @@ public class PlayerController : MonoBehaviour
         if (!isDead) move += playerVelocity * Time.deltaTime;
         if (controller.enabled) controller.Move(move);
 
-        // Smoothly rotate the player to face the movement direction
-        if (targetDirection != Vector3.zero)
+
+        if (targetDirection != Vector3.zero && !isDead)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
+        if (targetDirection.sqrMagnitude > 0)
+        {
+            mainAnimator?.SetBool("IsWalking", true);
+        }
+        else
+        {
+            mainAnimator?.SetBool("IsWalking", false);
+        }
     }
     #endregion
 
