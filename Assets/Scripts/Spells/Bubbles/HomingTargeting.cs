@@ -3,12 +3,12 @@ using UnityEngine;
 
 public class HomingTargeting : MonoBehaviour
 {
-    private List<Transform> playersInRange = new List<Transform>();
+    private List<Transform> targetsInRange = new List<Transform>();
 
     public Vector3 GetTargetVector()
     {
-        if (playersInRange.Count == 0) return Vector3.zero;
-        Vector3 tartetVector = playersInRange[0].transform.position;
+        if (targetsInRange.Count == 0) return Vector3.zero;
+        Vector3 tartetVector = targetsInRange[0].transform.position;
         tartetVector = tartetVector - transform.position;
         tartetVector.Normalize();
         return tartetVector;
@@ -17,14 +17,21 @@ public class HomingTargeting : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            playersInRange.Add(other.transform);
+            targetsInRange.Add(other.transform);
+        }
+        else if (other.CompareTag("Bubble"))
+        {
+            if (other.TryGetComponent<ExplodingBubble>(out ExplodingBubble explodingBubble))
+            {
+                targetsInRange.Add(other.transform);
+            }           
         }
     }
     private void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Player"))
+        if ((other.CompareTag("Player") || other.CompareTag("Bubble")) && targetsInRange.Contains(other.transform))
         {
-            playersInRange.Remove(other.transform);
+            targetsInRange.Remove(other.transform);
         }
     }
     public void SetTargeting(float radius, Collider playerCollider)
