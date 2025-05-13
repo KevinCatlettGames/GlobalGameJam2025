@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ScrollingDashMat
-  m_Shader: {fileID: -6465566751694194690, guid: 8e67e7e2153b2bd4c933934a9f07e09e,
+  m_Name: Wall_glowVfx
+  m_Shader: {fileID: -6465566751694194690, guid: 9afe23d57412f1f429f3805b083e7d94,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -26,7 +26,7 @@ Material:
     serializedVersion: 3
     m_TexEnvs:
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 94f5e4dd48e6ffa4ba66d24741117af8, type: 3}
+        m_Texture: {fileID: 2800000, guid: df4d20b9a91f6974ea3a51941db911fa, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
@@ -43,18 +43,18 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _AlphaSmooth: 0.5
-    - _Contrast: 1
+    - _ClampMax: 0.9
+    - _ClampMin: 0
+    - _FresneslPower: 3
     - _QueueControl: 0
     - _QueueOffset: 0
-    - _ScrollSpeed: -2.4
-    - _StartTime: 98.24272
+    - _Uebergang: 0.6
     m_Colors:
-    - _EmissiveColor: {r: 1.9755917, g: 1.3305433, b: 0.92256397, a: 0}
-    - _TexColor: {r: 3.5648696, g: 3.3048105, b: 2.4046054, a: 1}
+    - _BottomColor: {r: 0, g: 42.72251, b: 42.72251, a: 1}
+    - _TopColor: {r: 0.67244333, g: 1, b: 0.0060488326, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &8329161193256061900
+--- !u!114 &2836855986712289445
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
