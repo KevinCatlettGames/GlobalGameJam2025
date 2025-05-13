@@ -16,13 +16,19 @@ public class Item : MonoBehaviour
     [SerializeField] private Material itemMaterial;
     public SO_Spell spell;
     private Material spellMaterial;
+    private ParticleSystemRenderer itemParticleSystem;
     private void Start()
     {
+        itemParticleSystem = GetComponentInChildren<ParticleSystemRenderer>();
         int r = Random.Range(0, spells.Length);
         spell = spells[r];
         meshFilter.mesh = spell.GetMesh();
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
+        if (spell.GetEffectMaterial() != null )
+        {
+            itemParticleSystem.material = spell.GetEffectMaterial();
+        }
         StartCoroutine(ItemDespawn());
     }
 
