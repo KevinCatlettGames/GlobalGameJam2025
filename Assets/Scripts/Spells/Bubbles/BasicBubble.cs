@@ -119,6 +119,7 @@ public class BasicBubble : MonoBehaviour
         if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
         direction = Vector3.Reflect(direction, normal);
         direction = new Vector3(direction.x, 0, direction.z);
+        transform.rotation = Quaternion.LookRotation(direction);
         StopCoroutine(rangeCoroutine);
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }
