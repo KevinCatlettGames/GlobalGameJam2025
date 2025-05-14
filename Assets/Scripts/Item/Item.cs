@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Item : MonoBehaviour
@@ -17,21 +18,22 @@ public class Item : MonoBehaviour
     public SO_Spell spell;
     private Material spellMaterial;
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
-    [SerializeField] private ParticleSystem sparkleParticleSystem;
+    [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
     private void Start()
     {
-        int r = Random.Range(0, spells.Length);
-        spell = spells[r];
+        if (spell == null)
+        {
+            int r = Random.Range(0, spells.Length);
+            spell = spells[r];
+        }
         meshFilter.mesh = spell.GetMesh();
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
-        if (spell.GetEffectMaterial() != null )
+        Material[] effectMaterials = spell.GetEffectMaterials();
+        if (effectMaterials != null && effectMaterials.Length == 2)
         {
-            wrapParticleRenderer.material = spell.GetEffectMaterial();
-        }
-        if (spell.GetEffectColor() != null)
-        {
-            sparkleParticleSystem.startColor = spell.GetEffectColor();
+            wrapParticleRenderer.material = effectMaterials[0];
+            sparkleParticleSystem.material = effectMaterials[1];
         }
         StartCoroutine(ItemDespawn());
     }
