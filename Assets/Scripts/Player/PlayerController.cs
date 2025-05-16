@@ -39,7 +39,7 @@ public class PlayerController : MonoBehaviour
     
     private ControllerRumbler controllerRumbler = null;
     private bool isUsingGamepad = false;
-    private float mouseInputDeadzoneRadius = .5f;
+    private float mouseInputDeadzoneRadius = .4f;
     private float mouseInputVectorLimit = 5f;
 
     [Header("Effects")]
@@ -103,7 +103,16 @@ public class PlayerController : MonoBehaviour
         }
         if (!isDead)
         {
-            targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
+            if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
+            {
+                targetDirection = Vector3.zero;
+                Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            }
+            else
+            {
+                targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
+            }
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
             smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
             move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
