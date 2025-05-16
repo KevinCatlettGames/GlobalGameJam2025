@@ -48,7 +48,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private float materialSwapDuration = .1f;
 
-
     #region Player Physics
     [Header("Player Stats")]
     [SerializeField] private float playerSpeed = 2.0f;
@@ -65,6 +64,7 @@ public class PlayerController : MonoBehaviour
     public UnityEvent OnEndSprint; 
 
     private bool canSprint = true;
+    private bool isSprinting = false;
     private Coroutine sprintCoroutine;
     #endregion
 
@@ -113,6 +113,10 @@ public class PlayerController : MonoBehaviour
             {
                 targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
             }
+            if (targetDirection == Vector3.zero && isSprinting)
+            {
+                targetDirection = transform.forward;
+            }
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
             smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
             move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
@@ -139,7 +143,7 @@ public class PlayerController : MonoBehaviour
         if (controller.enabled) controller.Move(move);
 
 
-        if (targetDirection != Vector3.zero && !isDead)
+        if (!isDead && targetDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
@@ -168,11 +172,7 @@ public class PlayerController : MonoBehaviour
         {
             movementInput += context.ReadValue<Vector2>() * Time.deltaTime;
             float inputMagnitude = movementInput.magnitude;
-            if (inputMagnitude < mouseInputDeadzoneRadius)
-            {
-                //movementInput = Vector2.zero;
-            }
-            else if (inputMagnitude > mouseInputVectorLimit)
+            if (inputMagnitude > mouseInputVectorLimit)
             {
                 movementInput *= mouseInputVectorLimit / inputMagnitude;
             }
@@ -229,9 +229,11 @@ public class PlayerController : MonoBehaviour
         canSprint = false;
         float moveSpeed = playerSpeed;
         playerSpeed = playerSprintSpeed;
+        isSprinting = true;
         OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
+        isSprinting = false;
         OnEndSprint?.Invoke();
         yield return new WaitForSeconds(sprintCooldown);
         sprintCoroutine = null;
