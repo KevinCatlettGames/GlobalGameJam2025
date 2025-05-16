@@ -4,6 +4,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using UnityEditor.Timeline;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
@@ -38,7 +39,7 @@ public class PlayerController : MonoBehaviour
     
     private ControllerRumbler controllerRumbler = null;
     private bool isUsingGamepad = false;
-    private float mouseInputDeadzoneRadius = .7f;
+    private float mouseInputDeadzoneRadius = .5f;
     private float mouseInputVectorLimit = 5f;
 
     [Header("Effects")]
@@ -156,7 +157,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            movementInput += context.ReadValue<Vector2>();
+            movementInput += context.ReadValue<Vector2>() * Time.deltaTime;
             float inputMagnitude = movementInput.magnitude;
             if (inputMagnitude < mouseInputDeadzoneRadius)
             {
@@ -394,6 +395,7 @@ public class PlayerController : MonoBehaviour
         {
             coloredElements[i].enabled = true;
         }
+        movementInput = Vector2.zero;
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
