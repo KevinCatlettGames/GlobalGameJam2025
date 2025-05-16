@@ -161,7 +161,7 @@ public class PlayerController : MonoBehaviour
             float inputMagnitude = movementInput.magnitude;
             if (inputMagnitude < mouseInputDeadzoneRadius)
             {
-                movementInput = Vector2.zero;
+                //movementInput = Vector2.zero;
             }
             else if (inputMagnitude > mouseInputVectorLimit)
             {
