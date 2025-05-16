@@ -5,12 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class LevelSwitcher : MonoBehaviour
 {
-    void Start()
-    {
-        
-    }
-
-
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Alpha0))

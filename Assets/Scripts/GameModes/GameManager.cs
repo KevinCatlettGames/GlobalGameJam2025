@@ -34,7 +34,8 @@ public class GameManager : MonoBehaviour
         {
             playerStates[i] = PlayerState.missing;
         }
-        Cursor.visible = false;
+        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
     }
 
     public virtual void EndGame()

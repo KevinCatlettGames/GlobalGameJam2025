@@ -33,8 +33,13 @@ public class PlayerController : MonoBehaviour
     [Header("Damage")]
     [SerializeField] float damageModifier = .05f;
     [SerializeField] float slipperyModifier = 1.5f;
+    [SerializeField] private float knockbackDecaySpeed = 5f; 
     [SerializeField] float rumbleDurationFactor = .01f;
+    
     private ControllerRumbler controllerRumbler = null;
+    private bool isUsingGamepad = false;
+    private float mouseInputDeadzoneRadius = .7f;
+    private float mouseInputVectorLimit = 5f;
 
     [Header("Effects")]
     [SerializeField] private GameObject dashStartEffect;
@@ -47,6 +52,8 @@ public class PlayerController : MonoBehaviour
     [Header("Player Stats")]
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float moveSmoothTime = 0.1f;
 
     [Header("Sprint")]
     [SerializeField] private float playerSprintSpeed = 24f;
@@ -63,26 +70,18 @@ public class PlayerController : MonoBehaviour
     #region Player Controller
     private CharacterController controller;
     private Vector3 playerVelocity;
-    #endregion
-
-    #region Input Movement 
     private Vector3 move = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
-    [SerializeField] private float rotationSpeed = 10f; // Adjust for smoother rotation
-    [SerializeField] private float moveSmoothTime = 0.1f; // Smoothing duration
     private Vector3 moveVelocity = Vector3.zero;
+    private Vector3 knockbackVelocity = Vector3.zero;
     #endregion
 
-    #region Knockback
-    [SerializeField]
-    private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
-    private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
-    #endregion
 
     private Animator mainAnimator;
     private MaterialSwapper materialSwapper;
+    [Header("Visuals")]
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     
@@ -150,7 +149,24 @@ public class PlayerController : MonoBehaviour
     #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
-        movementInput = context.ReadValue<Vector2>();
+        if (isUsingGamepad)
+        {
+            movementInput = context.ReadValue<Vector2>();
+            return;
+        }
+        else
+        {
+            movementInput += context.ReadValue<Vector2>();
+            float inputMagnitude = movementInput.magnitude;
+            if (inputMagnitude < mouseInputDeadzoneRadius)
+            {
+                movementInput = Vector2.zero;
+            }
+            else if (inputMagnitude > mouseInputVectorLimit)
+            {
+                movementInput *= mouseInputVectorLimit / inputMagnitude;
+            }
+        }
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
@@ -396,6 +412,7 @@ public class PlayerController : MonoBehaviour
         if (controllerRumbler != null)
         {
             this.controllerRumbler = controllerRumbler;
+            isUsingGamepad = true;
         }
     }
     #endregion
