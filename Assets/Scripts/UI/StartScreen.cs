@@ -34,4 +34,9 @@ public class StartScreen : MonoBehaviour
     {
         SceneManager.LoadScene(1);
     }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 }
