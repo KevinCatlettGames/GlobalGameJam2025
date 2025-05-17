@@ -101,16 +101,17 @@ public class PlayerManager : NetworkBehaviour
 
     private void ResetPlayers()
     {
-        RerollSpells();
-
         foreach (var playerRef in players)
         {
+            RerollSpells();
+            
             if (playerRef.TryGet(out NetworkObject networkObject))
             {
                 GameObject player = networkObject.gameObject;
                 player.GetComponent<PlayerStateHandler>().ResetPlayer();
                 player.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
                 player.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
+                player.GetComponent<PlayerController>().mainAnimator.SetBool("Victory", false);
             }
             else
             {

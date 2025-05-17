@@ -1,15 +1,14 @@
 using System.Collections;
 using UnityEngine;
 using FMODUnity;
-using Unity.Netcode;
 
-public class BasicBubble : NetworkBehaviour
+public class BasicBubble : MonoBehaviour
 {
     // Networked variables (only essential ones)
-    public NetworkVariable<int> OwnerID = new NetworkVariable<int>(-1, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public NetworkVariable<Vector3> direction = new NetworkVariable<Vector3>(Vector3.zero, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public NetworkVariable<bool> hasPopped = new NetworkVariable<bool>(false, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    public NetworkVariable<float> size = new NetworkVariable<float>(1.0f, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    public int OwnerID;
+    public Vector3 direction;
+    public bool hasPopped;
+    public float size;
 
     // Local variables (no need for network sync)
     public float damage = 1.0f;
@@ -30,15 +29,13 @@ public class BasicBubble : NetworkBehaviour
     }
     public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        if (!IsServer) return; // Only the server can initialize the bubble
-
-        OwnerID.Value = ID;
+        OwnerID = ID;
         damage = dmg;
         knockback = knb;
         speed = spd;
         range = rng;
-        size.Value = siz;
-        direction.Value = dir;
+        size = siz;
+        direction = dir;
         inflationSpeed = inf;
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
@@ -54,17 +51,13 @@ public class BasicBubble : NetworkBehaviour
     }
 
     private void FixedUpdate()
-    {
-        if (IsServer)
-        {
-            // Server updates position and movement
-            BubbleMovement();
-        }
+    { 
+        BubbleMovement();
     }
 
     protected virtual void BubbleMovement()
     {
-        transform.position += direction.Value * speed * Time.fixedDeltaTime;
+        transform.position += direction * speed * Time.fixedDeltaTime;
     }
 
     protected IEnumerator BubbleRangeLimit()
@@ -76,42 +69,31 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void Pop()
     {
-        if (hasPopped.Value) return; // Check if already popped
+        if (hasPopped) return; // Check if already popped
 
         // Call ServerRpc to set the hasPopped value on the server
-        SetHasPoppedServerRpc(true);
+        SetHasPopped(true);
 
         StopCoroutine(rangeCoroutine);
 
         // Spawn pop effect for clients
-        SpawnPopEffectClientRpc(transform.position, size.Value);
+        SpawnPopEffect(transform.position, size);
 
         // Destroy bubble after popping
-        GetComponent<NetworkObject>().Despawn(gameObject);
+        Destroy(gameObject);
     }
-
-    // ServerRpc to set hasPopped
-    [ServerRpc(RequireOwnership = false)]
-    private void SetHasPoppedServerRpc(bool popped)
+    
+    private void SetHasPopped(bool popped)
     {
-        hasPopped.Value = popped;
+        hasPopped = popped;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (hasPopped.Value) return;
-
-        // Only the server handles critical collision logic like popping the bubble
-        if (IsServer)
-        {
-            HandleCollision(collision.gameObject);
-        }
-        else
-        {
-            var collisionNetworkObjectReference = collision.gameObject.GetComponent<NetworkObject>();
-            // Client simply informs the server that the collision occurred
-            HandleCollisionClientRpc(collisionNetworkObjectReference);
-        }
+        if (hasPopped) return; 
+        
+        HandleCollision(collision.gameObject);
+        
     }
 
     // This method is called on the server to handle the actual logic of popping and applying effects
@@ -122,7 +104,7 @@ public class BasicBubble : NetworkBehaviour
         {
             if (reflector.GetIsReflecting())
             {
-                OwnerID.Value = reflector.OwnerID;
+                OwnerID = reflector.OwnerID;
                 Reflect(other.GetComponent<Collider>().ClosestPointOnBounds(transform.position));
                 return;
             }
@@ -130,44 +112,26 @@ public class BasicBubble : NetworkBehaviour
         
         BubbleCollision(other);
     }
-
-    // ClientRpc to inform the server of a collision (called by client)
-    [ClientRpc]
-    private void HandleCollisionClientRpc(NetworkObjectReference collisionNetworkObjectReference)
-    {
-        if (collisionNetworkObjectReference.TryGet(out NetworkObject collisionNetObj))
-        {
-
-            if (hasPopped.Value) return;
-            if (collisionNetObj.CompareTag("Player"))
-            {
-                PlayerController player = collisionNetObj.GetComponent<PlayerController>();
-                player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
-            }
-
-            Pop();
-        }
-    }
-
+    
     public virtual void BubbleCollision(GameObject other)
     {
-        if (hasPopped.Value) return;
+        if (hasPopped) return;
 
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
+            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
         }
         Pop();
     }
 
     protected IEnumerator Inflate()
     {
-        while (currentSize < size.Value)
+        while (currentSize < size)
         {
             currentSize += inflationSpeed * Time.deltaTime;
             transform.localScale = Vector3.one * currentSize;
-            if (currentSize > size.Value) currentSize = size.Value;
+            if (currentSize > size) currentSize = size;
             yield return new WaitForEndOfFrame();
         }
         sphereCollider.enabled = true;
@@ -176,9 +140,9 @@ public class BasicBubble : NetworkBehaviour
     private void Reflect(Vector3 normal)
     {
         if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
-        direction.Value = Vector3.Reflect(direction.Value, normal);
-        direction.Value = new Vector3(direction.Value.x, 0, direction.Value.z);
-        transform.rotation = Quaternion.LookRotation(direction.Value);
+        direction = Vector3.Reflect(direction, normal);
+        direction = new Vector3(direction.x, 0, direction.z);
+        transform.rotation = Quaternion.LookRotation(direction);
         StopCoroutine(rangeCoroutine);
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }
@@ -190,10 +154,8 @@ public class BasicBubble : NetworkBehaviour
             speed *= slippMod;
         }
     }
-
-    // ClientRpc to spawn pop effect on clients
-    [ClientRpc]
-    private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
+    
+    private void SpawnPopEffect(Vector3 pos, float scale)
     {
         GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
         BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();

@@ -91,8 +91,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     
-    public bool initialized = false; 
-    
+    public bool initialized = false;
+
+    private float tempCooldown; 
     #region Unity
     
     [ClientRpc]
@@ -109,19 +110,19 @@ public class PlayerController : NetworkBehaviour
         if(IsOwner) GetComponent<PlayerInput>().enabled = true;
         controller = gameObject.GetComponent<CharacterController>(); 
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
+        GameManager.Instance.OnGameStarted += ResetPlayerController; 
         initialized = true;
     }
     
     private void Update()
     {
-        if (!initialized || !IsOwner) return;
+        if (!initialized || isDead) return;
 
         // Get input every frame (e.g. from Input system or your own input handler)
         // Here you assume `movementInput` is updated elsewhere (e.g., Input events)
-    groundedPlayer = controller.isGrounded;
-      
-            if (!initialized || isDead) return;
-
+            
+        groundedPlayer = controller.isGrounded;
+        
             // Normalize input direction
             Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
             direction = Vector3.ClampMagnitude(direction, 1f);
@@ -146,6 +147,12 @@ public class PlayerController : NetworkBehaviour
                 knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime);
             }
             else if (killCreditID != -1 && controller.isGrounded)
+            {
+                killCreditID = -1; 
+            }
+                
+                
+                
         if (controller.isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
@@ -194,12 +201,6 @@ public class PlayerController : NetworkBehaviour
             // Add vertical velocity (gravity)
             move += playerVelocity * Time.deltaTime;
 
-            // Move character controller
-            if (controller.enabled)
-            {
-                controller.Move(move);
-            }
-
             if (!isDead && targetDirection != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
@@ -209,6 +210,13 @@ public class PlayerController : NetworkBehaviour
 
             // Update animation on server (optional, or sync to clients)
             mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+        }
+        
+        
+        // Move character controller
+        if (controller.enabled)
+        {
+            controller.Move(move);
         }
     }
     
@@ -235,74 +243,49 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (isFirstSpellReady && context.performed && !isDead)
+        if (!isFirstSpellReady)
         {
-            CastSpellServerRpc(true); // Request to cast first spell
-            if (context.performed && !isDead)
-            {
-                if (!isFirstSpellReady)
-                {
-                    controllerRumbler?.Rumble(.15f, 1f, 5f);
-                    return;
-                }
-
-                mainAnimator.SetTrigger("SlapTrigger");
-                Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-                float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
-                isFirstSpellReady = false;
-                firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
-                RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(), gameObject);
-            }
+            controllerRumbler?.Rumble(.15f, 1f, 5f);
+            return;
+        }
+        
+        if (context.performed && !isDead)
+        {
+            CastSpell(true); // Request to cast first spell
         }
     }
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
+        if (!isSecondSpellReady)
+        {
+            controllerRumbler?.Rumble(.15f, 1f, 5f);
+            return;
+        }
+        
         if (context.performed && !isDead)
         {
-            if (!isSecondSpellReady)
-            {
-                controllerRumbler?.Rumble(.15f, 1f, 5f);
-                return;
-            }
-            mainAnimator.SetTrigger("SlapTrigger");
-            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = secondSpell.CastSpell(playerID, transform.position, transform.forward, controller);
-            isSecondSpellReady = false;
-            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
-            RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
+            CastSpell(false); // Request to cast second spell
         }
     }
-
-[ServerRpc(RequireOwnership = false)]
-private void CastSpellServerRpc(bool isFirstSpell)
+    
+private void CastSpell(bool isFirstSpell)
 {
     SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-
-    // Server validates if spell is ready (you can add logic here)
-    float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
-
-    // Trigger client VFX/SFX and start local cooldown visuals
-    CastSpellClientRpc(isFirstSpell, cooldown);
+    CastSpellServerRpc(isFirstSpell);
 
     // Start server cooldown logic (authoritative)
     if (isFirstSpell)
-        firstSpellCoroutine = StartCoroutine(ServerCooldownCoroutine(cooldown, 1));
+        firstSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 1));
     else
-        secondSpellCoroutine = StartCoroutine(ServerCooldownCoroutine(cooldown, 2));
-}
-
-[ClientRpc]
-private void CastSpellClientRpc(bool isFirstSpell, float cooldown)
-{
+        secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
+    
     mainAnimator.SetTrigger("SlapTrigger");
-    Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-
-    SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+    
     RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
 
     // Start local cooldown visuals
-    StartCoroutine(SpellCooldown(cooldown, isFirstSpell ? 1 : 2));
+    StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
 
     // Lock the spell input locally
     if (isFirstSpell)
@@ -311,7 +294,21 @@ private void CastSpellClientRpc(bool isFirstSpell, float cooldown)
         isSecondSpellReady = false;
 }
 
-private IEnumerator ServerCooldownCoroutine(float time, int spellID)
+
+[ServerRpc(RequireOwnership = false)]
+void CastSpellServerRpc(bool isFirstSpell)
+{
+    CastSpellClientRpc(isFirstSpell);
+}
+
+[ClientRpc]
+void CastSpellClientRpc(bool isFirstSpell)
+{
+    SO_Spell spell = isFirstSpell ? firstSpell : secondSpell; 
+    tempCooldown =  spell.CastSpell(playerID, transform.position, transform.forward, controller);
+}
+
+private IEnumerator CooldownCoroutine(float time, int spellID)
 {
     yield return new WaitForSeconds(time);
 
@@ -607,14 +604,33 @@ private void CooldownCompleteClientRpc(int spellID)
         isDead = true;
         mainAnimator.SetBool("IsDead", true);
         RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+
         if (playerID == killCreditID) killCreditID = -1;
+
         GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);  
+
         playerHUD.DisplayDeath();
+
+        // Call server rpc to trigger clients disabling UI
+        DisableUIElementsServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void DisableUIElementsServerRpc()
+    {
+        // Server tells all clients to disable UI elements
+        DisableUIElementsClientRpc();
+    }
+
+    [ClientRpc]
+    void DisableUIElementsClientRpc()
+    {
         for (int i = 0; i < coloredElements.Length; i++)
         {
             coloredElements[i].enabled = false;
         }
     }
+    
     public void SetSlippy(bool slippy)
     {
         if (slippy)
@@ -648,6 +664,8 @@ private void CooldownCompleteClientRpc(int spellID)
             coloredElements[i].enabled = true;
         }
         movementInput = Vector2.zero;
+        controller.enabled = true; 
+        GetComponent<PlayerStateHandler>().ResetPlayer();
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {

@@ -12,7 +12,7 @@ public class HomingBubble : BasicBubble
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         homingTargeting = GetComponentInChildren<HomingTargeting>();
-        homingTargeting.SetTargeting(homigRadius / size.Value, playerCollider);
+        homingTargeting.SetTargeting(homigRadius / size, playerCollider);
     }
     protected override void BubbleMovement()
     {
@@ -27,7 +27,8 @@ public class HomingBubble : BasicBubble
             Quaternion targetRotation = Quaternion.LookRotation(targetVector);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
         }
-        direction = new NetworkVariable<Vector3>(transform.forward);
+
+        direction = transform.forward;
         base.BubbleMovement();
     }
 }

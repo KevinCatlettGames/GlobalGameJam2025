@@ -41,6 +41,7 @@ public class PlayerStateHandler : MonoBehaviour
     void DisablePlayer()
     {
         controller.enabled = false;
+        isDead = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.disabled);
     }
 
@@ -51,6 +52,7 @@ public class PlayerStateHandler : MonoBehaviour
         PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         controller.enabled = true;
+        isDead = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
     }
 }

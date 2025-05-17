@@ -4842,8 +4842,8 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6081551340156864742}
-  - component: {fileID: 3014141589086803380}
   - component: {fileID: 5903263471416053749}
+  - component: {fileID: 3014141589086803380}
   - component: {fileID: 5056535548679713964}
   m_Layer: 0
   m_Name: Basic_Trail
@@ -4868,20 +4868,6 @@ Transform:
   - {fileID: 2322313462806975570}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &3014141589086803380
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7883030796252567183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0db0e79a35a131c4cae17ee04369b9e9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  waitDuration: 3
-  destroyOnRestart: 1
 --- !u!114 &5903263471416053749
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4907,6 +4893,21 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &3014141589086803380
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7883030796252567183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0db0e79a35a131c4cae17ee04369b9e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  waitDuration: 3
+  destroyOnRestart: 1
 --- !u!114 &5056535548679713964
 MonoBehaviour:
   m_ObjectHideFlags: 0

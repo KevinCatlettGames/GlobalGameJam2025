@@ -1,7 +1,6 @@
 using FMODUnity;
 using System.Collections;
 using UnityEngine;
-using Unity.Netcode;
 
 public class RevolverBubble : BasicBubble
 {
@@ -14,15 +13,13 @@ public class RevolverBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        if (!IsServer) return;
-
-        OwnerID.Value = ID;
+        OwnerID = ID;
         damage = dmg;
         knockback = knb;
         speed = spd;
         range = rng;
-        size.Value = siz;
-        direction.Value = dir;
+        size = siz;
+        direction = dir;
         inflationSpeed = inf;
         this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
@@ -37,24 +34,22 @@ public class RevolverBubble : BasicBubble
 
     private IEnumerator EmptyBarrel()
     {
-        Vector3 pos = transform.position + direction.Value;
+        Vector3 pos = transform.position + direction;
 
         for (int i = 0; i < maxAmmo; i++)
         {
             float offset = (float)i - ((float)maxAmmo / 2f);
-            Vector3 dir = Quaternion.AngleAxis(spread * offset, Vector3.up) * direction.Value;
+            Vector3 dir = Quaternion.AngleAxis(spread * offset, Vector3.up) * direction;
 
             // Instantiate and network spawn the new bubble
-            GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
-            NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-            netObj.Spawn();
+            GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir)); ;
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID.Value, damage, knockback, speed, range, size.Value, inflationSpeed, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
 
             yield return new WaitForSeconds(delayBetweenShots);
         }
-
-        NetworkObject.Despawn(true); // Despawn self after firing
+        
+        Destroy(gameObject);
     }
 }

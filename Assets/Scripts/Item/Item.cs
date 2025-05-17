@@ -52,10 +52,7 @@ public class Item : NetworkBehaviour
 
     public SO_Spell EquipSpell()
     {
-        if (IsServer)
-        {
-            StartCoroutine(DelayedDestroyServer());
-        }
+        StartCoroutine(DelayedDestroy());
         return spell;
     }
 
@@ -85,7 +82,7 @@ public class Item : NetworkBehaviour
         }
     }
 
-    private IEnumerator DelayedDestroyServer()
+    private IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
         ItemSpawner.Instance.currentAmount--;
@@ -93,11 +90,10 @@ public class Item : NetworkBehaviour
         if (pickUpEffect != null)
         {
             GameObject effect = Instantiate(pickUpEffect, transform.position, Quaternion.identity);
-            NetworkObject netObj = effect.GetComponent<NetworkObject>();
-            netObj.Spawn(true); // Optional: pass ownership
         }
 
-        GetComponent<NetworkObject>().Despawn();
+        if(IsServer) 
+            GetComponent<NetworkObject>().Despawn();
     }
 
     private void OnTriggerEnter(Collider other)

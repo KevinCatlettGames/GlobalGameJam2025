@@ -14,21 +14,19 @@ public class SlipBubble : BasicBubble
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
 
-        if (IsServer) // Only server should instantiate networked objects
-        {
+    
+        
             GameObject trail = Instantiate(slimeTrailObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
             slimeTrail = trail.GetComponent<SlimeTrail>();
             slimeTrail.InitialiseTrail(speed);
 
             // Use NetworkObject to spawn on clients
             trail.GetComponent<NetworkObject>().Spawn();
-        }
+        
     }
 
     protected override void Pop()
     {
-        if (IsServer)
-        {
             slimeTrail?.StopTrail();
 
             // Optionally destroy the slime trail and puddle networked objects
@@ -40,7 +38,6 @@ public class SlipBubble : BasicBubble
 
             // Call the base Pop method to handle other effects
             base.Pop();
-        }
     }
 
     private void Update()
@@ -56,20 +53,17 @@ public class SlipBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped.Value) return;
+        if (hasPopped) return;
 
         if (other.CompareTag("Player"))
         {
-            // Server handles the collision logic
-            if (IsServer)
-            {
+       
                 PlayerController player = other.GetComponent<PlayerController>();
-                player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
+                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
                 // Create slime puddle only on the server, then sync to clients
                 CreateSlimePuddleServerRpc(transform.position);
-            }
-
+            
             Pop();
         }
     }

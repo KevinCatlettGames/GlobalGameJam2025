@@ -39,17 +39,14 @@ public class SO_Spell : ScriptableObject
     {
         dir.Normalize();
         pos += dir * (bubbleSize / 2f + 1f);
-
-        GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
-    
-        // ✅ Network it
-        NetworkObject networkObj = bubbleInstance.GetComponent<NetworkObject>();
-        if (networkObj != null)
-            networkObj.Spawn(); // Broadcast to clients
         
-        bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
-    
+            GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
+
+            bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
+            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize,
+                inflationSpeed, dir, castEventStruct, playerCollider);
+        
+
         return spellCooldown;
     }
     public Mesh GetMesh()

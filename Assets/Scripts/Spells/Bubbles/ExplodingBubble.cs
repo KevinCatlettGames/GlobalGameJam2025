@@ -13,25 +13,25 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
-        bubbleExplosion.SetExplosionSize(explosionRadius / size.Value);
+        bubbleExplosion.SetExplosionSize(explosionRadius / size);
     }
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped.Value) return;
+        if (hasPopped) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
+            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
         }
         else if (other.CompareTag("Bubble"))
         {
-            bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID.Value;
+            bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID;
         }
         Pop();
     }
     protected override void Pop()
     {
-        if (hasPopped.Value) return;
+        if (hasPopped) return;
         bubbleExplosion.Explode(knockback, damage);
         base.Pop();
     }

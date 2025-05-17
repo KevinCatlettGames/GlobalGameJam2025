@@ -10,12 +10,12 @@ public class DestroyAfterDuration : MonoBehaviour
     private void Start()
     {
         if(destroyOnRestart) GameManager.Instance.OnGameStarted += DestroyOnRestart;
-        Destroy(gameObject, waitDuration);
+        
         StartCoroutine(DespawnAfterDelay(waitDuration));
     }
 
     private void DestroyOnRestart()
-    {
+    { 
         Destroy(gameObject);
     }
 
@@ -26,7 +26,7 @@ public class DestroyAfterDuration : MonoBehaviour
 
     private IEnumerator DespawnAfterDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
+        yield return new WaitForSeconds(delay); 
         Destroy(gameObject);
     }
 }

@@ -1,9 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
-using Unity.Netcode;
 using UnityEngine;
 
-public class SlipTrigger : NetworkBehaviour
+public class SlipTrigger : MonoBehaviour
 {
     private List<PlayerController> slipperyPlayers = new List<PlayerController>();
 
@@ -12,11 +11,10 @@ public class SlipTrigger : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            if (IsServer)
-            {
+         
                 player.SetSlippy(true);
                 slipperyPlayers.Add(player);
-            }
+            
         }
         else if (other.CompareTag("Bubble"))
         {
@@ -30,22 +28,20 @@ public class SlipTrigger : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            if (IsServer)
-            {
+          
                 player.SetSlippy(false);
                 slipperyPlayers.Remove(player);
-            }
+            
         }
     }
 
     private void OnDestroy()
     {
-        if (IsServer)
-        {
+       
             foreach (PlayerController player in slipperyPlayers)
             {
                 player.SetSlippy(false);
             }
-        }
+        
     }
 }

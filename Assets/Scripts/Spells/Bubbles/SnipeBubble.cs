@@ -23,9 +23,7 @@ public class SnipeBubble : BasicBubble
     protected override void BubbleMovement()
     {
         base.BubbleMovement();
-
-        if (!IsServer) return;
-
+        
         if (currentDamage < maxDamage)
         {
             currentDamage += speed * Time.fixedDeltaTime * damageScaling;
@@ -35,12 +33,12 @@ public class SnipeBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (!IsServer || hasPopped.Value) return;
+        if (hasPopped) return;
 
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, currentDamage);
+            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, currentDamage);
             Pop();
         }
         else if (other.CompareTag("Bubble"))

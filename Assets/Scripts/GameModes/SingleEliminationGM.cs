@@ -27,7 +27,7 @@ public class SingleEliminationGM : GameManager
     void CallGameEndClientRpc()
     {
         Debug.Log("GameEnded");
-        Invoke(nameof(AwardVictory), gameEndDelay);
+        StartCoroutine(AwardVictory());
     }
     
     private void Update()
