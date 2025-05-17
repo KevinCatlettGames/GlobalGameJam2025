@@ -1,4 +1,3 @@
-using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -30,11 +29,13 @@ public class PauseManager : MonoBehaviour
         {
             eventSystem.SetSelectedGameObject(continueButton.gameObject);
             Time.timeScale = 0f;
+            Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
             Time.timeScale = 1f;
+            Cursor.lockState= CursorLockMode.Locked;
             Cursor.visible = false;
         }
     }

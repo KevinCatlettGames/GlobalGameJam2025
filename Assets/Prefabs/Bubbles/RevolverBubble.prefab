@@ -12,11 +12,9 @@ GameObject:
   - component: {fileID: 1629675836992339329}
   - component: {fileID: 363169325850266822}
   - component: {fileID: 2078046511075596644}
-  - component: {fileID: 4899954759535141257}
   - component: {fileID: 51952696765396276}
   - component: {fileID: 8333720517595282313}
   - component: {fileID: 3235790210659217238}
-  - component: {fileID: 8777366016322513657}
   m_Layer: 7
   m_Name: RevolverBubble
   m_TagString: Bubble
@@ -57,7 +55,7 @@ MeshRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449082112856618060}
   m_Enabled: 1
-  m_CastShadows: 1
+  m_CastShadows: 0
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
   m_StaticShadowCaster: 0
@@ -73,6 +71,7 @@ MeshRenderer:
   m_RendererPriority: 0
   m_Materials:
   - {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb, type: 3}
+  - {fileID: 2100000, guid: d029a4718624ad14e8632427eb661665, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -115,31 +114,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &4899954759535141257
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 4088196466
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &51952696765396276
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,26 +126,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d042c13c1028c24ab7518037e929d10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  OwnerID:
-    m_InternalValue: -1
-  direction:
-    m_InternalValue: {x: 0, y: 0, z: 0}
-  hasPopped:
-    m_InternalValue: 0
-  size:
-    m_InternalValue: 1
-  damage: 1
-  knockback: 1
-  speed: 1
-  range: 1
-  sphereCollider: {fileID: 0}
-  currentSize: 0.01
-  playerCollider: {fileID: 0}
+  isSlippy: 0
+  OwnerID: -1
   popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
-  inflationSpeed: 8
-  slippMod: 2
 --- !u!54 &8333720517595282313
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -230,52 +188,6 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
---- !u!114 &8777366016322513657
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
-  AutoOwnerAuthorityTickOffset: 1
-  PositionInterpolationType: 0
-  RotationInterpolationType: 0
-  ScaleInterpolationType: 0
-  PositionLerpSmoothing: 1
-  PositionMaxInterpolationTime: 0.1
-  RotationLerpSmoothing: 1
-  RotationMaxInterpolationTime: 0.1
-  ScaleLerpSmoothing: 1
-  ScaleMaxInterpolationTime: 0.1
-  AuthorityMode: 0
-  TickSyncChildren: 0
-  UseUnreliableDeltas: 0
-  SyncPositionX: 1
-  SyncPositionY: 1
-  SyncPositionZ: 1
-  SyncRotAngleX: 1
-  SyncRotAngleY: 1
-  SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
-  UseQuaternionSynchronization: 0
-  UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
-  InLocalSpace: 0
-  SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
-  SlerpPosition: 0
 --- !u!1 &1324069217292943714
 GameObject:
   m_ObjectHideFlags: 0
@@ -357,7 +269,7 @@ TrailRenderer:
   m_PreviewTimeScale: 1
   m_Parameters:
     serializedVersion: 3
-    widthMultiplier: 0.3
+    widthMultiplier: 1
     widthCurve:
       serializedVersion: 2
       m_Curve:
@@ -384,8 +296,8 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 0.8000698, g: 0, b: 1, a: 1}
-      key1: {r: 0, g: 0, b: 0, a: 0}
+      key0: {r: 0.025627613, g: 0, b: 1, a: 1}
+      key1: {r: 0, g: 0, b: 0, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -401,8 +313,8 @@ TrailRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 65535
-      atime2: 0
+      atime1: 36623
+      atime2: 65535
       atime3: 0
       atime4: 0
       atime5: 0
@@ -411,7 +323,7 @@ TrailRenderer:
       m_Mode: 0
       m_ColorSpace: 0
       m_NumColorKeys: 2
-      m_NumAlphaKeys: 2
+      m_NumAlphaKeys: 3
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
@@ -492,8 +404,7 @@ PrefabInstance:
       propertyPath: m_Name
       value: BubbleTrail
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 7694968991626347187, guid: fd27fdadab21b9d459a00c06ea331d00, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []

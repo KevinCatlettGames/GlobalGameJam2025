@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Unity.Netcode; 
+using UnityEditor.Timeline;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -41,15 +42,22 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] float rumbleDurationFactor = .01f;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private NetworkObject dashStartEffectPrefab;
-    [SerializeField] private GameObject spellSpawnEffect;
-    [SerializeField] private float materialSwapDuration = .1f;
+    
     private ControllerRumbler controllerRumbler = null;
+    private bool isUsingGamepad = false;
+    private float mouseInputDeadzoneRadius = .5f;
+    private float mouseInputVectorLimit = 5f;
 
+    [Header("Effects")]
+    [SerializeField] private GameObject dashStartEffect;
+    [SerializeField] private float materialSwapDuration = .1f;
 
     #region Player Physics
     [Header("Player Stats")]
     [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
+    [SerializeField] private float rotationSpeed = 10f;
+    [SerializeField] private float moveSmoothTime = 0.1f;
 
     [Header("Sprint")]
     [SerializeField] private float playerSprintSpeed = 24f;
@@ -66,25 +74,18 @@ public class PlayerController : NetworkBehaviour
     #region Player Controller
     private CharacterController controller;
     private Vector3 playerVelocity;
-    #endregion
-
-    #region Input Movement 
+    private Vector3 move = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
-    [SerializeField] private float rotationSpeed = 10f; // Adjust for smoother rotation
-    [SerializeField] private float moveSmoothTime = 0.1f; // Smoothing duration
     private Vector3 moveVelocity = Vector3.zero;
+    private Vector3 knockbackVelocity = Vector3.zero;
     #endregion
 
-    #region Knockback
-    [SerializeField]
-    private float knockbackDecaySpeed = 5f; // Speed at which knockback decays
-    private Vector3 knockbackVelocity = Vector3.zero; // Current knockback force
-    #endregion
 
     public Animator mainAnimator;
     private MaterialSwapper materialSwapper;
+    [Header("Visuals")]
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     
@@ -122,12 +123,12 @@ public class PlayerController : NetworkBehaviour
         {
             playerVelocity.y += gravityValue * Time.deltaTime;
         }
-
-        // Handle input movement
         if (!isDead)
         {
             targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
+            smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
+            move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
         }
         else
         {
@@ -139,18 +140,13 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            mainAnimator?.SetBool("IsWalking", false);
+            targetDirection = Vector3.zero;
+            move = Vector3.zero;
         }
-
-        // Smoothly interpolate movement direction
-        smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
-        Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
-
-        // Apply knockback if it exists
         if (knockbackVelocity.magnitude > 0.1f)
         {
-            move += knockbackVelocity * Time.deltaTime; // Add knockback to movement
-            knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); // Decay knockback over time
+            move += knockbackVelocity * Time.deltaTime; 
+            knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); 
         }
         else
         {
@@ -163,13 +159,21 @@ public class PlayerController : NetworkBehaviour
         if (!isDead) move += playerVelocity * Time.deltaTime;
         if (controller.enabled) controller.Move(move);
 
-        // Smoothly rotate the player to face the movement direction
-        if (targetDirection != Vector3.zero)
+
+        if (targetDirection != Vector3.zero && !isDead)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
 
+        if (targetDirection.sqrMagnitude > 0)
+        {
+            mainAnimator?.SetBool("IsWalking", true);
+        }
+        else
+        {
+            mainAnimator?.SetBool("IsWalking", false);
+        }
     }
     
     #endregion
@@ -177,7 +181,24 @@ public class PlayerController : NetworkBehaviour
     #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
-        movementInput = context.ReadValue<Vector2>();
+        if (isUsingGamepad)
+        {
+            movementInput = context.ReadValue<Vector2>();
+            return;
+        }
+        else
+        {
+            movementInput += context.ReadValue<Vector2>() * Time.deltaTime;
+            float inputMagnitude = movementInput.magnitude;
+            if (inputMagnitude < mouseInputDeadzoneRadius)
+            {
+                movementInput = Vector2.zero;
+            }
+            else if (inputMagnitude > mouseInputVectorLimit)
+            {
+                movementInput *= mouseInputVectorLimit / inputMagnitude;
+            }
+        }
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
 {
@@ -359,7 +380,24 @@ private void CooldownCompleteClientRpc(int spellID)
     {
         if (context.performed)
         {
-            mainAnimator.SetTrigger("EmoteUp");
+            Vector2 value = context.ReadValue<Vector2>();
+            switch (value.x, value.y)
+            {
+                case (0,1):
+                    mainAnimator.SetTrigger("EmoteUp");
+                    break;
+                case (0,-1):
+                    //EmoteDown
+                    break;
+                case (-1, 0):
+                    //EmoteLeft
+                    break;
+                case (1, 0):
+                    //EmoteRight
+                    break;
+                default:
+                    break;
+            }
         }
     }
     #endregion
@@ -501,6 +539,10 @@ private void CooldownCompleteClientRpc(int spellID)
         if (playerID == killCreditID) killCreditID = -1;
         GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);  
         playerHUD.DisplayDeath();
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].enabled = false;
+        }
     }
     public void SetSlippy(bool slippy)
     {
@@ -529,7 +571,12 @@ private void CooldownCompleteClientRpc(int spellID)
         isSlippery = false;
         killCreditID = -1;
         mainAnimator.SetBool("IsDead", false);
-        mainAnimator.SetBool("Victory", false);       
+        mainAnimator.SetBool("Victory", false);
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].enabled = true;
+        }
+        movementInput = Vector2.zero;
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
@@ -548,6 +595,7 @@ private void CooldownCompleteClientRpc(int spellID)
         if (controllerRumbler != null)
         {
             this.controllerRumbler = controllerRumbler;
+            isUsingGamepad = true;
         }
     }
     #endregion

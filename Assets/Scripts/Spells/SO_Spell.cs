@@ -28,6 +28,7 @@ public class SO_Spell : ScriptableObject
     [Header("Pickup")]
     [SerializeField] protected Mesh itemMesh;
     [SerializeField] protected Material itemMaterial;
+    [SerializeField] protected Material[] effectMaterials;
 
     [Header("Sound Events")]
     [SerializeField] protected EventReference castEventStruct;
@@ -62,5 +63,9 @@ public class SO_Spell : ScriptableObject
     public EventReference GetSpellEventStruct() 
     {
         return spellEventStruct;
+    }
+    public Material[] GetEffectMaterials()
+    {
+        return effectMaterials;
     }
 }

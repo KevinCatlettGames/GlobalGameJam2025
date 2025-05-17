@@ -1,5 +1,7 @@
 using System.Collections;
 using Unity.Netcode;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 public class Item : NetworkBehaviour
@@ -16,15 +18,16 @@ public class Item : NetworkBehaviour
     [SerializeField] private Material itemMaterial;
 
     private Material spellMaterial;
-    public SO_Spell spell;
-
+    [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
+    [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private bool isBlinking = false;
     private float blinkStartTime;
     
     // Network synced spell index
     private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
-
+    
+    
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -42,25 +45,23 @@ public class Item : NetworkBehaviour
         }
     }
     
-    private void Update()
+    private void Start()
     {
-        if (!IsSpawned || spell == null || isBlinking) return;
-
-        float timeSinceSpawn = (float)NetworkManager.Singleton.ServerTime.Time - serverSpawnTime.Value;
-
-        if (timeSinceSpawn >= (itemDuration - itemBlinkDuration))
+        if (spell == null)
         {
-            StartCoroutine(ClientBlinkEffectLoop());
-            isBlinking = true;
+            int r = Random.Range(0, spells.Length);
+            spell = spells[r];
         }
-    }
-
-    private void SetupSpell(int index)
-    {
-        spell = spells[index];
         meshFilter.mesh = spell.GetMesh();
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
+        Material[] effectMaterials = spell.GetEffectMaterials();
+        if (effectMaterials != null && effectMaterials.Length == 2)
+        {
+            wrapParticleRenderer.material = effectMaterials[0];
+            sparkleParticleSystem.material = effectMaterials[1];
+        }
+        StartCoroutine(ItemDespawn());
     }
 
     public SO_Spell EquipSpell()

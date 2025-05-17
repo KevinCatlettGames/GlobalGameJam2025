@@ -24,7 +24,6 @@ public class BasicBubble : NetworkBehaviour
     [SerializeField] public GameObject popEffect;
     [SerializeField] public float inflationSpeed = 8f;
     [SerializeField] public float slippMod = 2f;
-
     private void Start()
     {
         GameManager.Instance.OnGameStarted += DestroyBubble;
@@ -179,6 +178,7 @@ public class BasicBubble : NetworkBehaviour
         if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
         direction.Value = Vector3.Reflect(direction.Value, normal);
         direction.Value = new Vector3(direction.Value.x, 0, direction.Value.z);
+        transform.rotation = Quaternion.LookRotation(direction.Value);
         StopCoroutine(rangeCoroutine);
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }

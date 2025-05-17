@@ -33,13 +33,15 @@ public class GameManager : NetworkBehaviour
         {
             Destroy(this);
         }
-        
-        Cursor.visible = false;
+                 
         for (int i = 0; i < maxPlayers; i++)
         {
             playerStates[i] = PlayerState.missing;
         }
         
+         //Cursor.visible = false;
+         Cursor.lockState = CursorLockMode.Locked;
+                   
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += WaitAndStartGame;
     }
 
