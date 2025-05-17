@@ -13,7 +13,7 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
-        bubbleExplosion.SetExplosionSize(explosionRadius / size);
+        bubbleExplosion.SetExplosionSize(explosionRadius / size.Value);
     }
     public override void BubbleCollision(GameObject other)
     {

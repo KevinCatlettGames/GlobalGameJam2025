@@ -13,8 +13,10 @@ GameObject:
   - component: {fileID: 363169325850266822}
   - component: {fileID: 3910837278528565047}
   - component: {fileID: 474163958991130047}
+  - component: {fileID: 4467437140268157646}
   - component: {fileID: 6401587802299983874}
   - component: {fileID: 2103156886434375332}
+  - component: {fileID: 5879306884358218362}
   m_Layer: 7
   m_Name: ExplodingBubble
   m_TagString: Bubble
@@ -142,6 +144,31 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &4467437140268157646
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2597308985
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &6401587802299983874
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,10 +181,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 488d21385ba855c42822d29f93121e12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  OwnerID:
+    m_InternalValue: -1
+  direction:
+    m_InternalValue: {x: 0, y: 0, z: 0}
+  hasPopped:
+    m_InternalValue: 0
+  size:
+    m_InternalValue: 1
+  damage: 1
+  knockback: 1
+  speed: 1
+  range: 1
+  sphereCollider: {fileID: 0}
+  currentSize: 0.01
+  playerCollider: {fileID: 0}
   isSlippy: 0
-  OwnerID: -1
   popEffect: {fileID: 7883030796252567183, guid: c57bb1cf234226b4c81589f69b31857e,
     type: 3}
+  inflationSpeed: 8
+  slippMod: 2
   explosionRadius: 8
 --- !u!114 &2103156886434375332
 MonoBehaviour:
@@ -190,6 +234,52 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &5879306884358218362
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &531117080168029495
 GameObject:
   m_ObjectHideFlags: 0
@@ -5373,5 +5463,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea2e921f59912844980c9570c237291d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   indicator: {fileID: 531117080168029495}
   OwnerID: 0

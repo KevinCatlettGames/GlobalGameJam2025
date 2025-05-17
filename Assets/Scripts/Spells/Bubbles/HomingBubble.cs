@@ -1,4 +1,5 @@
 using FMODUnity;
+using Unity.Netcode;
 using UnityEngine;
 
 public class HomingBubble : BasicBubble
@@ -11,7 +12,7 @@ public class HomingBubble : BasicBubble
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         homingTargeting = GetComponentInChildren<HomingTargeting>();
-        homingTargeting.SetTargeting(homigRadius / size, playerCollider);
+        homingTargeting.SetTargeting(homigRadius / size.Value, playerCollider);
     }
     protected override void BubbleMovement()
     {
@@ -26,7 +27,7 @@ public class HomingBubble : BasicBubble
             Quaternion targetRotation = Quaternion.LookRotation(targetVector);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
         }
-        direction = transform.forward;
+        direction = new NetworkVariable<Vector3>(transform.forward);
         base.BubbleMovement();
     }
 }

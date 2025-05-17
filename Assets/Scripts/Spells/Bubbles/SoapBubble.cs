@@ -24,11 +24,11 @@ public class SoapBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped.Value) return;
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+            player.ApplyKnockbackServerRpc(OwnerID.Value, direction.Value, knockback, damage);
             RaycastHit hitInfo;
             if(Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
                 Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);

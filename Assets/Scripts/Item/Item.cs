@@ -1,7 +1,5 @@
 using System.Collections;
 using Unity.Netcode;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 
 public class Item : NetworkBehaviour
@@ -18,21 +16,28 @@ public class Item : NetworkBehaviour
     [SerializeField] private Material itemMaterial;
 
     private Material spellMaterial;
-    [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
-    [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
+    public SO_Spell spell;
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+
     private bool isBlinking = false;
     private float blinkStartTime;
-    
     // Network synced spell index
     private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
     
+    [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
+    [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
     
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
-            int r = Random.Range(0, spells.Length);
+            int r = 0;
+            if (spell == null)
+            {
+                r = Random.Range(0, spells.Length);
+                spell = spells[r];
+            }
+
             spellIndex.Value = r;
             serverSpawnTime.Value = (float)NetworkManager.ServerTime.Time;
             SetupSpell(r);
@@ -44,14 +49,31 @@ public class Item : NetworkBehaviour
             if (spellIndex.Value >= 0) SetupSpell(spellIndex.Value);
         }
     }
-    
-    private void Start()
+
+    public SO_Spell EquipSpell()
     {
-        if (spell == null)
+        if (IsServer)
         {
-            int r = Random.Range(0, spells.Length);
-            spell = spells[r];
+            StartCoroutine(DelayedDestroyServer());
         }
+        return spell;
+    }
+
+    private void Update()
+    {
+        if (!IsSpawned || spell == null || isBlinking) return;
+        float timeSinceSpawn = (float)NetworkManager.Singleton.ServerTime.Time - serverSpawnTime.Value;
+
+        if (timeSinceSpawn >= (itemDuration - itemBlinkDuration))
+        {
+            StartCoroutine(ClientBlinkEffectLoop());
+            isBlinking = true; 
+        }
+    }
+
+    private void SetupSpell(int index)
+    {
+        spell = spells[index];
         meshFilter.mesh = spell.GetMesh();
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
@@ -61,16 +83,6 @@ public class Item : NetworkBehaviour
             wrapParticleRenderer.material = effectMaterials[0];
             sparkleParticleSystem.material = effectMaterials[1];
         }
-        StartCoroutine(ItemDespawn());
-    }
-
-    public SO_Spell EquipSpell()
-    {
-        if (IsServer)
-        {
-            StartCoroutine(DelayedDestroyServer());
-        }
-        return spell;
     }
 
     private IEnumerator DelayedDestroyServer()
@@ -147,6 +159,16 @@ public class Item : NetworkBehaviour
     private IEnumerator ServerItemDespawn()
     {
         yield return new WaitForSeconds(itemDuration);
+
+        float duration = itemBlinkDuration;
+        bool toggle = true;
+        while (duration > 0)
+        {
+            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
+            toggle = !toggle;
+            yield return new WaitForSeconds(itemBlinkIntervall);
+            duration -= itemBlinkIntervall;
+        }
 
         ItemSpawner.Instance.currentAmount--;
         GetComponent<NetworkObject>().Despawn();

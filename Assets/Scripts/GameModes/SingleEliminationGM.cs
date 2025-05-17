@@ -2,10 +2,12 @@ using System.Collections;
 using Unity.VisualScripting;
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode; 
 
 public class SingleEliminationGM : GameManager
 {
-    public override void CheckForRoundEnd()
+    [ServerRpc(RequireOwnership = false)]
+    public override void CheckForRoundEndServerRpc()
     {
         int alivePlayers = 0;
         for (int i = 0; i < playerStates.Length; i++)
@@ -73,7 +75,7 @@ public class SingleEliminationGM : GameManager
         playerHUDs[winnerID].AddWin();
         victoryAnimator.gameObject.SetActive(false);
         yield return new WaitForSeconds(.75f);
-        EndGame();
+        base.EndGame();
     }
 
 }

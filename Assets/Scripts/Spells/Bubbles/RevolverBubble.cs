@@ -50,7 +50,7 @@ public class RevolverBubble : BasicBubble
             netObj.Spawn();
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID.Value, damage, knockback, speed, range, size.Value, inflationSpeed, dir, soundEvent, playerCollider);
 
             yield return new WaitForSeconds(delayBetweenShots);
         }

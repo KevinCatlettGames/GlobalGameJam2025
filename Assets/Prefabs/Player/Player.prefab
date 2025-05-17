@@ -10273,10 +10273,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8774792281679756014}
+  - component: {fileID: 4445092014587732243}
   - component: {fileID: 7196035049087285683}
   - component: {fileID: 8578798486101265600}
   - component: {fileID: 5391527640114850242}
   - component: {fileID: 4161366380558500022}
+  - component: {fileID: 9080912266859805851}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -10303,6 +10305,31 @@ Transform:
   - {fileID: 2074817548081067704}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 180, z: 0}
+--- !u!114 &4445092014587732243
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3441453709348038487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2939348605
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &7196035049087285683
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10315,6 +10342,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c8b565ce00134442970582b178ac0ae, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   knockBackEvent:
     Guid:
       Data1: 1118691880
@@ -10329,17 +10357,32 @@ MonoBehaviour:
       Data3: -486185590
       Data4: -1926625252
     Path: event:/sfx/player/player_death
-  damageModifier: 0.15
-  slipperyModifier: 2
-  rumbleDurationFactor: 0.007
-  dashStartEffect: {fileID: 3459545037407450599, guid: 1f5782430d0962f43882fb902dbd49bc,
-    type: 3}
+  knockbackDecaySpeed: 5
+  allSpells:
+  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
+  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
+  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
+  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
+  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
+  - {fileID: 11400000, guid: 0cdccf3f71aa9b244b8b743c08e32f29, type: 2}
+  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
+  - {fileID: 11400000, guid: b9c65d75b23394443b192a0c4366e3d4, type: 2}
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
+  damageModifier: 0.15
+  slipperyModifier: 2
+  knockbackDecaySpeed: 5
+  rumbleDurationFactor: 0.007
   damageParticleSystem: {fileID: 1527836326199805677}
+  dashStartEffectPrefab: {fileID: 5587332435294276172, guid: 1f5782430d0962f43882fb902dbd49bc,
+    type: 3}
+  dashStartEffect: {fileID: 3459545037407450599, guid: 1f5782430d0962f43882fb902dbd49bc,
+    type: 3}
   materialSwapDuration: 0.3
   playerSpeed: 11
   gravityValue: -9.81
+  rotationSpeed: 70
+  moveSmoothTime: 0.1
   playerSprintSpeed: 60
   playerSprintDuration: 0.1
   sprintCooldown: 1.5
@@ -10409,9 +10452,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  rotationSpeed: 70
-  moveSmoothTime: 0.1
-  knockbackDecaySpeed: 5
+<<<<<<< HEAD
+  mainAnimator: {fileID: 0}
+=======
+>>>>>>> Demo
   characters:
   - {fileID: 5078682858857096081}
   - {fileID: 4609517529964523734}
@@ -10420,6 +10464,7 @@ MonoBehaviour:
   coloredElements:
   - {fileID: 8395055839412904799}
   - {fileID: 7329880264689657268}
+  initialized: 0
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10427,7 +10472,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3441453709348038487}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
   m_Name: 
@@ -10618,6 +10663,52 @@ MonoBehaviour:
       Data3: 978903957
       Data4: 2076522920
     Path: event:/sfx/player/player_spawn
+--- !u!114 &9080912266859805851
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3441453709348038487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 1
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 0
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0
 --- !u!1 &5334696063584468525
 GameObject:
   m_ObjectHideFlags: 0
@@ -15821,7 +15912,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 9bb0c98c73277c245959a055bb15ffbf,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2188940116772845550, guid: 9bb0c98c73277c245959a055bb15ffbf,
         type: 3}
@@ -15837,6 +15928,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 1269748596074528855}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 9bb0c98c73277c245959a055bb15ffbf,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4709421764851138622}
     - targetCorrespondingSourceObject: {fileID: -1376621523441572994, guid: 9bb0c98c73277c245959a055bb15ffbf,
         type: 3}
       insertIndex: -1
@@ -15876,6 +15971,63 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4709421764851138622
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4609517529964523734}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eeba8a5c6dd4b458e65ce016a651a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: -356172345
+    TransitionDuration: 0.06934273
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: -356172345
+    TransitionDuration: 0.042943
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: -356172345
+    TransitionDuration: 0.25
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  m_Animator: {fileID: 1269748596074528855}
 --- !u!137 &5234197059563641398 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: -316738054463498319, guid: 9bb0c98c73277c245959a055bb15ffbf,
@@ -15991,7 +16143,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 0ee8733c37bf47f4299d3d46b322dcb5,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2188940116772845550, guid: 0ee8733c37bf47f4299d3d46b322dcb5,
         type: 3}
@@ -16007,6 +16159,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 2075401948866925790}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 0ee8733c37bf47f4299d3d46b322dcb5,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 531391521373854674}
     - targetCorrespondingSourceObject: {fileID: -1376621523441572994, guid: 0ee8733c37bf47f4299d3d46b322dcb5,
         type: 3}
       insertIndex: -1
@@ -16061,6 +16217,63 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &531391521373854674
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5078682858857096081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eeba8a5c6dd4b458e65ce016a651a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: -356172345
+    TransitionDuration: 0.06934273
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: -356172345
+    TransitionDuration: 0.042943
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: -356172345
+    TransitionDuration: 0.25
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  m_Animator: {fileID: 2075401948866925790}
 --- !u!4 &5562169335175887147 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 0ee8733c37bf47f4299d3d46b322dcb5,
@@ -16144,7 +16357,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: a16637e440b719d459d947d7a30022ef,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2188940116772845550, guid: a16637e440b719d459d947d7a30022ef,
         type: 3}
@@ -16160,6 +16373,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 5012488811999683489}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: a16637e440b719d459d947d7a30022ef,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5177890374197278462}
     - targetCorrespondingSourceObject: {fileID: -1376621523441572994, guid: a16637e440b719d459d947d7a30022ef,
         type: 3}
       insertIndex: -1
@@ -16214,6 +16431,63 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5177890374197278462
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7175674737029802879}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eeba8a5c6dd4b458e65ce016a651a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: -356172345
+    TransitionDuration: 0.06934273
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: -356172345
+    TransitionDuration: 0.042943
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: -356172345
+    TransitionDuration: 0.25
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  m_Animator: {fileID: 5012488811999683489}
 --- !u!4 &7556704322090152389 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: a16637e440b719d459d947d7a30022ef,
@@ -16297,7 +16571,7 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 8dd6a39d18e36df49abe1fb0130b386d,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2188940116772845550, guid: 8dd6a39d18e36df49abe1fb0130b386d,
         type: 3}
@@ -16313,6 +16587,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 3092545065035336619}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: 8dd6a39d18e36df49abe1fb0130b386d,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1108998483076933148}
     - targetCorrespondingSourceObject: {fileID: -1376621523441572994, guid: 8dd6a39d18e36df49abe1fb0130b386d,
         type: 3}
       insertIndex: -1
@@ -16367,6 +16645,63 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1108998483076933148
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8366980438677376403}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eeba8a5c6dd4b458e65ce016a651a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: -356172345
+    TransitionDuration: 0.06934273
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: -356172345
+    TransitionDuration: 0.042943
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: -356172345
+    TransitionDuration: 0.25
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 434085781
+    DestinationState: 434085781
+    TransitionDuration: 0.25
+    TriggerNameHash: 434085781
+    TransitionIndex: 4
+  m_Animator: {fileID: 3092545065035336619}
 --- !u!4 &9175711284609521449 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 8dd6a39d18e36df49abe1fb0130b386d,

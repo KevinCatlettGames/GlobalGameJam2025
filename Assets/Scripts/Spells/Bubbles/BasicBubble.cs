@@ -87,7 +87,7 @@ public class BasicBubble : NetworkBehaviour
         SpawnPopEffectClientRpc(transform.position, size.Value);
 
         // Destroy bubble after popping
-        Destroy(gameObject);
+        GetComponent<NetworkObject>().Despawn(gameObject);
     }
 
     // ServerRpc to set hasPopped

@@ -131,6 +131,7 @@ public class GameManager : NetworkBehaviour
         playerHUDs[killCredit].AddKill();
     }
     
+    
     [ServerRpc(RequireOwnership = false)]
     public virtual void ChangePlayerStateServerRpc(int playerID, PlayerState playerState)
     {

@@ -5,7 +5,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Unity.Netcode; 
-using UnityEditor.Timeline;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -13,6 +12,7 @@ public class PlayerController : NetworkBehaviour
     [Header("Sound Events")]
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference deathEvent;
+    [SerializeField] private float knockbackDecaySpeed = 5f; 
 
     [Header("Spells")]
     [SerializeField]
@@ -45,7 +45,7 @@ public class PlayerController : NetworkBehaviour
     
     private ControllerRumbler controllerRumbler = null;
     private bool isUsingGamepad = false;
-    private float mouseInputDeadzoneRadius = .5f;
+    private float mouseInputDeadzoneRadius = .4f;
     private float mouseInputVectorLimit = 5f;
 
     [Header("Effects")]
@@ -68,7 +68,12 @@ public class PlayerController : NetworkBehaviour
     public UnityEvent OnEndSprint; 
 
     private bool canSprint = true;
+<<<<<<< HEAD
     private Coroutine sprintCoroutine;
+    private bool groundedPlayer = false; 
+=======
+    private bool isSprinting = false;
+>>>>>>> Demo
     #endregion
 
     #region Player Controller
@@ -112,10 +117,41 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-        if (!initialized || !IsOwner) return; 
-        
-        groundedPlayer = controller.isGrounded;
-        if (groundedPlayer && playerVelocity.y < 0)
+<<<<<<< HEAD
+        if (!initialized || !IsOwner) return;
+
+        // Get input every frame (e.g. from Input system or your own input handler)
+        // Here you assume `movementInput` is updated elsewhere (e.g., Input events)
+    groundedPlayer = controller.isGrounded;
+      
+            if (!initialized || isDead) return;
+
+            // Normalize input direction
+            Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
+            direction = Vector3.ClampMagnitude(direction, 1f);
+
+            // Ground check and gravity
+            if (groundedPlayer && playerVelocity.y < 0)
+            {
+                playerVelocity.y = 0f;
+            }
+            else
+            {
+                playerVelocity.y += gravityValue * Time.deltaTime;
+            }
+
+            // Calculate movement vector
+            Vector3 move = direction * playerSpeed * Time.deltaTime;
+
+            // Apply knockback velocity if any (optional)
+            if (knockbackVelocity.magnitude > 0.1f)
+            {
+                move += knockbackVelocity * Time.deltaTime;
+                knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime);
+            }
+            else if (killCreditID != -1 && controller.isGrounded)
+=======
+        if (controller.isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
         }
@@ -125,18 +161,23 @@ public class PlayerController : NetworkBehaviour
         }
         if (!isDead)
         {
-            targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
+            if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
+            {
+                targetDirection = Vector3.zero;
+                Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            }
+            else
+            {
+                targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
+            }
+            if (targetDirection == Vector3.zero && isSprinting)
+            {
+                targetDirection = transform.forward;
+            }
             targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
             smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
             move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
-        }
-        else
-        {
-            targetDirection = knockbackVelocity * 0.1f;
-        }
-        if (targetDirection.sqrMagnitude > 0)
-        {
-            mainAnimator?.SetBool("IsWalking", true);
         }
         else
         {
@@ -151,29 +192,37 @@ public class PlayerController : NetworkBehaviour
         else
         {
             if(killCreditID != -1 && controller.isGrounded)
+>>>>>>> Demo
             {
                 killCreditID = -1;
             }
-        }
 
-        if (!isDead) move += playerVelocity * Time.deltaTime;
-        if (controller.enabled) controller.Move(move);
+            // Add vertical velocity (gravity)
+            move += playerVelocity * Time.deltaTime;
 
+            // Move character controller
+            if (controller.enabled)
+            {
+                controller.Move(move);
+            }
 
-        if (targetDirection != Vector3.zero && !isDead)
+<<<<<<< HEAD
+            // Rotate character smoothly toward movement direction
+            if (direction != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(direction);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            }
+=======
+        if (!isDead && targetDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
         }
+>>>>>>> Demo
 
-        if (targetDirection.sqrMagnitude > 0)
-        {
-            mainAnimator?.SetBool("IsWalking", true);
-        }
-        else
-        {
-            mainAnimator?.SetBool("IsWalking", false);
-        }
+            // Update animation on server (optional, or sync to clients)
+            mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
     }
     
     #endregion
@@ -190,11 +239,7 @@ public class PlayerController : NetworkBehaviour
         {
             movementInput += context.ReadValue<Vector2>() * Time.deltaTime;
             float inputMagnitude = movementInput.magnitude;
-            if (inputMagnitude < mouseInputDeadzoneRadius)
-            {
-                movementInput = Vector2.zero;
-            }
-            else if (inputMagnitude > mouseInputVectorLimit)
+            if (inputMagnitude > mouseInputVectorLimit)
             {
                 movementInput *= mouseInputVectorLimit / inputMagnitude;
             }
@@ -204,7 +249,24 @@ public class PlayerController : NetworkBehaviour
 {
     if (isFirstSpellReady && context.performed && !isDead)
     {
+<<<<<<< HEAD
         CastSpellServerRpc(true); // Request to cast first spell
+=======
+        if (context.performed && !isDead)
+        {
+            if (!isFirstSpellReady)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
+            mainAnimator.SetTrigger("SlapTrigger");
+            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
+            float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
+            isFirstSpellReady = false;
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+            RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(),gameObject);
+        }
+>>>>>>> Demo
     }
 }
 
@@ -212,11 +274,28 @@ public void OnSecondSpell(InputAction.CallbackContext context)
 {
     if (isSecondSpellReady && context.performed && !isDead)
     {
+<<<<<<< HEAD
         CastSpellServerRpc(false); // Request to cast second spell
+=======
+        if (context.performed && !isDead)
+        {
+            if (!isSecondSpellReady)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
+            mainAnimator.SetTrigger("SlapTrigger");
+            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
+            float cooldown = secondSpell.CastSpell(playerID, transform.position, transform.forward, controller);
+            isSecondSpellReady = false;
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+            RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
+        }
+>>>>>>> Demo
     }
 }
 
-[ServerRpc]
+[ServerRpc(RequireOwnership = false)]
 private void CastSpellServerRpc(bool isFirstSpell)
 {
     SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
@@ -294,37 +373,43 @@ private void CooldownCompleteClientRpc(int spellID)
     {
         if (itemToEquip == null) return;
 
+        SO_Spell spell = itemToEquip.EquipSpell();
+        int spellIndex = spell.spellIndex;
+
         switch (spellID)
         {
             case 1:
-                firstSpell = itemToEquip.EquipSpell();
+                firstSpell = spell;
                 playerHUD.SetSpell(1, firstSpell.SpellIcon);
                 break;
             case 2:
-                secondSpell = itemToEquip.EquipSpell();
+                secondSpell = spell;
                 playerHUD.SetSpell(2, secondSpell.SpellIcon);
                 break;
-            default:
-                Debug.LogWarning("Invalid spell ID");
-                return;
         }
-        
-        ResetSpell(spellID);
 
-        // Call the ClientRpc to send the spell data to the client
-        EquipSpellClientRpc(spellID);
-          itemToEquip = null;
+        ResetSpell(spellID);
+        EquipSpellClientRpc(spellID, spellIndex); // 🟢 Send the spell index instead
+        itemToEquip = null;
     }
 
-    // ClientRpc to notify the client about the spell change
     [ClientRpc]
-    private void EquipSpellClientRpc(int spellID)
+    private void EquipSpellClientRpc(int spellID, int spellIndex)
     {
-        // Retrieve the correct spell for the client side
-        SO_Spell equippedSpell = itemToEquip.spell;
+        SO_Spell equippedSpell = null;
+
+        foreach (SO_Spell spell in allSpells)
+        {
+            if (spell.spellIndex == spellIndex)
+            {
+                equippedSpell = spell;
+                break;
+            }
+        }
+
         if (equippedSpell == null)
         {
-            Debug.LogWarning("Spell ID not found on client.");
+            Debug.LogWarning("Spell index not found on client.");
             return;
         }
 
@@ -338,18 +423,25 @@ private void CooldownCompleteClientRpc(int spellID)
                 secondSpell = equippedSpell;
                 playerHUD.SetSpell(2, secondSpell.SpellIcon);
                 break;
-            default:
-                Debug.LogWarning("Invalid spell ID");
-                return;
         }
     }
     
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (canSprint && context.performed && sprintCoroutine == null)
+        if (context.performed)
         {
+<<<<<<< HEAD
             sprintCoroutine = StartCoroutine(SprintCoroutine());
             SpawnDashEffectServerRpc();
+=======
+            if (!canSprint)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
+            StartCoroutine(SprintCoroutine());
+            Instantiate(dashStartEffect, transform.position, transform.rotation);
+>>>>>>> Demo
         }
     }
     
@@ -367,13 +459,17 @@ private void CooldownCompleteClientRpc(int spellID)
     {
         canSprint = false;
         float moveSpeed = playerSpeed;
+        float smoothTime = moveSmoothTime;
         playerSpeed = playerSprintSpeed;
+        moveSmoothTime = 0f;
+        isSprinting = true;
         OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
+        moveSmoothTime = smoothTime;
+        isSprinting = false;
         OnEndSprint?.Invoke();
         yield return new WaitForSeconds(sprintCooldown);
-        sprintCoroutine = null;
         canSprint = true;
     }
     public void OnEmote(InputAction.CallbackContext context)
