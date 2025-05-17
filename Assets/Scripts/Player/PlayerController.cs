@@ -68,12 +68,9 @@ public class PlayerController : NetworkBehaviour
     public UnityEvent OnEndSprint; 
 
     private bool canSprint = true;
-<<<<<<< HEAD
     private Coroutine sprintCoroutine;
     private bool groundedPlayer = false; 
-=======
     private bool isSprinting = false;
->>>>>>> Demo
     #endregion
 
     #region Player Controller
@@ -117,7 +114,6 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-<<<<<<< HEAD
         if (!initialized || !IsOwner) return;
 
         // Get input every frame (e.g. from Input system or your own input handler)
@@ -150,7 +146,6 @@ public class PlayerController : NetworkBehaviour
                 knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime);
             }
             else if (killCreditID != -1 && controller.isGrounded)
-=======
         if (controller.isGrounded && playerVelocity.y < 0)
         {
             playerVelocity.y = 0f;
@@ -191,8 +186,7 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            if(killCreditID != -1 && controller.isGrounded)
->>>>>>> Demo
+            if (killCreditID != -1 && controller.isGrounded)
             {
                 killCreditID = -1;
             }
@@ -206,23 +200,16 @@ public class PlayerController : NetworkBehaviour
                 controller.Move(move);
             }
 
-<<<<<<< HEAD
-            // Rotate character smoothly toward movement direction
-            if (direction != Vector3.zero)
+            if (!isDead && targetDirection != Vector3.zero)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(direction);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+                transform.rotation =
+                    Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
             }
-=======
-        if (!isDead && targetDirection != Vector3.zero)
-        {
-            Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-        }
->>>>>>> Demo
 
             // Update animation on server (optional, or sync to clients)
             mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+        }
     }
     
     #endregion
@@ -245,38 +232,32 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-    public void OnFirstSpell(InputAction.CallbackContext context)
-{
-    if (isFirstSpellReady && context.performed && !isDead)
-    {
-<<<<<<< HEAD
-        CastSpellServerRpc(true); // Request to cast first spell
-=======
-        if (context.performed && !isDead)
-        {
-            if (!isFirstSpellReady)
-            {
-                controllerRumbler?.Rumble(.15f, 1f, 5f);
-                return;
-            }
-            mainAnimator.SetTrigger("SlapTrigger");
-            Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
-            float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
-            isFirstSpellReady = false;
-            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
-            RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(),gameObject);
-        }
->>>>>>> Demo
-    }
-}
 
-public void OnSecondSpell(InputAction.CallbackContext context)
-{
-    if (isSecondSpellReady && context.performed && !isDead)
+    public void OnFirstSpell(InputAction.CallbackContext context)
     {
-<<<<<<< HEAD
-        CastSpellServerRpc(false); // Request to cast second spell
-=======
+        if (isFirstSpellReady && context.performed && !isDead)
+        {
+            CastSpellServerRpc(true); // Request to cast first spell
+            if (context.performed && !isDead)
+            {
+                if (!isFirstSpellReady)
+                {
+                    controllerRumbler?.Rumble(.15f, 1f, 5f);
+                    return;
+                }
+
+                mainAnimator.SetTrigger("SlapTrigger");
+                Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
+                float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
+                isFirstSpellReady = false;
+                firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+                RuntimeManager.PlayOneShotAttached(firstSpell.GetSpellEventStruct(), gameObject);
+            }
+        }
+    }
+
+    public void OnSecondSpell(InputAction.CallbackContext context)
+    {
         if (context.performed && !isDead)
         {
             if (!isSecondSpellReady)
@@ -291,9 +272,7 @@ public void OnSecondSpell(InputAction.CallbackContext context)
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
             RuntimeManager.PlayOneShotAttached(secondSpell.GetSpellEventStruct(), gameObject);
         }
->>>>>>> Demo
     }
-}
 
 [ServerRpc(RequireOwnership = false)]
 private void CastSpellServerRpc(bool isFirstSpell)
@@ -430,18 +409,14 @@ private void CooldownCompleteClientRpc(int spellID)
     {
         if (context.performed)
         {
-<<<<<<< HEAD
-            sprintCoroutine = StartCoroutine(SprintCoroutine());
-            SpawnDashEffectServerRpc();
-=======
             if (!canSprint)
             {
                 controllerRumbler?.Rumble(.15f, 1f, 5f);
                 return;
             }
-            StartCoroutine(SprintCoroutine());
+            sprintCoroutine = StartCoroutine(SprintCoroutine());
+            SpawnDashEffectServerRpc();
             Instantiate(dashStartEffect, transform.position, transform.rotation);
->>>>>>> Demo
         }
     }
     
