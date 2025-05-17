@@ -10331,6 +10331,7 @@ MonoBehaviour:
     Path: event:/sfx/player/player_death
   damageModifier: 0.15
   slipperyModifier: 2
+  knockbackDecaySpeed: 5
   rumbleDurationFactor: 0.007
   dashStartEffect: {fileID: 3459545037407450599, guid: 1f5782430d0962f43882fb902dbd49bc,
     type: 3}
@@ -10340,6 +10341,8 @@ MonoBehaviour:
   materialSwapDuration: 0.3
   playerSpeed: 11
   gravityValue: -9.81
+  rotationSpeed: 70
+  moveSmoothTime: 0.1
   playerSprintSpeed: 60
   playerSprintDuration: 0.1
   sprintCooldown: 1.5
@@ -10409,9 +10412,6 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  rotationSpeed: 70
-  moveSmoothTime: 0.1
-  knockbackDecaySpeed: 5
   characters:
   - {fileID: 5078682858857096081}
   - {fileID: 4609517529964523734}

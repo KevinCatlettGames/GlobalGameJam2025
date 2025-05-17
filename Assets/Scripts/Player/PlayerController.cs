@@ -65,7 +65,6 @@ public class PlayerController : MonoBehaviour
 
     private bool canSprint = true;
     private bool isSprinting = false;
-    private Coroutine sprintCoroutine;
     #endregion
 
     #region Player Controller
@@ -180,8 +179,13 @@ public class PlayerController : MonoBehaviour
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (isFirstSpellReady && context.performed && !isDead)
+        if (context.performed && !isDead)
         {
+            if (!isFirstSpellReady)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
             mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = firstSpell.CastSpell(playerID, transform.position, transform.forward, controller);
@@ -192,8 +196,13 @@ public class PlayerController : MonoBehaviour
     }
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (isSecondSpellReady && context.performed && !isDead)
+        if (context.performed && !isDead)
         {
+            if (!isSecondSpellReady)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
             mainAnimator.SetTrigger("SlapTrigger");
             Instantiate(spellSpawnEffect, transform.position, Quaternion.identity);
             float cooldown = secondSpell.CastSpell(playerID, transform.position, transform.forward, controller);
@@ -218,9 +227,14 @@ public class PlayerController : MonoBehaviour
     }
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (canSprint && context.performed && sprintCoroutine == null)
+        if (context.performed)
         {
-            sprintCoroutine = StartCoroutine(SprintCoroutine());
+            if (!canSprint)
+            {
+                controllerRumbler?.Rumble(.15f, 1f, 5f);
+                return;
+            }
+            StartCoroutine(SprintCoroutine());
             Instantiate(dashStartEffect, transform.position, transform.rotation);
         }
     }
@@ -228,15 +242,17 @@ public class PlayerController : MonoBehaviour
     {
         canSprint = false;
         float moveSpeed = playerSpeed;
+        float smoothTime = moveSmoothTime;
         playerSpeed = playerSprintSpeed;
+        moveSmoothTime = 0f;
         isSprinting = true;
         OnBeginSprint?.Invoke();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
+        moveSmoothTime = smoothTime;
         isSprinting = false;
         OnEndSprint?.Invoke();
         yield return new WaitForSeconds(sprintCooldown);
-        sprintCoroutine = null;
         canSprint = true;
     }
     public void OnEmote(InputAction.CallbackContext context)
