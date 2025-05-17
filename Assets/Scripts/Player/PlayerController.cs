@@ -4,7 +4,6 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using UnityEditor.Timeline;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
