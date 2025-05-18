@@ -122,10 +122,8 @@ public class BasicBubble : MonoBehaviour
                 break;
             }
         }
-        else
-        {
-            sphereCollider.enabled = true;
-        }
+        sphereCollider.enabled = true;
+
     }
     private void Reflect(Vector3 normal)
     {
