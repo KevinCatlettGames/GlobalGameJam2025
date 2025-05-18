@@ -107,17 +107,10 @@ public class PlayerController : NetworkBehaviour
         {
             var netObj = GetComponent<NetworkObject>();
             PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
-        }
-
-        if (!IsOwner)
-        {
-            GetComponent<PlayerInput>().enabled = false;
-        }
-
-        if (IsOwner)
-        {
+            GetComponent<PlayerInput>().enabled = true;
             GetComponent<PlayerInput>().ActivateInput();
         }
+        
         controller = gameObject.GetComponent<CharacterController>(); 
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
         GameManager.Instance.OnGameStarted += ResetPlayerController; 
