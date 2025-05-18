@@ -112,7 +112,15 @@ public class BasicBubble : MonoBehaviour
             transform.localScale = Vector3.one * currentSize;
             yield return new WaitForEndOfFrame();
         }
-        sphereCollider.enabled = true;
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
+        if (overlaps.Length > 0)
+        {
+            BubbleCollision(overlaps[0].gameObject);
+        }
+        else
+        {
+            sphereCollider.enabled = true;
+        }
     }
     private void Reflect(Vector3 normal)
     {
