@@ -2,36 +2,25 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using TMPro; 
+using TMPro;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
 
 public class LobbyUI : MonoBehaviour
 {
     [SerializeField] private Button mainMenuButton;
-    [SerializeField] private Button createLobbyButton;
-    [SerializeField] private Button quickJoinButton;
-    [SerializeField] private LobbyCreateUI lobbyCreateUI;
     [SerializeField] private Button joinCodeButton;
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TextMeshProUGUI playerCountText;
     public Button startGameButton;
-
+    [SerializeField] private Button createPublicButton;
     
-    public string mainMenuSceneName = "MainMenu";
+    public string mainMenuSceneName;
     private void Awake()
     {
         mainMenuButton.onClick.AddListener(() =>
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(mainMenuSceneName, LoadSceneMode.Single);
-        });
-        
-        createLobbyButton.onClick.AddListener(() =>
-        {
-            lobbyCreateUI.Show();
-        });
-        
-        quickJoinButton.onClick.AddListener(() =>
-        {
-           GameLobby.instance.QuickJoin();
+        { 
+            SceneManager.LoadScene(mainMenuSceneName);
         });
         
         joinCodeButton.onClick.AddListener(() =>
@@ -39,18 +28,18 @@ public class LobbyUI : MonoBehaviour
             GameLobby.instance.JoinWithCode(joinCodeInputField.text);
         });
         
-        
+        createPublicButton.onClick.AddListener(() =>
+        {
+            GameLobby.instance.CreateLobby("Empty", false);
+        });
     }
 
     public void HideUI()
     {
-        mainMenuButton.gameObject.SetActive(false);
-        createLobbyButton.gameObject.SetActive(false);
-        quickJoinButton.gameObject.SetActive(false);
         joinCodeButton.gameObject.SetActive(false);
         joinCodeInputField.gameObject.SetActive(false);
         playerCountText.gameObject.SetActive(true);
-
+        createPublicButton.gameObject.SetActive(false);
         NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
     }
 

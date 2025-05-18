@@ -13,7 +13,6 @@ using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
-using Unity.VisualScripting;
 
 public class GameLobby : MonoBehaviour
 {
@@ -23,7 +22,6 @@ public class GameLobby : MonoBehaviour
     public string sceneToLoad;
     public Button startGameButton;
     public TextMeshProUGUI waitForHostText;
-    [SerializeField] private TextMeshProUGUI lobbyNameText;
     [SerializeField] private TextMeshProUGUI lobbyCodeText;
     
     public LobbyHeartBeat lobbyHeartBeat;
@@ -100,10 +98,8 @@ public class GameLobby : MonoBehaviour
                 NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
             });
             
-            lobbyNameText.gameObject.SetActive(true);
             lobbyCodeText.gameObject.SetActive(true);
-            lobbyNameText.text = GetLobby().Name;
-            lobbyCodeText.text = GetLobby().LobbyCode;
+            lobbyCodeText.text = "Share to invite: " + GetLobby().LobbyCode;
             
             lobbyUI.HideUI();
         }
