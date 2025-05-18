@@ -117,9 +117,16 @@ public class BasicBubble : MonoBehaviour
         {
             for (int i = 0; i < overlaps.Length; i++)
             {
-                if (overlaps[i] == playerCollider) continue;
-                BubbleCollision(overlaps[i].gameObject);
-                break;
+                if (overlaps[i] == playerCollider)
+                {
+                    continue;
+                }
+                else
+                {
+                    BubbleCollision(overlaps[i].gameObject);
+                    break;
+                }
+
             }
         }
         sphereCollider.enabled = true;
