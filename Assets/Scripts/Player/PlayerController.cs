@@ -104,8 +104,11 @@ public class PlayerController : MonoBehaviour
             if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
             {
                 targetDirection = Vector3.zero;
-                Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                if (movementInput != Vector2.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
+                    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                }
             }
             else
             {

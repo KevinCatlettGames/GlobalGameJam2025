@@ -40,6 +40,5 @@ public class MaterialSwapper : MonoBehaviour
         yield return new WaitForSeconds(duration);
         meshRenderer.SetMaterials(materials);
         swapped = false;
-        Debug.Log("SwapBack");
     }
 }
