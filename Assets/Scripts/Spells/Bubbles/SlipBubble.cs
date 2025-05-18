@@ -59,17 +59,34 @@ public class SlipBubble : BasicBubble
         {
        
                 PlayerController player = other.GetComponent<PlayerController>();
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-
-                // Create slime puddle only on the server, then sync to clients
-                CreateSlimePuddleServerRpc(transform.position);
-            
-            Pop();
+                if (GameManager.Instance.playingLocal)
+                {
+                    player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    CreateSlimePuddleLocal(transform.position);
+                }
+                else
+                {
+                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                    CreateSlimePuddleServerRpc(transform.position);
+                }
+                
+                Pop();
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void CreateSlimePuddleServerRpc(Vector3 position)
+    {
+        // Instantiate puddle on the server, and spawn it across clients
+        GameObject puddle = Instantiate(slimePuddleObject, new Vector3(position.x, 0.06f, position.z), Quaternion.LookRotation(transform.forward));
+        SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
+        puddleTrail.StopTrail();
+
+        // Network spawn puddle object
+        puddle.GetComponent<NetworkObject>().Spawn();
+    }
+
+    void CreateSlimePuddleLocal(Vector3 position)
     {
         // Instantiate puddle on the server, and spawn it across clients
         GameObject puddle = Instantiate(slimePuddleObject, new Vector3(position.x, 0.06f, position.z), Quaternion.LookRotation(transform.forward));

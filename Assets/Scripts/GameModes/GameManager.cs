@@ -3,6 +3,10 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Users;
+
 
 public class GameManager : NetworkBehaviour
 {
@@ -22,7 +26,9 @@ public class GameManager : NetworkBehaviour
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
 
-
+    public PlayerInputManager playerInputManager;
+    public bool playingLocal = false; 
+    
     private void Awake()
     {
         if (Instance == null)
@@ -52,9 +58,14 @@ public class GameManager : NetworkBehaviour
     
     private void SceneManagerOnOnLoadEventCompletedleted()
     {
-        if (IsServer)
+        if (NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
-
+            ChangePlayerStatesLocal(playerStates);
+            playingLocal = true;
+            playerInputManager.enabled = true;
+        }
+        else if (IsServer)
+        {
             ChangePlayerStatesServerRpc(playerStates);
 
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -63,10 +74,9 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
-        }
-        
-        PlayerManager.Instance.Initialize();
-        ItemSpawner.Instance.InitialSpawn();
+            PlayerManager.Instance.Initialize();
+        } 
+        ItemSpawner.Instance.InitialSpawn(); 
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -78,6 +88,11 @@ public class GameManager : NetworkBehaviour
 
     [ClientRpc]
     void ChangePlayerStatesClientRpc(PlayerState[] playerStates)
+    {
+        this.playerStates = playerStates;
+    }
+
+    public void ChangePlayerStatesLocal(PlayerState[] playerStates)
     {
         this.playerStates = playerStates;
     }
@@ -124,9 +139,23 @@ public class GameManager : NetworkBehaviour
         }
         CheckForRoundEndServerRpc();
     }
+    
+    public virtual void DeathReportLocal(int playerID, int killCredit) 
+    {
+        if (killCredit >= 0 && killCredit < maxPlayers)
+        {
+            ChangePlayerHUDLocal(killCredit);
+        }
+        CheckForRoundEndLocal();
+    }
 
     [ClientRpc]
     void ChangePlayerHUDClientRpc(int killCredit)
+    {
+        playerHUDs[killCredit].AddKill();
+    }
+
+    void ChangePlayerHUDLocal(int killCredit)
     {
         playerHUDs[killCredit].AddKill();
     }
@@ -144,11 +173,23 @@ public class GameManager : NetworkBehaviour
         if (playerID < 0 || playerID >= maxPlayers) return;
         playerStates[playerID] = playerState;
     }
+    
+    public void ChangePlayerStateLocal(int playerID, PlayerState playerState)
+    {
+        if (playerID < 0 || playerID >= maxPlayers) return;
+        playerStates[playerID] = playerState;
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public virtual void CheckForRoundEndServerRpc()
     {
         return;
+    }
+
+
+    public virtual void CheckForRoundEndLocal()
+    {
+        return; 
     }
     
 }

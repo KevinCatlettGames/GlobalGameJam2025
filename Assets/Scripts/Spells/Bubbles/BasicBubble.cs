@@ -120,7 +120,11 @@ public class BasicBubble : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+            if (GameManager.Instance.playingLocal)
+                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+            else
+                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
         }
         Pop();
     }

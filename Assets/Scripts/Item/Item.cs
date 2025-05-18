@@ -102,10 +102,17 @@ public class Item : NetworkBehaviour
 
         if (other.CompareTag("Player"))
         {
-            var playerNetworkObject = other.GetComponent<NetworkObject>();
-            if (playerNetworkObject != null)
+            if (GameManager.Instance.playingLocal)
             {
-                UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), true);
+                UpdateItemToEquipLocal(other.gameObject, this, true);
+            }
+            else
+            {
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), true);
+                }
             }
         }
     }
@@ -116,10 +123,17 @@ public class Item : NetworkBehaviour
 
         if (other.CompareTag("Player"))
         {
-            var playerNetworkObject = other.GetComponent<NetworkObject>();
-            if (playerNetworkObject != null)
+            if (GameManager.Instance.playingLocal)
             {
-                UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), false);
+                UpdateItemToEquipLocal(other.gameObject, this, false);
+            }
+            else
+            {
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), false);
+                }
             }
         }
     }
@@ -138,6 +152,12 @@ public class Item : NetworkBehaviour
                 player.UpdateItemToEquip(item, isInRange);
             }
         }
+    }
+
+    private void UpdateItemToEquipLocal(GameObject player, Item item, bool isInRange)
+    {
+        if (player != null && item != null)
+            player.GetComponent<PlayerController>().UpdateItemToEquip(item, isInRange);
     }
     
     private IEnumerator ClientBlinkEffectLoop()

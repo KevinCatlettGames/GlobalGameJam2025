@@ -19,7 +19,10 @@ public class BubbleExplosion : NetworkBehaviour
                 if (player != null)
                 {
                     Vector3 kockbackDirection = player.transform.position - transform.position;
-                    player.ApplyKnockbackServerRpc(OwnerID, kockbackDirection, knockback, damage);
+                    if (GameManager.Instance.playingLocal)
+                        player.ApplyKnockbackLocal(OwnerID, kockbackDirection, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(OwnerID, kockbackDirection, knockback, damage);
                 }
             }
         }

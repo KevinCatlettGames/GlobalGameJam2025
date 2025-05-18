@@ -22,9 +22,33 @@ public class SingleEliminationGM : GameManager
            CallGameEndClientRpc();
         }
     }
+    
+    public override void CheckForRoundEndLocal()
+    {
+        int alivePlayers = 0;
+        for (int i = 0; i < playerStates.Length; i++)
+        {
+            if (playerStates[i] == PlayerState.alive)
+            {
+                alivePlayers++;
+            }
+        }
+        
+        Debug.Log(alivePlayers);
+        if (alivePlayers <= 1)
+        {
+            CallGameEndLocal();
+        }
+    }
 
     [ClientRpc]
     void CallGameEndClientRpc()
+    {
+        Debug.Log("GameEnded");
+        StartCoroutine(AwardVictory());
+    }
+
+    void CallGameEndLocal()
     {
         Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());

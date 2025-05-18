@@ -21,6 +21,7 @@ public class PlayerManager : NetworkBehaviour
 
     [SerializeField] private Transform[] spawnPoints; // Array of spawn points
     public NetworkList<NetworkObjectReference> players = new NetworkList<NetworkObjectReference>();
+    private List<GameObject> localPlayers = new List<GameObject>();
     [SerializeField] private Sprite[] playerSprites;
     [SerializeField] private Color[] colors;
     public Button startGameButton; 
@@ -38,6 +39,46 @@ public class PlayerManager : NetworkBehaviour
             Destroy(gameObject);
         }
     }
+
+    public void JoinLocal(PlayerInput input)
+    {
+        Debug.Log("JoinLocal");
+        int playerID = playersInitializedCount;
+        playersInitializedCount++;
+        Debug.Log(playerID);
+        if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
+        {
+            Debug.LogError("Too many players for available HUDs or spawn points!");
+            return;
+        }
+        
+        playerHUDs[playerID].gameObject.SetActive(true);
+        playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
+        
+        input.GetComponent<CharacterController>().enabled = false;
+        input.transform.position = spawnPoints[playerID].position;
+        
+        PlayerController playerController = input.GetComponent<PlayerController>();
+        playerController.InitializeLocal();
+        Gamepad gamePad = input.GetDevice<Gamepad>();
+        ControllerRumbler rumbler = null;
+
+        if (gamePad != null)
+        {
+            rumbler = input.AddComponent<ControllerRumbler>();
+            rumbler.SetController(gamePad);
+        }
+
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
+        RerollSpells();
+        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        
+        input.GetComponent<CharacterController>().enabled = true;
+        
+        ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
+        GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
+    }
     
     private void Start()
     {
@@ -48,6 +89,11 @@ public class PlayerManager : NetworkBehaviour
     public void AddPlayerServerRpc(NetworkObjectReference input)
     {
         players.Add(input);
+    }
+
+    public void AddPlayerLocal(PlayerInput input)
+    {
+        localPlayers.Add(input.gameObject);
     }
     
     public void Initialize()
@@ -64,6 +110,7 @@ public class PlayerManager : NetworkBehaviour
     
     public void OnPlayerJoined(PlayerInput input)
     {
+        Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount;
         playersInitializedCount++;
         if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
@@ -101,21 +148,36 @@ public class PlayerManager : NetworkBehaviour
 
     private void ResetPlayers()
     {
-        foreach (var playerRef in players)
+        if (GameManager.Instance.playingLocal)
         {
-            RerollSpells();
-            
-            if (playerRef.TryGet(out NetworkObject networkObject))
+            foreach (GameObject tempPlayer in players)
             {
-                GameObject player = networkObject.gameObject;
-                player.GetComponent<PlayerStateHandler>().ResetPlayer();
-                player.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
-                player.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
-                player.GetComponent<PlayerController>().mainAnimator.SetBool("Victory", false);
+                RerollSpells();
+                tempPlayer.GetComponent<PlayerStateHandler>().ResetPlayer();
+                tempPlayer.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+                tempPlayer.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
+                tempPlayer.GetComponent<PlayerController>().mainAnimator.SetBool("Victory", false);
             }
-            else
+        }
+        else
+        {
+            foreach (var playerRef in players)
             {
-                Debug.LogWarning("Failed to resolve player reference.");
+                RerollSpells();
+
+                if (playerRef.TryGet(out NetworkObject networkObject))
+                {
+                    GameObject player = networkObject.gameObject;
+                    player.GetComponent<PlayerStateHandler>().ResetPlayer();
+                    player.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value],
+                        startingSpells[syncedSecondSpellIndex.Value]);
+                    player.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
+                    player.GetComponent<PlayerController>().mainAnimator.SetBool("Victory", false);
+                }
+                else
+                {
+                    Debug.LogWarning("Failed to resolve player reference.");
+                }
             }
         }
     }
@@ -130,20 +192,27 @@ public class PlayerManager : NetworkBehaviour
 
     public void ResetPlayerPosition(int playerID)
     {
-        if (playerID >= players.Count)
+        if (GameManager.Instance.playingLocal)
         {
-            Debug.LogError("Invalid playerID for ResetPlayerPosition.");
-            return;
-        }
-
-        if (players[playerID].TryGet(out NetworkObject networkObject))
-        {
-            GameObject playerGameObject = networkObject.gameObject;
-            playerGameObject.transform.position = spawnPoints[playerID].transform.position;
+            localPlayers[playerID].transform.position = spawnPoints[playerID].transform.position;
         }
         else
         {
-            Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+            if (playerID >= players.Count)
+            {
+                Debug.LogError("Invalid playerID for ResetPlayerPosition.");
+                return;
+            }
+         
+            if (players[playerID].TryGet(out NetworkObject networkObject))
+            {
+                GameObject playerGameObject = networkObject.gameObject;
+                playerGameObject.transform.position = spawnPoints[playerID].transform.position;
+            }
+            else
+                Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+            
+
         }
     }
 }

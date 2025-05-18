@@ -27,14 +27,29 @@ public class PlayerStateHandler : MonoBehaviour
     
     private void OnTriggerEnter(Collider other)
     {
-        if (!playerController.initialized || !playerController.IsOwner) return; 
-        
-        if (!isDead && other.CompareTag("Deathzone"))
+        if (GameManager.Instance.playingLocal)
         {
-            isDead = true;
-            GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
-            playerController.Die();
-            Invoke(nameof(DisablePlayer), 2f);
+            if (!playerController.initialized) return;
+
+            if (!isDead && other.CompareTag("Deathzone"))
+            {
+                isDead = true;
+                GameManager.Instance.ChangePlayerStateLocal(playerController.PlayerID, PlayerState.dead);
+                playerController.Die();
+                Invoke(nameof(DisablePlayer), 2f);
+            }
+        }
+        else
+        {
+            if (!playerController.initialized || !playerController.IsOwner) return;
+
+            if (!isDead && other.CompareTag("Deathzone"))
+            {
+                isDead = true;
+                GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
+                playerController.Die();
+                Invoke(nameof(DisablePlayer), 2f);
+            }
         }
     }
 

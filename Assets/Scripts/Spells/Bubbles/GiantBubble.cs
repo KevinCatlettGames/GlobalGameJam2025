@@ -21,7 +21,12 @@ public class GiantBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID ,direction, knockback * currentHealth, damage);
+            
+            if (GameManager.Instance.playingLocal)
+                player.ApplyKnockbackLocal(OwnerID ,direction, knockback * currentHealth, damage);
+            else
+                player.ApplyKnockbackServerRpc(OwnerID ,direction, knockback * currentHealth, damage);
+         
             Pop();
         }
         else if (other.CompareTag("Bubble"))

@@ -28,7 +28,12 @@ public class SoapBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+            
+            if (GameManager.Instance.playingLocal)
+                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+            else
+                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+            
             RaycastHit hitInfo;
             if(Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
                 Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);

@@ -1,6 +1,7 @@
 using FMODUnity;
 using UnityEngine.Events;
 using System.Collections;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -107,9 +108,32 @@ public class PlayerController : NetworkBehaviour
             var netObj = GetComponent<NetworkObject>();
             PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
         }
-        if(IsOwner) GetComponent<PlayerInput>().enabled = true;
+
+        if (!IsOwner)
+        {
+            GetComponent<PlayerInput>().enabled = false;
+        }
+
+        if (IsOwner)
+        {
+            GetComponent<PlayerInput>().ActivateInput();
+        }
         controller = gameObject.GetComponent<CharacterController>(); 
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
+        GameManager.Instance.OnGameStarted += ResetPlayerController; 
+        initialized = true;
+    }
+
+    public void InitializeLocal()
+    {
+        foreach(GameObject character in characters)
+            character.SetActive(false);
+        
+        PlayerManager.Instance.AddPlayerLocal(gameObject.GetComponent<PlayerInput>());
+        GetComponent<PlayerInput>().enabled = true;
+        //GetComponent<PlayerInput>().ActivateInput();  // ← crucial to reinitialize input properly
+
+        controller = gameObject.GetComponent<CharacterController>(); 
         GameManager.Instance.OnGameStarted += ResetPlayerController; 
         initialized = true;
     }
@@ -272,7 +296,11 @@ public class PlayerController : NetworkBehaviour
 private void CastSpell(bool isFirstSpell)
 {
     SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-    CastSpellServerRpc(isFirstSpell);
+
+    if (GameManager.Instance.playingLocal)
+        CastSpellLocal(isFirstSpell);
+    else
+        CastSpellServerRpc(isFirstSpell);
 
     // Start server cooldown logic (authoritative)
     if (isFirstSpell)
@@ -308,12 +336,21 @@ void CastSpellClientRpc(bool isFirstSpell)
     tempCooldown =  spell.CastSpell(playerID, transform.position, transform.forward, controller);
 }
 
+void CastSpellLocal(bool isFirstSpell)
+{
+    SO_Spell spell = isFirstSpell ? firstSpell : secondSpell; 
+    tempCooldown =  spell.CastSpell(playerID, transform.position, transform.forward, controller);
+}
+
 private IEnumerator CooldownCoroutine(float time, int spellID)
 {
     yield return new WaitForSeconds(time);
 
-    // Notify clients when cooldown is over
-    CooldownCompleteClientRpc(spellID);
+    if (GameManager.Instance.playingLocal)
+        CooldownCompleteLocal(spellID);
+    else
+        // Notify clients when cooldown is over
+        CooldownCompleteClientRpc(spellID);
 }
 
 [ClientRpc]
@@ -326,13 +363,23 @@ private void CooldownCompleteClientRpc(int spellID)
         isSecondSpellReady = true;
 }
 
-
+void CooldownCompleteLocal(int spellID)
+{
+    ResetSpell(spellID);
+    if (spellID == 1)
+        isFirstSpellReady = true;
+    else
+        isSecondSpellReady = true;
+}
     
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
         if (context.performed)
         {
-            EquipSpellServerRpc(1);
+            if (GameManager.Instance.playingLocal)
+                EquipSpellLocal(1);
+            else 
+                EquipSpellServerRpc(1);
         }
     }
 
@@ -340,7 +387,10 @@ private void CooldownCompleteClientRpc(int spellID)
     {
         if (context.performed)
         {
-            EquipSpellServerRpc(2);
+            if (GameManager.Instance.playingLocal)
+                EquipSpellLocal(2);
+            else 
+                EquipSpellServerRpc(2);
         }
     }
 
@@ -400,6 +450,59 @@ private void CooldownCompleteClientRpc(int spellID)
                 playerHUD.SetSpell(2, secondSpell.SpellIcon);
                 break;
         }
+    }
+    
+    void EquipSpellLocal(int spellID)
+    {
+        if (itemToEquip == null) return;
+
+        SO_Spell spell = itemToEquip.EquipSpell();
+        int spellIndex = spell.spellIndex;
+
+        switch (spellID)
+        {
+            case 1:
+                firstSpell = spell;
+                playerHUD.SetSpell(1, firstSpell.SpellIcon);
+                break;
+            case 2:
+                secondSpell = spell;
+                playerHUD.SetSpell(2, secondSpell.SpellIcon);
+                break;
+        }
+
+        ResetSpell(spellID);
+        
+        SO_Spell equippedSpell = null;
+
+        foreach (SO_Spell tempSpell in allSpells)
+        {
+            if (tempSpell.spellIndex == spellIndex)
+            {
+                equippedSpell = tempSpell;
+                break;
+            }
+        }
+
+        if (equippedSpell == null)
+        {
+            Debug.LogWarning("Spell index not found on client.");
+            return;
+        }
+
+        switch (spellID)
+        {
+            case 1:
+                firstSpell = equippedSpell;
+                playerHUD.SetSpell(1, firstSpell.SpellIcon);
+                break;
+            case 2:
+                secondSpell = equippedSpell;
+                playerHUD.SetSpell(2, secondSpell.SpellIcon);
+                break;
+        }
+        
+        itemToEquip = null;
     }
     
     public void OnSprint(InputAction.CallbackContext context)
@@ -473,15 +576,29 @@ private void CooldownCompleteClientRpc(int spellID)
     #region Items
     public void UpdateItemToEquip(Item item, bool isInRange)
     {
-        if (isInRange)
+        if (GameManager.Instance.playingLocal)
         {
-            itemToEquip = item;
-            var itemNetworkObject = item.GetComponent<NetworkObject>();
-            UpdateItemToEquipClientRpc(itemNetworkObject);
+            if (isInRange)
+            {
+                itemToEquip = item.GetComponent<Item>();
+            }
+            else if (!isInRange && item == itemToEquip)
+            {
+                itemToEquip = null;
+            }
         }
-        else if (!isInRange && item == itemToEquip)
+        else
         {
-            itemToEquip = null;
+            if (isInRange)
+            {
+                itemToEquip = item;
+                var itemNetworkObject = item.GetComponent<NetworkObject>();
+                UpdateItemToEquipClientRpc(itemNetworkObject);
+            }
+            else if (!isInRange && item == itemToEquip)
+            {
+                itemToEquip = null;
+            }
         }
     }
 
@@ -598,6 +715,30 @@ private void CooldownCompleteClientRpc(int spellID)
             controllerRumbler.Rumble(duration, force, dmg);
         }
     }
+
+    public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
+    {
+        if (isSlippery) force *= slipperyModifier;
+        direction.y = 0;
+        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
+        {
+            killCreditID = ID;
+        }
+        knockbackVelocity += knockback;
+        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        damage += dmg;
+        playerHUD.UpdateDamageText((int)damage);
+        damageParticleSystem.Play();
+        mainAnimator.SetTrigger("Flinch");
+        materialSwapper?.SwapMaterials(materialSwapDuration);
+        if (controllerRumbler != null) 
+        {
+            float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
+            controllerRumbler.Rumble(duration, force, dmg);
+        }
+    }
+    
     public void Die()
     {
         if (isDead) return;
@@ -607,12 +748,18 @@ private void CooldownCompleteClientRpc(int spellID)
 
         if (playerID == killCreditID) killCreditID = -1;
 
-        GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);  
+        if (GameManager.Instance.playingLocal)
+        {
+            GameManager.Instance.DeathReportLocal(playerID, killCreditID);
+            DisableUIElementsLocal();
+        }
+        else
+        {
+            GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);
+            DisableUIElementsServerRpc();
+        }
 
         playerHUD.DisplayDeath();
-
-        // Call server rpc to trigger clients disabling UI
-        DisableUIElementsServerRpc();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -624,6 +771,14 @@ private void CooldownCompleteClientRpc(int spellID)
 
     [ClientRpc]
     void DisableUIElementsClientRpc()
+    {
+        for (int i = 0; i < coloredElements.Length; i++)
+        {
+            coloredElements[i].enabled = false;
+        }
+    }
+
+    void DisableUIElementsLocal()
     {
         for (int i = 0; i < coloredElements.Length; i++)
         {
