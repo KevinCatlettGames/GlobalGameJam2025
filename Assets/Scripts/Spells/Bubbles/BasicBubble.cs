@@ -115,7 +115,12 @@ public class BasicBubble : MonoBehaviour
         Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
         if (overlaps.Length > 0)
         {
-            BubbleCollision(overlaps[0].gameObject);
+            for (int i = 0; i < overlaps.Length; i++)
+            {
+                if (overlaps[i] == playerCollider) continue;
+                BubbleCollision(overlaps[i].gameObject);
+                break;
+            }
         }
         else
         {
