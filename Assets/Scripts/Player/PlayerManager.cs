@@ -49,6 +49,7 @@ public class PlayerManager : MonoBehaviour
         playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[playerID].position;
+        input.transform.rotation = spawnPoints[playerID].rotation;
         players.Add(input.gameObject);
         PlayerController playerController = input.GetComponent<PlayerController>();
         Gamepad gamePad = input.GetDevice<Gamepad>();
@@ -87,5 +88,6 @@ public class PlayerManager : MonoBehaviour
     public void ResetPlayerPosition(int playerID)
     {
         players[playerID].transform.position = spawnPoints[playerID].transform.position;
+        players[playerID].transform.rotation = spawnPoints[playerID].transform.rotation;
     }
 }

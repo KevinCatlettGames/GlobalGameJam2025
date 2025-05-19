@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private GameObject spellSpawnEffect;
+    [SerializeField] private ParticleSystem splashEffect;
     [SerializeField] private ParticleSystem wetEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private float damageColorEffectDuration = .1f;
@@ -360,7 +361,11 @@ public class PlayerController : MonoBehaviour
     #region Damage
     public void ApplyKnockback(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isSlippery) force *= slipperyModifier;
+        if (isSlippery) 
+        {
+            force *= slipperyModifier;
+            splashEffect.Play();
+        }
         direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
@@ -398,7 +403,11 @@ public class PlayerController : MonoBehaviour
     {
         if (slippy)
         {
-            knockbackVelocity *= slipperyModifier;
+            if(knockbackVelocity.sqrMagnitude > 0.2f)
+            {
+                knockbackVelocity *= slipperyModifier;
+                splashEffect.Play();
+            }
             slipperyCounter++;
         }
         else
