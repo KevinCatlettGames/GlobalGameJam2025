@@ -45,6 +45,7 @@ public class PlayerController : MonoBehaviour
     [Header("Effects")]
     [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private GameObject spellSpawnEffect;
+    [SerializeField] private ParticleSystem wetEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private float damageColorEffectDuration = .1f;
 
@@ -408,10 +409,12 @@ public class PlayerController : MonoBehaviour
         if (slipperyCounter > 0)
         {
             isSlippery = true;
+            wetEffect.Play();
         }
         else
         {
             isSlippery = false;
+            wetEffect.Stop();
         }
         shaderManager?.WetEffect(isSlippery);
     }
