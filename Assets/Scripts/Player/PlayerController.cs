@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
+    private int slipperyCounter = 0;
     private bool isSlippery = false;
     private PlayerHUD playerHUD;
 
@@ -45,7 +46,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
-    [SerializeField] private float materialSwapDuration = .1f;
+    [SerializeField] private float damageColorEffectDuration = .1f;
 
     #region Player Physics
     [Header("Player Stats")]
@@ -79,7 +80,7 @@ public class PlayerController : MonoBehaviour
 
 
     private Animator mainAnimator;
-    private MaterialSwapper materialSwapper;
+    private PlayerShaderManager shaderManager;
     [Header("Visuals")]
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
@@ -371,7 +372,7 @@ public class PlayerController : MonoBehaviour
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
         mainAnimator.SetTrigger("Flinch");
-        materialSwapper?.SwapMaterials(materialSwapDuration);
+        shaderManager?.DamageEffect(damageColorEffectDuration);
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -397,12 +398,22 @@ public class PlayerController : MonoBehaviour
         if (slippy)
         {
             knockbackVelocity *= slipperyModifier;
+            slipperyCounter++;
+        }
+        else
+        {
+            slipperyCounter--;
+            if (slipperyCounter < 0) slipperyCounter = 0;
+        }
+        if (slipperyCounter > 0)
+        {
             isSlippery = true;
         }
         else
         {
             isSlippery = false;
         }
+        shaderManager?.WetEffect(isSlippery);
     }
     #endregion
 
@@ -413,11 +424,13 @@ public class PlayerController : MonoBehaviour
     }
     public void ResetPlayerController()
     {
+        slipperyCounter = 0;
         damage = 0;
         playerHUD.ResetHUD();
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        shaderManager?.ResetShader();
         mainAnimator.SetBool("IsDead", false);
         mainAnimator.SetBool("Victory", false);
         for (int i = 0; i < coloredElements.Length; i++)
@@ -432,7 +445,7 @@ public class PlayerController : MonoBehaviour
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
-        materialSwapper = characters[playerID].GetComponentInChildren<MaterialSwapper>();
+        shaderManager = characters[playerID].GetComponentInChildren<PlayerShaderManager>();
         for (int i = 0; i < coloredElements.Length; i++)
         {
             coloredElements[i].color = color;
