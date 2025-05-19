@@ -21,6 +21,7 @@ public class PlayerController : MonoBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
+    private int slipperyCounter = 0;
     private bool isSlippery = false;
     private PlayerHUD playerHUD;
 
@@ -397,6 +398,15 @@ public class PlayerController : MonoBehaviour
         if (slippy)
         {
             knockbackVelocity *= slipperyModifier;
+            slipperyCounter++;
+        }
+        else
+        {
+            slipperyCounter--;
+            if (slipperyCounter < 0) slipperyCounter = 0;
+        }
+        if (slipperyCounter > 0)
+        {
             isSlippery = true;
         }
         else
@@ -414,6 +424,7 @@ public class PlayerController : MonoBehaviour
     }
     public void ResetPlayerController()
     {
+        slipperyCounter = 0;
         damage = 0;
         playerHUD.ResetHUD();
         isDead = false;
