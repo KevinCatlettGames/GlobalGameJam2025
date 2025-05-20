@@ -3,13 +3,14 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 
-public class StartScreen : MonoBehaviour
+public class MainMenu : MonoBehaviour
 {
-    [SerializeField] private GameObject startMenu;
+    [SerializeField] private GameObject mainMenu;
+    [SerializeField] private GameObject backDrop;
     [SerializeField] private GameObject anyKeyText;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private GameObject selectedButton;
-    private bool isStartMenuOpen = false;
+    private bool isMainMenuOpen = false;
     void Start()
     {
         Cursor.visible = false;
@@ -17,13 +18,6 @@ public class StartScreen : MonoBehaviour
 
     void Update()
     {
-        if (!isStartMenuOpen && Input.anyKeyDown)
-        {
-            startMenu.SetActive(true);
-            anyKeyText.SetActive(false);
-            isStartMenuOpen = true;
-            eventSystem.SetSelectedGameObject(selectedButton);
-        }
         if (!Cursor.visible && (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
         {
             Cursor.visible = true;
@@ -38,5 +32,16 @@ public class StartScreen : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void OpenSubMenu(GameObject subMenu)
+    {
+        if (isMainMenuOpen)
+        {
+            subMenu.SetActive(true);
+            mainMenu.SetActive(false);
+            isMainMenuOpen = false;
+
+        }
     }
 }
