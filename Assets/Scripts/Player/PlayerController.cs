@@ -167,6 +167,7 @@ public class PlayerController : MonoBehaviour
     #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
@@ -184,6 +185,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed && !isDead)
         {
             if (!isFirstSpellReady)
@@ -201,6 +203,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed && !isDead)
         {
             if (!isSecondSpellReady)
@@ -218,6 +221,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (itemToEquip != null && context.performed)
         {
             EquipSpell(1);
@@ -225,6 +229,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (itemToEquip != null && context.performed)
         {
             EquipSpell(2);
@@ -232,6 +237,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnSprint(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed)
         {
             if (!canSprint)
@@ -262,6 +268,7 @@ public class PlayerController : MonoBehaviour
     }
     public void OnEmote(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed)
         {
             Vector2 value = context.ReadValue<Vector2>();

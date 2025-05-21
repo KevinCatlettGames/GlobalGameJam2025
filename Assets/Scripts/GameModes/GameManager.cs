@@ -1,9 +1,11 @@
 using System;
+using System.Diagnostics;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
     public static GameManager Instance; 
+    public static bool IsGamePaused = false;
     
     protected bool gameEnded;
     protected static int maxPlayers = 4;
@@ -36,6 +38,7 @@ public class GameManager : MonoBehaviour
         }
         //Cursor.visible = false;
         Cursor.lockState = CursorLockMode.Locked;
+        IsGamePaused = false;
     }
 
     public virtual void EndGame()
