@@ -6,8 +6,6 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenu;
-    [SerializeField] private GameObject backDrop;
-    [SerializeField] private GameObject anyKeyText;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private GameObject selectedButton;
     private bool isMainMenuOpen = false;
@@ -41,7 +39,12 @@ public class MainMenu : MonoBehaviour
             subMenu.SetActive(true);
             mainMenu.SetActive(false);
             isMainMenuOpen = false;
-
+        }
+        else
+        {
+            subMenu.SetActive(false);
+            mainMenu.SetActive(true);
+            isMainMenuOpen = true;
         }
     }
 }
