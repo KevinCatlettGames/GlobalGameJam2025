@@ -23,9 +23,9 @@ public class AudioSettings : MonoBehaviour
 
     void Start()
     {
-        masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/vca_master");
-        sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/vca_sfx");
-        musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/vca_music");
+        masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Master");
+        sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/SFX");
+        musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Music");
 
         masterVCA.getVolume(out masterVolume);
         sfxVCA.getVolume(out sfxVolume);
