@@ -10,7 +10,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     private EventSystem eventSystem;
-    [SerializeField] private Button continueButton;
+    [SerializeField] private GameObject selectedGameObject;
     [SerializeField] private GameObject controlsGraphic;
 
     private GameObject currentSubMenu;
@@ -36,7 +36,7 @@ public class PauseManager : MonoBehaviour
         if (Time.timeScale > 0)
         {
             GameManager.IsGamePaused = true;
-            eventSystem.SetSelectedGameObject(continueButton.gameObject);
+            SetSelected();
             Time.timeScale = 0f;
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
@@ -73,7 +73,7 @@ public class PauseManager : MonoBehaviour
     {
         controlsGraphic.SetActive(!controlsGraphic.activeSelf);
     }
-    public void OpenSubMenu(GameObject subMenu)
+    public void ToggleSubMenu(GameObject subMenu)
     {
         if (isPauseMenuOpen)
         {
@@ -93,5 +93,9 @@ public class PauseManager : MonoBehaviour
     public void ReturnToMainMenu()
     {
         SceneManager.LoadScene(0);
+    }
+    public void SetSelected()
+    {
+        eventSystem.SetSelectedGameObject(selectedGameObject.gameObject);
     }
 }

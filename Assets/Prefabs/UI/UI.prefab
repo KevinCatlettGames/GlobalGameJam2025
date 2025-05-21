@@ -971,7 +971,7 @@ MonoBehaviour:
     Path: event:/ui/ui_click
   pauseMenu: {fileID: 5877045871863752980}
   pauseMenuButtons: {fileID: 1244305162980518301}
-  continueButton: {fileID: 3498535762700212673}
+  selectedGameObject: {fileID: 7250104834914007593}
   controlsGraphic: {fileID: 5525622792037241010}
 --- !u!1 &5525622792037241010
 GameObject:
@@ -3022,11 +3022,23 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 5664022675885828438}
         m_TargetAssemblyTypeName: PauseManager, Assembly-CSharp
-        m_MethodName: OpenSubMenu
+        m_MethodName: ToggleSubMenu
         m_Mode: 2
         m_Arguments:
           m_ObjectArgument: {fileID: 3373504738202217085}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 3579092895506133398}
+        m_TargetAssemblyTypeName: AudioSettings, Assembly-CSharp
+        m_MethodName: SetSelected
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -4368,9 +4380,29 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.size
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 5664022675885828438}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 5664022675885828438}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
     - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
@@ -4378,13 +4410,33 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
         type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetSelected
+      objectReference: {fileID: 0}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
       value: PauseManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_TargetAssemblyTypeName
+      value: PauseManager, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 4047312836016044585, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
       objectReference: {fileID: 0}
     - target: {fileID: 5841377439464950378, guid: 2608d39820508d94bac6f3a7034f7ab5,
         type: 3}
       propertyPath: m_Name
       value: SettingsMenu
+      objectReference: {fileID: 0}
+    - target: {fileID: 5841377439464950378, guid: 2608d39820508d94bac6f3a7034f7ab5,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -4397,6 +4449,18 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 9205821059392725015}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &3579092895506133398 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5650570008383558017, guid: 2608d39820508d94bac6f3a7034f7ab5,
+    type: 3}
+  m_PrefabInstance: {fileID: 9205821059392725015}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3373504738202217085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ab6de9f7f822b5428869d53eafeaee6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!224 &6143208364112991219 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 3062634728461972452, guid: 2608d39820508d94bac6f3a7034f7ab5,

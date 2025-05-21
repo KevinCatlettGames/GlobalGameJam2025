@@ -6,12 +6,12 @@ using UnityEngine.SceneManagement;
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenu;
-    [SerializeField] private EventSystem eventSystem;
-    [SerializeField] private GameObject selectedButton;
-    private bool isMainMenuOpen = false;
+    [SerializeField] private GameObject selectedGameObject;
+    private bool isMainMenuOpen = true;
     void Start()
     {
         Cursor.visible = false;
+        SetSelected();
     }
 
     void Update()
@@ -32,7 +32,7 @@ public class MainMenu : MonoBehaviour
         Application.Quit();
     }
 
-    public void OpenSubMenu(GameObject subMenu)
+    public void ToggleSubMenu(GameObject subMenu)
     {
         if (isMainMenuOpen)
         {
@@ -46,5 +46,10 @@ public class MainMenu : MonoBehaviour
             mainMenu.SetActive(true);
             isMainMenuOpen = true;
         }
+    }
+    public void SetSelected()
+    {
+        EventSystem eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(selectedGameObject);
     }
 }
