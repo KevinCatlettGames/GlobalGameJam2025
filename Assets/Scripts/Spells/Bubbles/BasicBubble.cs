@@ -1,9 +1,8 @@
 using System.Collections;
 using UnityEngine;
 using FMODUnity;
-using Unity.Netcode;
 
-public class BasicBubble : NetworkBehaviour
+public class BasicBubble : MonoBehaviour
 {
     // Networked variables (only essential ones)
     public int OwnerID;
@@ -80,11 +79,8 @@ public class BasicBubble : NetworkBehaviour
         // Spawn pop effect for clients
         SpawnPopEffect(transform.position, size);
 
-        if (IsServer)
-        {
-            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
-            Destroy(gameObject);
-        }
+        // Destroy bubble after popping
+        Destroy(gameObject);
     }
     
     private void SetHasPopped(bool popped)
@@ -172,11 +168,7 @@ public class BasicBubble : NetworkBehaviour
     
     private void DestroyBubble()
     {
-        if (IsServer)
-        {
-            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
     private void OnDestroy()
     {
