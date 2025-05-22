@@ -43,7 +43,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] float slipperyModifier = 1.5f;
     [SerializeField] float rumbleDurationFactor = .01f;
     [SerializeField] private ParticleSystem damageParticleSystem;
-    [SerializeField] private NetworkObject dashStartEffectPrefab;
     
     private ControllerRumbler controllerRumbler = null;
     private bool isUsingGamepad = false;
@@ -232,7 +231,10 @@ public class PlayerController : NetworkBehaviour
                     Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
             }
             
-            WalkingAnimServerRpc(direction);
+            if(GameManager.Instance.playingLocal) 
+                mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+            else 
+                WalkingAnimServerRpc(direction);
         }
         
         
@@ -318,8 +320,14 @@ private void CastSpell(bool isFirstSpell)
         firstSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 1));
     else
         secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
-    
-    SlapAnimServerRpc(spell.spellIndex);
+
+    if (GameManager.Instance.playingLocal)
+    {
+        mainAnimator.SetTrigger("SlapTrigger");
+        RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
+    }
+    else 
+        SlapAnimServerRpc(spell.spellIndex);
     
     // Lock the spell input locally
     if (isFirstSpell)
@@ -555,21 +563,30 @@ void CooldownCompleteLocal(int spellID)
                 return;
             }
             sprintCoroutine = StartCoroutine(SprintCoroutine());
-            SpawnDashEffectServerRpc();
-            Instantiate(dashStartEffect, transform.position, transform.rotation);
+
+            if (GameManager.Instance.playingLocal)
+            {
+                if (dashStartEffect != null)
+                    Instantiate(dashStartEffect, transform.position, transform.rotation);
+            }
+            else
+                SpawnDashEffectServerRpc();
         }
     }
     
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     private void SpawnDashEffectServerRpc()
     {
-        if (dashStartEffectPrefab != null)
-        {
-            NetworkObject dashEffect = Instantiate(dashStartEffectPrefab, transform.position, transform.rotation);
-            dashEffect.Spawn(true); // true = spawn with ownership default (server owns it)
-        }
+        SpawnDashEffectClientRpc();
     }
-    
+
+    [ClientRpc]
+    private void SpawnDashEffectClientRpc()
+    {
+        if (dashStartEffect != null)
+            Instantiate(dashStartEffect, transform.position, transform.rotation);
+    }
+
     private IEnumerator SprintCoroutine()
     {
         canSprint = false;
@@ -627,7 +644,28 @@ void CooldownCompleteLocal(int spellID)
         if (context.performed)
         {
             Vector2 value = context.ReadValue<Vector2>();
-            EmoteAnimServerRpc(value);
+            if (GameManager.Instance.playingLocal)
+            {
+                switch (value.x, value.y)
+                {
+                    case (0,1):
+                        mainAnimator.SetTrigger("EmoteUp");
+                        break;
+                    case (0,-1):
+                        //EmoteDown
+                        break;
+                    case (-1, 0):
+                        //EmoteLeft
+                        break;
+                    case (1, 0):
+                        //EmoteRight
+                        break;
+                    default:
+                        break;
+                }
+            }
+            else 
+                EmoteAnimServerRpc(value);
         }
     }
 
@@ -789,7 +827,15 @@ void CooldownCompleteLocal(int spellID)
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
-        FlinchAnimServerRpc();
+        
+        if (GameManager.Instance.playingLocal)
+        {
+            mainAnimator.SetTrigger("Flinch");
+            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        }
+        else
+            FlinchAnimServerRpc();
+        
         float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
         shaderManager.DamageEffect(duration);
         if (controllerRumbler != null) 
@@ -827,7 +873,15 @@ void CooldownCompleteLocal(int spellID)
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play(); 
-        FlinchAnimServerRpc();
+        
+        if (GameManager.Instance.playingLocal)
+        {
+            mainAnimator.SetTrigger("Flinch");
+            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        }
+        else
+            FlinchAnimServerRpc();
+        
         shaderManager?.DamageEffect(damageColorEffectDuration);
         if (controllerRumbler != null) 
         {
@@ -855,7 +909,13 @@ void CooldownCompleteLocal(int spellID)
     {
         if (isDead) return;
         isDead = true;
-        DeadAnimServerRpc(true);
+        if (GameManager.Instance.playingLocal)
+        {
+            mainAnimator.SetBool("IsDead", true);
+            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+        }
+        else
+            DeadAnimServerRpc(true);
 
         if (playerID == killCreditID) killCreditID = -1;
 
@@ -930,7 +990,10 @@ void CooldownCompleteLocal(int spellID)
     #region PlayerManager
     public void Victory()
     {
-        VictoryAnimServerRpc(true);
+        if (GameManager.Instance.playingLocal)
+            mainAnimator.SetBool("Victory", true);   
+        else
+            VictoryAnimServerRpc(true);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -948,8 +1011,16 @@ void CooldownCompleteLocal(int spellID)
         isSlippery = false;
         killCreditID = -1;
         shaderManager?.ResetShader();
-        DeadAnimServerRpc(false);
-        VictoryAnimServerRpc(false);
+        if (GameManager.Instance.playingLocal)
+        {
+            mainAnimator.SetBool("IsDead", false);   
+            mainAnimator.SetBool("Victory", false);   
+        }
+        else
+        {
+            DeadAnimServerRpc(false);
+            VictoryAnimServerRpc(false);
+        }
         
         for (int i = 0; i < coloredElements.Length; i++)
         {

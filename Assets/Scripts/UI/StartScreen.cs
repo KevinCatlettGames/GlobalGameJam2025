@@ -24,6 +24,7 @@ public class StartScreen : MonoBehaviour
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
     public LobbyHeartBeat lobbyHeartBeat;
+    
     void Start()
     {
         InitializeUnityAuth();

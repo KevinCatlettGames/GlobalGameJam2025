@@ -1,3 +1,4 @@
+using System;
 using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
@@ -25,7 +26,12 @@ public class PauseManager : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton6))
         {
-            TogglePauseServerRpc();
+            if (GameManager.Instance.playingLocal)
+            {
+                TogglePause();
+            }
+            else
+                TogglePauseServerRpc();
         }
     }
 
@@ -37,6 +43,11 @@ public class PauseManager : NetworkBehaviour
 
     [ClientRpc]
     public void TogglePauseClientRpc()
+    {
+        TogglePause();
+    }
+
+    void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, gameObject.transform.position);
         controlsGraphic.SetActive(false);
