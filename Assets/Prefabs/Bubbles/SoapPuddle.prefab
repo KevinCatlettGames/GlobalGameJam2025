@@ -16,7 +16,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2776495268992456798
 Transform:
   m_ObjectHideFlags: 0
@@ -25,13 +25,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5069415546406309118}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.5, y: -0.5, z: -0.5, w: 0.5}
+  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.05, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.2, z: 0.2}
-  m_ConstrainProportionsScale: 1
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 7788634883322622023}
-  m_LocalEulerAnglesHint: {x: -90, y: -90, z: 0}
+  m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &976542331781092153
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: 42f90afbfbfc5db468492aaf4dfdd517, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 41ca51c7936492f4c90fd1ca7df752bd, type: 3}
   m_Color: {r: 0.65881985, g: 0.6625898, b: 0.990566, a: 0.64705884}
   m_FlipX: 0
   m_FlipY: 0
@@ -117,7 +117,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.6449642, y: 3.6908069, z: 3.6908069}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2776495268992456798}
@@ -168,7 +168,7 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 0
+  m_Enabled: 1
   serializedVersion: 2
   m_Radius: 0.65
   m_Height: 1.85
@@ -191,7 +191,7 @@ BoxCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Size: {x: 2.16, y: 3.06, z: 2.14}
   m_Center: {x: 0, y: 0, z: 0}
@@ -5105,6 +5105,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: Spueli_Puddle_Mesh
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: bd482fe0cda57e74292364970a608af1,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7339356831882890532, guid: bd482fe0cda57e74292364970a608af1,
         type: 3}
