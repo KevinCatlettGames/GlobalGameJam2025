@@ -319,10 +319,8 @@ private void CastSpell(bool isFirstSpell)
     else
         secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
     
-    SlapAnimServerRpc();
+    SlapAnimServerRpc(spell.spellIndex);
     
-    RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
-
     // Lock the spell input locally
     if (isFirstSpell)
         isFirstSpellReady = false;
@@ -332,9 +330,26 @@ private void CastSpell(bool isFirstSpell)
 
 
 [ServerRpc(RequireOwnership = false)]
-void SlapAnimServerRpc()
+void SlapAnimServerRpc(int spellIndex)
 {
     mainAnimator.SetTrigger("SlapTrigger");
+    SlampAnimClientRpc(spellIndex);
+}
+
+[ClientRpc]
+void SlampAnimClientRpc(int spellIndex)
+{
+    SO_Spell spell = null;
+    foreach (SO_Spell tempSpell in allSpells)
+    {
+        if (tempSpell.spellIndex == spellIndex)
+        {
+            spell = tempSpell;
+            break; 
+        }
+    }
+    if(spell != null) 
+        RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
 }
 
 
@@ -771,7 +786,6 @@ void CooldownCompleteLocal(int spellID)
             killCreditID = ID;
         }
         knockbackVelocity += knockback;
-        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
@@ -787,6 +801,13 @@ void CooldownCompleteLocal(int spellID)
     void FlinchAnimServerRpc()
     {
         mainAnimator.SetTrigger("Flinch");
+        FlinAnimClientRpc();
+    }
+    
+    [ClientRpc]
+    void FlinAnimClientRpc()
+    {
+        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
     }
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -803,7 +824,6 @@ void CooldownCompleteLocal(int spellID)
             killCreditID = ID;
         }
         knockbackVelocity += knockback;
-        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play(); 
@@ -820,6 +840,15 @@ void CooldownCompleteLocal(int spellID)
     void DeadAnimServerRpc(bool activationState)
     {
         mainAnimator.SetBool("IsDead", activationState);
+        
+        DeadAnimClientRpc(activationState);
+    }
+
+    [ClientRpc]
+    void DeadAnimClientRpc(bool activationState)
+    {
+        if(activationState) 
+            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
     }
     
     public void Die()
@@ -827,7 +856,6 @@ void CooldownCompleteLocal(int spellID)
         if (isDead) return;
         isDead = true;
         DeadAnimServerRpc(true);
-        RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
 
         if (playerID == killCreditID) killCreditID = -1;
 
