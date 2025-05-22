@@ -55,30 +55,32 @@ public class Settings : MonoBehaviour
         masterValueText.text = volume.ToString();
         volume *= .01f;
         masterVCA.setVolume(volume);
-        //masterVolume = volume;
+        PlayerPrefs.SetFloat(SoundSettingsInitialiser.masterVolKey, volume);
     }
     public void SetSFXVolume(float volume)
     {
         sfxValueText.text = volume.ToString();
         volume *= .01f;
         sfxVCA.setVolume(volume);
-        //masterVolume = volume;
+        PlayerPrefs.SetFloat(SoundSettingsInitialiser.sfxVolKey, volume);
     }
     public void SetMusicVolume(float volume)
     {
         musicValueText.text = volume.ToString();
         volume *= .01f;
         musicVCA.setVolume(volume);
-        //masterVolume = volume;
-    }
-    public void SetSelected()
-    {
-        EventSystem eventSystem = EventSystem.current;
-        eventSystem.SetSelectedGameObject(selecedObject);
+        PlayerPrefs.SetFloat(SoundSettingsInitialiser.musicVolKey, volume);
     }
 
     public void SetFullscreen(bool isFullScreen)
     {
         Screen.fullScreen = isFullScreen;
+        int fullscreen = isFullScreen ? 1 : 0;
+        PlayerPrefs.SetInt("Fullscreen", fullscreen);
+    }
+    public void SetSelected()
+    {
+        EventSystem eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(selecedObject);
     }
 }
