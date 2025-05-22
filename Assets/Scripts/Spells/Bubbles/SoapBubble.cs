@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class SoapBubble : BasicBubble
@@ -5,21 +6,10 @@ public class SoapBubble : BasicBubble
     [SerializeField] private GameObject soapPuddleObject;
     [SerializeField] private float soapDropIntervall = .2f;
     [SerializeField] private LayerMask groundedLayerMask;
-    private float timer = 0f;
 
-    private void Update()
+    private void Start()
     {
-        if (soapPuddleObject != null)
-        {
-            timer += Time.deltaTime;
-            if (timer >= soapDropIntervall)
-            {
-                RaycastHit hitInfo;
-                if (Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
-                    Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
-                timer = 0f;
-            }
-        }
+        if (soapPuddleObject != null) StartCoroutine(SoapDropCoroutine());
     }
 
     public override void BubbleCollision(GameObject other)
@@ -39,4 +29,16 @@ public class SoapBubble : BasicBubble
     {
         return;
     }
+
+    private IEnumerator SoapDropCoroutine()
+    {
+        yield return new WaitForSeconds(soapDropIntervall);
+        while (!hasPopped)
+        {
+            RaycastHit hitInfo;
+            if (Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
+                Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
+            yield return new WaitForSeconds(soapDropIntervall);
+        }
+    } 
 }
