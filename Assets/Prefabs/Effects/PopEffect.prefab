@@ -4901,7 +4901,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6081551340156864742}
   - component: {fileID: 3014141589086803380}
-  - component: {fileID: 18287051395741987}
   - component: {fileID: 1566107180514272754}
   m_Layer: 0
   m_Name: PopEffect
@@ -4940,31 +4939,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waitDuration: 3
   destroyOnRestart: 1
---- !u!114 &18287051395741987
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7883030796252567183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 0
-  InScenePlacedSourceGlobalObjectIdHash: 0
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 1
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &1566107180514272754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4977,6 +4951,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66e2f43d3c86e704fb3439c988421d2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
   popParticleSystem: {fileID: 3580366476286885389}
   sizeBurstRatio: 50

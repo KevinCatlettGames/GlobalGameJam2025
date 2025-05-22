@@ -1,6 +1,7 @@
 using FMODUnity;
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode;
 
 public class RevolverBubble : BasicBubble
 {
@@ -41,12 +42,16 @@ public class RevolverBubble : BasicBubble
             float offset = (float)i - ((float)maxAmmo / 2f);
             Vector3 dir = Quaternion.AngleAxis(spread * offset, Vector3.up) * direction;
 
-            // Instantiate and network spawn the new bubble
-            GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir)); ;
-
-            BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
-
+            if (IsServer)
+            {
+                // Instantiate and network spawn the new bubble
+                GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
+                ;
+                BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
+                bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir,
+                    soundEvent, playerCollider);
+                bubbleObj.GetComponent<NetworkObject>().Spawn();
+            }
             yield return new WaitForSeconds(delayBetweenShots);
         }
         

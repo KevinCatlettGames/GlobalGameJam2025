@@ -18,6 +18,21 @@ public class SnipeBubble : BasicBubble
         maxDamage = dmg;
         currentDamage = minDamage;
         damageScaling = (maxDamage - minDamage) / damageRampUpDistance;
+        
+        if (playerCollider != null)
+        {
+            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
+            StartCoroutine(ReenableCollisionAfterDelay(1f)); // Delay in seconds
+        }
+    }
+    
+    private IEnumerator ReenableCollisionAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (playerCollider != null)
+        {
+            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
+        }
     }
 
     protected override void BubbleMovement()

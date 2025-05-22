@@ -38,14 +38,21 @@ public class SO_Spell : ScriptableObject
     public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
     {
         dir.Normalize();
-        pos += dir * (bubbleSize / 2f + 1f);
-        
+
+        // // Calculate safe distance: player collider half depth + spell bubble radius + margin
+        float safeDistance = playerCollider.bounds.extents.z + (bubbleSize / 2f) + 0.2f;
+        pos += dir * safeDistance;
+
+        if (NetworkManager.Singleton.IsServer)
+        {
             GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
             bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize,
                 inflationSpeed, dir, castEventStruct, playerCollider);
-        
+
+            bubbleInstance.GetComponent<NetworkObject>().Spawn();
+        }
 
         return spellCooldown;
     }

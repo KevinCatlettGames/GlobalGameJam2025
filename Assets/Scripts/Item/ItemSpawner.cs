@@ -3,7 +3,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class ItemSpawner : NetworkBehaviour
+public class ItemSpawner : MonoBehaviour
 {
     public static ItemSpawner Instance;
 
@@ -28,7 +28,7 @@ public class ItemSpawner : NetworkBehaviour
 
     public void InitialSpawn()
     {
-        if (IsServer)
+        if (NetworkManager.Singleton.IsServer)
         {
             GameManager.Instance.OnGameStarted += ResetSpawner;
 
@@ -41,7 +41,7 @@ public class ItemSpawner : NetworkBehaviour
 
     private void SpawnLoop()
     {
-        if (!IsServer) return;
+        if (!NetworkManager.Singleton.IsServer) return;
 
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
@@ -74,7 +74,7 @@ public class ItemSpawner : NetworkBehaviour
 
     public void ChangeMaxItemAmount(bool increase)
     {
-        if (!IsServer) return;
+        if (!NetworkManager.Singleton.IsServer) return;
 
         if (increase)
             maxAmount++;
@@ -84,7 +84,7 @@ public class ItemSpawner : NetworkBehaviour
 
     public void ResetSpawner()
     {
-        if (!IsServer) return;
+        if (!NetworkManager.Singleton.IsServer) return;
 
         foreach (GameObject item in spawnedItems)
         {

@@ -92,9 +92,6 @@ public class SlipBubble : BasicBubble
         GameObject puddle = Instantiate(slimePuddleObject, new Vector3(position.x, 0.06f, position.z), Quaternion.LookRotation(transform.forward));
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
         puddleTrail.StopTrail();
-
-        // Network spawn puddle object
-        puddle.GetComponent<NetworkObject>().Spawn();
     }
 
     public override void SetSlippy()

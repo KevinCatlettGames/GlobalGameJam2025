@@ -133,7 +133,7 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-        if (!initialized || isDead) return;
+        if (!initialized || isDead || !IsOwner) return;
 
         // Get input every frame (e.g. from Input system or your own input handler)
         // Here you assume `movementInput` is updated elsewhere (e.g., Input events)
@@ -305,9 +305,6 @@ private void CastSpell(bool isFirstSpell)
     
     RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
 
-    // Start local cooldown visuals
-    StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
-
     // Lock the spell input locally
     if (isFirstSpell)
         isFirstSpellReady = false;
@@ -327,12 +324,18 @@ void CastSpellClientRpc(bool isFirstSpell)
 {
     SO_Spell spell = isFirstSpell ? firstSpell : secondSpell; 
     tempCooldown =  spell.CastSpell(playerID, transform.position, transform.forward, controller);
+    
+    // Start local cooldown visuals
+    StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
 }
 
 void CastSpellLocal(bool isFirstSpell)
 {
     SO_Spell spell = isFirstSpell ? firstSpell : secondSpell; 
     tempCooldown =  spell.CastSpell(playerID, transform.position, transform.forward, controller);
+    
+    // Start local cooldown visuals
+    StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
 }
 
 private IEnumerator CooldownCoroutine(float time, int spellID)
@@ -531,15 +534,40 @@ void CooldownCompleteLocal(int spellID)
         playerSpeed = playerSprintSpeed;
         moveSmoothTime = 0f;
         isSprinting = true;
-        OnBeginSprint?.Invoke();
+        BeginSprintServerRpc();
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
         moveSmoothTime = smoothTime;
         isSprinting = false;
-        OnEndSprint?.Invoke();
+        EndSprintServerRpc();
         yield return new WaitForSeconds(sprintCooldown);
         canSprint = true;
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void BeginSprintServerRpc()
+    {
+        BeginSprintClientRpc();
+    }
+
+    [ClientRpc]
+    void BeginSprintClientRpc()
+    {
+        OnBeginSprint?.Invoke();
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    void EndSprintServerRpc()
+    {
+        EndSprintClientRpc();
+    }
+
+    [ClientRpc]
+    void EndSprintClientRpc()
+    {
+        OnEndSprint?.Invoke();
+    }
+    
     public void OnEmote(InputAction.CallbackContext context)
     {
         if (context.performed)

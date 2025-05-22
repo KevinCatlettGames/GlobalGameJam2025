@@ -13,6 +13,21 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_NetcodeVariant
       objectReference: {fileID: 0}
+    - target: {fileID: 5035778559450301646, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: Interpolate
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5035778559450301646, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: AuthorityMode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5035778559450301646, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: NetworkTransformExpanded
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6666725466510763204, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -22,6 +37,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7196035049087285683, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: dashStartEffectPrefab
+      value: 
       objectReference: {fileID: 0}
     - target: {fileID: 7895613291777298567, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
@@ -41,6 +61,16 @@ PrefabInstance:
     - target: {fileID: 8578798486101265600, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578798486101265600, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_DefaultControlScheme
+      value: Gamepad
+      objectReference: {fileID: 0}
+    - target: {fileID: 8578798486101265600, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_NeverAutoSwitchControlSchemes
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8774792281679756014, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
@@ -93,8 +123,65 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 5035778559450301646, guid: dfb56a8bfd7dffa408c3f49d91c88fa8, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 8921175627995766621}
   m_SourcePrefab: {fileID: 100100000, guid: dfb56a8bfd7dffa408c3f49d91c88fa8, type: 3}
+--- !u!1 &8803356904054459380 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+    type: 3}
+  m_PrefabInstance: {fileID: 6190674446530243747}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &8921175627995766621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8803356904054459380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 1
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 1
+  RotationInterpolationType: 1
+  ScaleInterpolationType: 1
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
+  AuthorityMode: 1
+  TickSyncChildren: 0
+  UseUnreliableDeltas: 0
+  SyncPositionX: 1
+  SyncPositionY: 1
+  SyncPositionZ: 1
+  SyncRotAngleX: 1
+  SyncRotAngleY: 1
+  SyncRotAngleZ: 1
+  SyncScaleX: 1
+  SyncScaleY: 1
+  SyncScaleZ: 1
+  PositionThreshold: 0.001
+  RotAngleThreshold: 0.01
+  ScaleThreshold: 0.01
+  UseQuaternionSynchronization: 0
+  UseQuaternionCompression: 0
+  UseHalfFloatPrecision: 0
+  InLocalSpace: 0
+  SwitchTransformSpaceWhenParented: 0
+  Interpolate: 1
+  SlerpPosition: 0

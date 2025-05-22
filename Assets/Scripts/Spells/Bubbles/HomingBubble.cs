@@ -16,7 +16,7 @@ public class HomingBubble : BasicBubble
     }
     protected override void BubbleMovement()
     {
-        if (!sphereCollider.enabled)
+        if (sphereCollider && !sphereCollider.enabled)
         {
             base.BubbleMovement(); 
             return;

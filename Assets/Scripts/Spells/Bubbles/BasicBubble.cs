@@ -1,8 +1,9 @@
 using System.Collections;
 using UnityEngine;
 using FMODUnity;
+using Unity.Netcode;
 
-public class BasicBubble : MonoBehaviour
+public class BasicBubble : NetworkBehaviour
 {
     // Networked variables (only essential ones)
     public int OwnerID;
@@ -41,14 +42,29 @@ public class BasicBubble : MonoBehaviour
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         this.playerCollider = playerCollider;
 
+        if (playerCollider != null)
+        {
+            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
+            StartCoroutine(ReenableCollisionAfterDelay(1f)); // Delay in seconds
+        }
+        
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
-            if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, true);
             sphereCollider.enabled = false;
             StartCoroutine(Inflate());
         }
     }
+    
+    private IEnumerator ReenableCollisionAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        if (playerCollider != null)
+        {
+            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
+        }
+    }
+
 
     private void FixedUpdate()
     { 
@@ -74,13 +90,17 @@ public class BasicBubble : MonoBehaviour
         // Call ServerRpc to set the hasPopped value on the server
         SetHasPopped(true);
 
-        StopCoroutine(rangeCoroutine);
+        if(rangeCoroutine != null) 
+            StopCoroutine(rangeCoroutine);
 
         // Spawn pop effect for clients
         SpawnPopEffect(transform.position, size);
 
-        // Destroy bubble after popping
-        Destroy(gameObject);
+        if (IsServer)
+        {
+            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
+            Destroy(gameObject);
+        }
     }
     
     private void SetHasPopped(bool popped)
@@ -168,7 +188,11 @@ public class BasicBubble : MonoBehaviour
     
     private void DestroyBubble()
     {
-        Destroy(gameObject);
+        if (IsServer)
+        {
+            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
+            Destroy(gameObject);
+        }
     }
     private void OnDestroy()
     {
