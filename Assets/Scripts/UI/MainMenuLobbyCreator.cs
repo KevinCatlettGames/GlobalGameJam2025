@@ -6,19 +6,13 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using Unity.Netcode; 
 using UnityEngine.SceneManagement; 
-using UnityEngine.UI;
-using TMPro;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
-using Unity.VisualScripting;
-using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
 
-public class StartScreen : MonoBehaviour
+public class MainMenuLobbyCreator : MonoBehaviour
 {
     private Lobby joinedLobby;
     private bool isStartMenuOpen = false;

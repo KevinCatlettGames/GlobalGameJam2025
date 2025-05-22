@@ -1068,12 +1068,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 651560400}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 80.80201, y: 58.97031, z: -0.6841445}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: -453.37622, y: -386.18, z: 4.1890526}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1751115928}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &654910474
 GameObject:
@@ -1499,7 +1499,6 @@ GameObject:
   - component: {fileID: 900270317}
   - component: {fileID: 900270318}
   - component: {fileID: 900270319}
-  - component: {fileID: 900270320}
   m_Layer: 0
   m_Name: GameStart
   m_TagString: Untagged
@@ -1579,13 +1578,45 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultValue: 0.5
   resetAllPlayerPrefs: 0
---- !u!114 &900270320
+--- !u!1 &1468472509
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1468472510}
+  - component: {fileID: 1468472511}
+  m_Layer: 0
+  m_Name: LobbyCreator
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1468472510
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1468472509}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1751115928}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1468472511
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 900270314}
+  m_GameObject: {fileID: 1468472509}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 69ea4854a0a339445bd2a1ddde3715ac, type: 3}
@@ -2078,6 +2109,39 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1602168841}
   m_CullTransparentMesh: 1
+--- !u!1 &1751115927
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1751115928}
+  m_Layer: 0
+  m_Name: LobbyManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1751115928
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1751115927}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 534.1782, y: 445.1503, z: -4.873197}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 651560402}
+  - {fileID: 1468472510}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1992902496
 GameObject:
   m_ObjectHideFlags: 0
@@ -2440,8 +2504,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 900270320}
-        m_TargetAssemblyTypeName: StartScreen, Assembly-CSharp
+      - m_Target: {fileID: 1468472511}
+        m_TargetAssemblyTypeName: MainMenuLobbyCreator, Assembly-CSharp
         m_MethodName: StartGameLocal
         m_Mode: 1
         m_Arguments:
@@ -2870,8 +2934,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 900270320}
-        m_TargetAssemblyTypeName: StartScreen, Assembly-CSharp
+      - m_Target: {fileID: 1468472511}
+        m_TargetAssemblyTypeName: MainMenuLobbyCreator, Assembly-CSharp
         m_MethodName: OpenLobby
         m_Mode: 1
         m_Arguments:
@@ -3292,4 +3356,4 @@ SceneRoots:
   - {fileID: 571817795}
   - {fileID: 900270316}
   - {fileID: 2138006272}
-  - {fileID: 651560402}
+  - {fileID: 1751115928}

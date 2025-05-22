@@ -6,10 +6,6 @@ public class LobbyCreateUI : MonoBehaviour
 {
     [SerializeField] private Button createPublicButton;
     
-    private void Start()
-    {
-    }
-
     private void Awake()
     {
         createPublicButton.onClick.AddListener(() =>

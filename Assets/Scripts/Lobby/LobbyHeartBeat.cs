@@ -1,21 +1,21 @@
-using System;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
+/// <summary>
+/// Sends a tick to the Lobby every couple of seconds, making the lobby stay active. 
+/// </summary>
 public class LobbyHeartBeat : MonoBehaviour
 {
     public Lobby joinedLobby;
+    float heartbeatTimer;
 
-    private float heartbeatTimer;
-
-    private void Awake()
+    void Awake()
     {
         DontDestroyOnLoad(gameObject);
     }
-
-    // Update is called once per frame
+    
     void Update()
     {
         if (IsLobbyHost())

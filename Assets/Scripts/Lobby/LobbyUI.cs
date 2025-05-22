@@ -3,17 +3,16 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
-using Unity.Services.Lobbies;
-using Unity.Services.Lobbies.Models;
 
 public class LobbyUI : MonoBehaviour
 {
-    [SerializeField] private Button mainMenuButton;
-    [SerializeField] private Button joinCodeButton;
-    [SerializeField] private TMP_InputField joinCodeInputField;
-    [SerializeField] private TextMeshProUGUI playerCountText;
-    public Button startGameButton;
-    [SerializeField] private Button createPublicButton;
+    [SerializeField] Button mainMenuButton;
+    [SerializeField] Button joinCodeButton;
+    [SerializeField] Button startGameButton;
+    [SerializeField] Button createPublicButton;
+    
+    [SerializeField] TMP_InputField joinCodeInputField;
+    [SerializeField] TextMeshProUGUI playerCountText;
     
     public string mainMenuSceneName;
     private void Awake()
@@ -46,9 +45,8 @@ public class LobbyUI : MonoBehaviour
     void UpdatePlayerCount(ulong signature)
     {
         if (NetworkManager.Singleton.IsServer && NetworkManager.Singleton.ConnectedClients.Count >= 2)
-        {
             startGameButton.interactable = true; 
-        }
+        
         playerCountText.text = "Player Count: " + NetworkManager.Singleton.ConnectedClients.Count;
     }
 }
