@@ -124,6 +124,8 @@ public class PlayerManager : NetworkBehaviour
         
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[playerID].position;
+        input.transform.rotation = spawnPoints[playerID].rotation;
+        players.Add(input.gameObject);
         
         PlayerController playerController = input.GetComponent<PlayerController>();
         Gamepad gamePad = input.GetDevice<Gamepad>();
@@ -195,6 +197,7 @@ public class PlayerManager : NetworkBehaviour
         if (GameManager.Instance.playingLocal)
         {
             localPlayers[playerID].transform.position = spawnPoints[playerID].transform.position;
+            localPlayers[playerID].transform.rotation = spawnPoints[playerID].transform.rotation;
         }
         else
         {
@@ -208,6 +211,7 @@ public class PlayerManager : NetworkBehaviour
             {
                 GameObject playerGameObject = networkObject.gameObject;
                 playerGameObject.transform.position = spawnPoints[playerID].transform.position;
+                playerGameObject.transform.rotation = spawnPoints[playerID].transform.rotation;
             }
             else
                 Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");

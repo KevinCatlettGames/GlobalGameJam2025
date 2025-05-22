@@ -28,6 +28,7 @@ public class PlayerController : NetworkBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private Item itemToEquip;
+    private int slipperyCounter = 0;
     private bool isSlippery = false;
     private PlayerHUD playerHUD;
 
@@ -51,6 +52,9 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Effects")]
     [SerializeField] private GameObject dashStartEffect;
+    [SerializeField] private ParticleSystem splashEffect;
+    [SerializeField] private ParticleSystem wetEffect;
+    [SerializeField] private float damageColorEffectDuration = .1f;
     [SerializeField] private float materialSwapDuration = .1f;
 
     #region Player Physics
@@ -86,8 +90,8 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
 
-    public Animator mainAnimator;
-    private MaterialSwapper materialSwapper;
+    private Animator mainAnimator;
+    private PlayerShaderManager shaderManager;
     [Header("Visuals")]
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
@@ -183,8 +187,11 @@ public class PlayerController : NetworkBehaviour
             if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
             {
                 targetDirection = Vector3.zero;
-                Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                if (movementInput != Vector2.zero)
+                {
+                    Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
+                    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                }
             }
             else
             {
@@ -242,6 +249,7 @@ public class PlayerController : NetworkBehaviour
     #region Inputs
     public void OnMove(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
@@ -260,6 +268,8 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
+        
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -274,6 +284,8 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
+        
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -370,7 +382,8 @@ void CooldownCompleteLocal(int spellID)
     
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (GameManager.IsGamePaused) return;
+        if (itemToEquip != null && context.performed)
         {
             if (GameManager.Instance.playingLocal)
                 EquipSpellLocal(1);
@@ -381,6 +394,8 @@ void CooldownCompleteLocal(int spellID)
 
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
+        if (itemToEquip != null && context.performed)
         if (context.performed)
         {
             if (GameManager.Instance.playingLocal)
@@ -503,6 +518,7 @@ void CooldownCompleteLocal(int spellID)
     
     public void OnSprint(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed)
         {
             if (!canSprint)
@@ -570,6 +586,7 @@ void CooldownCompleteLocal(int spellID)
     
     public void OnEmote(InputAction.CallbackContext context)
     {
+        if (GameManager.IsGamePaused) return;
         if (context.performed)
         {
             Vector2 value = context.ReadValue<Vector2>();
@@ -739,7 +756,11 @@ void CooldownCompleteLocal(int spellID)
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isSlippery) force *= slipperyModifier;
+        if (isSlippery) 
+        {
+            force *= slipperyModifier;
+            splashEffect.Play();
+        }
         direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
@@ -752,7 +773,7 @@ void CooldownCompleteLocal(int spellID)
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
         mainAnimator.SetTrigger("Flinch");
-        materialSwapper?.SwapMaterials(materialSwapDuration);
+        shaderManager?.DamageEffect(damageColorEffectDuration);
         if (controllerRumbler != null) 
         {
             float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
@@ -811,13 +832,29 @@ void CooldownCompleteLocal(int spellID)
     {
         if (slippy)
         {
-            knockbackVelocity *= slipperyModifier;
+            if(knockbackVelocity.sqrMagnitude > 0.2f)
+            {
+                knockbackVelocity *= slipperyModifier;
+                splashEffect.Play();
+            }
+            slipperyCounter++;
+        }
+        else
+        {
+            slipperyCounter--;
+            if (slipperyCounter < 0) slipperyCounter = 0;
+        }
+        if (slipperyCounter > 0)
+        {
             isSlippery = true;
+            wetEffect.Play();
         }
         else
         {
             isSlippery = false;
+            wetEffect.Stop();
         }
+        shaderManager?.WetEffect(isSlippery);
     }
     #endregion
 
@@ -828,11 +865,13 @@ void CooldownCompleteLocal(int spellID)
     }
     public void ResetPlayerController()
     {
+        slipperyCounter = 0;
         damage = 0;
         playerHUD.ResetHUD();
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
+        shaderManager?.ResetShader();
         mainAnimator.SetBool("IsDead", false);
         mainAnimator.SetBool("Victory", false);
         for (int i = 0; i < coloredElements.Length; i++)
@@ -849,7 +888,7 @@ void CooldownCompleteLocal(int spellID)
         this.playerID = playerID;
         characters[playerID].SetActive(true);
         mainAnimator = characters[playerID].GetComponent<Animator>();
-        materialSwapper = characters[playerID].GetComponentInChildren<MaterialSwapper>();
+        shaderManager = characters[playerID].GetComponentInChildren<PlayerShaderManager>();
         for (int i = 0; i < coloredElements.Length; i++)
         {
             coloredElements[i].color = color;

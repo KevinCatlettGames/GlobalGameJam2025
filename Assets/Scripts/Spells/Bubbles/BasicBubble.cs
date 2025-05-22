@@ -158,7 +158,25 @@ public class BasicBubble : NetworkBehaviour
             if (currentSize > size) currentSize = size;
             yield return new WaitForEndOfFrame();
         }
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
+        if (overlaps.Length > 0)
+        {
+            for (int i = 0; i < overlaps.Length; i++)
+            {
+                if (overlaps[i] == playerCollider)
+                {
+                    continue;
+                }
+                else
+                {
+                    BubbleCollision(overlaps[i].gameObject);
+                    break;
+                }
+
+            }
+        }
         sphereCollider.enabled = true;
+
     }
 
     private void Reflect(Vector3 normal)

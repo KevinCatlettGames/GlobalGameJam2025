@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
@@ -12,6 +13,8 @@ public class GameManager : NetworkBehaviour
 {
     public static GameManager Instance; 
     public GameObject playerPrefab;
+    public static bool IsGamePaused = false;
+    
     protected bool gameEnded;
     protected static int maxPlayers = 4;
     protected float gameEndDelay = 1f;
@@ -45,12 +48,12 @@ public class GameManager : NetworkBehaviour
             playerStates[i] = PlayerState.missing;
         }
         
-         //Cursor.visible = false;
-         Cursor.lockState = CursorLockMode.Locked;
-                   
+        //Cursor.visible = false;
+        Cursor.lockState = CursorLockMode.Locked;
+        IsGamePaused = false;
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += WaitAndStartGame;
     }
-
+    
     void WaitAndStartGame(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
         Invoke(nameof(SceneManagerOnOnLoadEventCompletedleted), 5f);
