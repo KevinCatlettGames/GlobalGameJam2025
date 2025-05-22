@@ -4,7 +4,8 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using Unity.Netcode; 
+using Unity.Netcode;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -230,9 +231,8 @@ public class PlayerController : NetworkBehaviour
                 transform.rotation =
                     Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
             }
-
-            // Update animation on server (optional, or sync to clients)
-            mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+            
+            WalkingAnimServerRpc(direction);
         }
         
         
@@ -241,6 +241,13 @@ public class PlayerController : NetworkBehaviour
         {
             controller.Move(move);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void WalkingAnimServerRpc(Vector3 direction)
+    {
+        // Update animation on server (optional, or sync to clients)
+        mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
     }
     
     #endregion
@@ -312,7 +319,7 @@ private void CastSpell(bool isFirstSpell)
     else
         secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
     
-    mainAnimator.SetTrigger("SlapTrigger");
+    SlapAnimServerRpc();
     
     RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
 
@@ -321,6 +328,13 @@ private void CastSpell(bool isFirstSpell)
         isFirstSpellReady = false;
     else
         isSecondSpellReady = false;
+}
+
+
+[ServerRpc(RequireOwnership = false)]
+void SlapAnimServerRpc()
+{
+    mainAnimator.SetTrigger("SlapTrigger");
 }
 
 
@@ -598,25 +612,33 @@ void CooldownCompleteLocal(int spellID)
         if (context.performed)
         {
             Vector2 value = context.ReadValue<Vector2>();
-            switch (value.x, value.y)
-            {
-                case (0,1):
-                    mainAnimator.SetTrigger("EmoteUp");
-                    break;
-                case (0,-1):
-                    //EmoteDown
-                    break;
-                case (-1, 0):
-                    //EmoteLeft
-                    break;
-                case (1, 0):
-                    //EmoteRight
-                    break;
-                default:
-                    break;
-            }
+            EmoteAnimServerRpc(value);
         }
     }
+
+    
+    [ServerRpc(RequireOwnership = false)]
+    void EmoteAnimServerRpc(Vector2 value)
+    {
+        switch (value.x, value.y)
+        {
+            case (0,1):
+                mainAnimator.SetTrigger("EmoteUp");
+                break;
+            case (0,-1):
+                //EmoteDown
+                break;
+            case (-1, 0):
+                //EmoteLeft
+                break;
+            case (1, 0):
+                //EmoteRight
+                break;
+            default:
+                break;
+        }
+    }
+    
     #endregion
 
     #region Items
@@ -753,11 +775,18 @@ void CooldownCompleteLocal(int spellID)
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
-        mainAnimator.SetTrigger("Flinch");
+        FlinchAnimServerRpc();
         float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
         shaderManager.DamageEffect(duration);
         if (controllerRumbler != null) 
             controllerRumbler.Rumble(duration, force, dmg);
+    }
+
+    
+    [ServerRpc(RequireOwnership = false)]
+    void FlinchAnimServerRpc()
+    {
+        mainAnimator.SetTrigger("Flinch");
     }
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -777,8 +806,8 @@ void CooldownCompleteLocal(int spellID)
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
-        damageParticleSystem.Play();
-        mainAnimator.SetTrigger("Flinch");
+        damageParticleSystem.Play(); 
+        FlinchAnimServerRpc();
         shaderManager?.DamageEffect(damageColorEffectDuration);
         if (controllerRumbler != null) 
         {
@@ -786,12 +815,18 @@ void CooldownCompleteLocal(int spellID)
             controllerRumbler.Rumble(duration, force, dmg);
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void DeadAnimServerRpc(bool activationState)
+    {
+        mainAnimator.SetBool("IsDead", activationState);
+    }
     
     public void Die()
     {
         if (isDead) return;
         isDead = true;
-        mainAnimator.SetBool("IsDead", true);
+        DeadAnimServerRpc(true);
         RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
 
         if (playerID == killCreditID) killCreditID = -1;
@@ -867,8 +902,15 @@ void CooldownCompleteLocal(int spellID)
     #region PlayerManager
     public void Victory()
     {
-        mainAnimator.SetBool("Victory", true);        
+        VictoryAnimServerRpc(true);
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void VictoryAnimServerRpc(bool activationState)
+    {
+        mainAnimator.SetBool("Victory", activationState);   
+    }
+    
     public void ResetPlayerController()
     {
         slipperyCounter = 0;
@@ -878,8 +920,8 @@ void CooldownCompleteLocal(int spellID)
         isSlippery = false;
         killCreditID = -1;
         shaderManager?.ResetShader();
-        mainAnimator.SetBool("IsDead", false);
-        mainAnimator.SetBool("Victory", false);
+        DeadAnimServerRpc(false);
+        VictoryAnimServerRpc(false);
         
         for (int i = 0; i < coloredElements.Length; i++)
         {

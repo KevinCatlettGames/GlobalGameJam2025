@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: -5092228933000444492}
   - component: {fileID: 2824105566866462389}
   - component: {fileID: -8900455023896374036}
+  - component: {fileID: 1619619485655626647}
   m_Layer: 7
   m_Name: GiantBubble
   m_TagString: Bubble
@@ -293,6 +294,20 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &1619619485655626647
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cc28bd603229541a5effc24b60804d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  childObject: {fileID: 465073794985684243}
 --- !u!1 &2009806699742758642
 GameObject:
   m_ObjectHideFlags: 0
@@ -5451,6 +5466,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: BubbleTrail
       objectReference: {fileID: 0}
+    - target: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7694968991626347187, guid: fd27fdadab21b9d459a00c06ea331d00, type: 3}
     - {fileID: -9197689485709993161, guid: fd27fdadab21b9d459a00c06ea331d00, type: 3}
@@ -5462,6 +5482,12 @@ PrefabInstance:
       addedObject: {fileID: 5449327613073633523}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: fd27fdadab21b9d459a00c06ea331d00, type: 3}
+--- !u!1 &465073794985684243 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
+    type: 3}
+  m_PrefabInstance: {fileID: 7715335322765081500}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &4572387418870018938 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6081551340156864742, guid: fd27fdadab21b9d459a00c06ea331d00,

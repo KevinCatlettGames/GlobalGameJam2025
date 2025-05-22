@@ -16,8 +16,9 @@ GameObject:
   - component: {fileID: 3987040592755437697}
   - component: {fileID: 7893774334514522463}
   - component: {fileID: -7592650989984657302}
-  - component: {fileID: 2873340845766684839}
-  - component: {fileID: 6810258455896459616}
+  - component: {fileID: 3080708365895276670}
+  - component: {fileID: 2432993714111853255}
+  - component: {fileID: 8380620584171205850}
   m_Layer: 7
   m_Name: SnipeBubble
   m_TagString: Bubble
@@ -230,7 +231,7 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
---- !u!114 &2873340845766684839
+--- !u!114 &3080708365895276670
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -239,11 +240,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 449082112856618060}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 0
+  NetworkTransformExpanded: 1
   AutoOwnerAuthorityTickOffset: 1
   PositionInterpolationType: 1
   RotationInterpolationType: 1
@@ -276,7 +277,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &6810258455896459616
+--- !u!114 &2432993714111853255
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -293,6 +294,20 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
+--- !u!114 &8380620584171205850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18cc28bd603229541a5effc24b60804d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  childObject: {fileID: 5700073792834702181}
 --- !u!1 &7170327632841725035
 GameObject:
   m_ObjectHideFlags: 0
@@ -5807,6 +5822,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: SniperTrail
       objectReference: {fileID: 0}
+    - target: {fileID: 7883030796252567183, guid: 74295bed2b8579c419dfafd9b2fcf2da,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 7533353353464133040, guid: 74295bed2b8579c419dfafd9b2fcf2da, type: 3}
     - {fileID: 2042065762942646189, guid: 74295bed2b8579c419dfafd9b2fcf2da, type: 3}
@@ -5822,6 +5842,12 @@ PrefabInstance:
       addedObject: {fileID: 8802122061349284101}
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74295bed2b8579c419dfafd9b2fcf2da, type: 3}
+--- !u!1 &5700073792834702181 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7883030796252567183, guid: 74295bed2b8579c419dfafd9b2fcf2da,
+    type: 3}
+  m_PrefabInstance: {fileID: 2485032979856121322}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8510289185577211148 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6081551340156864742, guid: 74295bed2b8579c419dfafd9b2fcf2da,
