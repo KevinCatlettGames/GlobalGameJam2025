@@ -99,6 +99,7 @@ GameObject:
   - component: {fileID: 8724758330154585215}
   - component: {fileID: 4309508553781274052}
   - component: {fileID: 4589955469819661359}
+  - component: {fileID: 1790206518761671852}
   m_Layer: 7
   m_Name: SoapPuddle
   m_TagString: Untagged
@@ -167,12 +168,33 @@ CapsuleCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 2
   m_Radius: 0.65
   m_Height: 1.85
   m_Direction: 2
   m_Center: {x: 0, y: 0.65, z: 0}
+--- !u!65 &1790206518761671852
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 2.16, y: 3.06, z: 2.14}
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0
@@ -5071,6 +5093,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: -1538112130698044685, guid: bd482fe0cda57e74292364970a608af1,
         type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0.147
+      objectReference: {fileID: 0}
+    - target: {fileID: -1538112130698044685, guid: bd482fe0cda57e74292364970a608af1,
+        type: 3}
       propertyPath: m_LocalPosition.y
       value: 0.066
       objectReference: {fileID: 0}
@@ -5083,7 +5110,7 @@ PrefabInstance:
         type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
-      objectReference: {fileID: 2100000, guid: 52d8f101e907e664ba76387632eee4b8, type: 2}
+      objectReference: {fileID: 2100000, guid: c37b2c9588b999b4496cf37927cb1ade, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects:
     - {fileID: -1063203228461421988, guid: bd482fe0cda57e74292364970a608af1, type: 3}
