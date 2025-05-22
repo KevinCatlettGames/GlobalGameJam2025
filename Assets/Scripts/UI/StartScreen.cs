@@ -20,33 +20,13 @@ using UnityEngine.SceneManagement;
 
 public class StartScreen : MonoBehaviour
 {
-    [SerializeField] private GameObject startMenu;
-    [SerializeField] private GameObject anyKeyText;
-    [SerializeField] private EventSystem eventSystem;
-    [SerializeField] private GameObject selectedButton;
     private Lobby joinedLobby;
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
     public LobbyHeartBeat lobbyHeartBeat;
     void Start()
     {
-        Cursor.visible = false;
         InitializeUnityAuth();
-    }
-
-    void Update()
-    {
-        if (!isStartMenuOpen && Input.anyKeyDown)
-        {
-            startMenu.SetActive(true);
-            anyKeyText.SetActive(false);
-            isStartMenuOpen = true;
-            eventSystem.SetSelectedGameObject(selectedButton);
-        }
-        if (!Cursor.visible && (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
-        {
-            Cursor.visible = true;
-        }
     }
 
     public async void StartGameLocal()
@@ -94,11 +74,6 @@ public class StartScreen : MonoBehaviour
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = joinedLobby;
             NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
-    }
-
-    public void QuitGame()
-    {
-        Application.Quit();
     }
     
     public void OpenLobby()

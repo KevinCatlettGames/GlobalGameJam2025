@@ -1,7 +1,6 @@
 using FMODUnity;
 using UnityEngine.Events;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
@@ -90,7 +89,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
 
-    private Animator mainAnimator;
+    public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     [Header("Visuals")]
     [SerializeField] private GameObject[] characters;
@@ -137,7 +136,7 @@ public class PlayerController : NetworkBehaviour
     
     private void Update()
     {
-        if (!initialized || isDead || !IsOwner) return;
+        if (!initialized || isDead) return;
 
         // Get input every frame (e.g. from Input system or your own input handler)
         // Here you assume `movementInput` is updated elsewhere (e.g., Input events)
@@ -550,12 +549,21 @@ void CooldownCompleteLocal(int spellID)
         playerSpeed = playerSprintSpeed;
         moveSmoothTime = 0f;
         isSprinting = true;
-        BeginSprintServerRpc();
+        if(GameManager.Instance.playingLocal)
+            OnBeginSprint?.Invoke();
+        else
+            BeginSprintServerRpc();
+        
         yield return new WaitForSeconds(playerSprintDuration);
         playerSpeed = moveSpeed;
         moveSmoothTime = smoothTime;
         isSprinting = false;
-        EndSprintServerRpc();
+        
+        if(GameManager.Instance.playingLocal)
+            OnEndSprint?.Invoke();
+        else
+            EndSprintServerRpc();
+        
         yield return new WaitForSeconds(sprintCooldown);
         canSprint = true;
     }
@@ -746,12 +754,10 @@ void CooldownCompleteLocal(int spellID)
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
         mainAnimator.SetTrigger("Flinch");
-        materialSwapper?.SwapMaterials(materialSwapDuration);
+        float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
+        shaderManager.DamageEffect(duration);
         if (controllerRumbler != null) 
-        {
-            float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
             controllerRumbler.Rumble(duration, force, dmg);
-        }
     }
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -874,6 +880,7 @@ void CooldownCompleteLocal(int spellID)
         shaderManager?.ResetShader();
         mainAnimator.SetBool("IsDead", false);
         mainAnimator.SetBool("Victory", false);
+        
         for (int i = 0; i < coloredElements.Length; i++)
         {
             coloredElements[i].enabled = true;

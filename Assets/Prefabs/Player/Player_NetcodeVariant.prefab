@@ -13,6 +13,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player_NetcodeVariant
       objectReference: {fileID: 0}
+    - target: {fileID: 4609517529964523734, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 5035778559450301646, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: Interpolate
@@ -28,6 +33,11 @@ PrefabInstance:
       propertyPath: NetworkTransformExpanded
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5078682858857096081, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6666725466510763204, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -37,6 +47,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_AnchorMax.y
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7175674737029802879, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7196035049087285683, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
@@ -57,6 +72,11 @@ PrefabInstance:
         type: 3}
       propertyPath: InScenePlacedSourceGlobalObjectIdHash
       value: 2854492014
+      objectReference: {fileID: 0}
+    - target: {fileID: 8366980438677376403, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8578798486101265600, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
@@ -130,6 +150,10 @@ PrefabInstance:
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
+      insertIndex: 1
+      addedObject: {fileID: 2241824442544956081}
+    - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
       insertIndex: -1
       addedObject: {fileID: 8921175627995766621}
   m_SourcePrefab: {fileID: 100100000, guid: dfb56a8bfd7dffa408c3f49d91c88fa8, type: 3}
@@ -139,6 +163,31 @@ GameObject:
     type: 3}
   m_PrefabInstance: {fileID: 6190674446530243747}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &2241824442544956081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8803356904054459380}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3160045037
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &8921175627995766621
 MonoBehaviour:
   m_ObjectHideFlags: 0

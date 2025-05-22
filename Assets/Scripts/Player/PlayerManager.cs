@@ -125,7 +125,6 @@ public class PlayerManager : NetworkBehaviour
         input.GetComponent<CharacterController>().enabled = false;
         input.transform.position = spawnPoints[playerID].position;
         input.transform.rotation = spawnPoints[playerID].rotation;
-        players.Add(input.gameObject);
         
         PlayerController playerController = input.GetComponent<PlayerController>();
         Gamepad gamePad = input.GetDevice<Gamepad>();
