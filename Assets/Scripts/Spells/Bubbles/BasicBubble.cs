@@ -199,6 +199,27 @@ public class BasicBubble : NetworkBehaviour
     
     private void SpawnPopEffect(Vector3 pos, float scale)
     {
+        if (GameManager.Instance.playingLocal)
+        {
+            GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
+            BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
+            bubbleEffect?.Initialise(scale);
+        }
+        else
+        {
+            SpawnPopEffectServerRpc(pos, scale);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void SpawnPopEffectServerRpc(Vector3 pos, float scale)
+    {
+        SpawnPopEffectClientRpc(pos, scale);
+    }
+
+    [ClientRpc]
+    void SpawnPopEffectClientRpc(Vector3 pos, float scale)
+    {
         GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
         BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
         bubbleEffect?.Initialise(scale);

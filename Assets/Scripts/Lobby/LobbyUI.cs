@@ -39,14 +39,20 @@ public class LobbyUI : MonoBehaviour
     {
         joinCodeButton.gameObject.SetActive(false);
         joinCodeInputField.gameObject.SetActive(false);
-        playerCountText.gameObject.SetActive(true);
         createPublicButton.gameObject.SetActive(false);
-        NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
+        if (NetworkManager.Singleton.IsServer)
+        {
+            playerCountText.gameObject.SetActive(true);
+            NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
+        }
     }
 
     private void OnDisable()
     {
-        NetworkManager.Singleton.OnClientConnectedCallback -= UpdatePlayerCount;
+        if (NetworkManager.Singleton.IsServer || GlobalLobby.CurrentLobby == null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= UpdatePlayerCount;
+        }
     }
 
     void UpdatePlayerCount(ulong signature)
@@ -55,5 +61,13 @@ public class LobbyUI : MonoBehaviour
             startGameButton.interactable = true; 
         
         playerCountText.text = "Player Count: " + NetworkManager.Singleton.ConnectedClients.Count;
+    }
+
+    public void ValidateJoinButtonActivation(string codeInput)
+    {
+        if (codeInput.Length == 6)
+            joinCodeButton.GetComponent<Button>().interactable = true;
+        else
+            joinCodeButton.GetComponent<Button>().interactable = false;
     }
 }
