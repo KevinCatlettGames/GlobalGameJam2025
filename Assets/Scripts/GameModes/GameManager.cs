@@ -1,12 +1,10 @@
 using System;
-using System.Diagnostics;
+using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
-using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.InputSystem.Users;
 
 
 public class GameManager : NetworkBehaviour
@@ -53,10 +51,21 @@ public class GameManager : NetworkBehaviour
         IsGamePaused = false;
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += WaitAndStartGame;
     }
-    
+
+    private void OnDisable()
+    {
+        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= WaitAndStartGame;
+    }
+
     void WaitAndStartGame(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
-        Invoke(nameof(SceneManagerOnOnLoadEventCompletedleted), 5f);
+        StartCoroutine(DelayedStartGame());
+    }
+    
+    private IEnumerator DelayedStartGame()
+    {
+        yield return new WaitForSeconds(5f);
+        SceneManagerOnOnLoadEventCompletedleted();
     }
     
     private void SceneManagerOnOnLoadEventCompletedleted()

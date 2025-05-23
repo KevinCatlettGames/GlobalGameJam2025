@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Unity.VisualScripting;
 using System.Collections;
@@ -6,6 +7,11 @@ using Unity.Netcode;
 
 public class SingleEliminationGM : GameManager
 {
+    private void Start()
+    {
+        Time.timeScale = 1;
+    }
+
     [ServerRpc(RequireOwnership = false)]
     public override void CheckForRoundEndServerRpc()
     {

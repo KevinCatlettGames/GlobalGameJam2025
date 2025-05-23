@@ -487,6 +487,8 @@ void CooldownCompleteLocal(int spellID)
                 playerHUD.SetSpell(2, secondSpell.SpellIcon);
                 break;
         }
+        
+        ResetSpell(spellID);
     }
     
     void EquipSpellLocal(int spellID)
@@ -822,28 +824,29 @@ void CooldownCompleteLocal(int spellID)
         {
             mainAnimator.SetTrigger("Flinch");
             RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+            shaderManager.DamageEffect(damageColorEffectDuration);
         }
         else
-            FlinchAnimServerRpc();
+            FlinchAnimServerRpc(force, dmg);
         
         float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
-        shaderManager.DamageEffect(duration);
         if (controllerRumbler != null) 
             controllerRumbler.Rumble(duration, force, dmg);
     }
 
     
     [ServerRpc(RequireOwnership = false)]
-    void FlinchAnimServerRpc()
+    void FlinchAnimServerRpc(float force, float dmg)
     {
         mainAnimator.SetTrigger("Flinch");
-        FlinAnimClientRpc();
+        FlinAnimClientRpc(force, dmg);
     }
     
     [ClientRpc]
-    void FlinAnimClientRpc()
+    void FlinAnimClientRpc(float force, float dmg)
     {
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        shaderManager.DamageEffect(damageColorEffectDuration);
     }
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -868,16 +871,14 @@ void CooldownCompleteLocal(int spellID)
         {
             mainAnimator.SetTrigger("Flinch");
             RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+            shaderManager.DamageEffect(damageColorEffectDuration);
         }
         else
-            FlinchAnimServerRpc();
+            FlinchAnimServerRpc(force, dmg);
         
-        shaderManager?.DamageEffect(damageColorEffectDuration);
+        float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
         if (controllerRumbler != null) 
-        {
-            float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
             controllerRumbler.Rumble(duration, force, dmg);
-        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1018,7 +1019,7 @@ void CooldownCompleteLocal(int spellID)
         }
         movementInput = Vector2.zero;
         controller.enabled = true; 
-        GetComponent<PlayerStateHandler>().ResetPlayer();
+        GetComponent<PlayerStateHandler>().ResetPlayer(); 
     }
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {

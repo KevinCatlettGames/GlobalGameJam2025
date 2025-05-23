@@ -77,17 +77,22 @@ public class PauseManager : NetworkBehaviour
     }
 
     public void RestartGame()
-    {
-        Time.timeScale = 1f;
+    { 
         GameManager.IsGamePaused = false;
-         RestartGameServerRpc();
+        if (GameManager.Instance.playingLocal)
+        {
+            Time.timeScale = 1f;
+            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        }
+        else 
+            RestartGameServerRpc();
     }
     
      [ServerRpc(RequireOwnership = false)]
         public void RestartGameServerRpc()
         {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-            Unity.Netcode.NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            Time.timeScale = 1f;
+            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
         }
 
     public void QuitGame()
@@ -118,6 +123,7 @@ public class PauseManager : NetworkBehaviour
     }
     public void ReturnToMainMenu()
     {
+        Time.timeScale = 1; 
         SceneManager.LoadScene(0);
     }
     public void SetSelected()

@@ -151,7 +151,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (GameManager.Instance.playingLocal)
         {
-            foreach (GameObject tempPlayer in players)
+            foreach (GameObject tempPlayer in localPlayers)
             {
                 RerollSpells();
                 tempPlayer.GetComponent<PlayerStateHandler>().ResetPlayer();
