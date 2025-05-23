@@ -53,7 +53,7 @@ public class SlipBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped || !IsServer) return; 
 
         if (other.CompareTag("Player"))
         {

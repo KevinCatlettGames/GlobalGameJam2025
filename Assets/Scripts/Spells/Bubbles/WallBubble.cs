@@ -19,6 +19,7 @@ public class WallBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
+        if (hasPopped || !IsServer) return; 
         if (other.CompareTag("Player"))
         {
             return;

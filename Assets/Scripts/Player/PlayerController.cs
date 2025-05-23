@@ -6,6 +6,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Unity.Netcode;
 using Unity.VisualScripting;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -101,7 +102,7 @@ public class PlayerController : NetworkBehaviour
 
     private float tempCooldown; 
     #region Unity
-    
+
     [ClientRpc]
     public void InitializeClientRpc()
     {
@@ -808,6 +809,14 @@ void CooldownCompleteLocal(int spellID)
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
+        if (isDead) return; 
+        
+        damage += dmg;
+        playerHUD.UpdateDamageText((int)damage);
+        damageParticleSystem.Play();
+        
+        if (!IsOwner) return;  
+        
         if (isSlippery) force *= slipperyModifier;
         direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
@@ -816,9 +825,6 @@ void CooldownCompleteLocal(int spellID)
             killCreditID = ID;
         }
         knockbackVelocity += knockback;
-        damage += dmg;
-        playerHUD.UpdateDamageText((int)damage);
-        damageParticleSystem.Play();
         
         if (GameManager.Instance.playingLocal)
         {
@@ -833,17 +839,16 @@ void CooldownCompleteLocal(int spellID)
         if (controllerRumbler != null) 
             controllerRumbler.Rumble(duration, force, dmg);
     }
-
     
     [ServerRpc(RequireOwnership = false)]
     void FlinchAnimServerRpc(float force, float dmg)
     {
         mainAnimator.SetTrigger("Flinch");
-        FlinAnimClientRpc(force, dmg);
+        FlinchAnimClientRpc(force, dmg);
     }
     
     [ClientRpc]
-    void FlinAnimClientRpc(float force, float dmg)
+    void FlinchAnimClientRpc(float force, float dmg)
     {
         RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
         shaderManager.DamageEffect(damageColorEffectDuration);
@@ -851,6 +856,8 @@ void CooldownCompleteLocal(int spellID)
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
+        if (isDead) return; 
+        
         if (isSlippery) 
         {
             force *= slipperyModifier;
@@ -1022,6 +1029,7 @@ void CooldownCompleteLocal(int spellID)
             coloredElements[i].enabled = true;
         }
         movementInput = Vector2.zero;
+        knockbackVelocity = Vector3.zero;
         controller.enabled = true; 
         GetComponent<PlayerStateHandler>().ResetPlayer(); 
     }

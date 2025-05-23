@@ -18,6 +18,8 @@ public class GiantBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
+        if (hasPopped || !IsServer) return; 
+        
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();

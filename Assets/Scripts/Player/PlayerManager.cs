@@ -6,7 +6,6 @@ using FMODUnity;
 using Unity.Netcode;
 using UnityEngine.UI;
 using Unity.VisualScripting;
-using System.Collections; 
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -15,8 +14,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private SO_Spell[] startingSpells;
     private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
     private NetworkVariable<int> syncedSecondSpellIndex = new NetworkVariable<int>();
-
-
+    
     public static PlayerManager Instance;
 
     [SerializeField] private Transform[] spawnPoints; // Array of spawn points
@@ -70,7 +68,6 @@ public class PlayerManager : NetworkBehaviour
         }
 
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
-        RerollSpells();
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
         
         input.GetComponent<CharacterController>().enabled = true;
@@ -98,6 +95,7 @@ public class PlayerManager : NetworkBehaviour
     
     public void Initialize()
     {
+        RerollSpells();
         Debug.Log(players.Count);
         foreach (NetworkObjectReference playerRef in players)
         {
@@ -137,7 +135,6 @@ public class PlayerManager : NetworkBehaviour
          }
 
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
-        RerollSpells();
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
         
         input.GetComponent<CharacterController>().enabled = true;
@@ -149,11 +146,12 @@ public class PlayerManager : NetworkBehaviour
 
     private void ResetPlayers()
     {
+        RerollSpells();
+        
         if (GameManager.Instance.playingLocal)
         {
             foreach (GameObject tempPlayer in localPlayers)
             {
-                RerollSpells();
                 tempPlayer.GetComponent<PlayerStateHandler>().ResetPlayer();
                 tempPlayer.GetComponent<PlayerController>().SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
                 tempPlayer.GetComponent<PlayerController>().mainAnimator.SetBool("IsDead", false);
@@ -164,8 +162,6 @@ public class PlayerManager : NetworkBehaviour
         {
             foreach (var playerRef in players)
             {
-                RerollSpells();
-
                 if (playerRef.TryGet(out NetworkObject networkObject))
                 {
                     GameObject player = networkObject.gameObject;
@@ -214,8 +210,6 @@ public class PlayerManager : NetworkBehaviour
             }
             else
                 Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
-            
-
         }
     }
 }

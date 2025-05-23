@@ -7,7 +7,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using Unity.Services.Authentication;
 
-public class PauseManager : NetworkBehaviour
+public class PauseManager : MonoBehaviour
 {
     [SerializeField] private EventReference togglePauseSound; 
     [SerializeField] private GameObject pauseMenu;
@@ -27,12 +27,7 @@ public class PauseManager : NetworkBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton6))
         {
-            if (GameManager.Instance.playingLocal)
-            {
-                TogglePause();
-            }
-            else
-                TogglePauseServerRpc();
+            TogglePause();
         }
     }
 
@@ -57,14 +52,20 @@ public class PauseManager : NetworkBehaviour
         {
             GameManager.IsGamePaused = true;
             SetSelected();
-            Time.timeScale = 0f;
+            
+            if(GameManager.Instance.playingLocal) 
+                Time.timeScale = 0f;
+            
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
             GameManager.IsGamePaused = false;
-            Time.timeScale = 1f;
+            
+            if(GameManager.Instance.playingLocal) 
+                Time.timeScale = 1f;
+            
             Cursor.lockState= CursorLockMode.Locked;
             Cursor.visible = false;
             if (!isPauseMenuOpen)

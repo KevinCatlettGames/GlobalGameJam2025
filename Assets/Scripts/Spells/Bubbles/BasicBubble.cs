@@ -24,6 +24,10 @@ public class BasicBubble : NetworkBehaviour
     [SerializeField] public GameObject popEffect;
     [SerializeField] public float inflationSpeed = 8f;
     [SerializeField] public float slippMod = 2f;
+    
+    private Vector3 lastPosition;
+    private float desyncThreshold = 0.05f; // Movement threshold to trigger sync
+    
     private void Start()
     {
         GameManager.Instance.OnGameStarted += DestroyBubble;
@@ -42,11 +46,11 @@ public class BasicBubble : NetworkBehaviour
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         this.playerCollider = playerCollider;
 
-        if (playerCollider != null)
-        {
-            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
-            StartCoroutine(ReenableCollisionAfterDelay(1f)); // Delay in seconds
-        }
+        // if (playerCollider != null)
+        // {
+        //     Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
+        //     //StartCoroutine(ReenableCollisionAfterDelay(1f)); // Delay in seconds
+        // }
         
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
@@ -56,14 +60,14 @@ public class BasicBubble : NetworkBehaviour
         }
     }
     
-    private IEnumerator ReenableCollisionAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (playerCollider != null)
-        {
-            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
-        }
-    }
+    // private IEnumerator ReenableCollisionAfterDelay(float delay)
+    // {
+    //     yield return new WaitForSeconds(delay);
+    //     if (playerCollider != null)
+    //     {
+    //         Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
+    //     }
+    // }
 
 
     private void FixedUpdate()
@@ -74,6 +78,12 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void BubbleMovement()
     {
         transform.position += direction * speed * Time.fixedDeltaTime;
+        
+        // Track position for optional additional threshold syncing
+        if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
+        {
+            lastPosition = transform.position;
+        }
     }
 
     protected IEnumerator BubbleRangeLimit()
@@ -110,7 +120,7 @@ public class BasicBubble : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (hasPopped) return; 
+        if (hasPopped || !IsServer) return; 
         
         HandleCollision(collision.gameObject);
         
@@ -135,9 +145,9 @@ public class BasicBubble : NetworkBehaviour
     
     public virtual void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped || !IsServer) return; 
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
         {
             PlayerController player = other.GetComponent<PlayerController>();
 
@@ -176,11 +186,13 @@ public class BasicBubble : NetworkBehaviour
             }
         }
         sphereCollider.enabled = true;
-
     }
 
     private void Reflect(Vector3 normal)
     {
+        if(!GameManager.Instance.playingLocal) 
+            if (!IsServer) return;  
+        
         if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
         direction = Vector3.Reflect(direction, normal);
         direction = new Vector3(direction.x, 0, direction.z);
@@ -191,6 +203,9 @@ public class BasicBubble : NetworkBehaviour
 
     public virtual void SetSlippy()
     {
+        if(!GameManager.Instance.playingLocal) 
+            if (!IsServer) return;  
+            
         if (slippMod > 1f)
         {
             speed *= slippMod;
