@@ -7,7 +7,7 @@ public class ShaderTimeReset : NetworkBehaviour
 
     private void Start()
     {
-        if (IsServer)  // Ensure that the server sets the initial time
+        if (IsServer)
         {
             SetShaderStartTimeServerRpc();
         }
@@ -16,14 +16,19 @@ public class ShaderTimeReset : NetworkBehaviour
     [ServerRpc]
     private void SetShaderStartTimeServerRpc()
     {
-        // Set the shader's _StartTime on the server, then notify all clients
         SetShaderStartTimeClientRpc(Time.time);
     }
 
     [ClientRpc]
     private void SetShaderStartTimeClientRpc(float startTime)
     {
-        // Set the shader's _StartTime on all clients to the same value
-        material.SetFloat("_StartTime", startTime);
+        if (material != null)
+        {
+            material.SetFloat("_StartTime", startTime);
+        }
+        else
+        {
+            Debug.LogWarning("Material reference is missing in ShaderTimeReset.");
+        }
     }
 }

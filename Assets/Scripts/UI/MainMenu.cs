@@ -30,10 +30,10 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void StartGameLocal()
-    {
-        SceneManager.LoadScene(1);
-    }
+    // public void StartGameLocal()
+    // {
+    //     SceneManager.LoadScene(1);
+    // }
 
     public void QuitGame()
     {

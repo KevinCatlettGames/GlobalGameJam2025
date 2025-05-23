@@ -17,16 +17,16 @@ public class Item : NetworkBehaviour
 
     private Material spellMaterial;
     public SO_Spell spell;
+
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
 
     private bool isBlinking = false;
     private float blinkStartTime;
-    // Network synced spell index
-    private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
-    
+
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
     [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
-    
+
     public override void OnNetworkSpawn()
     {
         if (IsServer)
@@ -46,7 +46,8 @@ public class Item : NetworkBehaviour
         else
         {
             spellIndex.OnValueChanged += (oldVal, newVal) => SetupSpell(newVal);
-            if (spellIndex.Value >= 0) SetupSpell(spellIndex.Value);
+            if (spellIndex.Value >= 0)
+                SetupSpell(spellIndex.Value);
         }
     }
 
@@ -58,13 +59,15 @@ public class Item : NetworkBehaviour
 
     private void Update()
     {
-        if (!IsSpawned || spell == null || isBlinking) return;
+        if (!IsSpawned || spell == null || isBlinking)
+            return;
+
         float timeSinceSpawn = (float)NetworkManager.Singleton.ServerTime.Time - serverSpawnTime.Value;
 
         if (timeSinceSpawn >= (itemDuration - itemBlinkDuration))
         {
             StartCoroutine(ClientBlinkEffectLoop());
-            isBlinking = true; 
+            isBlinking = true;
         }
     }
 
@@ -72,8 +75,10 @@ public class Item : NetworkBehaviour
     {
         spell = spells[index];
         meshFilter.mesh = spell.GetMesh();
+
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
+
         Material[] effectMaterials = spell.GetEffectMaterials();
         if (effectMaterials != null && effectMaterials.Length == 2)
         {
@@ -85,20 +90,22 @@ public class Item : NetworkBehaviour
     private IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
+
         ItemSpawner.Instance.currentAmount--;
 
         if (pickUpEffect != null)
         {
-            GameObject effect = Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+            Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         }
 
-        if(IsServer) 
+        if (IsServer)
             GetComponent<NetworkObject>().Despawn();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
         if (other.CompareTag("Player"))
         {
@@ -119,7 +126,8 @@ public class Item : NetworkBehaviour
 
     private void OnTriggerExit(Collider other)
     {
-        if (!IsServer) return;
+        if (!IsServer)
+            return;
 
         if (other.CompareTag("Player"))
         {
@@ -159,7 +167,7 @@ public class Item : NetworkBehaviour
         if (player != null && item != null)
             player.GetComponent<PlayerController>().UpdateItemToEquip(item, isInRange);
     }
-    
+
     private IEnumerator ClientBlinkEffectLoop()
     {
         bool toggle = true;
@@ -171,13 +179,14 @@ public class Item : NetworkBehaviour
             yield return new WaitForSeconds(itemBlinkIntervall);
         }
     }
-    
+
     private IEnumerator ServerItemDespawn()
     {
         yield return new WaitForSeconds(itemDuration);
 
         float duration = itemBlinkDuration;
         bool toggle = true;
+
         while (duration > 0)
         {
             meshRenderer.material = toggle ? itemMaterial : spellMaterial;
@@ -196,6 +205,7 @@ public class Item : NetworkBehaviour
 
         float duration = itemBlinkDuration;
         bool toggle = true;
+
         while (duration > 0)
         {
             meshRenderer.material = toggle ? itemMaterial : spellMaterial;

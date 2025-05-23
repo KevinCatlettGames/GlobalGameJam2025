@@ -3,9 +3,6 @@ using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
-/// <summary>
-/// Sends a tick to the Lobby every couple of seconds, making the lobby stay active. 
-/// </summary>
 public class LobbyHeartBeat : MonoBehaviour
 {
     public Lobby joinedLobby;

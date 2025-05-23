@@ -1,9 +1,6 @@
-using System;
-using System.Collections;
-using Unity.VisualScripting;
 using System.Collections;
 using UnityEngine;
-using Unity.Netcode; 
+using Unity.Netcode;
 
 public class SingleEliminationGM : GameManager
 {
@@ -15,36 +12,28 @@ public class SingleEliminationGM : GameManager
     [ServerRpc(RequireOwnership = false)]
     public override void CheckForRoundEndServerRpc()
     {
-        int alivePlayers = 0;
-        for (int i = 0; i < playerStates.Length; i++)
+        if (CountAlivePlayers() <= 1)
         {
-            if (playerStates[i] == PlayerState.alive)
-            {
-                alivePlayers++;
-            }
-        }
-        if (alivePlayers <= 1)
-        {
-           CallGameEndClientRpc();
+            CallGameEndClientRpc();
         }
     }
-    
+
     public override void CheckForRoundEndLocal()
     {
-        int alivePlayers = 0;
-        for (int i = 0; i < playerStates.Length; i++)
-        {
-            if (playerStates[i] == PlayerState.alive)
-            {
-                alivePlayers++;
-            }
-        }
-        
-        Debug.Log(alivePlayers);
-        if (alivePlayers <= 1)
+        if (CountAlivePlayers() <= 1)
         {
             CallGameEndLocal();
         }
+    }
+
+    private int CountAlivePlayers()
+    {
+        int count = 0;
+        foreach (var state in playerStates)
+        {
+            if (state == PlayerState.alive) count++;
+        }
+        return count;
     }
 
     [ClientRpc]
@@ -59,7 +48,7 @@ public class SingleEliminationGM : GameManager
         Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
     }
-    
+
     private void Update()
     {
         if (gameEnded && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
@@ -72,6 +61,7 @@ public class SingleEliminationGM : GameManager
     {
         yield return new WaitForSeconds(gameEndDelay);
         int winnerID = -1;
+
         for (int i = 0; i < playerStates.Length; i++)
         {
             if (playerStates[i] == PlayerState.alive)
@@ -81,31 +71,24 @@ public class SingleEliminationGM : GameManager
                 break;
             }
         }
+
         victoryAnimator.gameObject.SetActive(true);
-        switch (winnerID)
+
+        if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {
-            case 0:
-                victoryAnimator.Play("P0");
-                break;
-            case 1:
-                victoryAnimator.Play("P1");
-                break;
-            case 2:
-                victoryAnimator.Play("P2");
-                break;
-            case 3:
-                victoryAnimator.Play("P3");
-                break;
-            default:
-                victoryAnimator.gameObject.SetActive(false);
-                EndGame();
-                yield break;
+            victoryAnimator.Play($"P{winnerID}");
+            yield return new WaitForSeconds(1f);
+            playerHUDs[winnerID].AddWin();
         }
-        yield return new WaitForSeconds(1f);
-        playerHUDs[winnerID].AddWin();
+        else
+        {
+            victoryAnimator.gameObject.SetActive(false);
+            EndGame();
+            yield break;
+        }
+
         victoryAnimator.gameObject.SetActive(false);
-        yield return new WaitForSeconds(.75f);
+        yield return new WaitForSeconds(0.75f);
         base.EndGame();
     }
-
 }

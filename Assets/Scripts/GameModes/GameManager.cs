@@ -1,21 +1,20 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
 using UnityEngine.InputSystem;
-
 
 public class GameManager : NetworkBehaviour
 {
-    public static GameManager Instance; 
+    public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
-    
-    protected bool gameEnded;
+
     protected static int maxPlayers = 4;
     protected float gameEndDelay = 1f;
+    protected bool gameEnded;
 
     public Action OnGameEnded;
     public Action OnGameStarted;
@@ -28,27 +27,23 @@ public class GameManager : NetworkBehaviour
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
 
     public PlayerInputManager playerInputManager;
-    public bool playingLocal = false; 
-    
+    public bool playingLocal = false;
+
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this; 
-        }
-        else
+        if (Instance != null)
         {
             Destroy(this);
+            return;
         }
-                 
+        Instance = this;
+
         for (int i = 0; i < maxPlayers; i++)
-        {
             playerStates[i] = PlayerState.missing;
-        }
-        
-        //Cursor.visible = false;
+
         Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
+
         NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += WaitAndStartGame;
     }
 
@@ -61,13 +56,13 @@ public class GameManager : NetworkBehaviour
     {
         StartCoroutine(DelayedStartGame());
     }
-    
+
     private IEnumerator DelayedStartGame()
     {
         yield return new WaitForSeconds(5f);
         SceneManagerOnOnLoadEventCompletedleted();
     }
-    
+
     private void SceneManagerOnOnLoadEventCompletedleted()
     {
         if (NetworkManager.Singleton.ConnectedClients.Count < 2)
@@ -86,9 +81,11 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
+
             PlayerManager.Instance.Initialize();
-        } 
-        ItemSpawner.Instance.InitialSpawn(); 
+        }
+
+        ItemSpawner.Instance.InitialSpawn();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -108,7 +105,7 @@ public class GameManager : NetworkBehaviour
     {
         this.playerStates = playerStates;
     }
-    
+
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
@@ -126,12 +123,12 @@ public class GameManager : NetworkBehaviour
     {
         RestartGameClientRpc();
     }
-    
+
     [ClientRpc]
     void RestartGameClientRpc()
     {
         OnGameStarted?.Invoke();
-        gameEnded = false; 
+        gameEnded = false;
         restartGameText.SetActive(false);
     }
 
@@ -141,9 +138,9 @@ public class GameManager : NetworkBehaviour
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
     }
-    
+
     [ServerRpc(RequireOwnership = false)]
-    public virtual void DeathReportServerRpc(int playerID, int killCredit) 
+    public virtual void DeathReportServerRpc(int playerID, int killCredit)
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
@@ -151,8 +148,8 @@ public class GameManager : NetworkBehaviour
         }
         CheckForRoundEndServerRpc();
     }
-    
-    public virtual void DeathReportLocal(int playerID, int killCredit) 
+
+    public virtual void DeathReportLocal(int playerID, int killCredit)
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
@@ -171,12 +168,11 @@ public class GameManager : NetworkBehaviour
     {
         playerHUDs[killCredit].AddKill();
     }
-    
-    
+
     [ServerRpc(RequireOwnership = false)]
     public virtual void ChangePlayerStateServerRpc(int playerID, PlayerState playerState)
     {
-      ChangePlayerStatesClientRpc(playerID, playerState);
+        ChangePlayerStatesClientRpc(playerID, playerState);
     }
 
     [ClientRpc]
@@ -185,7 +181,7 @@ public class GameManager : NetworkBehaviour
         if (playerID < 0 || playerID >= maxPlayers) return;
         playerStates[playerID] = playerState;
     }
-    
+
     public void ChangePlayerStateLocal(int playerID, PlayerState playerState)
     {
         if (playerID < 0 || playerID >= maxPlayers) return;
@@ -198,10 +194,8 @@ public class GameManager : NetworkBehaviour
         return;
     }
 
-
     public virtual void CheckForRoundEndLocal()
     {
-        return; 
+        return;
     }
-    
 }

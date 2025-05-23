@@ -1,4 +1,3 @@
-using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -7,32 +6,25 @@ using TMPro;
 
 public class LobbyUI : MonoBehaviour
 {
-    [SerializeField] Button mainMenuButton;
-    [SerializeField] Button joinCodeButton;
-    [SerializeField] Button startGameButton;
-    [SerializeField] Button createPublicButton;
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Button joinCodeButton;
+    [SerializeField] private Button startGameButton;
+    [SerializeField] private Button createPublicButton;
     
-    [SerializeField] TMP_InputField joinCodeInputField;
-    [SerializeField] TextMeshProUGUI playerCountText;
+    [SerializeField] private TMP_InputField joinCodeInputField;
+    [SerializeField] private TextMeshProUGUI playerCountText;
     
-    public string mainMenuSceneName;
+    [SerializeField] private string mainMenuSceneName;
+
     private void Awake()
     {
-        mainMenuButton.onClick.AddListener(() =>
-        { 
-            
-            SceneManager.LoadScene(mainMenuSceneName);
-        });
+        mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(mainMenuSceneName));
+        joinCodeButton.onClick.AddListener(() => GameLobby.instance.JoinWithCode(joinCodeInputField.text));
+        createPublicButton.onClick.AddListener(() => GameLobby.instance.CreateLobby("Empty", false));
         
-        joinCodeButton.onClick.AddListener(() =>
-        {
-            GameLobby.instance.JoinWithCode(joinCodeInputField.text);
-        });
+        joinCodeButton.interactable = false;
         
-        createPublicButton.onClick.AddListener(() =>
-        {
-            GameLobby.instance.CreateLobby("Empty", false);
-        });
+        joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
     }
 
     public void HideUI()
@@ -40,6 +32,7 @@ public class LobbyUI : MonoBehaviour
         joinCodeButton.gameObject.SetActive(false);
         joinCodeInputField.gameObject.SetActive(false);
         createPublicButton.gameObject.SetActive(false);
+
         if (NetworkManager.Singleton.IsServer)
         {
             playerCountText.gameObject.SetActive(true);
@@ -49,25 +42,24 @@ public class LobbyUI : MonoBehaviour
 
     private void OnDisable()
     {
-        if (NetworkManager.Singleton.IsServer || GlobalLobby.CurrentLobby == null)
+        if (NetworkManager.Singleton != null)
         {
             NetworkManager.Singleton.OnClientConnectedCallback -= UpdatePlayerCount;
         }
     }
 
-    void UpdatePlayerCount(ulong signature)
+    private void UpdatePlayerCount(ulong clientId)
     {
-        if (NetworkManager.Singleton.IsServer && NetworkManager.Singleton.ConnectedClients.Count >= 2)
-            startGameButton.interactable = true; 
-        
-        playerCountText.text = "Player Count: " + NetworkManager.Singleton.ConnectedClients.Count;
+        if (NetworkManager.Singleton.IsServer)
+        {
+            int connectedCount = NetworkManager.Singleton.ConnectedClients.Count;
+            playerCountText.text = $"Player Count: {connectedCount}";
+            startGameButton.interactable = connectedCount >= 2;
+        }
     }
 
-    public void ValidateJoinButtonActivation(string codeInput)
+    private void ValidateJoinButtonActivation(string codeInput)
     {
-        if (codeInput.Length == 6)
-            joinCodeButton.GetComponent<Button>().interactable = true;
-        else
-            joinCodeButton.GetComponent<Button>().interactable = false;
+        joinCodeButton.interactable = codeInput.Length == 6;
     }
 }

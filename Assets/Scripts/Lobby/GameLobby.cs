@@ -22,7 +22,7 @@ public static class GlobalLobby
 public class GameLobby : MonoBehaviour
 {
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
-    
+
     public string sceneToLoad;
     public Button startGameButton;
     public TextMeshProUGUI waitForHostText;
@@ -65,10 +65,9 @@ public class GameLobby : MonoBehaviour
             string joinCode = await GetRelayJoinCode(allocation);
 
             await UpdateLobbyWithRelayCode(joinCode);
-
             ConfigureTransport(allocation);
-            NetworkManager.Singleton.StartHost();
 
+            NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
 
             startGameButton.gameObject.SetActive(true);
@@ -81,8 +80,6 @@ public class GameLobby : MonoBehaviour
             lobbyCodeText.text = $"Share to invite: {GlobalLobby.CurrentLobby.LobbyCode}";
 
             lobbyUI.HideUI();
-
-            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -111,7 +108,6 @@ public class GameLobby : MonoBehaviour
         {
             GlobalLobby.CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
-            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -125,7 +121,6 @@ public class GameLobby : MonoBehaviour
         {
             if (GlobalLobby.CurrentLobby != null)
             {
-                // If you're the host, delete the lobby
                 if (NetworkManager.Singleton.IsHost && !string.IsNullOrEmpty(GlobalLobby.CurrentLobby.Id))
                 {
                     await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
@@ -137,15 +132,12 @@ public class GameLobby : MonoBehaviour
                 }
 
                 GlobalLobby.CurrentLobby = null;
-                GlobalLobby.CurrentLobby = null;
             }
 
-            // Shut down network
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             {
                 NetworkManager.Singleton.Shutdown();
             }
-            GlobalLobby.CurrentLobby = null;
         }
         catch (LobbyServiceException e)
         {
@@ -159,7 +151,6 @@ public class GameLobby : MonoBehaviour
         {
             GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
-            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -225,7 +216,7 @@ public class GameLobby : MonoBehaviour
     {
         string host = "";
         ushort port = 0;
-        byte[] allocationId, connectionData, hostConnectionData, key;
+        byte[] allocationId = null, connectionData = null, hostConnectionData = null, key = null;
         bool isSecure = false;
 
         if (allocationBase is Allocation allocation)
