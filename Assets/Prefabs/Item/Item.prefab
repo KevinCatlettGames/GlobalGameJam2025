@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 8484471731394962238}
   - component: {fileID: 8391875068466008724}
   - component: {fileID: 8834199977636586880}
-  - component: {fileID: 5407693244856411134}
   - component: {fileID: 1112475448787374681}
   m_Layer: 3
   m_Name: Item
@@ -64,6 +63,27 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9c65d75b23394443b192a0c4366e3d4, type: 2}
   pickUpEffect: {fileID: 8648756826914876848, guid: 0aa191af350f2674d8f64a85fc5152dd,
     type: 3}
+  pickUpEvent:
+    Guid:
+      Data1: 199063688
+      Data2: 1318041759
+      Data3: -1650215766
+      Data4: -182575537
+    Path: event:/sfx/item/item_pickup
+  timerEvent:
+    Guid:
+      Data1: 215276944
+      Data2: 1258801179
+      Data3: 926865804
+      Data4: -1543331248
+    Path: event:/sfx/item/item_timer
+  despawnEvent:
+    Guid:
+      Data1: 89239239
+      Data2: 1244643780
+      Data3: 1880420003
+      Data4: 678073005
+    Path: event:/sfx/item/item_vanish
   itemDuration: 30
   itemBlinkDuration: 2
   itemBlinkIntervall: 0.25
@@ -94,37 +114,6 @@ MonoBehaviour:
     Path: event:/sfx/item/item_drop
   Event: 
   EventPlayTrigger: 1
-  EventStopTrigger: 0
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
---- !u!114 &5407693244856411134
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3431600676504119746}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 199063688
-      Data2: 1318041759
-      Data3: -1650215766
-      Data4: -182575537
-    Path: event:/sfx/item/item_pickup
-  Event: 
-  EventPlayTrigger: 2
   EventStopTrigger: 0
   AllowFadeout: 1
   TriggerOnce: 0

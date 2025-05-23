@@ -40,18 +40,18 @@ public class Settings : MonoBehaviour
         sfxSlider.value = sfxVolume * 100;
         musicSlider.value = musicVolume * 100;
 
-        int value = (int)(masterVolume * 100);
+
+        int value = Mathf.CeilToInt(PlayerPrefs.GetFloat(SoundSettingsInitialiser.masterVolKey) * 100);
         masterValueText.text = value.ToString();
-        value = (int)(sfxVolume * 100);
+        value = Mathf.CeilToInt(PlayerPrefs.GetFloat(SoundSettingsInitialiser.sfxVolKey) * 100);
         sfxValueText.text = value.ToString();
-        value = (int)(musicVolume * 100);
+        value = Mathf.CeilToInt(PlayerPrefs.GetFloat(SoundSettingsInitialiser.musicVolKey) * 100);
         musicValueText.text = value.ToString();
 
         fullScreenToggle.isOn = Screen.fullScreen;
     }
     public void SetMasterVolume(float volume)
-    {
-        
+    { 
         masterValueText.text = volume.ToString();
         volume *= .01f;
         masterVCA.setVolume(volume);
