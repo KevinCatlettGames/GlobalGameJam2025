@@ -1,12 +1,11 @@
 using FMODUnity;
-using Unity.Netcode;
 using UnityEngine;
 
 public class HomingBubble : BasicBubble
 {
     private HomingTargeting homingTargeting;
-    [SerializeField] private float rotationSpeed;
-    [SerializeField] private float homigRadius;
+    [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private float homingRadius = 5f;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
@@ -15,7 +14,7 @@ public class HomingBubble : BasicBubble
         homingTargeting = GetComponentInChildren<HomingTargeting>();
         if (homingTargeting != null)
         {
-            homingTargeting.SetTargeting(homigRadius / size, playerCollider);
+            homingTargeting.SetTargeting(homingRadius / size, playerCollider);
         }
         else
         {
@@ -27,22 +26,23 @@ public class HomingBubble : BasicBubble
     {
         if (sphereCollider && !sphereCollider.enabled)
         {
-            base.BubbleMovement(); 
+            base.BubbleMovement();
             return;
         }
 
         if (homingTargeting != null)
         {
             Vector3 targetVector = homingTargeting.GetTargetVector();
+
             if (targetVector != Vector3.zero)
             {
                 Quaternion targetRotation = Quaternion.LookRotation(targetVector);
                 transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
             }
         }
-
+        
         direction = transform.forward;
+
         base.BubbleMovement();
     }
-
 }

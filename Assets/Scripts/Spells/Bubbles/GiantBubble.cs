@@ -1,7 +1,4 @@
 using FMODUnity;
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -13,22 +10,26 @@ public class GiantBubble : BasicBubble
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
-        healthIncrement = 1f / (float)healthPoints;
+        healthIncrement = 1f / healthPoints;
+        currentHealth = 1f;
     }
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
-        
+        if (hasPopped || !IsServer) return;
+
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            
-            if (GameManager.Instance.playingLocal)
-                player.ApplyKnockbackLocal(OwnerID ,direction, knockback * currentHealth, damage);
-            else
-                player.ApplyKnockbackServerRpc(OwnerID ,direction, knockback * currentHealth, damage);
-         
+            if (player != null)
+            {
+                float modifiedKnockback = knockback * currentHealth;
+
+                if (GameManager.Instance.playingLocal)
+                    player.ApplyKnockbackLocal(OwnerID, direction, modifiedKnockback, damage);
+                else
+                    player.ApplyKnockbackServerRpc(OwnerID, direction, modifiedKnockback, damage);
+            }
             Pop();
         }
         else if (other.CompareTag("Bubble"))
@@ -40,6 +41,7 @@ public class GiantBubble : BasicBubble
             Pop();
         }
     }
+
     private void DamageBubble()
     {
         currentHealth -= healthIncrement;
@@ -48,7 +50,9 @@ public class GiantBubble : BasicBubble
             Pop();
             return;
         }
-        transform.localScale = size * currentHealth * Vector3.one;
+        
+        transform.localScale = Vector3.one * (size * currentHealth);
+        
         damage *= 2f;
         speed *= 2f;
     }

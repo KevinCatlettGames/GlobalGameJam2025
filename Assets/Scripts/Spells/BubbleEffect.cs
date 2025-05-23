@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class BubbleEffect : MonoBehaviour
@@ -15,7 +13,6 @@ public class BubbleEffect : MonoBehaviour
     
     private void SpawnPopEffect(float size)
     {
-        // This ensures that the effect is played for all clients
         ParticleSystem.Burst burst = new ParticleSystem.Burst();
         burst.count = size * sizeBurstRatio;
         popParticleSystem.emission.SetBurst(0, burst);

@@ -36,7 +36,7 @@ public class PlayerController : NetworkBehaviour
     private int killCreditID = -1;
     private int playerID = 0;
     public int PlayerID { get { return playerID; } }
-    private bool isDead = false;
+    public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
 
     private float damage = 0;
     [Header("Damage")]
@@ -139,7 +139,7 @@ public class PlayerController : NetworkBehaviour
 
 private void Update()
 {
-    if (!initialized || isDead) return;
+    if (!initialized || isDead.Value) return;
 
     if(!GameManager.Instance.playingLocal) 
         if (!IsOwner) return; // Only authoritative client should run this
@@ -157,7 +157,7 @@ private void Update()
     direction = Vector3.ClampMagnitude(direction, 1f);
 
     // Rotation handling
-    if (!isDead)
+    if (!isDead.Value)
     {
         if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
         {
@@ -202,7 +202,7 @@ private void Update()
     move += playerVelocity * Time.deltaTime;
 
     // Rotate toward movement
-    if (!isDead && targetDirection != Vector3.zero)
+    if (!isDead.Value && targetDirection != Vector3.zero)
     {
         Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
         transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
@@ -275,7 +275,7 @@ private void Update()
             return;
         }
         
-        if (context.performed && !isDead)
+        if (context.performed && !isDead.Value)
         {
             CastSpell(true); // Request to cast first spell
         }
@@ -291,7 +291,7 @@ private void Update()
             return;
         }
         
-        if (context.performed && !isDead)
+        if (context.performed && !isDead.Value)
         {
             CastSpell(false); // Request to cast second spell
         }
@@ -809,7 +809,7 @@ void CooldownCompleteLocal(int spellID)
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead) return; 
+        if (isDead.Value) return; 
         
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
@@ -856,7 +856,7 @@ void CooldownCompleteLocal(int spellID)
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead) return; 
+        if (isDead.Value) return; 
         
         if (isSlippery) 
         {
@@ -908,8 +908,8 @@ void CooldownCompleteLocal(int spellID)
     
     public void Die()
     {
-        if (isDead) return;
-        isDead = true;
+        if (isDead.Value) return;
+        isDead.Value = true;
         if (GameManager.Instance.playingLocal)
         {
             mainAnimator.SetBool("IsDead", true);
@@ -1007,7 +1007,7 @@ void CooldownCompleteLocal(int spellID)
     {
         slipperyCounter = 0;
         damage = 0;
-        isDead = false;
+        isDead.Value = false;
         isSlippery = false;
         killCreditID = -1;
         shaderManager?.ResetShader();

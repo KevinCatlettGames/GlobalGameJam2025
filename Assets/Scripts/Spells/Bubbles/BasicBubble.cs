@@ -5,13 +5,13 @@ using Unity.Netcode;
 
 public class BasicBubble : NetworkBehaviour
 {
-    // Networked variables (only essential ones)
     public int OwnerID;
     public Vector3 direction;
     public bool hasPopped;
     public float size;
-
-    // Local variables (no need for network sync)
+    private bool slippyApplied = false;
+    private bool canReflect = true;
+    
     public float damage = 1.0f;
     public float knockback = 1.0f;
     public float speed = 1.0f;
@@ -21,17 +21,19 @@ public class BasicBubble : NetworkBehaviour
     public float currentSize = 0.01f;
     public Collider playerCollider;
     public bool isSlippy = false;
-    [SerializeField] public GameObject popEffect;
-    [SerializeField] public float inflationSpeed = 8f;
-    [SerializeField] public float slippMod = 2f;
-    
+
+    [SerializeField] private GameObject popEffect;
+    [SerializeField] protected float inflationSpeed = 8f;
+    [SerializeField] private float slippMod = 2f;
+
     private Vector3 lastPosition;
-    private float desyncThreshold = 0.05f; // Movement threshold to trigger sync
+    private float desyncThreshold = 0.05f;
     
     private void Start()
     {
         GameManager.Instance.OnGameStarted += DestroyBubble;
     }
+
     public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
@@ -42,16 +44,12 @@ public class BasicBubble : NetworkBehaviour
         size = siz;
         direction = dir;
         inflationSpeed = inf;
-        rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         this.playerCollider = playerCollider;
 
-        // if (playerCollider != null)
-        // {
-        //     Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
-        //     //StartCoroutine(ReenableCollisionAfterDelay(1f)); // Delay in seconds
-        // }
-        
+        rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+
+        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
@@ -59,156 +57,143 @@ public class BasicBubble : NetworkBehaviour
             StartCoroutine(Inflate());
         }
     }
-    
-    // private IEnumerator ReenableCollisionAfterDelay(float delay)
-    // {
-    //     yield return new WaitForSeconds(delay);
-    //     if (playerCollider != null)
-    //     {
-    //         Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
-    //     }
-    // }
-
 
     private void FixedUpdate()
-    { 
+    {
         BubbleMovement();
     }
-
+    
     protected virtual void BubbleMovement()
     {
+        if (!IsServer) return;
+
         transform.position += direction * speed * Time.fixedDeltaTime;
         
-        // Track position for optional additional threshold syncing
         if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
         {
             lastPosition = transform.position;
         }
     }
-
+    
     protected IEnumerator BubbleRangeLimit()
     {
-        float killTime = range / speed;
-        yield return new WaitForSeconds(killTime);
+        float lifetime = range / speed;
+        yield return new WaitForSeconds(lifetime);
         Pop();
     }
-
+    
     protected virtual void Pop()
     {
-        if (hasPopped) return; // Check if already popped
+        if (hasPopped) return;
 
-        // Call ServerRpc to set the hasPopped value on the server
-        SetHasPopped(true);
+        hasPopped = true;
 
-        if(rangeCoroutine != null) 
+        if (rangeCoroutine != null)
             StopCoroutine(rangeCoroutine);
-
-        // Spawn pop effect for clients
-        SpawnPopEffect(transform.position, size);
+        
+        SpawnPopEffectClientRpc(transform.position, size);
 
         if (IsServer)
         {
-            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
+            NetworkObject.Despawn(true);
             Destroy(gameObject);
         }
-    }
-    
-    private void SetHasPopped(bool popped)
-    {
-        hasPopped = popped;
     }
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (hasPopped || !IsServer) return; 
-        
-        HandleCollision(collision.gameObject);
-        
-    }
+        if (!IsServer || hasPopped) return;
 
-    // This method is called on the server to handle the actual logic of popping and applying effects
+        HandleCollision(collision.gameObject);
+    }
+    
     private void HandleCollision(GameObject other)
     {
-        Reflector reflector;
-        if (other.TryGetComponent<Reflector>(out reflector))
+        if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            if (reflector.GetIsReflecting())
-            {
-                OwnerID = reflector.OwnerID;
-                Reflect(other.GetComponent<Collider>().ClosestPointOnBounds(transform.position));
-                return;
-            }
+            OwnerID = reflector.OwnerID;
+            Vector3 reflectNormal = other.GetComponent<Collider>().ClosestPointOnBounds(transform.position);
+            Reflect(reflectNormal);
+            return;
         }
-        
+
         BubbleCollision(other);
     }
     
     public virtual void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
+        if (hasPopped) return;
 
         if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
         {
-            PlayerController player = other.GetComponent<PlayerController>();
+            var player = other.GetComponent<PlayerController>();
 
             if (GameManager.Instance.playingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
         }
+
         Pop();
     }
-
+    
     protected IEnumerator Inflate()
     {
         while (currentSize < size)
         {
             currentSize += inflationSpeed * Time.deltaTime;
-            transform.localScale = Vector3.one * currentSize;
             if (currentSize > size) currentSize = size;
-            yield return new WaitForEndOfFrame();
-        }
-        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
-        if (overlaps.Length > 0)
-        {
-            for (int i = 0; i < overlaps.Length; i++)
-            {
-                if (overlaps[i] == playerCollider)
-                {
-                    continue;
-                }
-                else
-                {
-                    BubbleCollision(overlaps[i].gameObject);
-                    break;
-                }
 
-            }
+            transform.localScale = Vector3.one * currentSize;
+            yield return null;
         }
+
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
+
+        foreach (var col in overlaps)
+        {
+            if (col == playerCollider) continue;
+            BubbleCollision(col.gameObject);
+            break;
+        }
+
         sphereCollider.enabled = true;
     }
-
+    
     private void Reflect(Vector3 normal)
     {
-        if(!GameManager.Instance.playingLocal) 
-            if (!IsServer) return;  
-        
-        if (playerCollider != null) Physics.IgnoreCollision(sphereCollider, playerCollider, false);
-        direction = Vector3.Reflect(direction, normal);
-        direction = new Vector3(direction.x, 0, direction.z);
+        if (!IsServer || !canReflect) return;
+
+        canReflect = false;
+        StartCoroutine(ReflectCooldown());
+
+        if (playerCollider != null)
+            Physics.IgnoreCollision(sphereCollider, playerCollider, false);
+
+        direction = Vector3.Reflect(direction, normal).normalized;
+        direction.y = 0;
         transform.rotation = Quaternion.LookRotation(direction);
-        StopCoroutine(rangeCoroutine);
+
+        if (rangeCoroutine != null)
+            StopCoroutine(rangeCoroutine);
+
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }
 
+    private IEnumerator ReflectCooldown()
+    {
+        yield return new WaitForSeconds(0.15f);  // 150 ms cooldown
+        canReflect = true;
+    }
+    
     public virtual void SetSlippy()
     {
-        if(!GameManager.Instance.playingLocal) 
-            if (!IsServer) return;  
-            
-        if (slippMod > 1f)
+        if (!IsServer) return;
+
+        if (!slippyApplied && slippMod > 1f)
         {
             speed *= slippMod;
+            slippyApplied = true;
         }
     }
     
@@ -216,9 +201,8 @@ public class BasicBubble : NetworkBehaviour
     {
         if (GameManager.Instance.playingLocal)
         {
-            GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
-            BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
-            bubbleEffect?.Initialise(scale);
+            var effect = Instantiate(popEffect, pos, Quaternion.identity);
+            effect.GetComponent<BubbleEffect>()?.Initialise(scale);
         }
         else
         {
@@ -227,29 +211,29 @@ public class BasicBubble : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void SpawnPopEffectServerRpc(Vector3 pos, float scale)
+    private void SpawnPopEffectServerRpc(Vector3 pos, float scale)
     {
         SpawnPopEffectClientRpc(pos, scale);
     }
 
     [ClientRpc]
-    void SpawnPopEffectClientRpc(Vector3 pos, float scale)
+    private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
     {
-        GameObject effect = Instantiate(popEffect, pos, Quaternion.identity);
-        BubbleEffect bubbleEffect = effect.GetComponent<BubbleEffect>();
-        bubbleEffect?.Initialise(scale);
+        var effect = Instantiate(popEffect, pos, Quaternion.identity);
+        effect.GetComponent<BubbleEffect>()?.Initialise(scale);
     }
-    
+
     private void DestroyBubble()
     {
-        if (IsServer)
-        {
-            GetComponent<Unity.Netcode.NetworkObject>().Despawn();
-            Destroy(gameObject);
-        }
+        if (!IsServer) return;
+
+        NetworkObject.Despawn(true);
+        Destroy(gameObject);
     }
+
     private void OnDestroy()
     {
-        GameManager.Instance.OnGameStarted -= DestroyBubble;
+        if (GameManager.Instance != null)
+            GameManager.Instance.OnGameStarted -= DestroyBubble;
     }
 }

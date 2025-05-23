@@ -31,17 +31,17 @@ public class PauseManager : MonoBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void TogglePauseServerRpc()
-    {
-        TogglePauseClientRpc();
-    }
-
-    [ClientRpc]
-    public void TogglePauseClientRpc()
-    {
-        TogglePause();
-    }
+    // [ServerRpc(RequireOwnership = false)]
+    // public void TogglePauseServerRpc()
+    // {
+    //     TogglePauseClientRpc();
+    // }
+    //
+    // [ClientRpc]
+    // public void TogglePauseClientRpc()
+    // {
+    //     TogglePause();
+    // }
 
     private void TogglePause()
     {

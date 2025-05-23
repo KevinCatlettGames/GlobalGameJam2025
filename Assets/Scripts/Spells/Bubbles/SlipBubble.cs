@@ -1,4 +1,3 @@
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using FMODUnity;
@@ -8,36 +7,38 @@ public class SlipBubble : BasicBubble
     [SerializeField] private GameObject slimeTrailObject;
     [SerializeField] private GameObject slimePuddleObject;
     [SerializeField] private LayerMask groundedLayerMask;
+
     private SlimeTrail slimeTrail;
-    
+
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
 
-    
-        
-            GameObject trail = Instantiate(slimeTrailObject, new Vector3(transform.position.x, 0.06f, transform.position.z), Quaternion.LookRotation(transform.forward));
+        if (IsServer)
+        {
+            Vector3 trailPos = new Vector3(transform.position.x, 0.06f, transform.position.z);
+            GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
             slimeTrail = trail.GetComponent<SlimeTrail>();
             slimeTrail.InitialiseTrail(speed);
 
-            // Use NetworkObject to spawn on clients
             trail.GetComponent<NetworkObject>().Spawn();
-        
+        }
     }
 
     protected override void Pop()
     {
-            slimeTrail?.StopTrail();
+        slimeTrail?.StopTrail();
 
-            // Optionally destroy the slime trail and puddle networked objects
-            if (slimeTrail != null && slimeTrail.gameObject != null)
+        if (slimeTrail != null)
+        {
+            NetworkObject trailNetObj = slimeTrail.gameObject.GetComponent<NetworkObject>();
+            if (trailNetObj != null && trailNetObj.IsSpawned)
             {
-                NetworkObject trailNetworkObj = slimeTrail.gameObject.GetComponent<NetworkObject>();
-                trailNetworkObj?.Despawn(true);
+                trailNetObj.Despawn(true);
             }
+        }
 
-            // Call the base Pop method to handle other effects
-            base.Pop();
+        base.Pop();
     }
 
     private void Update()
@@ -46,56 +47,55 @@ public class SlipBubble : BasicBubble
         {
             if (!slimeTrail.isStopped)
             {
-                slimeTrail?.StopTrail();
+                slimeTrail.StopTrail();
             }
         }
     }
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
+        if (hasPopped || !IsServer) return;
 
         if (other.CompareTag("Player"))
         {
-       
-                PlayerController player = other.GetComponent<PlayerController>();
-                if (GameManager.Instance.playingLocal)
-                {
-                    player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-                    CreateSlimePuddleLocal(transform.position);
-                }
-                else
-                {
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                    CreateSlimePuddleServerRpc(transform.position);
-                }
-                
-                Pop();
+            PlayerController player = other.GetComponent<PlayerController>();
+
+            if (GameManager.Instance.playingLocal)
+            {
+                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                CreateSlimePuddleLocal(transform.position);
+            }
+            else
+            {
+                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                CreateSlimePuddleServerRpc(transform.position);
+            }
+
+            Pop();
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
     private void CreateSlimePuddleServerRpc(Vector3 position)
     {
-        // Instantiate puddle on the server, and spawn it across clients
-        GameObject puddle = Instantiate(slimePuddleObject, new Vector3(position.x, 0.06f, position.z), Quaternion.LookRotation(transform.forward));
+        Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
+        GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
         puddleTrail.StopTrail();
 
-        // Network spawn puddle object
         puddle.GetComponent<NetworkObject>().Spawn();
     }
 
-    void CreateSlimePuddleLocal(Vector3 position)
+    private void CreateSlimePuddleLocal(Vector3 position)
     {
-        // Instantiate puddle on the server, and spawn it across clients
-        GameObject puddle = Instantiate(slimePuddleObject, new Vector3(position.x, 0.06f, position.z), Quaternion.LookRotation(transform.forward));
+        Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
+        GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
         puddleTrail.StopTrail();
     }
 
     public override void SetSlippy()
     {
-        return;
+        
     }
 }

@@ -26,7 +26,7 @@ public class GameLobby : MonoBehaviour
     public string sceneToLoad;
     public Button startGameButton;
     public TextMeshProUGUI waitForHostText;
-    [SerializeField] private TextMeshProUGUI lobbyCodeText;
+    [SerializeField] private TMP_InputField lobbyCodeText;
 
     public LobbyHeartBeat lobbyHeartBeat;
     public LobbyUI lobbyUI;
@@ -77,9 +77,9 @@ public class GameLobby : MonoBehaviour
             });
 
             lobbyCodeText.gameObject.SetActive(true);
-            lobbyCodeText.text = $"Share to invite: {GlobalLobby.CurrentLobby.LobbyCode}";
+            lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
 
-            lobbyUI.HideUI();
+            lobbyUI.HideOnCreateUI();
         }
         catch (LobbyServiceException e)
         {
@@ -165,7 +165,7 @@ public class GameLobby : MonoBehaviour
         ConfigureTransport(joinAllocation);
         NetworkManager.Singleton.StartClient();
 
-        lobbyUI.HideUI();
+        lobbyUI.HideOnJoinUI();
         waitForHostText.gameObject.SetActive(true);
     }
 

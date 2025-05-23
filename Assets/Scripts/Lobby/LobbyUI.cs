@@ -13,31 +13,57 @@ public class LobbyUI : MonoBehaviour
     
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TextMeshProUGUI playerCountText;
-    
+    [SerializeField] private TextMeshProUGUI copyAndShareText;
+    [SerializeField] private TextMeshProUGUI creatingLobbyText;
+    [SerializeField] private TextMeshProUGUI joiningLobbyText;
+
     [SerializeField] private string mainMenuSceneName;
 
     private void Awake()
     {
         mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(mainMenuSceneName));
-        joinCodeButton.onClick.AddListener(() => GameLobby.instance.JoinWithCode(joinCodeInputField.text));
-        createPublicButton.onClick.AddListener(() => GameLobby.instance.CreateLobby("Empty", false));
+        joinCodeButton.onClick.AddListener(() =>
+        {
+            joinCodeButton.gameObject.SetActive(false);
+            joinCodeInputField.gameObject.SetActive(false);
+            createPublicButton.gameObject.SetActive(false);
+            creatingLobbyText.gameObject.SetActive(false);
+            joiningLobbyText.gameObject.SetActive(true);
+            GameLobby.instance.JoinWithCode(joinCodeInputField.text);
+        });
+        createPublicButton.onClick.AddListener(() =>
+        {
+            joinCodeButton.gameObject.SetActive(false);
+            joinCodeInputField.gameObject.SetActive(false);
+            createPublicButton.gameObject.SetActive(false);
+            creatingLobbyText.gameObject.SetActive(true);
+            GameLobby.instance.CreateLobby("Empty", false);
+        });
         
         joinCodeButton.interactable = false;
         
         joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
     }
-
-    public void HideUI()
+    
+    public void HideOnCreateUI()
     {
         joinCodeButton.gameObject.SetActive(false);
         joinCodeInputField.gameObject.SetActive(false);
         createPublicButton.gameObject.SetActive(false);
+        creatingLobbyText.gameObject.SetActive(false);
+        playerCountText.gameObject.SetActive(true);
+        copyAndShareText.gameObject.SetActive(true);
+        NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
+    }
 
-        if (NetworkManager.Singleton.IsServer)
-        {
-            playerCountText.gameObject.SetActive(true);
-            NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
-        }
+    public void HideOnJoinUI()
+    {
+        joinCodeButton.gameObject.SetActive(false);
+        joinCodeInputField.gameObject.SetActive(false);
+        createPublicButton.gameObject.SetActive(false);
+        creatingLobbyText.gameObject.SetActive(false); 
+        joiningLobbyText.gameObject.SetActive(false);
+        NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
     }
 
     private void OnDisable()

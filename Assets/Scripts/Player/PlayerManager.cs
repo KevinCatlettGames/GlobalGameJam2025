@@ -80,6 +80,7 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
+        RerollSpells();
     }
     
     [ServerRpc(RequireOwnership = false)]
@@ -95,7 +96,6 @@ public class PlayerManager : NetworkBehaviour
     
     public void Initialize()
     {
-        RerollSpells();
         Debug.Log(players.Count);
         foreach (NetworkObjectReference playerRef in players)
         {
