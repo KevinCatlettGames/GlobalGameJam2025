@@ -33,14 +33,15 @@ public class RevolverBubble : BasicBubble
         Vector3 dir;
         Vector3 pos = transform.position + direction;
         BasicBubble bubbleScript;
-
+        float rotation = -(maxAmmo - 1);
+        rotation *= .5f;
         for (int i = 0; i < maxAmmo; i++) 
         {
-            float f = (float)i - ((float)maxAmmo / 2f);
-            dir = Quaternion.AngleAxis(spread * f, Vector3.up) * direction;
+            dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
             bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
             bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
             yield return new WaitForSeconds(delayBetweenShots);
+            rotation++;
         }
 
         Destroy(gameObject);

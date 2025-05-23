@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,8 +10,13 @@ public class Item : MonoBehaviour
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private SO_Spell[] spells;
 
-    [Header ("Item Despawn")]
+    [Header("Item PickUp")]
     [SerializeField] private GameObject pickUpEffect;
+    [SerializeField] private EventReference pickUpEvent;
+
+    [Header("Item Despawn")]
+    [SerializeField] private EventReference timerEvent;
+    [SerializeField] private EventReference despawnEvent;
     [SerializeField] private float itemDuration = 10f;
     [SerializeField] private float itemBlinkDuration = 2f;
     [SerializeField] private float itemBlinkIntervall = .4f;
@@ -49,6 +55,7 @@ public class Item : MonoBehaviour
         yield return new WaitForEndOfFrame();
         ItemSpawner.Instance.currentAmount--;
         if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
         Destroy(gameObject);
     }
 
@@ -77,6 +84,7 @@ public class Item : MonoBehaviour
         float duration = itemBlinkDuration;
         while (duration > 0) 
         {
+            RuntimeManager.PlayOneShotAttached(timerEvent, gameObject);
             if (material_b)
             {
                 meshRenderer.material = itemMaterial;
@@ -89,7 +97,8 @@ public class Item : MonoBehaviour
             yield return new WaitForSeconds(itemBlinkIntervall);
             duration -= itemBlinkIntervall;
         }
-        ItemSpawner.Instance.currentAmount--;      
+        ItemSpawner.Instance.currentAmount--;    
+        RuntimeManager.PlayOneShotAttached(despawnEvent, gameObject);
         Destroy(gameObject);
     }
 }

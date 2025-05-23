@@ -19,8 +19,12 @@ public class SoundSettingsInitialiser : MonoBehaviour
         FMOD.Studio.VCA sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/SFX");
         FMOD.Studio.VCA musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Music");
 
+        //Debug.Log(PlayerPrefs.GetFloat(masterVolKey));
+        //Debug.Log(PlayerPrefs.GetFloat(sfxVolKey));
+        //Debug.Log(PlayerPrefs.GetFloat(musicVolKey));
+
         masterVCA.setVolume(PlayerPrefs.GetFloat(masterVolKey, defaultValue));
         sfxVCA.setVolume(PlayerPrefs.GetFloat(sfxVolKey, defaultValue));
-        musicVCA.setVolume(PlayerPrefs.GetFloat(sfxVolKey,defaultValue));
+        musicVCA.setVolume(PlayerPrefs.GetFloat(musicVolKey,defaultValue));
     }
 }
