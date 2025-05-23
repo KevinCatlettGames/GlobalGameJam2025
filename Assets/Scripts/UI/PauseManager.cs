@@ -1,10 +1,11 @@
-using System;
 using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using Unity.Services.Lobbies;
+using Unity.Services.Lobbies.Models;
+using Unity.Services.Authentication;
 
 public class PauseManager : NetworkBehaviour
 {
@@ -121,9 +122,39 @@ public class PauseManager : NetworkBehaviour
             currentSubMenu = null;
         }
     }
-    public void ReturnToMainMenu()
+    public async void ReturnToMainMenu()
     {
         Time.timeScale = 1; 
+        try
+        {
+            // Leave lobby if we’re in one
+            if (GlobalLobby.CurrentLobby != null)
+            {
+                if (NetworkManager.Singleton.IsHost)
+                {
+                    await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
+                }
+                else
+                {
+                    string playerId = AuthenticationService.Instance.PlayerId;
+                    await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
+                }
+
+                GlobalLobby.CurrentLobby = null;
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error leaving lobby: {e.Message}");
+        }
+
+        // Shutdown networking
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
+        // Load main menu scene
         SceneManager.LoadScene(0);
     }
     public void SetSelected()

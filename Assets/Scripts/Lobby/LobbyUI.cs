@@ -1,3 +1,4 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -19,6 +20,7 @@ public class LobbyUI : MonoBehaviour
     {
         mainMenuButton.onClick.AddListener(() =>
         { 
+            
             SceneManager.LoadScene(mainMenuSceneName);
         });
         
@@ -40,6 +42,11 @@ public class LobbyUI : MonoBehaviour
         playerCountText.gameObject.SetActive(true);
         createPublicButton.gameObject.SetActive(false);
         NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
+    }
+
+    private void OnDisable()
+    {
+        NetworkManager.Singleton.OnClientConnectedCallback -= UpdatePlayerCount;
     }
 
     void UpdatePlayerCount(ulong signature)

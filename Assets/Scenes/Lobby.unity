@@ -2641,7 +2641,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1623663673}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 357961437}
+        m_TargetAssemblyTypeName: GameLobby, Assembly-CSharp
+        m_MethodName: LeaveLobby
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1652843762
 GameObject:
   m_ObjectHideFlags: 0
@@ -2703,11 +2715,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuButton: {fileID: 1623663675}
   joinCodeButton: {fileID: 12833725}
-  joinCodeInputField: {fileID: 1410459256}
-  playerCountText: {fileID: 1968652894}
   startGameButton: {fileID: 734703362}
   createPublicButton: {fileID: 1015207573}
-  mainMenuSceneName: StartScreen
+  joinCodeInputField: {fileID: 1410459256}
+  playerCountText: {fileID: 1968652894}
+  mainMenuSceneName: MainMenu
 --- !u!1 &1713647373
 GameObject:
   m_ObjectHideFlags: 0

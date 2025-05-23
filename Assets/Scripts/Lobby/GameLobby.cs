@@ -14,6 +14,11 @@ using System.Threading.Tasks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 
+public static class GlobalLobby
+{
+    public static Lobby CurrentLobby;
+}
+
 public class GameLobby : MonoBehaviour
 {
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
@@ -25,8 +30,6 @@ public class GameLobby : MonoBehaviour
 
     public LobbyHeartBeat lobbyHeartBeat;
     public LobbyUI lobbyUI;
-
-    private Lobby currentLobby;
     public static GameLobby instance { get; private set; }
 
     private void Awake()
@@ -53,7 +56,7 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
-            currentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
             {
                 IsPrivate = isPrivate,
             });
@@ -66,7 +69,7 @@ public class GameLobby : MonoBehaviour
             ConfigureTransport(allocation);
             NetworkManager.Singleton.StartHost();
 
-            lobbyHeartBeat.joinedLobby = currentLobby;
+            lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
 
             startGameButton.gameObject.SetActive(true);
             startGameButton.onClick.AddListener(() =>
@@ -75,9 +78,11 @@ public class GameLobby : MonoBehaviour
             });
 
             lobbyCodeText.gameObject.SetActive(true);
-            lobbyCodeText.text = $"Share to invite: {currentLobby.LobbyCode}";
+            lobbyCodeText.text = $"Share to invite: {GlobalLobby.CurrentLobby.LobbyCode}";
 
             lobbyUI.HideUI();
+
+            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -87,7 +92,7 @@ public class GameLobby : MonoBehaviour
 
     private async Task UpdateLobbyWithRelayCode(string joinCode)
     {
-        await LobbyService.Instance.UpdateLobbyAsync(currentLobby.Id, new UpdateLobbyOptions
+        await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id, new UpdateLobbyOptions
         {
             Data = new Dictionary<string, DataObject>
             {
@@ -104,8 +109,9 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
-            currentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
-            await JoinRelayAndStartClient(currentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -113,12 +119,47 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    public async void LeaveLobby()
+    {
+        try
+        {
+            if (GlobalLobby.CurrentLobby != null)
+            {
+                // If you're the host, delete the lobby
+                if (NetworkManager.Singleton.IsHost && !string.IsNullOrEmpty(GlobalLobby.CurrentLobby.Id))
+                {
+                    await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
+                }
+                else
+                {
+                    string playerId = AuthenticationService.Instance.PlayerId;
+                    await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
+                }
+
+                GlobalLobby.CurrentLobby = null;
+                GlobalLobby.CurrentLobby = null;
+            }
+
+            // Shut down network
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+            GlobalLobby.CurrentLobby = null;
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to leave lobby: {e}");
+        }
+    }
+
     public async void JoinWithCode(string code)
     {
         try
         {
-            currentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
-            await JoinRelayAndStartClient(currentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+            GlobalLobby.CurrentLobby = GlobalLobby.CurrentLobby;
         }
         catch (LobbyServiceException e)
         {
@@ -240,5 +281,5 @@ public class GameLobby : MonoBehaviour
 
     #endregion
 
-    public Lobby GetLobby() => currentLobby;
+    public Lobby GetLobby() => GlobalLobby.CurrentLobby;
 }

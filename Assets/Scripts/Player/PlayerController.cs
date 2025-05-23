@@ -894,6 +894,9 @@ void CooldownCompleteLocal(int spellID)
     {
         if(activationState) 
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+        
+        if (playerHUD != null)
+            playerHUD.DisplayDeath();
     }
     
     public void Die()
@@ -997,7 +1000,6 @@ void CooldownCompleteLocal(int spellID)
     {
         slipperyCounter = 0;
         damage = 0;
-        playerHUD.ResetHUD();
         isDead = false;
         isSlippery = false;
         killCreditID = -1;
@@ -1006,11 +1008,13 @@ void CooldownCompleteLocal(int spellID)
         {
             mainAnimator.SetBool("IsDead", false);   
             mainAnimator.SetBool("Victory", false);   
+            playerHUD.ResetHUD();
         }
         else
         {
             DeadAnimServerRpc(false);
             VictoryAnimServerRpc(false);
+            ResetHudServerRpc();
         }
         
         for (int i = 0; i < coloredElements.Length; i++)
@@ -1021,6 +1025,20 @@ void CooldownCompleteLocal(int spellID)
         controller.enabled = true; 
         GetComponent<PlayerStateHandler>().ResetPlayer(); 
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void ResetHudServerRpc()
+    {
+        ResetHudClientRpc();
+    }
+
+    [ClientRpc]
+    void ResetHudClientRpc()
+    {
+        playerHUD.ResetHUD();
+    }
+    
+    
     public void SetUpPlayer(int playerID,PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
     {
         this.playerHUD = playerHUD;
