@@ -36,23 +36,20 @@ public class RevolverBubble : BasicBubble
     private IEnumerator EmptyBarrel()
     {
         Vector3 pos = transform.position + direction;
-
-        for (int i = 0; i < maxAmmo; i++)
+        BasicBubble bubbleScript;
+        float rotation = -(maxAmmo - 1);
+        rotation *= .5f;
+        
+        for (int i = 0; i < maxAmmo; i++) 
         {
-            float offset = (float)i - ((float)maxAmmo / 2f);
-            Vector3 dir = Quaternion.AngleAxis(spread * offset, Vector3.up) * direction;
-
-            if (IsServer)
-            {
-                // Instantiate and network spawn the new bubble
-                GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
-                ;
-                BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-                bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir,
-                    soundEvent, playerCollider);
-                bubbleObj.GetComponent<NetworkObject>().Spawn();
-            }
+            if(IsServer)
+                {
+            dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
+            bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
+            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
             yield return new WaitForSeconds(delayBetweenShots);
+            rotation++;
+            }
         }
         
         Destroy(gameObject);

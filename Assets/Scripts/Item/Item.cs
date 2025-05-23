@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
@@ -8,8 +9,12 @@ public class Item : NetworkBehaviour
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private SO_Spell[] spells;
 
-    [Header("Item Despawn")]
+    [Header("Item PickUp")]
     [SerializeField] private GameObject pickUpEffect;
+    [SerializeField] private EventReference pickUpEvent;
+
+    [Header("Item Despawn")]
+    [SerializeField] private EventReference despawnEvent;
     [SerializeField] private float itemDuration = 10f;
     [SerializeField] private float itemBlinkDuration = 10f;
     [SerializeField] private float itemBlinkIntervall = 0.4f;
@@ -92,12 +97,8 @@ public class Item : NetworkBehaviour
         yield return new WaitForEndOfFrame();
 
         ItemSpawner.Instance.currentAmount--;
-
-        if (pickUpEffect != null)
-        {
-            Instantiate(pickUpEffect, transform.position, Quaternion.identity);
-        }
-
+        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
         if (IsServer)
             GetComponent<NetworkObject>().Despawn();
     }
@@ -213,8 +214,8 @@ public class Item : NetworkBehaviour
             yield return new WaitForSeconds(itemBlinkIntervall);
             duration -= itemBlinkIntervall;
         }
-
-        ItemSpawner.Instance.currentAmount--;
+        ItemSpawner.Instance.currentAmount--;      
+        RuntimeManager.PlayOneShotAttached(despawnEvent, gameObject);
         GetComponent<NetworkObject>().Despawn();
     }
 }
