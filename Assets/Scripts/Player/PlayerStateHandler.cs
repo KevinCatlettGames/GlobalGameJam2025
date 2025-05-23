@@ -48,6 +48,7 @@ public class PlayerStateHandler : MonoBehaviour
                 isDead = true;
                 GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
                 playerController.Die();
+                
                 Invoke(nameof(DisablePlayer), 2f);
             }
         }

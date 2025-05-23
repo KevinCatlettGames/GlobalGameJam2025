@@ -88,7 +88,9 @@ public class PlayerController : NetworkBehaviour
     private Vector3 knockbackVelocity = Vector3.zero;
     #endregion
 
-
+    private Vector3 lastPosition;
+    private float desyncThreshold = 0.05f; // Movement threshold to trigger sync
+    private bool wasMovingLastFrame = false;
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     [Header("Visuals")]
@@ -133,117 +135,105 @@ public class PlayerController : NetworkBehaviour
         GameManager.Instance.OnGameStarted += ResetPlayerController; 
         initialized = true;
     }
-    
-    private void Update()
+
+private void Update()
+{
+    if (!initialized || isDead) return;
+
+    if(!GameManager.Instance.playingLocal) 
+        if (!IsOwner) return; // Only authoritative client should run this
+
+    groundedPlayer = controller.isGrounded;
+
+    // Apply gravity
+    if (groundedPlayer && playerVelocity.y < 0)
+        playerVelocity.y = 0f;
+    else
+        playerVelocity.y += gravityValue * Time.deltaTime;
+
+    // Movement direction from input
+    Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
+    direction = Vector3.ClampMagnitude(direction, 1f);
+
+    // Rotation handling
+    if (!isDead)
     {
-        if (!initialized || isDead) return;
-
-        // Get input every frame (e.g. from Input system or your own input handler)
-        // Here you assume `movementInput` is updated elsewhere (e.g., Input events)
-            
-        groundedPlayer = controller.isGrounded;
-        
-            // Normalize input direction
-            Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
-            direction = Vector3.ClampMagnitude(direction, 1f);
-
-            // Ground check and gravity
-            if (groundedPlayer && playerVelocity.y < 0)
-            {
-                playerVelocity.y = 0f;
-            }
-            else
-            {
-                playerVelocity.y += gravityValue * Time.deltaTime;
-            }
-
-            // Calculate movement vector
-            Vector3 move = direction * playerSpeed * Time.deltaTime;
-
-            // Apply knockback velocity if any (optional)
-            if (knockbackVelocity.magnitude > 0.1f)
-            {
-                move += knockbackVelocity * Time.deltaTime;
-                knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime);
-            }
-            else if (killCreditID != -1 && controller.isGrounded)
-            {
-                killCreditID = -1; 
-            }
-                
-                
-                
-        if (controller.isGrounded && playerVelocity.y < 0)
-        {
-            playerVelocity.y = 0f;
-        }
-        else
-        {
-            playerVelocity.y += gravityValue * Time.deltaTime;
-        }
-        if (!isDead)
-        {
-            if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
-            {
-                targetDirection = Vector3.zero;
-                if (movementInput != Vector2.zero)
-                {
-                    Quaternion targetRotation = Quaternion.LookRotation(new Vector3 (movementInput.x, 0, movementInput.y));
-                    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-                }
-            }
-            else
-            {
-                targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
-            }
-            if (targetDirection == Vector3.zero && isSprinting)
-            {
-                targetDirection = transform.forward;
-            }
-            targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
-            smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
-            move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
-        }
-        else
+        if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
         {
             targetDirection = Vector3.zero;
-            move = Vector3.zero;
-        }
-        if (knockbackVelocity.magnitude > 0.1f)
-        {
-            move += knockbackVelocity * Time.deltaTime; 
-            knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime); 
+            if (movementInput != Vector2.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(new Vector3(movementInput.x, 0, movementInput.y));
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+            }
         }
         else
         {
-            if (killCreditID != -1 && controller.isGrounded)
-            {
-                killCreditID = -1;
-            }
-
-            // Add vertical velocity (gravity)
-            move += playerVelocity * Time.deltaTime;
-
-            if (!isDead && targetDirection != Vector3.zero)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
-                transform.rotation =
-                    Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
-            }
-            
-            if(GameManager.Instance.playingLocal) 
-                mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
-            else 
-                WalkingAnimServerRpc(direction);
+            targetDirection = new Vector3(movementInput.x, 0, movementInput.y);
         }
-        
-        
-        // Move character controller
-        if (controller.enabled)
-        {
-            controller.Move(move);
-        }
+
+        if (targetDirection == Vector3.zero && isSprinting)
+            targetDirection = transform.forward;
+
+        targetDirection = Vector3.ClampMagnitude(targetDirection, 1f);
     }
+    else
+    {
+        targetDirection = Vector3.zero;
+    }
+
+    // Smooth movement vector
+    smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
+    Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
+
+    // Knockback
+    if (knockbackVelocity.magnitude > 0.1f)
+    {
+        move += knockbackVelocity * Time.deltaTime;
+        knockbackVelocity = Vector3.Lerp(knockbackVelocity, Vector3.zero, knockbackDecaySpeed * Time.deltaTime);
+    }
+    else if (killCreditID != -1 && controller.isGrounded)
+    {
+        killCreditID = -1;
+    }
+
+    // Apply gravity
+    move += playerVelocity * Time.deltaTime;
+
+    // Rotate toward movement
+    if (!isDead && targetDirection != Vector3.zero)
+    {
+        Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+    }
+
+    // Animate
+    if (GameManager.Instance.playingLocal)
+        mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+    else
+        WalkingAnimServerRpc(direction);
+
+    // Move character
+    if (controller.enabled)
+        controller.Move(move);
+
+    // Force sync on resumed movement
+    bool isMoving = direction.sqrMagnitude > 0.01f;
+    if (!wasMovingLastFrame && isMoving)
+    {
+        // Slight nudge to trigger NetworkTransform update
+        transform.position += new Vector3(0.0001f, 0, 0);
+        transform.position -= new Vector3(0.0001f, 0, 0);
+    }
+    wasMovingLastFrame = isMoving;
+
+    // Track position for optional additional threshold syncing
+    if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
+    {
+        lastPosition = transform.position;
+    }
+}
+
 
     [ServerRpc(RequireOwnership = false)]
     void WalkingAnimServerRpc(Vector3 direction)
