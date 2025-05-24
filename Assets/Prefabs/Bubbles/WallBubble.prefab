@@ -12,10 +12,10 @@ GameObject:
   - component: {fileID: 3235790210659217238}
   - component: {fileID: 1426892801025382703}
   - component: {fileID: 4012569885833722914}
-  - component: {fileID: 3862271551951229336}
   - component: {fileID: 6251728433243577970}
   - component: {fileID: 9020298231113251939}
   - component: {fileID: -8730021764368956111}
+  - component: {fileID: 8808008050670928364}
   m_Layer: 7
   m_Name: WallBubble
   m_TagString: Bubble
@@ -123,28 +123,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &3862271551951229336
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 1
-  m_CookingOptions: 30
-  m_Mesh: {fileID: -5495902117074765545, guid: 268508141e9e2454ba296e24421249e3, type: 3}
 --- !u!114 &6251728433243577970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -202,3 +180,24 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 126
   m_CollisionDetection: 0
+--- !u!65 &8808008050670928364
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 6.84035, y: 2.9668152, z: 0.9848527}
+  m_Center: {x: 0, y: -0.01666832, z: -0.03321068}
