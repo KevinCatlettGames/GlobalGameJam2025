@@ -11,6 +11,7 @@ public class PlayerController : MonoBehaviour
     [Header("Sound Events")]
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference deathEvent;
+    [SerializeField] private EventReference dashEvent;
 
     [Header("Spells")]
     private SO_Spell firstSpell;
@@ -247,6 +248,7 @@ public class PlayerController : MonoBehaviour
             }
             StartCoroutine(SprintCoroutine());
             Instantiate(dashStartEffect, transform.position, transform.rotation);
+            RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
         }
     }
     private IEnumerator SprintCoroutine()
