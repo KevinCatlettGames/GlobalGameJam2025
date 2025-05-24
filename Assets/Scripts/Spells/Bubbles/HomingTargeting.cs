@@ -8,10 +8,20 @@ public class HomingTargeting : MonoBehaviour
     public Vector3 GetTargetVector()
     {
         if (targetsInRange.Count == 0) return Vector3.zero;
-        Vector3 tartetVector = targetsInRange[0].transform.position;
-        tartetVector = tartetVector - transform.position;
-        tartetVector.Normalize();
-        return tartetVector;
+ 
+        if(targetsInRange[0] != null)
+        {
+            Vector3 tartetVector = targetsInRange[0].transform.position;
+            tartetVector = tartetVector - transform.position;
+            tartetVector.Normalize();
+            return tartetVector;
+        }
+        else
+        {
+            targetsInRange.RemoveAt(0);
+        }
+        
+        return Vector3.zero;
     }
     private void OnTriggerEnter(Collider other)
     {
