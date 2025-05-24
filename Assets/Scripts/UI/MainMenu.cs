@@ -10,7 +10,6 @@ public class MainMenu : MonoBehaviour
     private bool isMainMenuOpen = true;
     void Start()
     {
-        Cursor.visible = false;
         SetSelected();
         int fullScreen = PlayerPrefs.GetInt("Fullscreen", 1);
         if (fullScreen == 1)
@@ -20,14 +19,6 @@ public class MainMenu : MonoBehaviour
         else
         {
             Screen.fullScreen = false;
-        }
-    }
-
-    void Update()
-    {
-        if (!Cursor.visible && (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
-        {
-            Cursor.visible = true;
         }
     }
 
