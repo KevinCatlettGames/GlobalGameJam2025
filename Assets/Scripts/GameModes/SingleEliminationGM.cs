@@ -37,13 +37,13 @@ public class SingleEliminationGM : GameManager
     }
 
     [ClientRpc]
-    void CallGameEndClientRpc()
+    private void CallGameEndClientRpc()
     {
         Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
     }
 
-    void CallGameEndLocal()
+    private void CallGameEndLocal()
     {
         Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
@@ -60,8 +60,8 @@ public class SingleEliminationGM : GameManager
     private IEnumerator AwardVictory()
     {
         yield return new WaitForSeconds(gameEndDelay);
-        int winnerID = -1;
 
+        int winnerID = -1;
         for (int i = 0; i < playerStates.Length; i++)
         {
             if (playerStates[i] == PlayerState.alive)

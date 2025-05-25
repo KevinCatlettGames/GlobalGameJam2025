@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 
 public class LobbyUI : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class LobbyUI : MonoBehaviour
 
     [SerializeField] private string mainMenuSceneName;
 
+    [SerializeField] private EventSystem eventSystem; 
+    
     private void Awake()
     {
         mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(mainMenuSceneName));
@@ -30,6 +33,7 @@ public class LobbyUI : MonoBehaviour
             creatingLobbyText.gameObject.SetActive(false);
             joiningLobbyText.gameObject.SetActive(true);
             GameLobby.instance.JoinWithCode(joinCodeInputField.text);
+            eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         createPublicButton.onClick.AddListener(() =>
         {
@@ -38,6 +42,7 @@ public class LobbyUI : MonoBehaviour
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(true);
             GameLobby.instance.CreateLobby("Empty", false);
+            eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         
         joinCodeButton.interactable = false;

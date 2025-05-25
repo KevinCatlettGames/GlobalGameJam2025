@@ -1,7 +1,5 @@
 using UnityEngine;
 using FMODUnity;
-using Unity.VisualScripting;
-using UnityEngine.UI;
 
 public enum PlayerState
 {
@@ -10,53 +8,50 @@ public enum PlayerState
     disabled,
     missing
 }
+
 public class PlayerStateHandler : MonoBehaviour
 {
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
+
     private bool isDead = false;
     private PlayerController playerController;
-    private CharacterController controller;
-    
+    private CharacterController characterController;
+
     private void Start()
     {
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
-        playerController = gameObject.GetComponent<PlayerController>();
-        controller = gameObject.GetComponent<CharacterController>();
+        playerController = GetComponent<PlayerController>();
+        characterController = GetComponent<CharacterController>();
     }
-    
+
     private void OnTriggerEnter(Collider other)
     {
-        if (GameManager.Instance.playingLocal)
-        {
-            if (!playerController.initialized) return;
+        if (!playerController.initialized) return;
 
-            if (!isDead && other.CompareTag("Deathzone"))
+        if (other.CompareTag("Deathzone") && !isDead)
+        {
+            isDead = true;
+
+            if (GameManager.Instance.playingLocal)
             {
-                isDead = true;
                 GameManager.Instance.ChangePlayerStateLocal(playerController.PlayerID, PlayerState.dead);
-                playerController.Die();
-                Invoke(nameof(DisablePlayer), 2f);
             }
-        }
-        else
-        {
-            if (!playerController.initialized || !playerController.IsOwner) return;
-
-            if (!isDead && other.CompareTag("Deathzone"))
+            else
             {
-                isDead = true;
+                if (!playerController.IsOwner) return;
+
                 GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
-                playerController.Die();
-                
-                Invoke(nameof(DisablePlayer), 2f);
             }
+
+            playerController.Die();
+            Invoke(nameof(DisablePlayer), 2f);
         }
     }
 
-    void DisablePlayer()
+    private void DisablePlayer()
     {
-        controller.enabled = false;
+        characterController.enabled = false;
         isDead = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.disabled);
     }
@@ -64,10 +59,10 @@ public class PlayerStateHandler : MonoBehaviour
     public void ResetPlayer()
     {
         CancelInvoke();
-        controller.enabled = false;
+        characterController.enabled = false;
         PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
-        controller.enabled = true;
+        characterController.enabled = true;
         isDead = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
     }

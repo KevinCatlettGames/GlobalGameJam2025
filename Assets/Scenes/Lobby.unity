@@ -1270,6 +1270,7 @@ GameObject:
   - component: {fileID: 717123600}
   - component: {fileID: 717123599}
   - component: {fileID: 717123598}
+  - component: {fileID: 717123601}
   m_Layer: 5
   m_Name: LobbyCode
   m_TagString: Untagged
@@ -1436,6 +1437,18 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 717123596}
   m_CullTransparentMesh: 1
+--- !u!114 &717123601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 717123596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc0dd3e9bdb093c43ac3b134bd37fbfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &734703356
 GameObject:
   m_ObjectHideFlags: 0
@@ -2844,8 +2857,9 @@ GameObject:
   - component: {fileID: 1410459255}
   - component: {fileID: 1410459254}
   - component: {fileID: 1410459256}
+  - component: {fileID: 1410459257}
   m_Layer: 5
-  m_Name: InputField (TMP)
+  m_Name: EnterCodeInputField
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2931,9 +2945,9 @@ MonoBehaviour:
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_HighlightedColor: {r: 0, g: 1, b: 0.9490196, a: 1}
     m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 1}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 1}
+    m_SelectedColor: {r: 0, g: 1, b: 0.9490196, a: 1}
     m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0.5019608}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
@@ -3022,6 +3036,18 @@ MonoBehaviour:
   isAlert: 0
   m_InputValidator: {fileID: 0}
   m_ShouldActivateOnSelect: 1
+--- !u!114 &1410459257
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1410459252}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc0dd3e9bdb093c43ac3b134bd37fbfe, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1479421889
 GameObject:
   m_ObjectHideFlags: 0
@@ -3485,6 +3511,7 @@ MonoBehaviour:
   creatingLobbyText: {fileID: 216688832}
   joiningLobbyText: {fileID: 1341892122}
   mainMenuSceneName: MainMenu
+  eventSystem: {fileID: 1088853882}
 --- !u!1 &1713647373
 GameObject:
   m_ObjectHideFlags: 0
