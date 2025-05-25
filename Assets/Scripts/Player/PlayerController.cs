@@ -845,7 +845,9 @@ public class PlayerController : NetworkBehaviour
     public void Die()
     {
         if (isDead.Value) return;
-
+        
+        controller.enabled = false;
+        
         isDead.Value = true;
 
         if (GameManager.Instance.playingLocal)
