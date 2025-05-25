@@ -61,7 +61,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DelayedStartGame()
     {
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(.2f);
         StartGameAfterDelay();
     }
 

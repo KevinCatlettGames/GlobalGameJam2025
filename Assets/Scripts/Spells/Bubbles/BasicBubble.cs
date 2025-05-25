@@ -6,24 +6,23 @@ using Unity.Netcode;
 public class BasicBubble : NetworkBehaviour
 {
     public int OwnerID;
-    public Vector3 direction;
-    public bool hasPopped;
-    public float size;
+    protected Vector3 direction;
+    protected bool hasPopped;
+    protected float size;
     private bool slippyApplied = false;
-    private bool canReflect = true;
     
-    public float damage = 1.0f;
-    public float knockback = 1.0f;
-    public float speed = 1.0f;
-    public float range = 1.0f;
-    public Coroutine rangeCoroutine;
-    public SphereCollider sphereCollider;
-    public float currentSize = 0.01f;
-    public Collider playerCollider;
-    public bool isSlippy = false;
+    protected float damage = 1.0f;
+    protected float knockback = 1.0f;
+    protected float speed = 1.0f;
+    protected float range = 1.0f;
+    protected Coroutine rangeCoroutine;
+    protected SphereCollider sphereCollider;
+    protected float currentSize = 0.01f;
+    protected Collider playerCollider;
+    protected bool isSlippy = false;
+    protected float inflationSpeed = 8f;
 
     [SerializeField] private GameObject popEffect;
-    [SerializeField] protected float inflationSpeed = 8f;
     [SerializeField] private float slippMod = 2f;
 
     private Vector3 lastPosition;
@@ -53,6 +52,7 @@ public class BasicBubble : NetworkBehaviour
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
+            Physics.IgnoreCollision(sphereCollider, playerCollider, true);
             sphereCollider.enabled = false;
             StartCoroutine(Inflate());
         }
@@ -124,7 +124,7 @@ public class BasicBubble : NetworkBehaviour
     {
         if (hasPopped) return;
 
-        if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
+        if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
 
@@ -162,10 +162,7 @@ public class BasicBubble : NetworkBehaviour
     
     private void Reflect(Vector3 normal)
     {
-        if (!IsServer || !canReflect) return;
-
-        canReflect = false;
-        StartCoroutine(ReflectCooldown());
+        if (!IsServer) return;
 
         if (playerCollider != null)
             Physics.IgnoreCollision(sphereCollider, playerCollider, false);
@@ -179,12 +176,6 @@ public class BasicBubble : NetworkBehaviour
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }
-
-    private IEnumerator ReflectCooldown()
-    {
-        yield return new WaitForSeconds(0.15f);  // 150 ms cooldown
-        canReflect = true;
-    }
     
     public virtual void SetSlippy()
     {
@@ -195,25 +186,6 @@ public class BasicBubble : NetworkBehaviour
             speed *= slippMod;
             slippyApplied = true;
         }
-    }
-    
-    private void SpawnPopEffect(Vector3 pos, float scale)
-    {
-        if (GameManager.Instance.playingLocal)
-        {
-            var effect = Instantiate(popEffect, pos, Quaternion.identity);
-            effect.GetComponent<BubbleEffect>()?.Initialise(scale);
-        }
-        else
-        {
-            SpawnPopEffectServerRpc(pos, scale);
-        }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SpawnPopEffectServerRpc(Vector3 pos, float scale)
-    {
-        SpawnPopEffectClientRpc(pos, scale);
     }
 
     [ClientRpc]
@@ -231,7 +203,7 @@ public class BasicBubble : NetworkBehaviour
         Destroy(gameObject);
     }
 
-    private void OnDestroy()
+    public override void OnDestroy()
     {
         if (GameManager.Instance != null)
             GameManager.Instance.OnGameStarted -= DestroyBubble;
