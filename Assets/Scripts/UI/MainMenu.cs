@@ -9,7 +9,6 @@ public class MainMenu : MonoBehaviour
     private bool isMainMenuOpen = true;
     void Start()
     {
-        Cursor.visible = false;
         SetSelected();
         int fullScreen = PlayerPrefs.GetInt("Fullscreen", 1);
         if (fullScreen == 1)
@@ -29,12 +28,7 @@ public class MainMenu : MonoBehaviour
             Cursor.visible = true;
         }
     }
-
-    // public void StartGameLocal()
-    // {
-    //     SceneManager.LoadScene(1);
-    // }
-
+    
     public void QuitGame()
     {
         Application.Quit();

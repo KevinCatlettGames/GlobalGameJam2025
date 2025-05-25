@@ -15,6 +15,7 @@ public class PlayerController : NetworkBehaviour
     private EventReference knockBackEvent;
 
     [SerializeField] private EventReference deathEvent;
+    [SerializeField] private EventReference dashEvent;
     [SerializeField] private float knockbackDecaySpeed = 5f;
 
     #endregion
@@ -526,7 +527,10 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.playingLocal)
         {
             if (dashStartEffect != null)
+            {
                 Instantiate(dashStartEffect, transform.position, transform.rotation);
+                RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
+            }
         }
         else
             SpawnDashEffectServerRpc();
@@ -569,7 +573,10 @@ public class PlayerController : NetworkBehaviour
     private void SpawnDashEffectClientRpc()
     {
         if (dashStartEffect != null)
+        {
             Instantiate(dashStartEffect, transform.position, transform.rotation);
+            RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]

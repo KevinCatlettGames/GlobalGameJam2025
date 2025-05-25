@@ -30,19 +30,7 @@ public class PauseManager : MonoBehaviour
             TogglePause();
         }
     }
-
-    // [ServerRpc(RequireOwnership = false)]
-    // public void TogglePauseServerRpc()
-    // {
-    //     TogglePauseClientRpc();
-    // }
-    //
-    // [ClientRpc]
-    // public void TogglePauseClientRpc()
-    // {
-    //     TogglePause();
-    // }
-
+    
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
@@ -163,7 +151,7 @@ public class PauseManager : MonoBehaviour
 
         SceneManager.LoadScene(0);
     }
-
+    
     private void SetSelected()
     {
         eventSystem.SetSelectedGameObject(selectedGameObject);

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -6,9 +7,12 @@ public class SoapBubble : BasicBubble
     [SerializeField] private GameObject soapPuddleObject;
     [SerializeField] private float soapDropInterval = 0.2f;
     [SerializeField] private LayerMask groundedLayerMask;
-    private float timer = 0f;
-
     private const float raycastDistance = 5f;
+
+    private void Start()
+    {
+        if (soapPuddleObject != null) StartCoroutine(SoapDropCoroutine());
+    }
 
     private void Update()
     {
@@ -60,4 +64,16 @@ public class SoapBubble : BasicBubble
     {
         return;
     }
+
+    private IEnumerator SoapDropCoroutine()
+    {
+        yield return new WaitForSeconds(soapDropIntervall);
+        while (!hasPopped)
+        {
+            RaycastHit hitInfo;
+            if (Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
+                Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
+            yield return new WaitForSeconds(soapDropIntervall);
+        }
+    } 
 }
