@@ -979,6 +979,12 @@ MonoBehaviour:
         m_Calls: []
   m_LegacyBlendHint: 0
   m_ComponentOwner: {fileID: 1811973696}
+--- !u!1 &1661708183 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4108901858045191531, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1608606915266651741}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &1768148394 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2586243695198736759, guid: ef310da78073cd04982db8f49e852300,
@@ -1362,6 +1368,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
+      propertyPath: playerPrefab
+      value: 
+      objectReference: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
+        type: 3}
+    - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
       propertyPath: restartGameText
       value: 
       objectReference: {fileID: 89942265}
@@ -1370,6 +1382,11 @@ PrefabInstance:
       propertyPath: victoryAnimator
       value: 
       objectReference: {fileID: 1768148394}
+    - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: playerInputManager
+      value: 
+      objectReference: {fileID: 1608606915266651744}
     - target: {fileID: 4712817074558644018, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: m_Name
@@ -1490,16 +1507,107 @@ PrefabInstance:
       propertyPath: 'playerHUDs.Array.data[3]'
       value: 
       objectReference: {fileID: 5758177152077098220}
+    - target: {fileID: 8067442931815521231, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: startingSpells.Array.size
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 8136402375246606184, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: m_Name
       value: SpawnPoint3
       objectReference: {fileID: 0}
+    - target: {fileID: 8605951647801297494, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8605951647801297494, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: m_PlayerJoinedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: JoinLocal
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3737377328279540851, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      insertIndex: 2
+      addedObject: {fileID: 1608606915266651743}
+    - targetCorrespondingSourceObject: {fileID: 4108901858045191531, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1608606915266651747}
   m_SourcePrefab: {fileID: 100100000, guid: fcb4f7d39024c7e41a042d4f16f9370b, type: 3}
+--- !u!1 &1608606915266651742 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3737377328279540851, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1608606915266651741}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1608606915266651743
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1608606915266651742}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 671024928
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
+--- !u!114 &1608606915266651744 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8605951647801297494, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+    type: 3}
+  m_PrefabInstance: {fileID: 1608606915266651741}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661708183}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1608606915266651747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1661708183}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 515742028
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &2026038083278081566
 PrefabInstance:
   m_ObjectHideFlags: 0

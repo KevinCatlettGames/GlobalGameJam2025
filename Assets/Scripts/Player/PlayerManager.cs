@@ -32,7 +32,8 @@ public class PlayerManager : NetworkBehaviour
     public Action OnPlayerWon;
 
     private int playersInitializedCount = 0;
-
+    private bool initialSpellRerollComplete = false; 
+    
     private void Awake()
     {
         // Ensure singleton pattern
@@ -49,13 +50,18 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
-        RerollSpells();
     }
 
     #region Player Joining and Initialization
 
     public void JoinLocal(PlayerInput input)
     {
+        if (!initialSpellRerollComplete)
+        {
+            RerollSpells();
+            initialSpellRerollComplete = true;
+        }
+        
         Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
@@ -67,7 +73,8 @@ public class PlayerManager : NetworkBehaviour
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
-
+        input.transform.rotation = spawnPoints[playerID].rotation;
+        
         var playerController = input.GetComponent<PlayerController>();
         playerController.InitializeLocal();
 
@@ -137,6 +144,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void Initialize()
     {
+        RerollSpells();
         Debug.Log($"Initializing players: Count = {players.Count}");
         foreach (var playerRef in players)
         {
@@ -194,7 +202,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void RerollSpells()
     {
-        if (!IsServer) return;
+        if (!IsServer && !GameManager.Instance.playingLocal) return;
 
         syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
         syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);

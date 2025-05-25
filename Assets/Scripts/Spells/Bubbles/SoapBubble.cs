@@ -9,6 +9,8 @@ public class SoapBubble : BasicBubble
     [SerializeField] private LayerMask groundedLayerMask;
     private const float raycastDistance = 5f;
 
+    private float timer = 0; 
+    
     private void Start()
     {
         if (soapPuddleObject != null) StartCoroutine(SoapDropCoroutine());
@@ -67,13 +69,13 @@ public class SoapBubble : BasicBubble
 
     private IEnumerator SoapDropCoroutine()
     {
-        yield return new WaitForSeconds(soapDropIntervall);
+        yield return new WaitForSeconds(soapDropInterval);
         while (!hasPopped)
         {
             RaycastHit hitInfo;
             if (Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
                 Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
-            yield return new WaitForSeconds(soapDropIntervall);
+            yield return new WaitForSeconds(soapDropInterval);
         }
     } 
 }
