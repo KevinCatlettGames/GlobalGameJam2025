@@ -845,7 +845,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (isDead.Value) return;
 
-        isDead.Value = true;
+        SetDeadServerRpc();
         controller.enabled = false; 
         
         if (GameManager.Instance.playingLocal)
@@ -872,6 +872,12 @@ public class PlayerController : NetworkBehaviour
         }
 
         playerHUD.DisplayDeath();
+    }
+    
+    [ServerRpc]
+    void SetDeadServerRpc()
+    {
+        isDead.Value = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
