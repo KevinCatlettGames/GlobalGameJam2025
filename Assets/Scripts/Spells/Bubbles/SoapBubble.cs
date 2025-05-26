@@ -16,6 +16,18 @@ public class SoapBubble : BasicBubble
         if (soapPuddleObject != null) StartCoroutine(SoapDropCoroutine());
     }
 
+    private void Update()
+    {
+        if (soapPuddleObject == null) return;
+
+        timer += Time.deltaTime;
+        if (timer >= soapDropInterval)
+        {
+            DropSoapPuddle();
+            timer = 0f;
+        }
+    }
+
     private void DropSoapPuddle()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
@@ -60,7 +72,9 @@ public class SoapBubble : BasicBubble
         yield return new WaitForSeconds(soapDropInterval);
         while (!hasPopped)
         {
-            DropSoapPuddle();
+            RaycastHit hitInfo;
+            if (Physics.Raycast(transform.position, Vector3.up * -1, out hitInfo, 5f, groundedLayerMask))
+                Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
             yield return new WaitForSeconds(soapDropInterval);
         }
     } 
