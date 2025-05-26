@@ -31,7 +31,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private float damageColorEffectDuration = 0.1f;
-    [SerializeField] private float materialSwapDuration = 0.1f;
 
     #endregion
 
