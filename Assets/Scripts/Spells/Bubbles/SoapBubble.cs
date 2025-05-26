@@ -25,6 +25,10 @@ public class SoapBubble : BasicBubble
                 GameObject puddle = Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
             }
+            else
+            {
+                Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
+            }
         }
     }
 
