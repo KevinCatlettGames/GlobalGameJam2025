@@ -64,7 +64,6 @@ public class BubbleExplosion : NetworkBehaviour
 
     public void SetExplosionSize(float radius)
     {
-        Debug.Log("Bubble explosion set size " + radius);
         SphereCollider explosionCollider = GetComponent<SphereCollider>();
         explosionCollider.radius = radius;
         indicator.transform.localScale *= radius;

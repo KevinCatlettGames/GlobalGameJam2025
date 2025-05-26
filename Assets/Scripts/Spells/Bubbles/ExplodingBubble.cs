@@ -2,7 +2,6 @@ using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using Unity.Netcode; 
 
 public class ExplodingBubble : BasicBubble
 {
@@ -14,11 +13,7 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
-
-        if (GameManager.Instance.playingLocal)
-            bubbleExplosion.SetExplosionSize(explosionRadius / size);
-        else
-            SetExplosionSizeServerRpc();
+        bubbleExplosion.SetExplosionSize(explosionRadius / size);
     }
     public override void BubbleCollision(GameObject other)
     {
@@ -43,20 +38,6 @@ public class ExplodingBubble : BasicBubble
         if (hasPopped) return;
         bubbleExplosion.Explode(knockback, damage);
         base.Pop();
-    }
-    
-    
-    [ServerRpc]
-    void SetExplosionSizeServerRpc()
-    {
-        SetExplosionSizeClientRpc();
-    }
-
-    [ClientRpc]
-    void SetExplosionSizeClientRpc()
-    {
-        Debug.Log("Set Explosion Client Rpc");
-        bubbleExplosion.SetExplosionSize(explosionRadius / size);
     }
 
 }
