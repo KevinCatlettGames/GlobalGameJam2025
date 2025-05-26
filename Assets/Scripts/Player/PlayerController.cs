@@ -847,7 +847,8 @@ public class PlayerController : NetworkBehaviour
         if (isDead.Value) return;
 
         isDead.Value = true;
-
+        controller.enabled = false; 
+        
         if (GameManager.Instance.playingLocal)
         {
             mainAnimator.SetBool("IsDead", true);
