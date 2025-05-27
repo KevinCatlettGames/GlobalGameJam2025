@@ -24,6 +24,7 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Visuals")] [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
+    [SerializeField] GameObject canvas;
 
     [Header("Effects")] [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private ParticleSystem splashEffect;
@@ -883,14 +884,12 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void DisableUIElementsClientRpc()
     {
-        foreach (var element in coloredElements)
-            element.enabled = false;
+        canvas.SetActive(false);
     }
 
     void DisableUIElementsLocal()
     {
-        foreach (var element in coloredElements)
-            element.enabled = false;
+        canvas.SetActive(false);
     }
 
     public void SetSlippy(bool slippy)
@@ -960,8 +959,7 @@ public class PlayerController : NetworkBehaviour
             ResetHudServerRpc();
         }
 
-        foreach (var element in coloredElements)
-            element.enabled = true;
+        canvas.SetActive(true);
 
         movementInput = Vector2.zero;
         knockbackVelocity = Vector3.zero;

@@ -45,7 +45,10 @@ public class GameManager : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
 
-        NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
+        else
+            playingLocal = true;
     }
 
     private void OnDisable()

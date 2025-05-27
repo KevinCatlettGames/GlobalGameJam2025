@@ -72,23 +72,16 @@ public class SingleEliminationGM : GameManager
             }
         }
 
-        victoryAnimator.gameObject.SetActive(true);
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {
+            victoryAnimator.gameObject.SetActive(true);
             victoryAnimator.Play($"P{winnerID}");
             yield return new WaitForSeconds(1f);
             playerHUDs[winnerID].AddWin();
-        }
-        else
-        {
             victoryAnimator.gameObject.SetActive(false);
-            EndGame();
-            yield break;
+            yield return new WaitForSeconds(0.75f);
         }
-
-        victoryAnimator.gameObject.SetActive(false);
-        yield return new WaitForSeconds(0.75f);
-        base.EndGame();
+        EndGame();
     }
 }
