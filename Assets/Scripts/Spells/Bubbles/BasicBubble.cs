@@ -5,29 +5,29 @@ using Unity.Netcode;
 
 public class BasicBubble : NetworkBehaviour
 {
-    public int OwnerID;
-    public Vector3 direction;
-    public bool hasPopped;
-    public float size;
+    public int OwnerID = -1;
+    protected Vector3 direction;
+    protected bool hasPopped;
+    protected float size;
     private bool slippyApplied = false;
     private bool canReflect = true;
     
-    public float damage = 1.0f;
-    public float knockback = 1.0f;
-    public float speed = 1.0f;
-    public float range = 1.0f;
-    public Coroutine rangeCoroutine;
-    public SphereCollider sphereCollider;
-    public float currentSize = 0.01f;
-    public Collider playerCollider;
-    public bool isSlippy = false;
+    protected float damage = 1.0f;
+    protected float knockback = 1.0f;
+    protected float speed = 1.0f;
+    protected float range = 1.0f;
+    protected Coroutine rangeCoroutine;
+    protected SphereCollider sphereCollider;
+    protected float currentSize = 0.01f;
+    protected Collider playerCollider;
+    protected bool isSlippy = false;
+    protected float inflationSpeed = 8f;
 
     [SerializeField] private GameObject popEffect;
-    [SerializeField] protected float inflationSpeed = 8f;
     [SerializeField] private float slippMod = 2f;
 
-    private Vector3 lastPosition;
-    private float desyncThreshold = 0.05f;
+    protected Vector3 lastPosition;
+    protected float desyncThreshold = 0.05f;
     
     private void Start()
     {
@@ -53,6 +53,8 @@ public class BasicBubble : NetworkBehaviour
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
+            if (playerCollider != null)
+                Physics.IgnoreCollision(sphereCollider, playerCollider, true);
             sphereCollider.enabled = false;
             StartCoroutine(Inflate());
         }
@@ -88,8 +90,7 @@ public class BasicBubble : NetworkBehaviour
 
         hasPopped = true;
 
-        if (rangeCoroutine != null)
-            StopCoroutine(rangeCoroutine);
+        StopAllCoroutines();
         
         SpawnPopEffectClientRpc(transform.position, size);
 
@@ -104,20 +105,20 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer || hasPopped) return;
 
-        HandleCollision(collision.gameObject);
+        HandleCollision(collision);
     }
     
-    private void HandleCollision(GameObject other)
+    private void HandleCollision(Collision collision)
     {
-        if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
+        if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             OwnerID = reflector.OwnerID;
-            Vector3 reflectNormal = other.GetComponent<Collider>().ClosestPointOnBounds(transform.position);
+            Vector3 reflectNormal = collision.contacts[0].normal;
             Reflect(reflectNormal);
             return;
         }
 
-        BubbleCollision(other);
+        BubbleCollision(collision.gameObject);
     }
     
     public virtual void BubbleCollision(GameObject other)
@@ -182,7 +183,7 @@ public class BasicBubble : NetworkBehaviour
 
     private IEnumerator ReflectCooldown()
     {
-        yield return new WaitForSeconds(0.15f);  // 150 ms cooldown
+        yield return new WaitForSeconds(0.01f);  // 150 ms cooldown
         canReflect = true;
     }
     
