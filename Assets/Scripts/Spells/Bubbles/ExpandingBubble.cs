@@ -15,8 +15,8 @@ public class ExpandingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         maxSize = size;
         size = startSize;
-        knockbackRatio = knockback / size;
-        damageRatio = damage / size;
+        knockbackRatio = knockback / maxSize;
+        damageRatio = damage / maxSize;
     }
     private void Update()
     {
