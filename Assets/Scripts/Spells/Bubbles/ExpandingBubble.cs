@@ -6,6 +6,7 @@ public class ExpandingBubble : BasicBubble
 {
     [SerializeField] private float startSize = 1f;
     [SerializeField] private float sizeLossOnHit = 1.5f;
+    [SerializeField] private float speedFactor = .5f;
     private float knockbackRatio = 1f;
     private float damageRatio = 1f;
     private float maxSize = 1f;
@@ -28,6 +29,18 @@ public class ExpandingBubble : BasicBubble
             if (currentSize > maxSize) currentSize = maxSize;
 
             transform.localScale = Vector3.one * currentSize;
+        }
+    }
+    protected override void BubbleMovement()
+    {
+        if (!IsServer) return;
+
+        float currentSpeed = speed + currentSize * speedFactor;
+        transform.position += direction * currentSpeed * Time.fixedDeltaTime;
+
+        if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
+        {
+            lastPosition = transform.position;
         }
     }
     public override void BubbleCollision(GameObject other)
@@ -58,7 +71,7 @@ public class ExpandingBubble : BasicBubble
     private void DamageBubble()
     {
         currentSize -= sizeLossOnHit;
-        if (currentSize <= 1)       
+        if (currentSize <= .5f)       
             Pop();       
         else
             transform.localScale = Vector3.one * currentSize;

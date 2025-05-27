@@ -12,6 +12,7 @@ public class DeathzoneWall : MonoBehaviour
             Vector3 pos = other.transform.position;
             effectDirection = other.GetComponent<CharacterController>().velocity * -1f;
             Instantiate(blastZoneEffect, pos, Quaternion.LookRotation(effectDirection));
+            CameraShaker.instance.ShakeCamera(.3f, 20f);
         }
     }
 }

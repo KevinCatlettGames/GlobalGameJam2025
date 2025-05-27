@@ -26,8 +26,8 @@ public class BasicBubble : NetworkBehaviour
     [SerializeField] private GameObject popEffect;
     [SerializeField] private float slippMod = 2f;
 
-    private Vector3 lastPosition;
-    private float desyncThreshold = 0.05f;
+    protected Vector3 lastPosition;
+    protected float desyncThreshold = 0.05f;
     
     private void Start()
     {

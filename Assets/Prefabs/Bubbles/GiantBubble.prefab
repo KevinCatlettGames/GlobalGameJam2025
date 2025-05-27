@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 1358848946781494922}
   - component: {fileID: 7851107246225785131}
   - component: {fileID: 5322878072674992179}
-  - component: {fileID: 4568440979683091433}
+  - component: {fileID: 412470701117448623}
   m_Layer: 7
   m_Name: GiantBubble
   m_TagString: Bubble
@@ -278,7 +278,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   childObject: {fileID: 465073794985684243}
---- !u!114 &4568440979683091433
+--- !u!114 &412470701117448623
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -287,7 +287,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 449082112856618060}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: eb29791b88f78c34fa3a2e8b14e1b0c9, type: 3}
+  m_Script: {fileID: 11500000, guid: 40821fd411d50ec40a945ded08864725, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
@@ -295,8 +295,23 @@ MonoBehaviour:
   popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
   slippMod: 2
-  startSize: 1
-  sizeLossOnHit: 5.5
+  idleTimer: 0.3
+  damageStages:
+  - 30
+  - 25
+  - 16
+  knockbackStages:
+  - 2
+  - 4
+  - 12
+  speedStages:
+  - 4
+  - 6
+  - 10
+  sizeStages:
+  - 3
+  - 6
+  - 10
 --- !u!1 &2009806699742758642
 GameObject:
   m_ObjectHideFlags: 0
