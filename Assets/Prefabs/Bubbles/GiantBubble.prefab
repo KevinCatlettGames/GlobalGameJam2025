@@ -14,11 +14,11 @@ GameObject:
   - component: {fileID: 2078046511075596644}
   - component: {fileID: 8333720517595282313}
   - component: {fileID: 48514794240175143}
-  - component: {fileID: 8636526738554632000}
   - component: {fileID: -5092228933000444492}
   - component: {fileID: 1358848946781494922}
   - component: {fileID: 7851107246225785131}
   - component: {fileID: 5322878072674992179}
+  - component: {fileID: 4568440979683091433}
   m_Layer: 7
   m_Name: GiantBubble
   m_TagString: Bubble
@@ -170,36 +170,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!114 &8636526738554632000
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 40821fd411d50ec40a945ded08864725, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  OwnerID: -1
-  direction: {x: 0, y: 0, z: 0}
-  hasPopped: 0
-  size: 0
-  damage: 1
-  knockback: 1
-  speed: 1
-  range: 1
-  sphereCollider: {fileID: 0}
-  currentSize: 0.01
-  playerCollider: {fileID: 0}
-  isSlippy: 0
-  popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
-    type: 3}
-  inflationSpeed: 8
-  slippMod: 2
-  healthPoints: 3
 --- !u!114 &-5092228933000444492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -308,6 +278,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   childObject: {fileID: 465073794985684243}
+--- !u!114 &4568440979683091433
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb29791b88f78c34fa3a2e8b14e1b0c9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  OwnerID: -1
+  popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
+    type: 3}
+  slippMod: 2
+  startSize: 1
+  sizeLossOnHit: 5.5
 --- !u!1 &2009806699742758642
 GameObject:
   m_ObjectHideFlags: 0

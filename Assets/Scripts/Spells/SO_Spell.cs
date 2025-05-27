@@ -39,8 +39,7 @@ public class SO_Spell : ScriptableObject
     {
         dir.Normalize();
 
-        // // Calculate safe distance: player collider half depth + spell bubble radius + margin
-        float safeDistance = playerCollider.bounds.extents.z + (bubbleSize / 2f) + 0.2f;
+        float safeDistance = playerCollider.bounds.extents.z + 1;
         pos += dir * safeDistance;
 
         if (NetworkManager.Singleton.IsServer)
