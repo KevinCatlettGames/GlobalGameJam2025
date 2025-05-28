@@ -77,7 +77,9 @@ public class SingleEliminationGM : GameManager
         {
             victoryAnimator.gameObject.SetActive(true);
             victoryAnimator.Play($"P{winnerID}");
-            yield return new WaitForSeconds(1f);
+            yield return null;
+            AnimatorStateInfo animatorStateInfo = victoryAnimator.GetCurrentAnimatorStateInfo(0);
+            yield return new WaitForSeconds(animatorStateInfo.length);
             playerHUDs[winnerID].AddWin();
             victoryAnimator.gameObject.SetActive(false);
             yield return new WaitForSeconds(0.75f);
