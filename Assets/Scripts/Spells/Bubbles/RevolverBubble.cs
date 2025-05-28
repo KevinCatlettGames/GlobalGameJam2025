@@ -57,6 +57,7 @@ public class RevolverBubble : BasicBubble
                 rotation++;
             
         }
+        yield return new WaitForSeconds(1f);
         Destroy(gameObject);
     }
 }
