@@ -15,6 +15,8 @@ public class PlayerShaderManager : MonoBehaviour
     {
         StopAllCoroutines();
         damageEffectActice = false;
+        if (!material) return; 
+        
         material.SetFloat("_isDamaged", 0);
         material.SetFloat("_isWet", 0);
     }

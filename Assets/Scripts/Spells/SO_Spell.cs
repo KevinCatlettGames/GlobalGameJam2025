@@ -2,10 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
+using Unity.Netcode; 
 
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
+
+    public int spellIndex; 
+    
     [Header("UI")]
     public Sprite SpellIcon;
 
@@ -31,12 +35,24 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected EventReference spellEventStruct;
 
     protected BasicBubble bubbleScript;
-    public virtual float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
+    public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
     {
         dir.Normalize();
-        pos += dir * (bubbleSize / 2f + 1f);
-        bubbleScript = Instantiate(bubble, pos, Quaternion.LookRotation(dir)).GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
+
+        float safeDistance = playerCollider.bounds.extents.z + 1;
+        pos += dir * safeDistance;
+
+        if (NetworkManager.Singleton.IsServer)
+        {
+            GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
+
+            bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
+            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize,
+                inflationSpeed, dir, castEventStruct, playerCollider);
+
+            bubbleInstance.GetComponent<NetworkObject>().Spawn();
+        }
+
         return spellCooldown;
     }
     public Mesh GetMesh()

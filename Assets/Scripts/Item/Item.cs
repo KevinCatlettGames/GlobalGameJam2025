@@ -1,10 +1,9 @@
 using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Item : MonoBehaviour
+public class Item : NetworkBehaviour
 {
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
@@ -17,30 +16,44 @@ public class Item : MonoBehaviour
     [Header("Item Despawn")]
     [SerializeField] private EventReference despawnEvent;
     [SerializeField] private float itemDuration = 10f;
-    [SerializeField] private float itemBlinkDuration = 2f;
-    [SerializeField] private float itemBlinkIntervall = .4f;
+    [SerializeField] private float itemBlinkDuration = 10f;
+    [SerializeField] private float itemBlinkIntervall = 0.4f;
     [SerializeField] private Material itemMaterial;
-    public SO_Spell spell;
+
     private Material spellMaterial;
+    public SO_Spell spell;
+
+    private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
+    private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
+
+    private bool isBlinking = false;
+    private float blinkStartTime;
+
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
     [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
-    private void Start()
+
+    public override void OnNetworkSpawn()
     {
-        if (spell == null)
+        if (IsServer)
         {
-            int r = Random.Range(0, spells.Length);
-            spell = spells[r];
+            int r = 0;
+            if (spell == null)
+            {
+                r = Random.Range(0, spells.Length);
+                spell = spells[r];
+            }
+
+            spellIndex.Value = r;
+            serverSpawnTime.Value = (float)NetworkManager.ServerTime.Time;
+            SetupSpell(r);
+            StartCoroutine(ServerItemDespawn());
         }
-        meshFilter.mesh = spell.GetMesh();
-        spellMaterial = spell.GetMaterial();
-        meshRenderer.material = spellMaterial;
-        Material[] effectMaterials = spell.GetEffectMaterials();
-        if (effectMaterials != null && effectMaterials.Length == 2)
+        else
         {
-            wrapParticleRenderer.material = effectMaterials[0];
-            sparkleParticleSystem.material = effectMaterials[1];
+            spellIndex.OnValueChanged += (oldVal, newVal) => SetupSpell(newVal);
+            if (spellIndex.Value >= 0)
+                SetupSpell(spellIndex.Value);
         }
-        StartCoroutine(ItemDespawn());
     }
 
     public SO_Spell EquipSpell()
@@ -49,54 +62,160 @@ public class Item : MonoBehaviour
         return spell;
     }
 
+    private void Update()
+    {
+        if (!IsSpawned || spell == null || isBlinking)
+            return;
+
+        float timeSinceSpawn = (float)NetworkManager.Singleton.ServerTime.Time - serverSpawnTime.Value;
+
+        if (timeSinceSpawn >= (itemDuration - itemBlinkDuration))
+        {
+            StartCoroutine(ClientBlinkEffectLoop());
+            isBlinking = true;
+        }
+    }
+
+    private void SetupSpell(int index)
+    {
+        spell = spells[index];
+        meshFilter.mesh = spell.GetMesh();
+
+        spellMaterial = spell.GetMaterial();
+        meshRenderer.material = spellMaterial;
+
+        Material[] effectMaterials = spell.GetEffectMaterials();
+        if (effectMaterials != null && effectMaterials.Length == 2)
+        {
+            wrapParticleRenderer.material = effectMaterials[0];
+            sparkleParticleSystem.material = effectMaterials[1];
+        }
+    }
+
     private IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
+
         ItemSpawner.Instance.currentAmount--;
         if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
-        Destroy(gameObject);
+        if (IsServer)
+            GetComponent<NetworkObject>().Despawn();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player")) 
+        if (!IsServer)
+            return;
+
+        if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, true);
+            if (GameManager.Instance.playingLocal)
+            {
+                UpdateItemToEquipLocal(other.gameObject, this, true);
+            }
+            else
+            {
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), true);
+                }
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (!IsServer)
+            return;
+
+        if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, false);
+            if (GameManager.Instance.playingLocal)
+            {
+                UpdateItemToEquipLocal(other.gameObject, this, false);
+            }
+            else
+            {
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), false);
+                }
+            }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateItemToEquipServerRpc(NetworkObjectReference playerRef, NetworkObjectReference itemRef, bool isInRange)
+    {
+        if (playerRef.TryGet(out NetworkObject playerNetObj) &&
+            itemRef.TryGet(out NetworkObject itemNetObj))
+        {
+            var player = playerNetObj.GetComponent<PlayerController>();
+            var item = itemNetObj.GetComponent<Item>();
+
+            if (player != null && item != null)
+            {
+                player.UpdateItemToEquip(item, isInRange);
+            }
+        }
+    }
+
+    private void UpdateItemToEquipLocal(GameObject player, Item item, bool isInRange)
+    {
+        if (player != null && item != null)
+            player.GetComponent<PlayerController>().UpdateItemToEquip(item, isInRange);
+    }
+
+    private IEnumerator ClientBlinkEffectLoop()
+    {
+        bool toggle = true;
+
+        while (true)
+        {
+            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
+            toggle = !toggle;
+            yield return new WaitForSeconds(itemBlinkIntervall);
+        }
+    }
+
+    private IEnumerator ServerItemDespawn()
+    {
+        yield return new WaitForSeconds(itemDuration);
+
+        float duration = itemBlinkDuration;
+        bool toggle = true;
+
+        while (duration > 0)
+        {
+            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
+            toggle = !toggle;
+            yield return new WaitForSeconds(itemBlinkIntervall);
+            duration -= itemBlinkIntervall;
+        }
+
+        ItemSpawner.Instance.currentAmount--;
+        GetComponent<NetworkObject>().Despawn();
     }
 
     private IEnumerator ItemDespawn()
     {
         yield return new WaitForSeconds(itemDuration);
-        bool material_b = true;
+
         float duration = itemBlinkDuration;
-        while (duration > 0) 
+        bool toggle = true;
+
+        while (duration > 0)
         {
-            if (material_b)
-            {
-                meshRenderer.material = itemMaterial;
-            }
-            else
-            {
-                meshRenderer.material = spellMaterial;
-            }
-            material_b = !material_b;
+            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
+            toggle = !toggle;
             yield return new WaitForSeconds(itemBlinkIntervall);
             duration -= itemBlinkIntervall;
         }
-        ItemSpawner.Instance.currentAmount--;    
+        ItemSpawner.Instance.currentAmount--;      
         RuntimeManager.PlayOneShotAttached(despawnEvent, gameObject);
-        Destroy(gameObject);
+        GetComponent<NetworkObject>().Despawn();
     }
 }

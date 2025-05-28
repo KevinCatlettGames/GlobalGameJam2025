@@ -17,11 +17,15 @@ public class ExplodingBubble : BasicBubble
     }
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
-        if (other.CompareTag("Player"))
+        if (hasPopped || !IsServer) return; 
+        if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID, direction, knockback, damage);
+            
+            if (GameManager.Instance.playingLocal)
+                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+            else
+                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
         }
         else if (other.CompareTag("Bubble"))
         {

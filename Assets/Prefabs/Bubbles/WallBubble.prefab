@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3235790210659217238}
   - component: {fileID: 1426892801025382703}
   - component: {fileID: 4012569885833722914}
+  - component: {fileID: 5048252494222165612}
   - component: {fileID: 6251728433243577970}
   - component: {fileID: 9020298231113251939}
   - component: {fileID: -8730021764368956111}
@@ -123,6 +124,31 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!114 &5048252494222165612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2140899757
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &6251728433243577970
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -135,10 +161,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 338fefc31e6f9794bb1d8b2ce2b885fb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isSlippy: 0
+  ShowTopMostFoldoutHeaderGroup: 1
   OwnerID: -1
+  direction: {x: 0, y: 0, z: 0}
+  hasPopped: 0
+  size: 0
+  damage: 1
+  knockback: 1
+  speed: 1
+  range: 1
+  sphereCollider: {fileID: 0}
+  currentSize: 0.01
+  playerCollider: {fileID: 0}
+  isSlippy: 0
   popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
+  inflationSpeed: 8
+  slippMod: 2
 --- !u!114 &9020298231113251939
 MonoBehaviour:
   m_ObjectHideFlags: 0

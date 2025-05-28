@@ -1,48 +1,21 @@
 using FMODUnity;
-using System;
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
 {
-    [SerializeField] private int healthPoints = 3;
-    private float healthIncrement = 0f;
-    private float currentHealth = 1f;
+    [SerializeField] private float extraOffset = 2f;
+
+    private bool isGrowing = false;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
-        healthIncrement = 1f / (float)healthPoints;
+        transform.position += direction * extraOffset;
     }
-
-    public override void BubbleCollision(GameObject other)
+    protected override void BubbleMovement()
     {
-        if (other.CompareTag("Player"))
-        {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(OwnerID ,direction, knockback * currentHealth, damage);
-            Pop();
-        }
-        else if (other.CompareTag("Bubble"))
-        {
-            DamageBubble();
-        }
-        else
-        {
-            Pop();
-        }
-    }
-    private void DamageBubble()
-    {
-        currentHealth -= healthIncrement;
-        if (currentHealth <= 0f)
-        {
-            Pop();
-            return;
-        }
-        transform.localScale = size * currentHealth * Vector3.one;
-        damage *= 2f;
-        speed *= 2f;
+        if (!sphereCollider.enabled) return;
+        base.BubbleMovement();
     }
 }

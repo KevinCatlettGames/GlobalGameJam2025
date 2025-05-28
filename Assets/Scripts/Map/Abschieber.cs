@@ -1,4 +1,5 @@
 using UnityEngine;
+using Unity.Netcode;
 
 public class Abschieber : MonoBehaviour
 {
@@ -19,7 +20,7 @@ public class Abschieber : MonoBehaviour
                 direction.Normalize();
             }
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            player.ApplyKnockback(-1, direction, knockback * Time.deltaTime, damage * Time.deltaTime);
+            player.ApplyKnockbackServerRpc(-1, direction, knockback * Time.deltaTime, damage * Time.deltaTime);
         }
     }
 }

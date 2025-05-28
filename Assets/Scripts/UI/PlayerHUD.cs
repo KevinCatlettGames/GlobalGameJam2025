@@ -11,19 +11,22 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] private Image secondSpellImage;
     [SerializeField] private Image secondCoverImage;
     private float firstCoverFill = 0f;
-    private float firsCDRate = 1f;
+    private float firstCDRate = 1f;
     private float secondCoverFill = 0f;
     private float secondCDRate = 1f;
+
     [Header("Damage")]
     [SerializeField] private TypewriterByWord damageTypewriter;
     [SerializeField] private TextMeshProUGUI damageText;
-    [SerializeField] private float gradientEvalueateFactor = 0.005f;
+    [SerializeField] private float gradientEvaluateFactor = 0.005f;
     [SerializeField] private Gradient damageTextColorGradient;
+
     [Header("UI Elements")]
     [SerializeField] private Image portrait;
-    [SerializeField] Color deathColor;
+    [SerializeField] private Color deathColor;
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
+
     [Header("Score")]
     [SerializeField] private TypewriterByWord winsTypewriter;
     [SerializeField] private TypewriterByWord killsTypewriter;
@@ -38,21 +41,24 @@ public class PlayerHUD : MonoBehaviour
         killsTypewriter.ShowText(kills.ToString());
         winsTypewriter.ShowText(wins.ToString());
     }
+
     private void Update()
     {
-        if (firstCoverFill > 0)
+        if (firstCoverFill > 0f)
         {
-            firstCoverFill -= firsCDRate * Time.deltaTime;
-            if (firstCoverFill < 0) firstCoverFill = 0;
+            firstCoverFill -= firstCDRate * Time.deltaTime;
+            firstCoverFill = Mathf.Max(firstCoverFill, 0f);
             firstCoverImage.fillAmount = firstCoverFill;
         }
-        if (secondCoverFill > 0) 
+
+        if (secondCoverFill > 0f)
         {
             secondCoverFill -= secondCDRate * Time.deltaTime;
-            if(secondCoverFill < 0) secondCoverFill = 0;
+            secondCoverFill = Mathf.Max(secondCoverFill, 0f);
             secondCoverImage.fillAmount = secondCoverFill;
         }
     }
+
     public void SetSpell(int spellID, Sprite spellImage)
     {
         switch (spellID)
@@ -68,7 +74,8 @@ public class PlayerHUD : MonoBehaviour
                 secondCoverImage.fillAmount = secondCoverFill;
                 break;
             default:
-                return;
+                Debug.LogWarning($"SetSpell called with invalid spellID: {spellID}");
+                break;
         }
     }
 
@@ -77,12 +84,11 @@ public class PlayerHUD : MonoBehaviour
         if (damageText != null)
         {
             damageTypewriter.ShowText(damage.ToString());
-            //damageText.text = damage.ToString();
-            float colorValue = damage * gradientEvalueateFactor;
+            float colorValue = damage * gradientEvaluateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
         }
     }
-    
+
     public void SetSpellCooldown(int spellID, float cooldownRate)
     {
         switch (spellID)
@@ -90,7 +96,7 @@ public class PlayerHUD : MonoBehaviour
             case 1:
                 firstCoverFill = 1f;
                 firstCoverImage.fillAmount = firstCoverFill;
-                firsCDRate = cooldownRate;
+                firstCDRate = cooldownRate;
                 break;
             case 2:
                 secondCoverFill = 1f;
@@ -98,7 +104,8 @@ public class PlayerHUD : MonoBehaviour
                 secondCDRate = cooldownRate;
                 break;
             default:
-                return;
+                Debug.LogWarning($"SetSpellCooldown called with invalid spellID: {spellID}");
+                break;
         }
     }
 
@@ -107,27 +114,31 @@ public class PlayerHUD : MonoBehaviour
         wins++;
         winsTypewriter.ShowText(wins.ToString());
     }
+
     public void AddKill()
     {
         kills++;
         killsTypewriter.ShowText(kills.ToString());
     }
+
     public void DisplayDeath()
     {
         portrait.color = deathColor;
-        UICover.SetActive(true);    
+        UICover.SetActive(true);
     }
+
     public void ResetHUD()
     {
         portrait.color = Color.white;
         UICover.SetActive(false);
         UpdateDamageText(0);
     }
+
     public void InitialisePlayerHUD(Color playerColor, Sprite playerPortrait)
     {
-        for (int i = 0; i < coloredUI.Length; i++)
+        foreach (var uiElement in coloredUI)
         {
-            coloredUI[i].color = playerColor;
+            uiElement.color = playerColor;
         }
         portrait.sprite = playerPortrait;
     }

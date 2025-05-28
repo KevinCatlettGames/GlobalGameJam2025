@@ -1,40 +1,50 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using System.Collections.Generic;
+using Unity.Netcode;
+using UnityEngine.UI;
 using FMODUnity;
-using Unity.VisualScripting;
 
-public class PlayerManager : MonoBehaviour
+public class PlayerManager : NetworkBehaviour
 {
-    [SerializeField] private EventReference winSound;
-    [SerializeField] private PlayerHUD[] playerHUDs;
-    [SerializeField] private SO_Spell[] startingSpells;
-    private int firstSpellIndex = 0;
-    private int secondSpellIndex = 0;
-
     public static PlayerManager Instance;
 
-    [SerializeField] private Transform[] spawnPoints; // Array of spawn points
-    public List<GameObject> players;
+    [Header("Audio")]
+    [SerializeField] private EventReference winSound;
 
+    [Header("Player Setup")]
+    [SerializeField] private PlayerHUD[] playerHUDs;
+    [SerializeField] private SO_Spell[] startingSpells;
     [SerializeField] private Sprite[] playerSprites;
     [SerializeField] private Color[] colors;
+    [SerializeField] private Transform[] spawnPoints;
+
+    [Header("UI")]
+    public Button startGameButton;
+    
+    private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
+    private NetworkVariable<int> syncedSecondSpellIndex = new NetworkVariable<int>();
+    
+    public NetworkList<NetworkObjectReference> players = new NetworkList<NetworkObjectReference>();
+    private List<GameObject> localPlayers = new List<GameObject>();
 
     public Action OnPlayerWon;
 
+    private int playersInitializedCount = 0;
+    private bool initialSpellRerollComplete = false; 
+    
     private void Awake()
     {
+        // Ensure singleton pattern
         if (Instance == null)
         {
             Instance = this;
         }
         else
         {
-            Destroy(this);
+            Destroy(gameObject);
         }
-        players = new List<GameObject>();
-        RerollSpells();
     }
 
     private void Start()
@@ -42,52 +52,217 @@ public class PlayerManager : MonoBehaviour
         GameManager.Instance.OnGameStarted += ResetPlayers;
     }
 
-    public void OnPlayerJoined(PlayerInput input)
+    #region Player Joining and Initialization
+
+    public void JoinLocal(PlayerInput input)
     {
-        int playerID = input.playerIndex;
-        playerHUDs[playerID].gameObject.SetActive(true);
-        playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
-        input.GetComponent<CharacterController>().enabled = false;
+        if (!initialSpellRerollComplete)
+        {
+            RerollSpells();
+            initialSpellRerollComplete = true;
+        }
+        
+        Debug.Log("JoinLocal");
+        int playerID = playersInitializedCount++;
+        if (!ValidatePlayerID(playerID)) return;
+
+        SetupPlayerHUD(playerID);
+
+        // Disable character controller before moving to spawn position
+        var characterController = input.GetComponent<CharacterController>();
+        characterController.enabled = false;
+
         input.transform.position = spawnPoints[playerID].position;
         input.transform.rotation = spawnPoints[playerID].rotation;
-        players.Add(input.gameObject);
-        PlayerController playerController = input.GetComponent<PlayerController>();
-        Gamepad gamePad = input.GetDevice<Gamepad>();
+        
+        var playerController = input.GetComponent<PlayerController>();
+        playerController.InitializeLocal();
+
+        // Setup controller rumbler if gamepad exists
+        var gamePad = input.GetDevice<Gamepad>();
         ControllerRumbler rumbler = null;
         if (gamePad != null)
         {
-            rumbler = input.AddComponent<ControllerRumbler>();
+            rumbler = input.gameObject.AddComponent<ControllerRumbler>();
             rumbler.SetController(gamePad);
         }
+
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
-        playerController.SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
-        input.GetComponent<CharacterController>().enabled = true;
+        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+
+        characterController.enabled = true;
+
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
-        GameManager.Instance.ChangePlayerState(playerID, PlayerState.alive);
+        GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
     }
+
+    public void OnPlayerJoined(PlayerInput input)
+    {
+        Debug.Log("OnPlayerJoined");
+        int playerID = playersInitializedCount++;
+        if (!ValidatePlayerID(playerID)) return;
+
+        SetupPlayerHUD(playerID);
+
+        var characterController = input.GetComponent<CharacterController>();
+        characterController.enabled = false;
+
+        input.transform.position = spawnPoints[playerID].position;
+        input.transform.rotation = spawnPoints[playerID].rotation;
+
+        var playerController = input.GetComponent<PlayerController>();
+
+        var gamePad = input.GetDevice<Gamepad>();
+        ControllerRumbler rumbler = null;
+        if (gamePad != null)
+        {
+            rumbler = input.gameObject.AddComponent<ControllerRumbler>();
+            rumbler.SetController(gamePad);
+        }
+
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
+        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+
+        characterController.enabled = true;
+
+        ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID]);
+        GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddPlayerServerRpc(NetworkObjectReference playerRef)
+    {
+        players.Add(playerRef);
+    }
+
+    public void AddPlayerLocal(PlayerInput input)
+    {
+        localPlayers.Add(input.gameObject);
+    }
+
+    public void Initialize()
+    {
+        RerollSpells();
+        Debug.Log($"Initializing players: Count = {players.Count}");
+        foreach (var playerRef in players)
+        {
+            if (playerRef.TryGet(out NetworkObject networkObject))
+            {
+                networkObject.GetComponent<PlayerController>().InitializeClientRpc();
+            }
+        }
+    }
+
+    #endregion
+
+    #region Player Reset and Spell Management
 
     private void ResetPlayers()
     {
         RerollSpells();
 
-        foreach (GameObject player in players)
+        if (GameManager.Instance.playingLocal)
         {
-            player.GetComponent<PlayerStateHandler>().ResetPlayer();
-
-            player.GetComponent<PlayerController>().SetSpells(startingSpells[firstSpellIndex], startingSpells[secondSpellIndex]);
+            foreach (var player in localPlayers)
+            {
+                ResetPlayerComponents(player);
+            }
         }
+        else
+        {
+            foreach (var playerRef in players)
+            {
+                if (playerRef.TryGet(out NetworkObject networkObject))
+                {
+                    ResetPlayerComponents(networkObject.gameObject);
+                }
+                else
+                {
+                    Debug.LogWarning("Failed to resolve player reference.");
+                }
+            }
+        }
+    }
+
+    private void ResetPlayerComponents(GameObject player)
+    {
+        var stateHandler = player.GetComponent<PlayerStateHandler>();
+        var controller = player.GetComponent<PlayerController>();
+
+        stateHandler.ResetPlayer();
+
+        controller.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+
+        var animator = controller.mainAnimator;
+        animator.SetBool("IsDead", false);
+        animator.SetBool("Victory", false);
     }
 
     private void RerollSpells()
     {
-        firstSpellIndex = UnityEngine.Random.Range(0, startingSpells.Length);
-        secondSpellIndex = UnityEngine.Random.Range(0,startingSpells.Length);
+        if (!IsServer && !GameManager.Instance.playingLocal) return;
+
+        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
+        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
+    }
+
+    #endregion
+
+    #region Utilities
+
+    private bool ValidatePlayerID(int playerID)
+    {
+        if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
+        {
+            Debug.LogError("Too many players for available HUDs or spawn points!");
+            return false;
+        }
+        return true;
+    }
+
+    private void SetupPlayerHUD(int playerID)
+    {
+        playerHUDs[playerID].gameObject.SetActive(true);
+        playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
     }
 
     public void ResetPlayerPosition(int playerID)
     {
-        players[playerID].transform.position = spawnPoints[playerID].transform.position;
-        players[playerID].transform.rotation = spawnPoints[playerID].transform.rotation;
+        if (GameManager.Instance.playingLocal)
+        {
+            if (playerID < localPlayers.Count)
+            {
+                var localPlayer = localPlayers[playerID];
+                localPlayer.transform.position = spawnPoints[playerID].position;
+                localPlayer.transform.rotation = spawnPoints[playerID].rotation;
+            }
+            else
+            {
+                Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
+            }
+        }
+        else
+        {
+            if (playerID >= players.Count)
+            {
+                Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
+                return;
+            }
+
+            if (players[playerID].TryGet(out NetworkObject networkObject))
+            {
+                var playerGameObject = networkObject.gameObject;
+                playerGameObject.transform.position = spawnPoints[playerID].position;
+                playerGameObject.transform.rotation = spawnPoints[playerID].rotation;
+            }
+            else
+            {
+                Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+            }
+        }
     }
+
+    #endregion
 }

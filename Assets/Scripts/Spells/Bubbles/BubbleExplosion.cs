@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Unity.Netcode; 
 
-public class BubbleExplosion : MonoBehaviour
+public class BubbleExplosion : NetworkBehaviour
 {
     private List<PlayerController> effectedPlayers = new List<PlayerController>();
     private List<BasicBubble> effectedBubbles = new List<BasicBubble>();
@@ -18,7 +19,10 @@ public class BubbleExplosion : MonoBehaviour
                 if (player != null)
                 {
                     Vector3 kockbackDirection = player.transform.position - transform.position;
-                    player.ApplyKnockback(OwnerID, kockbackDirection, knockback, damage);
+                    if (GameManager.Instance.playingLocal)
+                        player.ApplyKnockbackLocal(OwnerID, kockbackDirection, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(OwnerID, kockbackDirection, knockback, damage);
                 }
             }
         }

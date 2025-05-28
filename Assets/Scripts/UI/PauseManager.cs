@@ -1,18 +1,20 @@
 using FMODUnity;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
+using Unity.Services.Lobbies;
+using Unity.Services.Authentication;
 
 public class PauseManager : MonoBehaviour
 {
     [SerializeField] private EventReference togglePauseSound; 
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
-    private EventSystem eventSystem;
     [SerializeField] private GameObject selectedGameObject;
     [SerializeField] private GameObject controlsGraphic;
 
+    private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = true;
 
@@ -20,34 +22,45 @@ public class PauseManager : MonoBehaviour
     {
         eventSystem = EventSystem.current;
     }
-    void Update()
+
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton6))
         {
             TogglePause();
         }
     }
-
-    public void TogglePause()
+    
+    private void TogglePause()
     {
-        RuntimeManager.PlayOneShot(togglePauseSound, gameObject.transform.position);
+        RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
         controlsGraphic.SetActive(false);
-        pauseMenu.SetActive(!pauseMenu.activeSelf);
-        if (Time.timeScale > 0)
+
+        bool isCurrentlyPaused = pauseMenu.activeSelf;
+        pauseMenu.SetActive(!isCurrentlyPaused);
+
+        if (!isCurrentlyPaused)
         {
             GameManager.IsGamePaused = true;
             SetSelected();
-            Time.timeScale = 0f;
+
+            if (GameManager.Instance.playingLocal)
+                Time.timeScale = 0f;
+
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
         }
         else
         {
             GameManager.IsGamePaused = false;
-            Time.timeScale = 1f;
-            Cursor.lockState= CursorLockMode.Locked;
+
+            if (GameManager.Instance.playingLocal)
+                Time.timeScale = 1f;
+
+            Cursor.lockState = CursorLockMode.Locked;
             Cursor.visible = false;
-            if (!isPauseMenuOpen)
+
+            if (!isPauseMenuOpen && currentSubMenu != null)
             {
                 currentSubMenu.SetActive(false);
                 pauseMenuButtons.SetActive(true);
@@ -59,9 +72,23 @@ public class PauseManager : MonoBehaviour
 
     public void RestartGame()
     {
-        Time.timeScale = 1f;
         GameManager.IsGamePaused = false;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        if (GameManager.Instance.playingLocal)
+        {
+            Time.timeScale = 1f;
+            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        }
+        else
+        {
+            RestartGameServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RestartGameServerRpc()
+    {
+        Time.timeScale = 1f;
+        NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 
     public void QuitGame()
@@ -73,6 +100,7 @@ public class PauseManager : MonoBehaviour
     {
         controlsGraphic.SetActive(!controlsGraphic.activeSelf);
     }
+
     public void ToggleSubMenu(GameObject subMenu)
     {
         if (isPauseMenuOpen)
@@ -90,13 +118,42 @@ public class PauseManager : MonoBehaviour
             currentSubMenu = null;
         }
     }
-    public void ReturnToMainMenu()
+
+    public async void ReturnToMainMenu()
     {
         Time.timeScale = 1f;
+
+        try
+        {
+            if (GlobalLobby.CurrentLobby != null)
+            {
+                if (NetworkManager.Singleton.IsHost)
+                {
+                    await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
+                }
+                else
+                {
+                    string playerId = AuthenticationService.Instance.PlayerId;
+                    await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
+                }
+                GlobalLobby.CurrentLobby = null;
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Error leaving lobby: {e.Message}");
+        }
+
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+        {
+            NetworkManager.Singleton.Shutdown();
+        }
+
         SceneManager.LoadScene(0);
     }
-    public void SetSelected()
+    
+    private void SetSelected()
     {
-        eventSystem.SetSelectedGameObject(selectedGameObject.gameObject);
+        eventSystem.SetSelectedGameObject(selectedGameObject);
     }
 }

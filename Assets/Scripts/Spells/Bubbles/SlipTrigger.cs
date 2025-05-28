@@ -4,14 +4,17 @@ using UnityEngine;
 
 public class SlipTrigger : MonoBehaviour
 {
-    private List<PlayerController> sliperyPlayers = new List<PlayerController>();
+    private List<PlayerController> slipperyPlayers = new List<PlayerController>();
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            player.SetSlippy(true);
-            sliperyPlayers.Add(player);
+         
+                player.SetSlippy(true);
+                slipperyPlayers.Add(player);
+            
         }
         else if (other.CompareTag("Bubble"))
         {
@@ -19,21 +22,26 @@ public class SlipTrigger : MonoBehaviour
             bubble.SetSlippy();
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            player.SetSlippy(false);
-            sliperyPlayers.Remove(player);
+          
+                player.SetSlippy(false);
+                slipperyPlayers.Remove(player);
+            
         }
-       
     }
+
     private void OnDestroy()
     {
-        foreach (PlayerController player in sliperyPlayers)
-        {
-            player.SetSlippy(false);
-        }
+       
+            foreach (PlayerController player in slipperyPlayers)
+            {
+                player.SetSlippy(false);
+            }
+        
     }
 }

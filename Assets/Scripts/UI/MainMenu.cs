@@ -1,4 +1,3 @@
-
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
@@ -22,11 +21,14 @@ public class MainMenu : MonoBehaviour
         }
     }
 
-    public void StartGameLocal()
+    void Update()
     {
-        SceneManager.LoadScene(1);
+        if (!Cursor.visible && (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
+        {
+            Cursor.visible = true;
+        }
     }
-
+    
     public void QuitGame()
     {
         Application.Quit();
