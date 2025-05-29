@@ -778,6 +778,12 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &596800493 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
+    type: 3}
+  m_PrefabInstance: {fileID: 281196417}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &799921728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1013,6 +1019,26 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!1 &1494538721 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6219667997284281647, guid: 88dc1d66c30f3504e9f67d62de862b50,
+    type: 3}
+  m_PrefabInstance: {fileID: 2026038083278081566}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1494538723
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1494538721}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blastZoneEffect: {fileID: 596800493}
+  isFloor: 1
 --- !u!1 &1633747221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1387,6 +1413,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
     type: 3}
+  isFloor: 0
 --- !u!65 &2039745668
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -2256,6 +2283,10 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 275683075}
     m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 6219667997284281647, guid: 88dc1d66c30f3504e9f67d62de862b50,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1494538723}
     - targetCorrespondingSourceObject: {fileID: 7588869869528465626, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       insertIndex: -1
