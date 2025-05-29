@@ -778,12 +778,6 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1 &596800493 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
-    type: 3}
-  m_PrefabInstance: {fileID: 281196417}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &799921728
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1032,13 +1026,16 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1494538721}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  blastZoneEffect: {fileID: 596800493}
+  blastZoneEffect: {fileID: 6523284395744437750, guid: b7173a26e7008004ba78c4bb9a5ef9db,
+    type: 3}
   isFloor: 1
+  delayFloor: 0.75
+  yOffsetFloor: 5
 --- !u!1 &1633747221
 GameObject:
   m_ObjectHideFlags: 0
@@ -1414,6 +1411,8 @@ MonoBehaviour:
   blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
     type: 3}
   isFloor: 0
+  delayFloor: 0.75
+  yOffsetFloor: 5
 --- !u!65 &2039745668
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -1807,8 +1806,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
+      propertyPath: m_Size.y
+      value: 30
+      objectReference: {fileID: 0}
+    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
+        type: 3}
       propertyPath: m_Size.z
       value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
+        type: 3}
+      propertyPath: m_Center.y
+      value: -15
       objectReference: {fileID: 0}
     - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
