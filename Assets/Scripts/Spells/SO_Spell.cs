@@ -39,7 +39,7 @@ public class SO_Spell : ScriptableObject
     {
         dir.Normalize();
 
-        float safeDistance = playerCollider.bounds.extents.z + 1;
+        float safeDistance = playerCollider.bounds.extents.z + .5f;
         pos += dir * safeDistance;
 
         if (NetworkManager.Singleton.IsServer)

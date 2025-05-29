@@ -115,6 +115,7 @@ public class BasicBubble : NetworkBehaviour
             OwnerID = reflector.OwnerID;
             Vector3 reflectNormal = collision.contacts[0].normal;
             Reflect(reflectNormal);
+            Debug.Log("Reflect");
             return;
         }
 
@@ -149,7 +150,7 @@ public class BasicBubble : NetworkBehaviour
             yield return null;
         }
 
-        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Wall"));
 
         foreach (var col in overlaps)
         {
