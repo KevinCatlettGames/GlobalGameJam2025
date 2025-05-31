@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using static UnityEngine.Rendering.PostProcessing.SubpixelMorphologicalAntialiasing;
 
 public class Settings : MonoBehaviour
 {
@@ -106,10 +107,14 @@ public class Settings : MonoBehaviour
     {
         QualitySettings.SetQualityLevel(option);
         PlayerPrefs.SetInt("QualityLevel", option);
+        if (option == 0)
+            Application.targetFrameRate = 60;
+        else
+            Application.targetFrameRate = -1;
     }
     private void InitialiseResolutions()
     {
-        if (resolutionsWidth.Length != resolutionsHeight .Length)
+        if (resolutionsWidth.Length != resolutionsHeight.Length)
         {
             Debug.Log("Resolution Arrays dont match");
             return;

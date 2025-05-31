@@ -37,7 +37,12 @@ public class SettingsInitialiser : MonoBehaviour
             Screen.fullScreen = false;
         }
 
-        int quality = PlayerPrefs.GetInt("QualityLevl", 2);
+        int quality = PlayerPrefs.GetInt("QualityLevel", 2);
         QualitySettings.SetQualityLevel(quality);
+        if (quality == 0)
+            Application.targetFrameRate = 60;
+        else
+            Application.targetFrameRate = -1;
+
     }
 }
