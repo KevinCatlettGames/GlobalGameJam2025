@@ -1,0 +1,43 @@
+using UnityEngine;
+
+public class SettingsInitialiser : MonoBehaviour
+{
+    public static string MasterVolKey = "masterVoulume";
+    public static string SfxVolKey = "sfxVoulume";
+    public static string MusicVolKey = "musicVoulume";
+
+    [SerializeField] private float defaultValue = .5f;
+    [SerializeField] private bool resetAllPlayerPrefs = false;
+
+    private void Awake()
+    {
+        if (resetAllPlayerPrefs) PlayerPrefs.DeleteAll();
+    }
+    void Start()
+    {
+        FMOD.Studio.VCA masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Master");
+        FMOD.Studio.VCA sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/SFX");
+        FMOD.Studio.VCA musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Music");
+
+        //Debug.Log(PlayerPrefs.GetFloat(masterVolKey));
+        //Debug.Log(PlayerPrefs.GetFloat(sfxVolKey));
+        //Debug.Log(PlayerPrefs.GetFloat(musicVolKey));
+
+        masterVCA.setVolume(PlayerPrefs.GetFloat(MasterVolKey, defaultValue));
+        sfxVCA.setVolume(PlayerPrefs.GetFloat(SfxVolKey, defaultValue));
+        musicVCA.setVolume(PlayerPrefs.GetFloat(MusicVolKey,defaultValue));
+
+        int fullScreen = PlayerPrefs.GetInt("Fullscreen", 1);
+        if (fullScreen == 1)
+        {
+            Screen.fullScreen = true;
+        }
+        else
+        {
+            Screen.fullScreen = false;
+        }
+
+        int quality = PlayerPrefs.GetInt("QualityLevl", 2);
+        QualitySettings.SetQualityLevel(quality);
+    }
+}
