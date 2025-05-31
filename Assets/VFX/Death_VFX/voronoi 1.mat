@@ -7,19 +7,23 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GiantStage2_outline
-  m_Shader: {fileID: -6465566751694194690, guid: b4521aeaf701d414a9c8d1a23ee64079,
+  m_Name: voronoi 1
+  m_Shader: {fileID: -6465566751694194690, guid: 2309f8f0752064b41b1289e1ccb4b8ab,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
-  m_ValidKeywords: []
+  m_ValidKeywords:
+  - _ALPHATEST_ON
+  - _SURFACE_TYPE_TRANSPARENT
   m_InvalidKeywords: []
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
   m_CustomRenderQueue: -1
-  stringTagMap: {}
+  stringTagMap:
+    RenderType: Transparent
   disabledShaderPasses:
+  - DepthOnly
   - MOTIONVECTORS
   m_LockedProperties: 
   m_SavedProperties:
@@ -39,14 +43,27 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _OutlineThickness: 0.2
+    - _AlphaClip: 1
+    - _AlphaToMask: 0
+    - _Blend: 0
+    - _CastShadows: 1
+    - _Clip: 0.43
+    - _Cull: 2
+    - _DstBlend: 10
     - _QueueControl: 0
     - _QueueOffset: 0
+    - _SrcBlend: 5
+    - _Surface: 1
+    - _ZTest: 4
+    - _ZWrite: 0
+    - _ZWriteControl: 0
     m_Colors:
-    - _OutlineColor: {r: 0.21960786, g: 1, b: 0.2509804, a: 1}
+    - _Color: {r: 31.698112, g: 0, b: 4.3984475, a: 1}
+    - _VoronoiSpeed: {r: 0, g: 0, b: 0, a: 0}
+    - _VoronoiTiling: {r: 1, g: 1, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &4537271952077476538
+--- !u!114 &7918477602523618402
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
