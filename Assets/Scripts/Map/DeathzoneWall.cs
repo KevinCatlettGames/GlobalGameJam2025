@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class DeathzoneWall : MonoBehaviour
 {
+    [SerializeField] private float cameraShakeTime = .2f;
+    [SerializeField] private float cameraShakeIntensity = 1.0f;
     [SerializeField] GameObject blastZoneEffect;
     private Vector3 effectDirection;
     private Vector3 effectPosition;
@@ -24,7 +26,7 @@ public class DeathzoneWall : MonoBehaviour
                 effectDirection = other.GetComponent<CharacterController>().velocity * -1f;
                 Instantiate(blastZoneEffect, effectPosition, Quaternion.LookRotation(effectDirection));
             }
-            CameraShaker.instance.ShakeCamera(.3f, 20f);
+            CameraShaker.instance.ShakeCamera(cameraShakeTime, cameraShakeIntensity);
         }
     }
 
