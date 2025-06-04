@@ -181,8 +181,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44fae4276bd1d2f4193b7b36ba76ddf8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerPrefab: {fileID: 0}
   restartGameText: {fileID: 0}
   victoryAnimator: {fileID: 0}
+  playerInputManager: {fileID: 0}
+  playingLocal: 0
 --- !u!1 &4108901858045191531
 GameObject:
   m_ObjectHideFlags: 0
@@ -287,6 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1ab46762cf45504478907700c6ee8aa5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   winSound:
     Guid:
       Data1: 830205260
@@ -304,12 +309,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
   - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
   - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
-  spawnPoints:
-  - {fileID: 2737577178785275174}
-  - {fileID: 1647630035624308313}
-  - {fileID: 3164768564512664138}
-  - {fileID: 8757892686786655870}
-  players: []
   playerSprites:
   - {fileID: 21300000, guid: 4c8fa7cc3bf0fbc45b500479b7c6a161, type: 3}
   - {fileID: 21300000, guid: a5e4a14090dd9f046b9c176d49bae14f, type: 3}
@@ -320,6 +319,12 @@ MonoBehaviour:
   - {r: 0, g: 0.9500494, b: 1, a: 1}
   - {r: 1, g: 0, b: 0, a: 1}
   - {r: 1, g: 0, b: 0.76150465, a: 1}
+  spawnPoints:
+  - {fileID: 2737577178785275174}
+  - {fileID: 1647630035624308313}
+  - {fileID: 3164768564512664138}
+  - {fileID: 8757892686786655870}
+  startGameButton: {fileID: 0}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,7 +449,6 @@ MonoBehaviour:
   minSpawnInterval: 1
   maxSpawnInterval: 3
   spawnRadius: 21
-  spawnedItems: []
   maxAmount: 1
   currentAmount: 0
 --- !u!1 &7263817019907230709
