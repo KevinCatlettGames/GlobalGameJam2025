@@ -10,15 +10,6 @@ public class MainMenu : MonoBehaviour
     void Start()
     {
         SetSelected();
-        int fullScreen = PlayerPrefs.GetInt("Fullscreen", 1);
-        if (fullScreen == 1)
-        {
-            Screen.fullScreen = true;
-        }
-        else
-        {
-            Screen.fullScreen = false;
-        }
     }
 
     void Update()

@@ -6,9 +6,11 @@ using UnityEngine;
 public class CameraShaker : MonoBehaviour
 {
     public static CameraShaker instance;
-    public CinemachineVirtualCamera cam;
+    private CinemachineVirtualCamera cam;
     private CinemachineBasicMultiChannelPerlin shakePerlin;
     private float shakeTimer;
+    private Vector3 position;
+    private Quaternion rotation;
     /// <summary>
     /// Declares this as a singelton
     /// </summary>
@@ -24,6 +26,8 @@ public class CameraShaker : MonoBehaviour
         }
         cam = GetComponent<CinemachineVirtualCamera>();
         shakePerlin = cam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        position = transform.position;
+        rotation = transform.rotation;
     }
     /// <summary>
     /// This methods is called multiple times and starts to shake the camera 
@@ -32,21 +36,21 @@ public class CameraShaker : MonoBehaviour
     /// <param name="intesity">the intensity with witch it is shaked</param>
     public void ShakeCamera(float time, float intesity)
     {
+        if (shakeTimer > 0) return;
         shakeTimer = time;
         shakePerlin.m_AmplitudeGain = intesity;
+        StartCoroutine(ShakeCameraCoroutine());
     }
-    /// <summary>
-    /// Counts down the timer and stops the shaking if it reaches zero
-    /// </summary>
-    private void Update()
+
+    private IEnumerator ShakeCameraCoroutine()
     {
-        if (shakeTimer > 0)
+        while (shakeTimer > 0)
         {
             shakeTimer -= Time.deltaTime;
+            yield return null;
         }
-        else
-        {
-            shakePerlin.m_AmplitudeGain = 0;
-        }
+        shakePerlin.m_AmplitudeGain = 0;
+        transform.position = position;
+        transform.rotation = rotation;
     }
 }

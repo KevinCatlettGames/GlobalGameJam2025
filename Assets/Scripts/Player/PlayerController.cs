@@ -22,11 +22,13 @@ public class PlayerController : NetworkBehaviour
 
     #region Visuals & Effects
 
-    [Header("Visuals")] [SerializeField] private GameObject[] characters;
+    [Header("Visuals")] 
+    [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     [SerializeField] GameObject canvas;
 
-    [Header("Effects")] [SerializeField] private GameObject dashStartEffect;
+    [Header("Effects")] 
+    [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private ParticleSystem splashEffect;
     [SerializeField] private ParticleSystem wetEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
@@ -37,7 +39,8 @@ public class PlayerController : NetworkBehaviour
 
     #region Spells
 
-    [Header("Spells")] [SerializeField] private SO_Spell[] allSpells;
+    [Header("Spells")] 
+    [SerializeField] private SO_Spell[] allSpells;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
     private bool isFirstSpellReady = true;
@@ -49,7 +52,8 @@ public class PlayerController : NetworkBehaviour
 
     #region Damage
 
-    [Header("Damage")] [SerializeField] private float damageModifier = 0.05f;
+    [Header("Damage")] 
+    [SerializeField] private float damageModifier = 0.05f;
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
     private float damage = 0;
@@ -60,7 +64,8 @@ public class PlayerController : NetworkBehaviour
 
     #region Sprint
 
-    [Header("Sprint")] [SerializeField] private float playerSprintSpeed = 24f;
+    [Header("Sprint")] 
+    [SerializeField] private float playerSprintSpeed = 24f;
     [SerializeField] private float playerSprintDuration = 0.5f;
     [SerializeField] private float sprintCooldown = 3f;
     public float SprintCooldown => sprintCooldown;
@@ -74,9 +79,8 @@ public class PlayerController : NetworkBehaviour
 
     #region Movement & Physics
 
-    [Header("Player Stats")] [SerializeField]
-    private float playerSpeed = 2.0f;
-
+    [Header("Player Stats")] 
+    [SerializeField] private float playerSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
@@ -84,7 +88,6 @@ public class PlayerController : NetworkBehaviour
     private CharacterController controller;
     private bool groundedPlayer = false;
     private Vector3 playerVelocity;
-    private Vector3 move = Vector3.zero;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
@@ -208,8 +211,7 @@ public class PlayerController : NetworkBehaviour
                 if (movementInput != Vector2.zero)
                 {
                     Quaternion targetRotation = Quaternion.LookRotation(direction);
-                    transform.rotation =
-                        Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
+                    transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
                 }
             }
             else
@@ -227,8 +229,7 @@ public class PlayerController : NetworkBehaviour
             targetDirection = Vector3.zero;
         }
 
-        smoothMoveDirection =
-            Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
+        smoothMoveDirection = Vector3.SmoothDamp(smoothMoveDirection, targetDirection, ref moveVelocity, moveSmoothTime);
     }
 
     private void ApplyMovement()
@@ -296,7 +297,7 @@ public class PlayerController : NetworkBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || isDead.Value) return;
-
+        movementInput = context.ReadValue<Vector2>();
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
