@@ -465,7 +465,6 @@ public class PlayerController : NetworkBehaviour
         if (itemToEquip == null) return;
 
         SO_Spell spell = itemToEquip.EquipSpell();
-        UpdateEquippedSpell(spellID, spell);
         EquipSpellClientRpc(spellID, spell.spellIndex);
         itemToEquip = null;
     }

@@ -62,19 +62,6 @@ public class Item : NetworkBehaviour
         return spell;
     }
 
-    private void Update()
-    {
-        if (!IsSpawned || spell == null || isBlinking)
-            return;
-
-        float timeSinceSpawn = (float)NetworkManager.Singleton.ServerTime.Time - serverSpawnTime.Value;
-
-        if (timeSinceSpawn >= (itemDuration - itemBlinkDuration))
-        {
-            StartCoroutine(ClientBlinkEffectLoop());
-            isBlinking = true;
-        }
-    }
 
     private void SetupSpell(int index)
     {
@@ -96,6 +83,7 @@ public class Item : NetworkBehaviour
     {
         yield return new WaitForEndOfFrame();
 
+        StopAllCoroutines();
         ItemSpawner.Instance.currentAmount--;
         if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
@@ -169,6 +157,14 @@ public class Item : NetworkBehaviour
             player.GetComponent<PlayerController>().UpdateItemToEquip(item, isInRange);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void StartBlinkEffectServerRpc() => StartBlinkEffectClientRpc();
+
+    [ClientRpc]
+    private void StartBlinkEffectClientRpc()
+    {
+        StartCoroutine(ClientBlinkEffectLoop());
+    }
     private IEnumerator ClientBlinkEffectLoop()
     {
         bool toggle = true;
@@ -185,37 +181,11 @@ public class Item : NetworkBehaviour
     {
         yield return new WaitForSeconds(itemDuration);
 
-        float duration = itemBlinkDuration;
-        bool toggle = true;
+        StartBlinkEffectServerRpc();
 
-        while (duration > 0)
-        {
-            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
-            toggle = !toggle;
-            yield return new WaitForSeconds(itemBlinkIntervall);
-            duration -= itemBlinkIntervall;
-        }
+        yield return new WaitForSeconds(itemBlinkDuration);
 
         ItemSpawner.Instance.currentAmount--;
-        GetComponent<NetworkObject>().Despawn();
-    }
-
-    private IEnumerator ItemDespawn()
-    {
-        yield return new WaitForSeconds(itemDuration);
-
-        float duration = itemBlinkDuration;
-        bool toggle = true;
-
-        while (duration > 0)
-        {
-            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
-            toggle = !toggle;
-            yield return new WaitForSeconds(itemBlinkIntervall);
-            duration -= itemBlinkIntervall;
-        }
-        ItemSpawner.Instance.currentAmount--;      
-        RuntimeManager.PlayOneShotAttached(despawnEvent, gameObject);
         GetComponent<NetworkObject>().Despawn();
     }
 }
