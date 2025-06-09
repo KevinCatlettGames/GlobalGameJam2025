@@ -297,7 +297,6 @@ public class PlayerController : NetworkBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || isDead.Value) return;
-        movementInput = context.ReadValue<Vector2>();
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
