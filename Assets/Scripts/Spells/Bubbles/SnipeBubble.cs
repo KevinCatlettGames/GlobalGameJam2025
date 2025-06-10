@@ -54,7 +54,7 @@ public class SnipeBubble : BasicBubble
         {
             PlayerController player = other.GetComponent<PlayerController>();
             
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, currentDamage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, currentDamage);

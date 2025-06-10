@@ -98,7 +98,7 @@ public class Item : NetworkBehaviour
 
         if (other.CompareTag("Player"))
         {
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
             {
                 UpdateItemToEquipLocal(other.gameObject, this, true);
             }
@@ -120,7 +120,7 @@ public class Item : NetworkBehaviour
 
         if (other.CompareTag("Player"))
         {
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
             {
                 UpdateItemToEquipLocal(other.gameObject, this, false);
             }

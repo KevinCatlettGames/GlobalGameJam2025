@@ -60,7 +60,7 @@ public class SlipBubble : BasicBubble
         {
             PlayerController player = other.GetComponent<PlayerController>();
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
             {
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                 CreateSlimePuddleLocal(transform.position);

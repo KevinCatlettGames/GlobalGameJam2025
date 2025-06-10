@@ -42,7 +42,7 @@ public class PauseManager : MonoBehaviour
             GameManager.IsGamePaused = true;
             SetSelected();
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
 
             Cursor.lockState = CursorLockMode.None;
@@ -52,7 +52,7 @@ public class PauseManager : MonoBehaviour
         {
             GameManager.IsGamePaused = false;
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 1f;
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -71,7 +71,7 @@ public class PauseManager : MonoBehaviour
     public void RestartGame()
     {
         GameManager.IsGamePaused = false;
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
             NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
