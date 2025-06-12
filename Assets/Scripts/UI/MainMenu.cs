@@ -1,15 +1,30 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
+using UnityEngine.InputSystem.UI;
+using UnityEngine.InputSystem;
 
 public class MainMenu : MonoBehaviour
 {
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject selectedGameObject;
-    private bool isMainMenuOpen = true;
+    private GameObject currentSubMenu;
+
+    private InputSystemUIInputModule inputModuleUI;
+    private InputAction backAction;
     void Start()
     {
         SetSelected();
+        inputModuleUI = EventSystem.current.gameObject.GetComponent<InputSystemUIInputModule>();
+        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
+
+        if (backAction != null)
+        {
+            backAction.performed += OnBackInput;
+            backAction.Enable();
+        }
+
+        Vector2 mousePosition = new Vector2(.3f * Screen.width, .65f * Screen.height);
+        Mouse.current.WarpCursorPosition(mousePosition);
     }
 
     void Update()
@@ -27,22 +42,41 @@ public class MainMenu : MonoBehaviour
 
     public void ToggleSubMenu(GameObject subMenu)
     {
-        if (isMainMenuOpen)
+        if (currentSubMenu != null)
         {
-            subMenu.SetActive(true);
-            mainMenu.SetActive(false);
-            isMainMenuOpen = false;
+            currentSubMenu.SetActive(false);
+            mainMenu.SetActive(true);
+            SetSelected();
+            currentSubMenu = null;
         }
         else
         {
-            subMenu.SetActive(false);
-            mainMenu.SetActive(true);
-            isMainMenuOpen = true;
+            currentSubMenu = subMenu;
+            currentSubMenu.SetActive(true);
+            mainMenu.SetActive(false);
         }
     }
     public void SetSelected()
     {
         EventSystem eventSystem = EventSystem.current;
         eventSystem.SetSelectedGameObject(selectedGameObject);
+    }
+    public void SetSelected(GameObject selectedObject)
+    {
+        EventSystem eventSystem = EventSystem.current;
+        eventSystem.SetSelectedGameObject(selectedObject);
+    }
+
+    public void OnBackInput(InputAction.CallbackContext context)
+    {
+        ToggleSubMenu(null);
+    }
+
+    private void OnDestroy()
+    {
+        if (backAction != null)
+        {
+            backAction.performed -= OnBackInput;
+        }
     }
 }
