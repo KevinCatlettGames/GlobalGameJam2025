@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 public class PauseManager : MonoBehaviour
 {
@@ -16,29 +18,39 @@ public class PauseManager : MonoBehaviour
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = true;
+    private bool isCurrentlyPaused = false;
 
+    private InputSystemUIInputModule inputModuleUI;
+    private InputAction pauseAction;
+    private InputAction backAction;
     private void Start()
     {
         eventSystem = EventSystem.current;
-    }
+        inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
+        pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
+        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton6))
+        if (pauseAction != null)
         {
-            TogglePause();
+            pauseAction.performed += OnPauseInput;
+            pauseAction.Enable();
         }
+        if (backAction != null)
+        {
+            backAction.performed += OnBackInput;
+            backAction.Enable();
+        }
+
     }
     
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
-
-        bool isCurrentlyPaused = pauseMenu.activeSelf;
         pauseMenu.SetActive(!isCurrentlyPaused);
 
         if (!isCurrentlyPaused)
         {
+            isCurrentlyPaused = true;
             GameManager.IsGamePaused = true;
             SetSelected();
 
@@ -50,6 +62,7 @@ public class PauseManager : MonoBehaviour
         }
         else
         {
+            isCurrentlyPaused = false;
             GameManager.IsGamePaused = false;
 
             if (GameManager.Instance.PlayingLocal)
@@ -152,5 +165,37 @@ public class PauseManager : MonoBehaviour
     public void SetSelectedButton(GameObject gameObject)
     {
         eventSystem.SetSelectedGameObject(gameObject);
+    }
+    public void OnPauseInput(InputAction.CallbackContext context)
+    {
+         TogglePause();       
+    }
+    public void OnBackInput(InputAction.CallbackContext context)
+    {
+        if (!isCurrentlyPaused) return;
+        
+        if (!isPauseMenuOpen && currentSubMenu != null)
+        {
+            currentSubMenu.SetActive(false);
+            pauseMenuButtons.SetActive(true);
+            isPauseMenuOpen = true;
+            currentSubMenu = null;
+            SetSelected();
+        }
+        else
+        {
+            TogglePause();
+        }
+    }
+    private void OnDestroy()
+    {
+        if (pauseAction != null)
+        {
+            pauseAction.performed -= OnPauseInput;
+        }
+        if (backAction != null)
+        {
+            backAction.performed -= OnBackInput;
+        }
     }
 }

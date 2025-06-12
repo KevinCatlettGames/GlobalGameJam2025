@@ -65,6 +65,8 @@ public class PlayerManager : NetworkBehaviour
 
     public void JoinLocal(PlayerInput input)
     {
+        if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
+
         joinGameText.SetActive(false);
         Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
@@ -73,7 +75,6 @@ public class PlayerManager : NetworkBehaviour
         SetupPlayerHUD(playerID);
 
         // Disable character controller before moving to spawn position
-        var characterController = input.GetComponent<CharacterController>();
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
@@ -103,13 +104,14 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnPlayerJoined(PlayerInput input)
     {
+        if(!input.TryGetComponent<CharacterController>(out var characterController)) return;
+
         Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
         SetupPlayerHUD(playerID);
 
-        var characterController = input.GetComponent<CharacterController>();
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
