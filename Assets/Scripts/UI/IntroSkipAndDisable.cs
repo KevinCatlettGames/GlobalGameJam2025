@@ -10,6 +10,7 @@ public class IntroSkipAndDisable : MonoBehaviour
     [SerializeField] float skippableAfterSeconds = 3f;
     [SerializeField] StudioEventEmitter eventEmitter;
     [SerializeField] StudioEventEmitter bubbleEmitter;
+    [SerializeField] private GameObject blackImage; 
     private VideoPlayer videoPlayer;
     private bool isSkippable = false;
     private bool played = false;
@@ -28,6 +29,7 @@ public class IntroSkipAndDisable : MonoBehaviour
         {
             Debug.LogError("No VideoPlayer component found!");
         }
+        blackImage.SetActive(true);
     }
 
     void Start()
@@ -41,8 +43,9 @@ public class IntroSkipAndDisable : MonoBehaviour
     void OnVideoPrepared(VideoPlayer vp)
     {
         GetComponent<RawImage>().enabled = true;
-        eventEmitter.Play();
         videoPlayer.Play();
+        videoPlayer.time = 0;
+        eventEmitter.Play();
     }
 
     void Update()
@@ -71,5 +74,6 @@ public class IntroSkipAndDisable : MonoBehaviour
         played = true;
         videoPlayer.enabled = false;
         GetComponent<RawImage>().enabled = false;
+        blackImage.SetActive(false);
     }
 }
