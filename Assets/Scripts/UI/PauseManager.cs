@@ -5,6 +5,8 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
+using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.UI;
 
 public class PauseManager : MonoBehaviour
 {
@@ -16,43 +18,56 @@ public class PauseManager : MonoBehaviour
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = true;
+    private bool isCurrentlyPaused = false;
 
+    private InputSystemUIInputModule inputModuleUI;
+    private InputAction pauseAction;
+    private InputAction backAction;
     private void Start()
     {
         eventSystem = EventSystem.current;
-    }
+        inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
+        pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
+        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Escape) || Input.GetKeyDown(KeyCode.JoystickButton6))
+        if (pauseAction != null)
         {
-            TogglePause();
+            pauseAction.performed += OnPauseInput;
+            pauseAction.Enable();
         }
+        if (backAction != null)
+        {
+            backAction.performed += OnBackInput;
+            backAction.Enable();
+        }
+
     }
     
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
-
-        bool isCurrentlyPaused = pauseMenu.activeSelf;
         pauseMenu.SetActive(!isCurrentlyPaused);
 
         if (!isCurrentlyPaused)
         {
+            isCurrentlyPaused = true;
             GameManager.IsGamePaused = true;
             SetSelected();
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
+            Vector2 mousePosition = new Vector2(.35f * Screen.width, .75f * Screen.height);
+            Mouse.current.WarpCursorPosition(mousePosition);
         }
         else
         {
+            isCurrentlyPaused = false;
             GameManager.IsGamePaused = false;
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 1f;
 
             Cursor.lockState = CursorLockMode.Locked;
@@ -71,7 +86,7 @@ public class PauseManager : MonoBehaviour
     public void RestartGame()
     {
         GameManager.IsGamePaused = false;
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
             NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
@@ -152,5 +167,37 @@ public class PauseManager : MonoBehaviour
     public void SetSelectedButton(GameObject gameObject)
     {
         eventSystem.SetSelectedGameObject(gameObject);
+    }
+    public void OnPauseInput(InputAction.CallbackContext context)
+    {
+         TogglePause();       
+    }
+    public void OnBackInput(InputAction.CallbackContext context)
+    {
+        if (!isCurrentlyPaused) return;
+        
+        if (!isPauseMenuOpen && currentSubMenu != null)
+        {
+            currentSubMenu.SetActive(false);
+            pauseMenuButtons.SetActive(true);
+            isPauseMenuOpen = true;
+            currentSubMenu = null;
+            SetSelected();
+        }
+        else
+        {
+            TogglePause();
+        }
+    }
+    private void OnDestroy()
+    {
+        if (pauseAction != null)
+        {
+            pauseAction.performed -= OnPauseInput;
+        }
+        if (backAction != null)
+        {
+            backAction.performed -= OnBackInput;
+        }
     }
 }

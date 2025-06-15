@@ -21,7 +21,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private Transform[] spawnPoints;
 
     [Header("UI")]
-    public Button startGameButton;
+    public GameObject joinGameText;
     
     private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
     private NetworkVariable<int> syncedSecondSpellIndex = new NetworkVariable<int>();
@@ -32,7 +32,6 @@ public class PlayerManager : NetworkBehaviour
     public Action OnPlayerWon;
 
     private int playersInitializedCount = 0;
-    private bool initialSpellRerollComplete = false; 
     
     private void Awake()
     {
@@ -50,18 +49,25 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
+        RerollSpells();
+        Invoke(nameof(EnableJoinText), .3f);
+    }
+
+    private void EnableJoinText()
+    {
+        if (GameManager.Instance.PlayingLocal)
+        {
+            joinGameText.SetActive(true);
+        }
     }
 
     #region Player Joining and Initialization
 
     public void JoinLocal(PlayerInput input)
     {
-        if (!initialSpellRerollComplete)
-        {
-            RerollSpells();
-            initialSpellRerollComplete = true;
-        }
-        
+        if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
+
+        joinGameText.SetActive(false);
         Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
@@ -69,7 +75,6 @@ public class PlayerManager : NetworkBehaviour
         SetupPlayerHUD(playerID);
 
         // Disable character controller before moving to spawn position
-        var characterController = input.GetComponent<CharacterController>();
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
@@ -99,13 +104,14 @@ public class PlayerManager : NetworkBehaviour
 
     public void OnPlayerJoined(PlayerInput input)
     {
+        if(!input.TryGetComponent<CharacterController>(out var characterController)) return;
+
         Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
         SetupPlayerHUD(playerID);
 
-        var characterController = input.GetComponent<CharacterController>();
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
@@ -163,7 +169,7 @@ public class PlayerManager : NetworkBehaviour
     {
         RerollSpells();
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             foreach (var player in localPlayers)
             {
@@ -202,7 +208,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void RerollSpells()
     {
-        if (!IsServer && !GameManager.Instance.playingLocal) return;
+        if (!IsServer && !GameManager.Instance.PlayingLocal) return;
 
         syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
         syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
@@ -230,7 +236,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void ResetPlayerPosition(int playerID)
     {
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             if (playerID < localPlayers.Count)
             {

@@ -27,7 +27,7 @@ public class GameManager : NetworkBehaviour
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
 
     public PlayerInputManager playerInputManager;
-    public bool playingLocal = false;
+    public bool PlayingLocal = false;
 
     private void Awake()
     {
@@ -48,7 +48,7 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
         else
-            playingLocal = true;
+            PlayingLocal = true;
     }
 
     private void OnDisable()
@@ -73,7 +73,7 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
             ChangePlayerStatesLocal(playerStates);
-            playingLocal = true;
+            PlayingLocal = true;
             playerInputManager.enabled = true;
         }
         else if (IsServer)

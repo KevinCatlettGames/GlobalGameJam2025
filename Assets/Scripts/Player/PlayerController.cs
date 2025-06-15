@@ -175,7 +175,7 @@ public class PlayerController : NetworkBehaviour
     private void Update()
     {
         if (!initialized || isDead.Value) return;
-        if (!GameManager.Instance.playingLocal && !IsOwner) return;
+        if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
         HandleGravity();
@@ -262,7 +262,7 @@ public class PlayerController : NetworkBehaviour
     {
         bool isMoving = movementInput.sqrMagnitude > 0.01f;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             mainAnimator?.SetBool("IsWalking", isMoving);
         else
             WalkingAnimServerRpc(new Vector3(movementInput.x, 0, movementInput.y));
@@ -297,7 +297,6 @@ public class PlayerController : NetworkBehaviour
     public void OnMove(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || isDead.Value) return;
-        movementInput = context.ReadValue<Vector2>();
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
@@ -345,7 +344,7 @@ public class PlayerController : NetworkBehaviour
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             CastSpellLocal(isFirstSpell);
         else
             CastSpellServerRpc(isFirstSpell);
@@ -355,7 +354,7 @@ public class PlayerController : NetworkBehaviour
         else
             secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
@@ -408,7 +407,7 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator CooldownCoroutine(float time, int spellID)
     {
         yield return new WaitForSeconds(time);
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             CooldownCompleteLocal(spellID);
         else
             CooldownCompleteClientRpc(spellID);
@@ -444,7 +443,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(1);
         else
             EquipSpellServerRpc(1);
@@ -454,7 +453,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(2);
         else
             EquipSpellServerRpc(2);
@@ -466,7 +465,6 @@ public class PlayerController : NetworkBehaviour
         if (itemToEquip == null) return;
 
         SO_Spell spell = itemToEquip.EquipSpell();
-        UpdateEquippedSpell(spellID, spell);
         EquipSpellClientRpc(spellID, spell.spellIndex);
         itemToEquip = null;
     }
@@ -525,7 +523,7 @@ public class PlayerController : NetworkBehaviour
 
         sprintCoroutine = StartCoroutine(SprintCoroutine());
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             if (dashStartEffect != null)
             {
@@ -547,7 +545,7 @@ public class PlayerController : NetworkBehaviour
         moveSmoothTime = 0f;
         isSprinting = true;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             OnBeginSprint?.Invoke();
         else
             BeginSprintServerRpc();
@@ -558,7 +556,7 @@ public class PlayerController : NetworkBehaviour
         moveSmoothTime = originalSmooth;
         isSprinting = false;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             OnEndSprint?.Invoke();
         else
             EndSprintServerRpc();
@@ -601,7 +599,7 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.IsGamePaused || !context.performed) return;
 
         Vector2 value = context.ReadValue<Vector2>();
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             TriggerEmote(value);
         else
             EmoteAnimServerRpc(value);
@@ -627,7 +625,7 @@ public class PlayerController : NetworkBehaviour
 
     public void UpdateItemToEquip(Item item, bool isInRange)
     {
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             if (isInRange)
                 itemToEquip = item.GetComponent<Item>();
@@ -761,7 +759,7 @@ public class PlayerController : NetworkBehaviour
 
         knockbackVelocity += knockback;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
             RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
@@ -812,7 +810,7 @@ public class PlayerController : NetworkBehaviour
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
             RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
@@ -850,7 +848,7 @@ public class PlayerController : NetworkBehaviour
         isDead.Value = true;
         controller.enabled = false; 
         
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetBool("IsDead", true);
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
@@ -862,7 +860,7 @@ public class PlayerController : NetworkBehaviour
 
         if (playerID == killCreditID) killCreditID = -1;
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             GameManager.Instance.DeathReportLocal(playerID, killCreditID);
             DisableUIElementsLocal();
@@ -925,7 +923,7 @@ public class PlayerController : NetworkBehaviour
     #region PlayerManager
     public void Victory()
     {
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
             mainAnimator.SetBool("Victory", true);
         else
             VictoryAnimServerRpc(true);
@@ -947,7 +945,7 @@ public class PlayerController : NetworkBehaviour
 
         shaderManager?.ResetShader();
 
-        if (GameManager.Instance.playingLocal)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetBool("IsDead", false);
             mainAnimator.SetBool("Victory", false);

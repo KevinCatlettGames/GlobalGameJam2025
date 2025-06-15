@@ -9,8 +9,6 @@ public class BasicBubble : NetworkBehaviour
     protected Vector3 direction;
     protected bool hasPopped;
     protected float size;
-    private bool slippyApplied = false;
-    private bool canReflect = true;
     
     protected float damage = 1.0f;
     protected float knockback = 1.0f;
@@ -20,11 +18,13 @@ public class BasicBubble : NetworkBehaviour
     protected SphereCollider sphereCollider;
     protected float currentSize = 0.01f;
     protected Collider playerCollider;
-    protected bool isSlippy = false;
+    protected bool isSoaped = false;
     protected float inflationSpeed = 8f;
 
     [SerializeField] private GameObject popEffect;
-    [SerializeField] private float slippMod = 2f;
+    private float soapSpeedAmp = 2f;
+    private float soapSecSpeedAmp = .4f;
+    private float soapSecSpeedIncrease = 0f;
 
     protected Vector3 lastPosition;
     protected float desyncThreshold = 0.05f;
@@ -115,7 +115,6 @@ public class BasicBubble : NetworkBehaviour
             OwnerID = reflector.OwnerID;
             Vector3 reflectNormal = collision.contacts[0].normal;
             Reflect(reflectNormal);
-            Debug.Log("Reflect");
             return;
         }
 
@@ -130,7 +129,7 @@ public class BasicBubble : NetworkBehaviour
         {
             var player = other.GetComponent<PlayerController>();
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
@@ -164,11 +163,7 @@ public class BasicBubble : NetworkBehaviour
     
     private void Reflect(Vector3 normal)
     {
-        if (!IsServer || !canReflect) return;
-
-        canReflect = false;
-        StartCoroutine(ReflectCooldown());
-
+        if (!IsServer) return;
         if (playerCollider != null)
             Physics.IgnoreCollision(sphereCollider, playerCollider, false);
 
@@ -181,41 +176,21 @@ public class BasicBubble : NetworkBehaviour
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
     }
-
-    private IEnumerator ReflectCooldown()
-    {
-        yield return new WaitForSeconds(0.01f);  // 150 ms cooldown
-        canReflect = true;
-    }
     
     public virtual void SetSlippy()
     {
         if (!IsServer) return;
 
-        if (!slippyApplied && slippMod > 1f)
+        if (isSoaped)
         {
-            speed *= slippMod;
-            slippyApplied = true;
-        }
-    }
-    
-    private void SpawnPopEffect(Vector3 pos, float scale)
-    {
-        if (GameManager.Instance.playingLocal)
-        {
-            var effect = Instantiate(popEffect, pos, Quaternion.identity);
-            effect.GetComponent<BubbleEffect>()?.Initialise(scale);
+            speed += soapSecSpeedIncrease;
         }
         else
         {
-            SpawnPopEffectServerRpc(pos, scale);
+            soapSecSpeedIncrease = speed * soapSecSpeedAmp;
+            speed *= soapSpeedAmp;
+            isSoaped = true;
         }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void SpawnPopEffectServerRpc(Vector3 pos, float scale)
-    {
-        SpawnPopEffectClientRpc(pos, scale);
     }
 
     [ClientRpc]

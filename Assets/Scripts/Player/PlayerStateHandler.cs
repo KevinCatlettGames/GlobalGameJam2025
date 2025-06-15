@@ -33,7 +33,7 @@ public class PlayerStateHandler : MonoBehaviour
         {
             isDead = true;
 
-            if (GameManager.Instance.playingLocal)
+            if (GameManager.Instance.PlayingLocal)
             {
                 GameManager.Instance.ChangePlayerStateLocal(playerController.PlayerID, PlayerState.dead);
             }

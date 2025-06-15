@@ -52,7 +52,7 @@ public class ExpandingBubble : BasicBubble
             PlayerController player = other.GetComponent<PlayerController>();
             if (player != null)
             {
-                if (GameManager.Instance.playingLocal)
+                if (GameManager.Instance.PlayingLocal)
                     player.ApplyKnockbackLocal(OwnerID, direction, knockbackRatio * currentSize, damageRatio * currentSize);
                 else
                     player.ApplyKnockbackServerRpc(OwnerID, direction, knockbackRatio * currentSize, damageRatio * currentSize);
