@@ -73,7 +73,7 @@ public class PlayerController : NetworkBehaviour
     public UnityEvent OnEndSprint;
     private bool canSprint = true;
     private bool isSprinting = false;
-    private Coroutine sprintCoroutine;
+
 
     #endregion
 
@@ -521,7 +521,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        sprintCoroutine = StartCoroutine(SprintCoroutine());
+        StartCoroutine(SprintCoroutine());
 
         if (GameManager.Instance.PlayingLocal)
         {

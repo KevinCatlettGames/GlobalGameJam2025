@@ -26,9 +26,6 @@ public class Item : NetworkBehaviour
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
 
-    private bool isBlinking = false;
-    private float blinkStartTime;
-
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
     [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
 
