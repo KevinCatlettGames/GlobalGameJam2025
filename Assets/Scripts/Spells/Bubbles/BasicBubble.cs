@@ -23,7 +23,7 @@ public class BasicBubble : NetworkBehaviour
 
     [SerializeField] private GameObject popEffect;
     private float soapSpeedAmp = 2f;
-    private float soapSecSpeedAmp = .4f;
+    private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
 
     protected Vector3 lastPosition;
@@ -188,7 +188,7 @@ public class BasicBubble : NetworkBehaviour
         else
         {
             soapSecSpeedIncrease = speed * soapSecSpeedAmp;
-            speed *= soapSpeedAmp;
+            IncreaseSpeed(soapSpeedAmp);
             isSoaped = true;
         }
     }
@@ -212,5 +212,11 @@ public class BasicBubble : NetworkBehaviour
     {
         if (GameManager.Instance != null)
             GameManager.Instance.OnGameStarted -= DestroyBubble;
+    }
+
+    public void IncreaseSpeed(float inceaseFactor)
+    {
+        if (!IsServer) return;
+        speed *= inceaseFactor;
     }
 }
