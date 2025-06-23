@@ -5,18 +5,17 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
 {
     #region Audio
 
-    [Header("Sound Events")] [SerializeField]
-    private EventReference knockBackEvent;
-
+    [Header("Sound Events")] 
+    [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference dashEvent;
-    [SerializeField] private float knockbackDecaySpeed = 5f;
 
     #endregion
 
@@ -56,6 +55,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float damageModifier = 0.05f;
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
+    [SerializeField] private float knockbackDecaySpeed = 5f;
     private float damage = 0;
     private int killCreditID = -1;
     public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
@@ -115,7 +115,8 @@ public class PlayerController : NetworkBehaviour
     public int PlayerID => playerID;
     public bool initialized = false;
     private float tempCooldown;
-    private Item itemToEquip;
+    private Item itemsToEquip;
+    //private List<Item> itemsToEquip = new List<Item>();
     private int slipperyCounter = 0;
     private bool isSlippery = false;
     public Animator mainAnimator;
@@ -441,7 +442,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip == null || !context.performed || isDead.Value) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(1);
@@ -451,7 +452,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip == null || !context.performed || isDead.Value) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(2);
@@ -462,11 +463,11 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc]
     private void EquipSpellServerRpc(int spellID)
     {
-        if (itemToEquip == null) return;
+        if (itemsToEquip == null) return;
 
-        SO_Spell spell = itemToEquip.EquipSpell();
+        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(itemsToEquip.EquipSpell());
         EquipSpellClientRpc(spellID, spell.spellIndex);
-        itemToEquip = null;
+        itemsToEquip = null;
     }
 
     [ClientRpc]
@@ -484,11 +485,11 @@ public class PlayerController : NetworkBehaviour
 
     private void EquipSpellLocal(int spellID)
     {
-        if (itemToEquip == null) return;
+        if (itemsToEquip == null) return;
 
-        SO_Spell spell = itemToEquip.EquipSpell();
+        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(itemsToEquip.EquipSpell());
         UpdateEquippedSpell(spellID, spell);
-        itemToEquip = null;
+        itemsToEquip = null;
     }
 
     private void UpdateEquippedSpell(int spellID, SO_Spell spell)
@@ -628,21 +629,21 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             if (isInRange)
-                itemToEquip = item.GetComponent<Item>();
-            else if (!isInRange && item == itemToEquip)
-                itemToEquip = null;
+                itemsToEquip = item.GetComponent<Item>();
+            else if (!isInRange && item == itemsToEquip)
+                itemsToEquip = null;
         }
         else
         {
             if (isInRange)
             {
-                itemToEquip = item;
+                itemsToEquip = item;
                 var itemNetworkObject = item.GetComponent<NetworkObject>();
                 UpdateItemToEquipClientRpc(itemNetworkObject);
             }
-            else if (!isInRange && item == itemToEquip)
+            else if (!isInRange && item == itemsToEquip)
             {
-                itemToEquip = null;
+                itemsToEquip = null;
             }
         }
     }
@@ -651,7 +652,7 @@ public class PlayerController : NetworkBehaviour
     public void UpdateItemToEquipClientRpc(NetworkObjectReference item)
     {
         if (item.TryGet(out NetworkObject itemNetObj))
-            itemToEquip = itemNetObj.GetComponent<Item>();
+            itemsToEquip = itemNetObj.GetComponent<Item>();
     }
 
     #endregion
@@ -994,4 +995,11 @@ public class PlayerController : NetworkBehaviour
         }
     }
     #endregion
+
+    public void TestTest()
+    {
+        Debug.Log("TestTest");
+        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(0);
+        Debug.Log(spell.name);
+    }
 }

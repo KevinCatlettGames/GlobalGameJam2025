@@ -7,7 +7,7 @@ public class Item : NetworkBehaviour
 {
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
-    [SerializeField] private SO_Spell[] spells;
+    private int spellID;
 
     [Header("Item PickUp")]
     [SerializeField] private GameObject pickUpEffect;
@@ -21,7 +21,6 @@ public class Item : NetworkBehaviour
     [SerializeField] private Material itemMaterial;
 
     private Material spellMaterial;
-    public SO_Spell spell;
 
     private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
     private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
@@ -33,36 +32,37 @@ public class Item : NetworkBehaviour
     {
         if (IsServer)
         {
-            int r = 0;
-            if (spell == null)
-            {
-                r = Random.Range(0, spells.Length);
-                spell = spells[r];
-            }
+            //int r = 0;
+            //if (spell == null)
+            //{
+            //    r = Random.Range(0, spells.Length);
+            //    spell = spells[r];
+            //}
 
-            spellIndex.Value = r;
-            serverSpawnTime.Value = (float)NetworkManager.ServerTime.Time;
-            SetupSpell(r);
+            //spellIndex.Value = r;
+            //serverSpawnTime.Value = (float)NetworkManager.ServerTime.Time;
+            //SetupSpell(r);
             StartCoroutine(ServerItemDespawn());
         }
         else
         {
-            spellIndex.OnValueChanged += (oldVal, newVal) => SetupSpell(newVal);
-            if (spellIndex.Value >= 0)
-                SetupSpell(spellIndex.Value);
+            //spellIndex.OnValueChanged += (oldVal, newVal) => SetupSpell(newVal);
+            //if (spellIndex.Value >= 0)
+            //    SetupSpell(spellIndex.Value);
         }
     }
 
-    public SO_Spell EquipSpell()
+    public int EquipSpell()
     {
         StartCoroutine(DelayedDestroy());
-        return spell;
+        return spellID;
     }
 
 
-    private void SetupSpell(int index)
+    public void SetupSpell(int index)
     {
-        spell = spells[index];
+        spellID = index;
+        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);
         meshFilter.mesh = spell.GetMesh();
 
         spellMaterial = spell.GetMaterial();
@@ -101,6 +101,7 @@ public class Item : NetworkBehaviour
             }
             else
             {
+
                 var playerNetworkObject = other.GetComponent<NetworkObject>();
                 if (playerNetworkObject != null)
                 {

@@ -15,7 +15,6 @@ public class GiantBubble : BasicBubble
     [SerializeField] private float knbMod = .3f;
     [SerializeField] private float sizMod = .25f;
     [SerializeField] private float speedMod = 5f;
-    //[SerializeField] private Material angryMaterial;
 
     private bool isSmall = false;
 
@@ -40,11 +39,6 @@ public class GiantBubble : BasicBubble
             knockback *= knbMod;
             size *= sizMod;
             speed *= speedMod;
-            //MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
-            //List<Material> materials = new List<Material>();
-            //meshRenderer.GetMaterials(materials);
-            //materials[1] = angryMaterial;
-            //meshRenderer.SetMaterials(materials);
             transform.localScale = Vector3.one * size;
             return;
         }

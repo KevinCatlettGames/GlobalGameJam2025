@@ -125,7 +125,7 @@ public class BasicBubble : NetworkBehaviour
     {
         if (hasPopped) return;
 
-        if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
+        if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
 

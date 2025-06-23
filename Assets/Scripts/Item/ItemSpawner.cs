@@ -12,6 +12,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] float minSpawnInterval = 1;
     [SerializeField] float maxSpawnInterval = 7;
     [SerializeField] float spawnRadius = 15;
+    [SerializeField] SO_Spell[] spawnableItems;
 
     public int maxAmount = 2;
     public int currentAmount;
@@ -64,6 +65,8 @@ public class ItemSpawner : MonoBehaviour
         }
 
         GameObject itemInstance = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
+        int r = Random.Range(0, spawnableItems.Length);
+        itemInstance.GetComponent<Item>().SetupSpell(r);
         
         // Important: the prefab must have a NetworkObject component
         itemInstance.GetComponent<NetworkObject>().Spawn(true);
@@ -99,5 +102,11 @@ public class ItemSpawner : MonoBehaviour
             SpawnItem(t.position);
 
         Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+    }
+
+    public SO_Spell GetSpellByIndex(int index)
+    {
+        if (index < 0 || index >= spawnableItems.Length) return null;
+        return spawnableItems[index];
     }
 }
