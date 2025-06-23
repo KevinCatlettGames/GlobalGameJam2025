@@ -58,8 +58,8 @@ public class Item : NetworkBehaviour
         return spellID;
     }
 
-
-    public void SetupSpell(int index)
+    [ClientRpc]
+    public void SetupSpellClientRpc(int index)
     {
         spellID = index;
         SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);

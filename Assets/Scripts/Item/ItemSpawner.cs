@@ -66,10 +66,10 @@ public class ItemSpawner : MonoBehaviour
 
         GameObject itemInstance = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
         int r = Random.Range(0, spawnableItems.Length);
-        itemInstance.GetComponent<Item>().SetupSpell(r);
         
         // Important: the prefab must have a NetworkObject component
         itemInstance.GetComponent<NetworkObject>().Spawn(true);
+        itemInstance.GetComponent<Item>().SetupSpellClientRpc(r);
 
         spawnedItems.Add(itemInstance);
         currentAmount++;

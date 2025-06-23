@@ -39,7 +39,6 @@ public class PlayerController : NetworkBehaviour
     #region Spells
 
     [Header("Spells")] 
-    [SerializeField] private SO_Spell[] allSpells;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
     private bool isFirstSpellReady = true;
@@ -115,8 +114,7 @@ public class PlayerController : NetworkBehaviour
     public int PlayerID => playerID;
     public bool initialized = false;
     private float tempCooldown;
-    private Item itemsToEquip;
-    //private List<Item> itemsToEquip = new List<Item>();
+    private List<Item> itemsToEquip = new List<Item>();
     private int slipperyCounter = 0;
     private bool isSlippery = false;
     public Animator mainAnimator;
@@ -361,7 +359,7 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
         }
         else
-            SlapAnimServerRpc(spell.spellIndex);
+            SlapAnimServerRpc(isFirstSpell);
 
         if (isFirstSpell)
             isFirstSpellReady = false;
@@ -391,16 +389,16 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SlapAnimServerRpc(int spellIndex)
+    private void SlapAnimServerRpc(bool isFirstSpell)
     {
         mainAnimator.SetTrigger("SlapTrigger");
-        SlapAnimClientRpc(spellIndex);
+        SlapAnimClientRpc(isFirstSpell);
     }
 
     [ClientRpc]
-    private void SlapAnimClientRpc(int spellIndex)
+    private void SlapAnimClientRpc(bool isFirstSpell)
     {
-        SO_Spell spell = FindSpellByIndex(spellIndex);
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
     }
@@ -428,12 +426,7 @@ public class PlayerController : NetworkBehaviour
     
     private SO_Spell FindSpellByIndex(int spellIndex)
     {
-        foreach (var spell in allSpells)
-        {
-            if (spell.spellIndex == spellIndex)
-                return spell;
-        }
-        return null;
+        return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
     }
 
     #endregion
@@ -442,7 +435,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemsToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead.Value) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(1);
@@ -452,7 +445,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemsToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead.Value) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(2);
@@ -461,17 +454,22 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void EquipSpellServerRpc(int spellID)
+    private void EquipSpellServerRpc(int spellSlotID)
     {
-        if (itemsToEquip == null) return;
+        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
 
-        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(itemsToEquip.EquipSpell());
-        EquipSpellClientRpc(spellID, spell.spellIndex);
-        itemsToEquip = null;
+        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
+        {
+            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);
+        }
+        if (itemsToEquip[0] == null) return;
+
+        EquipSpellClientRpc(spellSlotID, itemsToEquip[0].EquipSpell());
+        itemsToEquip.RemoveAt(0);
     }
 
     [ClientRpc]
-    private void EquipSpellClientRpc(int spellID, int spellIndex)
+    private void EquipSpellClientRpc(int spellSlotID, int spellIndex)
     {
         SO_Spell equippedSpell = FindSpellByIndex(spellIndex);
         if (equippedSpell == null)
@@ -480,21 +478,28 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        UpdateEquippedSpell(spellID, equippedSpell);
+        UpdateEquippedSpell(spellSlotID, equippedSpell);
     }
 
-    private void EquipSpellLocal(int spellID)
+    private void EquipSpellLocal(int spellSlotID)
     {
-        if (itemsToEquip == null) return;
+        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
 
-        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(itemsToEquip.EquipSpell());
-        UpdateEquippedSpell(spellID, spell);
-        itemsToEquip = null;
+        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
+        {
+            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);           
+        }
+        //if (itemsToEquip[0] == null) return;
+        if (itemsToEquip.Count == 0) return;
+
+        SO_Spell spell = FindSpellByIndex(itemsToEquip[0].EquipSpell());
+        UpdateEquippedSpell(spellSlotID, spell);
+        itemsToEquip.RemoveAt(0);
     }
 
-    private void UpdateEquippedSpell(int spellID, SO_Spell spell)
+    private void UpdateEquippedSpell(int spellSlotID, SO_Spell spell)
     {
-        if (spellID == 1)
+        if (spellSlotID == 1)
         {
             firstSpell = spell;
             playerHUD.SetSpell(1, firstSpell.SpellIcon);
@@ -505,7 +510,7 @@ public class PlayerController : NetworkBehaviour
             playerHUD.SetSpell(2, secondSpell.SpellIcon);
         }
 
-        ResetSpell(spellID);
+        ResetSpell(spellSlotID);
     }
 
     #endregion
@@ -628,22 +633,22 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.Instance.PlayingLocal)
         {
-            if (isInRange)
-                itemsToEquip = item.GetComponent<Item>();
-            else if (!isInRange && item == itemsToEquip)
-                itemsToEquip = null;
+            if (isInRange && !itemsToEquip.Contains(item))
+                itemsToEquip.Add(item);
+            else if (!isInRange && itemsToEquip.Contains(item))
+                itemsToEquip.Remove(item);
         }
         else
         {
-            if (isInRange)
+            if (isInRange && !itemsToEquip.Contains(item))
             {
-                itemsToEquip = item;
+                itemsToEquip.Add(item);
                 var itemNetworkObject = item.GetComponent<NetworkObject>();
                 UpdateItemToEquipClientRpc(itemNetworkObject);
             }
-            else if (!isInRange && item == itemsToEquip)
+            else if (!isInRange && itemsToEquip.Contains(item))
             {
-                itemsToEquip = null;
+                itemsToEquip.Remove(item);
             }
         }
     }
@@ -652,7 +657,7 @@ public class PlayerController : NetworkBehaviour
     public void UpdateItemToEquipClientRpc(NetworkObjectReference item)
     {
         if (item.TryGet(out NetworkObject itemNetObj))
-            itemsToEquip = itemNetObj.GetComponent<Item>();
+            itemsToEquip.Add(itemNetObj.GetComponent<Item>());
     }
 
     #endregion
@@ -670,20 +675,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void SetSpellsClientRpc(int firstSpellIndex, int secondSpellIndex)
     {
-        SO_Spell first = null, second = null;
-
-        foreach (SO_Spell spell in allSpells)
-        {
-            if (spell.spellIndex == firstSpellIndex)
-                first = spell;
-            if (spell.spellIndex == secondSpellIndex)
-                second = spell;
-        }
-
-        if (first != null && second != null)
-            ApplySpells(first, second);
-        else
-            Debug.LogError("Could not resolve one or both spells from index!");
+        ApplySpells(FindSpellByIndex(firstSpellIndex), FindSpellByIndex(secondSpellIndex));
     }
 
     private void ApplySpells(SO_Spell firstSpell, SO_Spell secondSpell)
@@ -995,11 +987,4 @@ public class PlayerController : NetworkBehaviour
         }
     }
     #endregion
-
-    public void TestTest()
-    {
-        Debug.Log("TestTest");
-        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(0);
-        Debug.Log(spell.name);
-    }
 }
