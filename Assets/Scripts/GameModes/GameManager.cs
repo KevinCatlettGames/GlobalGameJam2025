@@ -15,6 +15,7 @@ public class GameManager : NetworkBehaviour
     protected const int maxPlayers = 4;
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
+    protected bool isReadyToRestart = false;
 
     public Action OnGameEnded;
     public Action OnGameStarted;
@@ -114,8 +115,8 @@ public class GameManager : NetworkBehaviour
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
-        gameEnded = true;
         restartGameText.SetActive(true);
+        isReadyToRestart = true;
     }
 
     public virtual void RestartGame()
@@ -134,6 +135,7 @@ public class GameManager : NetworkBehaviour
     {
         OnGameStarted?.Invoke();
         gameEnded = false;
+        isReadyToRestart = false;
         restartGameText.SetActive(false);
     }
 
@@ -152,8 +154,8 @@ public class GameManager : NetworkBehaviour
         {
             ChangePlayerHUDClientRpc(killCredit);
         }
-
         CheckForRoundEndServerRpc();
+        
     }
 
     public virtual void DeathReportLocal(int playerID, int killCredit)

@@ -57,7 +57,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float knockbackDecaySpeed = 5f;
     private float damage = 0;
     private int killCreditID = -1;
-    public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
+    //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
+    private bool isDead = false;
 
     #endregion
 
@@ -119,6 +120,7 @@ public class PlayerController : NetworkBehaviour
     private bool isSlippery = false;
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
+    private PlayerStateHandler playerStateHandler;
 
     #endregion
 
@@ -173,7 +175,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (!initialized || isDead.Value) return;
+        if (!initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
@@ -202,7 +204,7 @@ public class PlayerController : NetworkBehaviour
         Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
         direction = Vector3.ClampMagnitude(direction, 1f);
 
-        if (!isDead.Value)
+        if (!isDead)
         {
             if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
             {
@@ -247,7 +249,7 @@ public class PlayerController : NetworkBehaviour
 
         move += playerVelocity * Time.deltaTime;
 
-        if (!isDead.Value && targetDirection != Vector3.zero)
+        if (!isDead && targetDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
@@ -295,7 +297,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || isDead.Value) return;
+        if (GameManager.IsGamePaused || isDead) return;
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
@@ -317,7 +319,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -329,7 +331,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -435,7 +437,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(1);
@@ -445,7 +447,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(2);
@@ -519,7 +521,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
 
         if (!canSprint)
         {
@@ -734,7 +736,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead.Value) return;
+        if (isDead) return;
 
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
@@ -783,7 +785,7 @@ public class PlayerController : NetworkBehaviour
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead.Value) return;
+        if (isDead) return;
 
         if (isSlippery)
         {
@@ -834,11 +836,13 @@ public class PlayerController : NetworkBehaviour
         playerHUD?.DisplayDeath();
     }
 
+    [ClientRpc]
+    public void DieClientRpc() => Die();
     public void Die()
     {
-        if (isDead.Value) return;
-
-        isDead.Value = true;
+        if (isDead) return;
+        Debug.Log(playerID + " Died");
+        isDead = true;
         controller.enabled = false; 
         
         if (GameManager.Instance.PlayingLocal)
@@ -932,7 +936,6 @@ public class PlayerController : NetworkBehaviour
     {
         slipperyCounter = 0;
         damage = 0;
-        isDead.Value = false;
         isSlippery = false;
         killCreditID = -1;
 
@@ -957,7 +960,8 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
 
-        GetComponent<PlayerStateHandler>().ResetPlayer();
+        playerStateHandler.ResetPlayer();
+        isDead = false;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -985,6 +989,8 @@ public class PlayerController : NetworkBehaviour
             this.controllerRumbler = controllerRumbler;
             isUsingGamepad = true;
         }
+        playerStateHandler = GetComponent<PlayerStateHandler>();
+        playerStateHandler.EnableDeath();
     }
     #endregion
 }

@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class DeathzoneWall : MonoBehaviour
@@ -10,6 +11,19 @@ public class DeathzoneWall : MonoBehaviour
     [SerializeField] private bool isFloor = false;
     [SerializeField] private float delayFloor = .75f;
     [SerializeField] private float yOffsetFloor = 5f;
+
+    private void Start()
+    {
+        if (!GameManager.Instance.PlayingLocal)
+        {
+            if (isFloor) Invoke("StartDisable", 1f);
+            GameManager.Instance.OnGameStarted += StartDisable;
+        }
+        else if (isFloor)
+        {
+            GetComponent<BoxCollider>().enabled = true;
+        }
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player")) 
@@ -33,5 +47,23 @@ public class DeathzoneWall : MonoBehaviour
     private void SpawnEffect()
     {
         Instantiate(blastZoneEffect, effectPosition, Quaternion.identity);
+    }
+    private void StartDisable()
+    {
+        StartCoroutine(TemporarilyDisableCollider());
+    }
+    private IEnumerator TemporarilyDisableCollider()
+    {
+        BoxCollider col = GetComponent<BoxCollider>();
+        col.enabled = false;
+        yield return new WaitForSeconds(.1f);
+        col.enabled = true;
+    }
+    private void OnDestroy()
+    {
+        if (!GameManager.Instance.PlayingLocal)
+        {
+            GameManager.Instance.OnGameStarted -= StartDisable;
+        }
     }
 }

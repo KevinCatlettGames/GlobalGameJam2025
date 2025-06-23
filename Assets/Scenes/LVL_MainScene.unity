@@ -242,79 +242,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e174cf0fc117b84479db000f6e7c927e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!1 &245700115
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 245700116}
-  - component: {fileID: 245700118}
-  - component: {fileID: 245700117}
-  m_Layer: 0
-  m_Name: SouthEastDeathzone
-  m_TagString: Deathzone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &245700116
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 245700115}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 42.1, y: 0, z: -37.1}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1657304759}
-  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
---- !u!114 &245700117
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 245700115}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraShakeTime: 0.15
-  cameraShakeIntensity: 12
-  blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
-    type: 3}
-  isFloor: 0
-  delayFloor: 0.75
-  yOffsetFloor: 5
---- !u!65 &245700118
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 245700115}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 25, y: 500, z: 100}
-  m_Center: {x: 0, y: 150, z: 0}
 --- !u!1 &267024036
 GameObject:
   m_ObjectHideFlags: 0
@@ -596,79 +523,6 @@ Animation:
   m_AnimatePhysics: 0
   m_UpdateMode: 0
   m_CullingType: 0
---- !u!1 &494123765
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 494123766}
-  - component: {fileID: 494123768}
-  - component: {fileID: 494123767}
-  m_Layer: 0
-  m_Name: NorthWestDeathzone
-  m_TagString: Deathzone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &494123766
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 494123765}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: -47.9, y: 0, z: 30.3}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1657304759}
-  m_LocalEulerAnglesHint: {x: 0, y: 45, z: 0}
---- !u!114 &494123767
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 494123765}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraShakeTime: 0.15
-  cameraShakeIntensity: 12
-  blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
-    type: 3}
-  isFloor: 0
-  delayFloor: 0.75
-  yOffsetFloor: 5
---- !u!65 &494123768
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 494123765}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 25, y: 500, z: 100}
-  m_Center: {x: 0, y: 150, z: 0}
 --- !u!1 &588609524 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7598889265536568417, guid: db78d7f44ca347f409bf70e53bd9df2b,
@@ -938,116 +792,12 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!1 &1494538721 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 6219667997284281647, guid: 88dc1d66c30f3504e9f67d62de862b50,
-    type: 3}
-  m_PrefabInstance: {fileID: 2026038083278081566}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1494538723
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1494538721}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraShakeTime: 0.02
-  cameraShakeIntensity: 7
-  blastZoneEffect: {fileID: 6523284395744437750, guid: b7173a26e7008004ba78c4bb9a5ef9db,
-    type: 3}
-  isFloor: 1
-  delayFloor: 0.75
-  yOffsetFloor: 5
---- !u!4 &1657304759 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-    type: 3}
-  m_PrefabInstance: {fileID: 2026038083278081566}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1661708183 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4108901858045191531, guid: fcb4f7d39024c7e41a042d4f16f9370b,
     type: 3}
   m_PrefabInstance: {fileID: 1608606915266651741}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &1729270503
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1729270504}
-  - component: {fileID: 1729270506}
-  - component: {fileID: 1729270505}
-  m_Layer: 0
-  m_Name: NorthEastDeathzone
-  m_TagString: Deathzone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1729270504
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1729270503}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: 43.6, y: 0, z: 31.4}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1657304759}
-  m_LocalEulerAnglesHint: {x: 0, y: -45, z: 0}
---- !u!114 &1729270505
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1729270503}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraShakeTime: 0.15
-  cameraShakeIntensity: 12
-  blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
-    type: 3}
-  isFloor: 0
-  delayFloor: 0.75
-  yOffsetFloor: 5
---- !u!65 &1729270506
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1729270503}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 25, y: 500, z: 100}
-  m_Center: {x: 0, y: 150, z: 0}
 --- !u!95 &1768148394 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 2586243695198736759, guid: ef310da78073cd04982db8f49e852300,
@@ -1106,79 +856,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 2026038083278081566}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &2039745665
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 2039745666}
-  - component: {fileID: 2039745668}
-  - component: {fileID: 2039745667}
-  m_Layer: 0
-  m_Name: SouthWestDeathzone
-  m_TagString: Deathzone
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &2039745666
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2039745665}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: -0.38268343, z: 0, w: 0.92387956}
-  m_LocalPosition: {x: -45.2, y: 0, z: -35.6}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 1657304759}
-  m_LocalEulerAnglesHint: {x: 0, y: -45, z: 0}
---- !u!114 &2039745667
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2039745665}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  cameraShakeTime: 0.15
-  cameraShakeIntensity: 12
-  blastZoneEffect: {fileID: 6523284395744437750, guid: 314c459b557cbe047aa6130bad4e6d8c,
-    type: 3}
-  isFloor: 0
-  delayFloor: 0.75
-  yOffsetFloor: 5
---- !u!65 &2039745668
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2039745665}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 25, y: 500, z: 100}
-  m_Center: {x: 0, y: 150, z: 0}
 --- !u!1001 &2054711844
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1569,79 +1246,24 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 2.6850371
       objectReference: {fileID: 0}
-    - target: {fileID: 902190219275989887, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeTime
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 902190219275989887, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeIntensity
-      value: 12
-      objectReference: {fileID: 0}
-    - target: {fileID: 1739892442526006103, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeTime
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 1739892442526006103, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeIntensity
-      value: 12
-      objectReference: {fileID: 0}
     - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
-      propertyPath: m_Size.x
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_Size.y
-      value: 30
-      objectReference: {fileID: 0}
-    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_Size.z
-      value: 100
-      objectReference: {fileID: 0}
-    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_Center.y
-      value: -15
-      objectReference: {fileID: 0}
-    - target: {fileID: 2379693897228621863, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_IsTrigger
-      value: 1
+      propertyPath: m_Enabled
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3681289546600793223, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       propertyPath: m_Radius
       value: 25
       objectReference: {fileID: 0}
-    - target: {fileID: 3721509610461082949, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: -50
-      objectReference: {fileID: 0}
     - target: {fileID: 4402571973124970380, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4666404031588405874, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 50
-      objectReference: {fileID: 0}
     - target: {fileID: 4736867039662412755, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       propertyPath: m_CastShadows
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5199890888278250418, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.y
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5217266284497998669, guid: 88dc1d66c30f3504e9f67d62de862b50,
@@ -1704,30 +1326,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: -10.611
       objectReference: {fileID: 0}
-    - target: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -1.5
-      objectReference: {fileID: 0}
     - target: {fileID: 6013985681870660223, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       propertyPath: m_CastShadows
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 6219667997284281647, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_Name
-      value: BottomDeathzone
-      objectReference: {fileID: 0}
-    - target: {fileID: 6277407543171859805, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeTime
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6277407543171859805, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeIntensity
-      value: 12
       objectReference: {fileID: 0}
     - target: {fileID: 6470791199918092169, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
@@ -1784,21 +1386,6 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 9100000, guid: 8b33d589feda2ea43b048238b0fadbde, type: 2}
-    - target: {fileID: 6795126227746553633, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: -50
-      objectReference: {fileID: 0}
-    - target: {fileID: 6978516257055039844, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeTime
-      value: 0.15
-      objectReference: {fileID: 0}
-    - target: {fileID: 6978516257055039844, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: cameraShakeIntensity
-      value: 12
-      objectReference: {fileID: 0}
     - target: {fileID: 7182444660117517715, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -1888,11 +1475,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0.998
-      objectReference: {fileID: 0}
-    - target: {fileID: 8233073073964446987, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 50
       objectReference: {fileID: 0}
     - target: {fileID: 8254932840215267114, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
@@ -2081,22 +1663,6 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 267024040}
-    - targetCorrespondingSourceObject: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 2039745666}
-    - targetCorrespondingSourceObject: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1729270504}
-    - targetCorrespondingSourceObject: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 245700116}
-    - targetCorrespondingSourceObject: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 494123766}
     - targetCorrespondingSourceObject: {fileID: 3571740095744971072, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       insertIndex: -1
@@ -2114,10 +1680,6 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 275683075}
     m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 6219667997284281647, guid: 88dc1d66c30f3504e9f67d62de862b50,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1494538723}
     - targetCorrespondingSourceObject: {fileID: 7588869869528465626, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
       insertIndex: -1
