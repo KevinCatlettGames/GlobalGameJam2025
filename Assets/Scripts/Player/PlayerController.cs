@@ -426,14 +426,14 @@ public class PlayerController : NetworkBehaviour
         else isSecondSpellReady = true;
     }
     
-    private SO_Spell FindSpellByIndex(int spellIndex)
-    {
-        return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
-    }
 
     #endregion
 
     #region Spell Equip
+    private SO_Spell FindSpellByIndex(int spellIndex)
+    {
+        return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
+    }
 
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
@@ -491,7 +491,6 @@ public class PlayerController : NetworkBehaviour
         {
             if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);           
         }
-        //if (itemsToEquip[0] == null) return;
         if (itemsToEquip.Count == 0) return;
 
         SO_Spell spell = FindSpellByIndex(itemsToEquip[0].EquipSpell());
@@ -645,21 +644,12 @@ public class PlayerController : NetworkBehaviour
             if (isInRange && !itemsToEquip.Contains(item))
             {
                 itemsToEquip.Add(item);
-                var itemNetworkObject = item.GetComponent<NetworkObject>();
-                UpdateItemToEquipClientRpc(itemNetworkObject);
             }
             else if (!isInRange && itemsToEquip.Contains(item))
             {
                 itemsToEquip.Remove(item);
             }
         }
-    }
-
-    [ClientRpc]
-    public void UpdateItemToEquipClientRpc(NetworkObjectReference item)
-    {
-        if (item.TryGet(out NetworkObject itemNetObj))
-            itemsToEquip.Add(itemNetObj.GetComponent<Item>());
     }
 
     #endregion

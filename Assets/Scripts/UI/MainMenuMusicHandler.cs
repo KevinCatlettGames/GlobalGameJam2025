@@ -33,4 +33,9 @@ public class MainMenuMusicHandler : MonoBehaviour
         if(!shouldPersist)
             Destroy(this.gameObject);
     }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+    }
 }

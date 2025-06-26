@@ -92,7 +92,6 @@ public class Item : NetworkBehaviour
     {
         if (!IsServer)
             return;
-
         if (other.CompareTag("Player"))
         {
             if (GameManager.Instance.PlayingLocal)
@@ -115,7 +114,6 @@ public class Item : NetworkBehaviour
     {
         if (!IsServer)
             return;
-
         if (other.CompareTag("Player"))
         {
             if (GameManager.Instance.PlayingLocal)
