@@ -643,13 +643,33 @@ public class PlayerController : NetworkBehaviour
         {
             if (isInRange && !itemsToEquip.Contains(item))
             {
-                itemsToEquip.Add(item);
+                var itemNetworkObject = item.GetComponent<NetworkObject>();
+                UpdateItemToEquipClientRpc(itemNetworkObject, isInRange);
             }
             else if (!isInRange && itemsToEquip.Contains(item))
             {
-                itemsToEquip.Remove(item);
+                var itemNetworkObject = item.GetComponent<NetworkObject>();
+                UpdateItemToEquipClientRpc(itemNetworkObject, isInRange);
             }
         }
+    }
+
+    [ClientRpc]
+    public void UpdateItemToEquipClientRpc(NetworkObjectReference item, bool toAdd)
+    {
+        Item _item = null;
+        if (item.TryGet(out NetworkObject itemNetObj))
+        {
+            _item = itemNetObj.GetComponent<Item>();
+        }
+        if (_item != null)
+        {
+            if (toAdd)            
+                itemsToEquip.Add(_item);         
+            else  
+                itemsToEquip.Remove(_item); 
+        }
+
     }
 
     #endregion
