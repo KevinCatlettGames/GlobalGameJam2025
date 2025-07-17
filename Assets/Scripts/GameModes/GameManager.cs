@@ -20,7 +20,7 @@ public class GameManager : NetworkBehaviour
     public Action OnGameEnded;
     public Action OnGameStarted;
 
-    [SerializeField] protected GameObject restartGameText;
+    [SerializeField] protected GameObject scoreScreen;
     [SerializeField] protected Animator victoryAnimator;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
@@ -49,9 +49,8 @@ public class GameManager : NetworkBehaviour
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
         else
-            PlayingLocal = true;
+            PlayingLocal = true; 
     }
-
     private void OnDisable()
     {
         if(NetworkManager.Singleton != null) 
@@ -115,7 +114,8 @@ public class GameManager : NetworkBehaviour
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
-        restartGameText.SetActive(true);
+        scoreScreen.SetActive(true);
+        ScoreManager.Instance.ResolveScores();
         isReadyToRestart = true;
     }
 
@@ -136,7 +136,7 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
-        restartGameText.SetActive(false);
+        scoreScreen.SetActive(false);
     }
 
     public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD)
@@ -153,6 +153,7 @@ public class GameManager : NetworkBehaviour
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
             ChangePlayerHUDClientRpc(killCredit);
+            ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
         CheckForRoundEndServerRpc();
         
@@ -163,8 +164,8 @@ public class GameManager : NetworkBehaviour
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
             ChangePlayerHUDLocal(killCredit);
+            ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
-
         CheckForRoundEndLocal();
     }
 

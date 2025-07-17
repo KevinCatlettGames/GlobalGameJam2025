@@ -49,13 +49,12 @@ public class SingleEliminationGM : GameManager
 
     private void CallGameEndLocal()
     {
-        Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
     }
 
     private void Update()
     {
-        if (isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
+        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
             RestartGame();
         }
@@ -72,6 +71,7 @@ public class SingleEliminationGM : GameManager
             {
                 winnerID = i;
                 players[winnerID].Victory();
+                ScoreManager.Instance.AddPendingScore(winnerID, true);
                 break;
             }
         }
