@@ -1,71 +1,56 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode; 
+using UnityEngine;
 
 public class BubbleExplosion : NetworkBehaviour
 {
-    private List<PlayerController> effectedPlayers = new List<PlayerController>();
-    private List<BasicBubble> effectedBubbles = new List<BasicBubble>();
     [SerializeField] private GameObject indicator;
     [HideInInspector] public int OwnerID;
+    private float explosionRadius = 0;
+    private bool hasExploded = false;
 
     public void Explode(float knockback, float damage)
     {
-        if (effectedPlayers.Count > 0)
+        if (hasExploded) return;
+        hasExploded = true;
+        Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
+        Vector3 origin;
+        Vector3 direction;
+        foreach (Collider col in explosionOverlaps)
         {
-            foreach (PlayerController player in effectedPlayers)
+            if (col == null || col.gameObject == this.transform.parent.gameObject) continue;
+            origin = transform.position;
+            direction = col.transform.position - transform.position;
+            Debug.Log(col.name);
+            if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
-                if (player != null)
+                if (col.CompareTag("Player"))
                 {
-                    Vector3 kockbackDirection = player.transform.position - transform.position;
-                    if (GameManager.Instance.PlayingLocal)
-                        player.ApplyKnockbackLocal(OwnerID, kockbackDirection, knockback, damage);
-                    else
-                        player.ApplyKnockbackServerRpc(OwnerID, kockbackDirection, knockback, damage);
+                    PlayerController player = col.GetComponent<PlayerController>();
+                    if (player != null)
+                    {
+                        if (GameManager.Instance.PlayingLocal)
+                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                        else
+                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                    }
                 }
-            }
-        }
-        if (effectedBubbles.Count > 0)
-        {
-            foreach (BasicBubble bubble in effectedBubbles)
-            {
-                if (bubble != null)
+                else
                 {
-                    bubble.BubbleCollision(this.gameObject);
+                    BasicBubble bubble = col.GetComponent<BasicBubble>();
+                    if (bubble != null)
+                    {
+                        bubble.BubbleCollision(this.gameObject);
+                    }
                 }
-            }
-        }
-    }
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            PlayerController player = other.GetComponent<PlayerController>();
-            if(!effectedPlayers.Contains(player)) effectedPlayers.Add(other.GetComponent<PlayerController>());
-        }
-        else if (other.CompareTag("Bubble"))
-        {
-            BasicBubble bubble = other.GetComponent<BasicBubble>();
-            if(!effectedBubbles.Contains(bubble)) effectedBubbles.Add(bubble);
-        }
-    }
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player"))
-        {
-            effectedPlayers.Remove(other.GetComponent<PlayerController>());
-        }
-        else if (other.CompareTag("Bubble"))
-        {
-            effectedBubbles.Remove(other.GetComponent<BasicBubble>());
-        }
-    }
 
-    public void SetExplosionSize(float radius)
+            }
+        }
+    }
+    public void SetExplosionSize(float radius, float size)
     {
-        SphereCollider explosionCollider = GetComponent<SphereCollider>();
-        explosionCollider.radius = radius;
-        indicator.transform.localScale *= radius;
+        explosionRadius = radius;
+        indicator.transform.localScale *= radius / size;
     }
 }
