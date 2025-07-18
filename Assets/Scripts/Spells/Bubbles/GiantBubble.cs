@@ -26,7 +26,7 @@ public class GiantBubble : BasicBubble
     protected override void BubbleMovement()
     {
         if (!IsServer) return;
-        if (!sphereCollider.enabled) return;
+        if (!hasInflated) return;
         base.BubbleMovement();
     }
     public override void BubbleCollision(GameObject other)

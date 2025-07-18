@@ -20,6 +20,7 @@ public class BasicBubble : NetworkBehaviour
     protected Collider playerCollider;
     protected bool isSoaped = false;
     protected float inflationSpeed = 8f;
+    protected bool hasInflated = false;
 
     [SerializeField] private GameObject popEffect;
     private float soapSpeedAmp = 2f;
@@ -55,7 +56,6 @@ public class BasicBubble : NetworkBehaviour
         {
             if (playerCollider != null)
                 Physics.IgnoreCollision(sphereCollider, playerCollider, true);
-            sphereCollider.enabled = false;
             StartCoroutine(Inflate());
         }
     }
@@ -64,7 +64,34 @@ public class BasicBubble : NetworkBehaviour
     {
         BubbleMovement();
     }
-    
+    private IEnumerator Inflate()
+    {
+        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        while (currentSize < size)
+        {
+            currentSize += inflationSpeed * Time.deltaTime;
+            if (currentSize > size) currentSize = size;
+
+            transform.localScale = Vector3.one * currentSize;
+            yield return null;
+        }
+
+        InflateOverlapChack();
+
+        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        hasInflated = true;
+    }
+    protected virtual void InflateOverlapChack()
+    {
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Wall"));
+
+        foreach (var col in overlaps)
+        {
+            if (col == playerCollider) continue;
+            BubbleCollision(col.gameObject);
+            break;
+        }
+    }
     protected virtual void BubbleMovement()
     {
         if (!IsServer) return;
@@ -76,38 +103,18 @@ public class BasicBubble : NetworkBehaviour
             lastPosition = transform.position;
         }
     }
-    
     protected IEnumerator BubbleRangeLimit()
     {
         float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
         Pop();
-    }
-    
-    protected virtual void Pop()
-    {
-        if (hasPopped) return;
-
-        hasPopped = true;
-
-        StopAllCoroutines();
-        
-        SpawnPopEffectClientRpc(transform.position, size);
-
-        if (IsServer)
-        {
-            NetworkObject.Despawn(true);
-            Destroy(gameObject);
-        }
-    }
-
+    }  
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || hasPopped) return;
 
         HandleCollision(collision);
-    }
-    
+    }  
     private void HandleCollision(Collision collision)
     {
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
@@ -119,8 +126,7 @@ public class BasicBubble : NetworkBehaviour
         }
 
         BubbleCollision(collision.gameObject);
-    }
-    
+    }   
     public virtual void BubbleCollision(GameObject other)
     {
         if (hasPopped) return;
@@ -137,30 +143,22 @@ public class BasicBubble : NetworkBehaviour
 
         Pop();
     }
-    
-    protected IEnumerator Inflate()
+    protected virtual void Pop()
     {
-        while (currentSize < size)
+        if (hasPopped) return;
+
+        hasPopped = true;
+
+        StopAllCoroutines();
+        
+        SpawnPopEffectClientRpc(transform.position, size);
+
+        if (IsServer)
         {
-            currentSize += inflationSpeed * Time.deltaTime;
-            if (currentSize > size) currentSize = size;
-
-            transform.localScale = Vector3.one * currentSize;
-            yield return null;
+            NetworkObject.Despawn(true);
+            Destroy(gameObject);
         }
-
-        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Wall"));
-
-        foreach (var col in overlaps)
-        {
-            if (col == playerCollider) continue;
-            BubbleCollision(col.gameObject);
-            break;
-        }
-
-        sphereCollider.enabled = true;
-    }
-    
+    }  
     private void Reflect(Vector3 normal)
     {
         if (!IsServer) return;
@@ -175,8 +173,7 @@ public class BasicBubble : NetworkBehaviour
             StopCoroutine(rangeCoroutine);
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-    }
-    
+    }    
     public virtual void SetSlippy()
     {
         if (!IsServer) return;
@@ -192,14 +189,17 @@ public class BasicBubble : NetworkBehaviour
             isSoaped = true;
         }
     }
-
+    public void IncreaseSpeed(float inceaseFactor)
+    {
+        if (!IsServer) return;
+        speed *= inceaseFactor;
+    }
     [ClientRpc]
     private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
     {
         var effect = Instantiate(popEffect, pos, Quaternion.identity);
         effect.GetComponent<BubbleEffect>()?.Initialise(scale);
     }
-
     private void DestroyBubble()
     {
         if (!IsServer) return;
@@ -207,16 +207,10 @@ public class BasicBubble : NetworkBehaviour
         NetworkObject.Despawn(true);
         Destroy(gameObject);
     }
-
     private void OnDestroy()
     {
         if (GameManager.Instance != null)
             GameManager.Instance.OnGameStarted -= DestroyBubble;
     }
 
-    public void IncreaseSpeed(float inceaseFactor)
-    {
-        if (!IsServer) return;
-        speed *= inceaseFactor;
-    }
 }
