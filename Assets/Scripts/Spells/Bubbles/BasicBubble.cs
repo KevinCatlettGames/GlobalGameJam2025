@@ -22,7 +22,7 @@ public class BasicBubble : NetworkBehaviour
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
 
-    [SerializeField] private GameObject popEffect;
+    [SerializeField] protected GameObject popEffect;
     private float soapSpeedAmp = 2f;
     private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
