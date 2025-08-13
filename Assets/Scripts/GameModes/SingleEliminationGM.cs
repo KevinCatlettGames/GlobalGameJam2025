@@ -35,7 +35,7 @@ public class SingleEliminationGM : GameManager
         int count = 0;
         foreach (var state in playerStates)
         {
-            if (state == PlayerState.alive) count++;
+            if (state == PlayerState.alive || state == PlayerState.pendingRespawn) count++;
         }
         return count;
     }
