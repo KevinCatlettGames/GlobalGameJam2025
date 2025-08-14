@@ -47,6 +47,7 @@ public class IntroSkipAndDisable : MonoBehaviour
         videoPlayer.Play();
         videoPlayer.time = 0;
         eventEmitter.Play();
+        mainMenu.SetActive(false);
     }
 
     void Update()
