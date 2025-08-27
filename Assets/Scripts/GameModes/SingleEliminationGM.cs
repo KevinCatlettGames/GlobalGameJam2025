@@ -12,16 +12,20 @@ public class SingleEliminationGM : GameManager
     [ServerRpc(RequireOwnership = false)]
     public override void CheckForRoundEndServerRpc()
     {
+        if (gameEnded) return;
         if (CountAlivePlayers() <= 1)
         {
+            gameEnded = true;
             CallGameEndClientRpc();
         }
     }
 
     public override void CheckForRoundEndLocal()
     {
+        if (gameEnded) return;
         if (CountAlivePlayers() <= 1)
         {
+            gameEnded = true;
             CallGameEndLocal();
         }
     }
@@ -45,13 +49,12 @@ public class SingleEliminationGM : GameManager
 
     private void CallGameEndLocal()
     {
-        Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
     }
 
     private void Update()
     {
-        if (gameEnded && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
+        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
             RestartGame();
         }
@@ -68,6 +71,7 @@ public class SingleEliminationGM : GameManager
             {
                 winnerID = i;
                 players[winnerID].Victory();
+                ScoreManager.Instance.AddPendingScore(winnerID, true);
                 break;
             }
         }

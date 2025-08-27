@@ -14,7 +14,7 @@ public class PlayerStateHandler : MonoBehaviour
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
 
-    private bool isDead = false;
+    private bool canDie = false;
     private PlayerController playerController;
     private CharacterController characterController;
 
@@ -29,9 +29,9 @@ public class PlayerStateHandler : MonoBehaviour
     {
         if (!playerController.initialized) return;
 
-        if (other.CompareTag("Deathzone") && !isDead)
+        if (other.CompareTag("Deathzone") && canDie)
         {
-            isDead = true;
+            canDie = false;
 
             if (GameManager.Instance.PlayingLocal)
             {
@@ -42,6 +42,7 @@ public class PlayerStateHandler : MonoBehaviour
                 if (!playerController.IsOwner) return;
 
                 GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.dead);
+                //playerController.DieClientRpc();
             }
 
             playerController.Die();
@@ -52,18 +53,23 @@ public class PlayerStateHandler : MonoBehaviour
     private void DisablePlayer()
     {
         characterController.enabled = false;
-        isDead = false;
+        canDie = false;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.disabled);
     }
 
     public void ResetPlayer()
     {
+        canDie = false;
         CancelInvoke();
         characterController.enabled = false;
         PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         characterController.enabled = true;
-        isDead = false;
+        canDie = true;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
+    }
+    public void EnableDeath()
+    {
+        canDie = true;
     }
 }

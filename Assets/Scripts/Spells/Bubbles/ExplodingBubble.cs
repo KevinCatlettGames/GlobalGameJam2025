@@ -7,13 +7,15 @@ public class ExplodingBubble : BasicBubble
 {
     private BubbleExplosion bubbleExplosion;
     [SerializeField] private float explosionRadius = 5f;
+    [SerializeField] private GameObject fizzleEffect;
+    private bool isReadyToExpode = false;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
-        bubbleExplosion.SetExplosionSize(explosionRadius / size);
+        bubbleExplosion.SetExplosionSize(explosionRadius, size);
     }
     public override void BubbleCollision(GameObject other)
     {
@@ -33,10 +35,26 @@ public class ExplodingBubble : BasicBubble
         }
         Pop();
     }
+    protected override void InflateOverlapChack()
+    {
+        Collider[] bubbleOverlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Bubble"));
+        foreach (var col in bubbleOverlaps)
+        {
+            if  (col.gameObject.TryGetComponent<ExplodingBubble>(out ExplodingBubble ex))
+            {
+                if(ex == this) continue;
+                Pop();
+                return;
+            }
+        }
+        isReadyToExpode = true;
+        base.InflateOverlapChack();
+    }
     protected override void Pop()
     {
         if (hasPopped) return;
-        bubbleExplosion.Explode(knockback, damage);
+        if(isReadyToExpode) bubbleExplosion.Explode(knockback, damage);
+        else popEffect = fizzleEffect;
         base.Pop();
     }
 

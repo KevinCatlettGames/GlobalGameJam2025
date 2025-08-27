@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class WallBubble : BasicBubble
 {
+    [SerializeField] private float speedBosst = 1.5f;
     private int hitPoints = 0;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -20,10 +21,6 @@ public class WallBubble : BasicBubble
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(dmg));
     }
 
-    protected override void BubbleMovement()
-    {
-    }
-
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || !IsServer) return;
@@ -35,6 +32,7 @@ public class WallBubble : BasicBubble
         else if (other.CompareTag("Bubble"))
         {
             hitPoints--;
+            other.GetComponent<BasicBubble>().IncreaseSpeed(speedBosst);
             if (hitPoints <= 0)
             {
                 Pop();

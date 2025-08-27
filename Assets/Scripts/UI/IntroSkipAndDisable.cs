@@ -10,7 +10,8 @@ public class IntroSkipAndDisable : MonoBehaviour
     [SerializeField] float skippableAfterSeconds = 3f;
     [SerializeField] StudioEventEmitter eventEmitter;
     [SerializeField] StudioEventEmitter bubbleEmitter;
-    [SerializeField] private GameObject blackImage; 
+    [SerializeField] private GameObject blackImage;
+    [SerializeField] private GameObject mainMenu;
     private VideoPlayer videoPlayer;
     private bool isSkippable = false;
     private bool played = false;
@@ -75,5 +76,10 @@ public class IntroSkipAndDisable : MonoBehaviour
         videoPlayer.enabled = false;
         GetComponent<RawImage>().enabled = false;
         blackImage.SetActive(false);
+        Invoke(nameof(ActivateMainMenu), .1f);
+    }
+    void ActivateMainMenu()
+    {
+        mainMenu.SetActive(true);
     }
 }

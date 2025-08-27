@@ -37,7 +37,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4572387418870018938}
   - {fileID: 844299859352406388}
@@ -144,7 +144,7 @@ Rigidbody:
   m_IsKinematic: 0
   m_Interpolate: 0
   m_Constraints: 0
-  m_CollisionDetection: 0
+  m_CollisionDetection: 1
 --- !u!114 &48514794240175143
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -294,13 +294,13 @@ MonoBehaviour:
   OwnerID: -1
   popEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
-  slippMod: 2
   extraOffset: 4.5
+  knbDecreaseAngle: 45
+  knbDecreaseIncrement: 0.25
   dmgMod: 7
   knbMod: 0.3
   sizMod: 0.5
   speedMod: 3
-  angryMaterial: {fileID: 2100000, guid: 6f8e5720f09a3834299e69571d046dcc, type: 2}
 --- !u!1 &2009806699742758642
 GameObject:
   m_ObjectHideFlags: 0

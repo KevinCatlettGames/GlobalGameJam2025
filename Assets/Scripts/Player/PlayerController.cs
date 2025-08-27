@@ -5,18 +5,17 @@ using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
 {
     #region Audio
 
-    [Header("Sound Events")] [SerializeField]
-    private EventReference knockBackEvent;
-
+    [Header("Sound Events")] 
+    [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference dashEvent;
-    [SerializeField] private float knockbackDecaySpeed = 5f;
 
     #endregion
 
@@ -40,7 +39,6 @@ public class PlayerController : NetworkBehaviour
     #region Spells
 
     [Header("Spells")] 
-    [SerializeField] private SO_Spell[] allSpells;
     private SO_Spell firstSpell;
     private SO_Spell secondSpell;
     private bool isFirstSpellReady = true;
@@ -56,9 +54,11 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float damageModifier = 0.05f;
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
+    [SerializeField] private float knockbackDecaySpeed = 5f;
     private float damage = 0;
     private int killCreditID = -1;
-    public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
+    //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
+    private bool isDead = false;
 
     #endregion
 
@@ -73,7 +73,7 @@ public class PlayerController : NetworkBehaviour
     public UnityEvent OnEndSprint;
     private bool canSprint = true;
     private bool isSprinting = false;
-    private Coroutine sprintCoroutine;
+
 
     #endregion
 
@@ -115,11 +115,12 @@ public class PlayerController : NetworkBehaviour
     public int PlayerID => playerID;
     public bool initialized = false;
     private float tempCooldown;
-    private Item itemToEquip;
+    private List<Item> itemsToEquip = new List<Item>();
     private int slipperyCounter = 0;
     private bool isSlippery = false;
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
+    private PlayerStateHandler playerStateHandler;
 
     #endregion
 
@@ -174,7 +175,7 @@ public class PlayerController : NetworkBehaviour
 
     private void Update()
     {
-        if (!initialized || isDead.Value) return;
+        if (!initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
@@ -203,7 +204,7 @@ public class PlayerController : NetworkBehaviour
         Vector3 direction = new Vector3(movementInput.x, 0, movementInput.y);
         direction = Vector3.ClampMagnitude(direction, 1f);
 
-        if (!isDead.Value)
+        if (!isDead)
         {
             if (!isUsingGamepad && movementInput.magnitude < mouseInputDeadzoneRadius)
             {
@@ -248,7 +249,7 @@ public class PlayerController : NetworkBehaviour
 
         move += playerVelocity * Time.deltaTime;
 
-        if (!isDead.Value && targetDirection != Vector3.zero)
+        if (!isDead && targetDirection != Vector3.zero)
         {
             Quaternion targetRotation = Quaternion.LookRotation(targetDirection);
             transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * rotationSpeed);
@@ -296,7 +297,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnMove(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || isDead.Value) return;
+        if (GameManager.IsGamePaused || isDead) return;
         if (isUsingGamepad)
         {
             movementInput = context.ReadValue<Vector2>();
@@ -318,7 +319,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -330,7 +331,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -360,7 +361,7 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
         }
         else
-            SlapAnimServerRpc(spell.spellIndex);
+            SlapAnimServerRpc(isFirstSpell);
 
         if (isFirstSpell)
             isFirstSpellReady = false;
@@ -390,16 +391,16 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SlapAnimServerRpc(int spellIndex)
+    private void SlapAnimServerRpc(bool isFirstSpell)
     {
         mainAnimator.SetTrigger("SlapTrigger");
-        SlapAnimClientRpc(spellIndex);
+        SlapAnimClientRpc(isFirstSpell);
     }
 
     [ClientRpc]
-    private void SlapAnimClientRpc(int spellIndex)
+    private void SlapAnimClientRpc(bool isFirstSpell)
     {
-        SO_Spell spell = FindSpellByIndex(spellIndex);
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
     }
@@ -425,23 +426,18 @@ public class PlayerController : NetworkBehaviour
         else isSecondSpellReady = true;
     }
     
-    private SO_Spell FindSpellByIndex(int spellIndex)
-    {
-        foreach (var spell in allSpells)
-        {
-            if (spell.spellIndex == spellIndex)
-                return spell;
-        }
-        return null;
-    }
 
     #endregion
 
     #region Spell Equip
+    private SO_Spell FindSpellByIndex(int spellIndex)
+    {
+        return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
+    }
 
     public void OnFistSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(1);
@@ -451,7 +447,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpellEquip(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || itemToEquip == null || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || itemsToEquip.Count == 0 || !context.performed || isDead) return;
 
         if (GameManager.Instance.PlayingLocal)
             EquipSpellLocal(2);
@@ -460,17 +456,22 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    private void EquipSpellServerRpc(int spellID)
+    private void EquipSpellServerRpc(int spellSlotID)
     {
-        if (itemToEquip == null) return;
+        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
 
-        SO_Spell spell = itemToEquip.EquipSpell();
-        EquipSpellClientRpc(spellID, spell.spellIndex);
-        itemToEquip = null;
+        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
+        {
+            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);
+        }
+        if (itemsToEquip[0] == null) return;
+
+        EquipSpellClientRpc(spellSlotID, itemsToEquip[0].EquipSpell());
+        itemsToEquip.RemoveAt(0);
     }
 
     [ClientRpc]
-    private void EquipSpellClientRpc(int spellID, int spellIndex)
+    private void EquipSpellClientRpc(int spellSlotID, int spellIndex)
     {
         SO_Spell equippedSpell = FindSpellByIndex(spellIndex);
         if (equippedSpell == null)
@@ -479,21 +480,27 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        UpdateEquippedSpell(spellID, equippedSpell);
+        UpdateEquippedSpell(spellSlotID, equippedSpell);
     }
 
-    private void EquipSpellLocal(int spellID)
+    private void EquipSpellLocal(int spellSlotID)
     {
-        if (itemToEquip == null) return;
+        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
 
-        SO_Spell spell = itemToEquip.EquipSpell();
-        UpdateEquippedSpell(spellID, spell);
-        itemToEquip = null;
+        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
+        {
+            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);           
+        }
+        if (itemsToEquip.Count == 0) return;
+
+        SO_Spell spell = FindSpellByIndex(itemsToEquip[0].EquipSpell());
+        UpdateEquippedSpell(spellSlotID, spell);
+        itemsToEquip.RemoveAt(0);
     }
 
-    private void UpdateEquippedSpell(int spellID, SO_Spell spell)
+    private void UpdateEquippedSpell(int spellSlotID, SO_Spell spell)
     {
-        if (spellID == 1)
+        if (spellSlotID == 1)
         {
             firstSpell = spell;
             playerHUD.SetSpell(1, firstSpell.SpellIcon);
@@ -504,7 +511,7 @@ public class PlayerController : NetworkBehaviour
             playerHUD.SetSpell(2, secondSpell.SpellIcon);
         }
 
-        ResetSpell(spellID);
+        ResetSpell(spellSlotID);
     }
 
     #endregion
@@ -513,7 +520,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead.Value) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
 
         if (!canSprint)
         {
@@ -521,7 +528,7 @@ public class PlayerController : NetworkBehaviour
             return;
         }
 
-        sprintCoroutine = StartCoroutine(SprintCoroutine());
+        StartCoroutine(SprintCoroutine());
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -627,31 +634,42 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.Instance.PlayingLocal)
         {
-            if (isInRange)
-                itemToEquip = item.GetComponent<Item>();
-            else if (!isInRange && item == itemToEquip)
-                itemToEquip = null;
+            if (isInRange && !itemsToEquip.Contains(item))
+                itemsToEquip.Add(item);
+            else if (!isInRange && itemsToEquip.Contains(item))
+                itemsToEquip.Remove(item);
         }
         else
         {
-            if (isInRange)
+            if (isInRange && !itemsToEquip.Contains(item))
             {
-                itemToEquip = item;
                 var itemNetworkObject = item.GetComponent<NetworkObject>();
-                UpdateItemToEquipClientRpc(itemNetworkObject);
+                UpdateItemToEquipClientRpc(itemNetworkObject, isInRange);
             }
-            else if (!isInRange && item == itemToEquip)
+            else if (!isInRange && itemsToEquip.Contains(item))
             {
-                itemToEquip = null;
+                var itemNetworkObject = item.GetComponent<NetworkObject>();
+                UpdateItemToEquipClientRpc(itemNetworkObject, isInRange);
             }
         }
     }
 
     [ClientRpc]
-    public void UpdateItemToEquipClientRpc(NetworkObjectReference item)
+    public void UpdateItemToEquipClientRpc(NetworkObjectReference item, bool toAdd)
     {
+        Item _item = null;
         if (item.TryGet(out NetworkObject itemNetObj))
-            itemToEquip = itemNetObj.GetComponent<Item>();
+        {
+            _item = itemNetObj.GetComponent<Item>();
+        }
+        if (_item != null)
+        {
+            if (toAdd)            
+                itemsToEquip.Add(_item);         
+            else  
+                itemsToEquip.Remove(_item); 
+        }
+
     }
 
     #endregion
@@ -669,20 +687,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void SetSpellsClientRpc(int firstSpellIndex, int secondSpellIndex)
     {
-        SO_Spell first = null, second = null;
-
-        foreach (SO_Spell spell in allSpells)
-        {
-            if (spell.spellIndex == firstSpellIndex)
-                first = spell;
-            if (spell.spellIndex == secondSpellIndex)
-                second = spell;
-        }
-
-        if (first != null && second != null)
-            ApplySpells(first, second);
-        else
-            Debug.LogError("Could not resolve one or both spells from index!");
+        ApplySpells(FindSpellByIndex(firstSpellIndex), FindSpellByIndex(secondSpellIndex));
     }
 
     private void ApplySpells(SO_Spell firstSpell, SO_Spell secondSpell)
@@ -741,7 +746,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead.Value) return;
+        if (isDead) return;
 
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
@@ -790,7 +795,7 @@ public class PlayerController : NetworkBehaviour
 
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead.Value) return;
+        if (isDead) return;
 
         if (isSlippery)
         {
@@ -841,11 +846,13 @@ public class PlayerController : NetworkBehaviour
         playerHUD?.DisplayDeath();
     }
 
+    [ClientRpc]
+    public void DieClientRpc() => Die();
     public void Die()
     {
-        if (isDead.Value) return;
-
-        isDead.Value = true;
+        if (isDead) return;
+        Debug.Log(playerID + " Died");
+        isDead = true;
         controller.enabled = false; 
         
         if (GameManager.Instance.PlayingLocal)
@@ -939,7 +946,6 @@ public class PlayerController : NetworkBehaviour
     {
         slipperyCounter = 0;
         damage = 0;
-        isDead.Value = false;
         isSlippery = false;
         killCreditID = -1;
 
@@ -964,7 +970,8 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
 
-        GetComponent<PlayerStateHandler>().ResetPlayer();
+        playerStateHandler.ResetPlayer();
+        isDead = false;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -992,6 +999,8 @@ public class PlayerController : NetworkBehaviour
             this.controllerRumbler = controllerRumbler;
             isUsingGamepad = true;
         }
+        playerStateHandler = GetComponent<PlayerStateHandler>();
+        playerStateHandler.EnableDeath();
     }
     #endregion
 }
