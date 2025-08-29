@@ -30,9 +30,15 @@ public class PlayerHUD : MonoBehaviour
     [Header("Score")]
     [SerializeField] private TypewriterByWord winsTypewriter;
     [SerializeField] private TypewriterByWord killsTypewriter;
+    [SerializeField] private TypewriterByWord lifesTypewriter;
+
+    [Header("GameSettings")]
+    [SerializeField] private SO_GameSettings gameSettings;
 
     private int kills = 0;
     private int wins = 0;
+    private int lifes = 0;
+    private int maxLifes = 0;
 
     private void Start()
     {
@@ -40,6 +46,17 @@ public class PlayerHUD : MonoBehaviour
         secondCoverImage.fillAmount = secondCoverFill;
         killsTypewriter.ShowText(kills.ToString());
         winsTypewriter.ShowText(wins.ToString());
+        if (gameSettings != null)
+        {
+            maxLifes = gameSettings.Lifes;
+            if (maxLifes != -1 && maxLifes > 1)
+            {
+                lifes = maxLifes;
+                lifesTypewriter.gameObject.SetActive(true);
+                lifesTypewriter.ShowText("x"+ lifes.ToString());
+                GameManager.Instance.OnGameStarted += ResetLifes;
+            }
+        }
     }
 
     private void Update()
@@ -125,6 +142,18 @@ public class PlayerHUD : MonoBehaviour
     {
         portrait.color = deathColor;
         UICover.SetActive(true);
+        if (maxLifes != -1 && maxLifes > 1)
+        {
+            lifes--;
+            lifesTypewriter.ShowText("x" + lifes.ToString());
+        }
+    }
+
+    private void ResetLifes()
+    {
+        if (maxLifes == -1) return;
+        lifes = maxLifes;
+        lifesTypewriter.ShowText("x" + lifes.ToString());
     }
 
     public void ResetHUD()
@@ -141,5 +170,12 @@ public class PlayerHUD : MonoBehaviour
             uiElement.color = playerColor;
         }
         portrait.sprite = playerPortrait;
+    }
+    private void OnDestroy()
+    {
+        if (maxLifes != -1)
+        {
+            GameManager.Instance.OnGameStarted -= ResetLifes;
+        }
     }
 }
