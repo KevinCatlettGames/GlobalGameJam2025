@@ -3,6 +3,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public class ScorePanel : MonoBehaviour
 {
     [Header("Score")]
@@ -11,6 +12,9 @@ public class ScorePanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI winsText;
     [SerializeField] private TextMeshProUGUI killsText;
     [SerializeField] private Image portrait;
+    [SerializeField] private Image background;
+    [SerializeField] private Image frame;
+    [SerializeField] private Color colorShift;
     private int kills = 0;
     private int wins = 0;
 
@@ -20,9 +24,12 @@ public class ScorePanel : MonoBehaviour
         winsTypewriter.ShowText(wins.ToString());
     }
 
-    public void SetPortrait(Sprite playerPortrait)
+    public void SetPortrait(Sprite playerPortrait, Color playerColor)
     {
         portrait.sprite = playerPortrait;
+        background.color = playerColor;
+        Color frameColor = playerColor - colorShift;
+        frame.color = frameColor;
     }
 
     public void AddWin()

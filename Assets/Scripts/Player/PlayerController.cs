@@ -24,7 +24,9 @@ public class PlayerController : NetworkBehaviour
     [Header("Visuals")] 
     [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
-    [SerializeField] GameObject canvas;
+    [SerializeField] private GameObject canvas;
+    [SerializeField] private PlayerSpellIndicator spellIndicator1;
+    [SerializeField] private PlayerSpellIndicator spellIndicator2;
 
     [Header("Effects")] 
     [SerializeField] private GameObject dashStartEffect;
@@ -350,11 +352,6 @@ public class PlayerController : NetworkBehaviour
         else
             CastSpellServerRpc(isFirstSpell);
 
-        if (isFirstSpell)
-            firstSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 1));
-        else
-            secondSpellCoroutine = StartCoroutine(CooldownCoroutine(tempCooldown, 2));
-
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
@@ -404,28 +401,6 @@ public class PlayerController : NetworkBehaviour
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.GetSpellEventStruct(), gameObject);
     }
-
-    private IEnumerator CooldownCoroutine(float time, int spellID)
-    {
-        yield return new WaitForSeconds(time);
-        if (GameManager.Instance.PlayingLocal)
-            CooldownCompleteLocal(spellID);
-        else
-            CooldownCompleteClientRpc(spellID);
-    }
-
-    [ClientRpc]
-    private void CooldownCompleteClientRpc(int spellID) => ResetSpellState(spellID);
-
-    private void CooldownCompleteLocal(int spellID) => ResetSpellState(spellID);
-
-    private void ResetSpellState(int spellID)
-    {
-        ResetSpell(spellID);
-        if (spellID == 1) isFirstSpellReady = true;
-        else isSecondSpellReady = true;
-    }
-    
 
     #endregion
 
@@ -504,11 +479,13 @@ public class PlayerController : NetworkBehaviour
         {
             firstSpell = spell;
             playerHUD.SetSpell(1, firstSpell.SpellIcon);
+            spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
         }
         else
         {
             secondSpell = spell;
             playerHUD.SetSpell(2, secondSpell.SpellIcon);
+            spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
         }
 
         ResetSpell(spellSlotID);
@@ -700,12 +677,22 @@ public class PlayerController : NetworkBehaviour
 
         playerHUD.SetSpell(1, firstSpell.SpellIcon);
         playerHUD.SetSpell(2, secondSpell.SpellIcon);
+        spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
+        spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
     }
 
     private IEnumerator SpellCooldown(float time, int spellID)
     {
         float cooldownRate = 1f / time;
         playerHUD.SetSpellCooldown(spellID, cooldownRate);
+        if (spellID == 1)
+        {
+            spellIndicator1.SetSpellCooldown(cooldownRate);
+        }
+        else 
+        {
+            spellIndicator2.SetSpellCooldown(cooldownRate);
+        }
 
         yield return new WaitForSeconds(time);
         ResetSpell(spellID);
@@ -713,6 +700,7 @@ public class PlayerController : NetworkBehaviour
 
     private void ResetSpell(int spellID)
     {
+        Debug.Log("Reset Spell");
         switch (spellID)
         {
             case 1:
@@ -842,8 +830,6 @@ public class PlayerController : NetworkBehaviour
     {
         if (activationState)
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
-
-        playerHUD?.DisplayDeath();
     }
 
     [ClientRpc]

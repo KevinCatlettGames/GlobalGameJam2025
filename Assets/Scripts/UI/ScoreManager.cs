@@ -29,12 +29,12 @@ public class ScoreManager : MonoBehaviour
         }
         Scores.ResetScores();
     }
-    public void InitialiseScorePanel(int playerID, Sprite playerPortrait)
+    public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {
         currentActivePlayers++;
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
-        scorePanel.SetPortrait(playerPortrait);
+        scorePanel.SetPortrait(playerPortrait, playerColor);
     }
     public void AddPendingScore(int playerID, bool isWin)
     {
@@ -42,12 +42,12 @@ public class ScoreManager : MonoBehaviour
         if (isWin)
         {
             pendingWins[playerID]++;
-            Scores.winScores[playerID]++;
+            Scores.WinScores[playerID]++;
         }
         else
         {
             pendingKills[playerID]++;
-            Scores.killScores[playerID]++;
+            Scores.KillScores[playerID]++;
         }
     }
     public void ResolveScores()
@@ -61,8 +61,8 @@ public class ScoreManager : MonoBehaviour
         restarText.SetActive(false);
         for (int i = 0; i < currentActivePlayers; i++)
         {
-            int kills = Scores.killScores[i] - pendingKills[i];
-            int wins = Scores.winScores[i] - pendingWins[i];
+            int kills = Scores.KillScores[i] - pendingKills[i];
+            int wins = Scores.WinScores[i] - pendingWins[i];
             scorePanels[i].SetScores(wins, kills);
         }
         yield return new WaitForSeconds(.2f);

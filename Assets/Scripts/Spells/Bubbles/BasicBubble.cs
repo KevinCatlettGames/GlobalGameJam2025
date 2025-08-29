@@ -83,7 +83,7 @@ public class BasicBubble : NetworkBehaviour
     }
     protected virtual void InflateOverlapChack()
     {
-        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Wall"));
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
 
         foreach (var col in overlaps)
         {
