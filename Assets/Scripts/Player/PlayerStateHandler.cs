@@ -1,7 +1,6 @@
 using UnityEngine;
 using FMODUnity;
-using System.Collections;
-using UnityEditorInternal;
+
 
 public enum PlayerState
 {

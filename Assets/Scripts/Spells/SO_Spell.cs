@@ -12,6 +12,7 @@ public class SO_Spell : ScriptableObject
     
     [Header("UI")]
     public Sprite SpellIcon;
+    public Color IndicatorColor;
 
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
