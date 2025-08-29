@@ -24,7 +24,7 @@ GameObject:
   m_TagString: Bubble
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 1
   m_IsActive: 1
 --- !u!4 &3019594990852850736
 Transform:
@@ -71,7 +71,7 @@ MeshRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
-  m_RenderingLayerMask: 1
+  m_RenderingLayerMask: 2
   m_RendererPriority: 0
   m_Materials:
   - {fileID: -876546973899608171, guid: 3df0995ccedf1ca4eae82f5e33f098eb, type: 3}
@@ -317,7 +317,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 1
   m_IsActive: 1
 --- !u!4 &5449327613073633523
 Transform:
@@ -5149,7 +5149,7 @@ GameObject:
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
+  m_StaticEditorFlags: 1
   m_IsActive: 1
 --- !u!4 &844299859352406388
 Transform:
@@ -5399,6 +5399,11 @@ PrefabInstance:
       propertyPath: InitialModule.startLifetime.minScalar
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 3871257379577124586, guid: fd27fdadab21b9d459a00c06ea331d00,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 6081551340156864742, guid: fd27fdadab21b9d459a00c06ea331d00,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -5457,6 +5462,11 @@ PrefabInstance:
     - target: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
         type: 3}
       propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
+        type: 3}
+      propertyPath: m_StaticEditorFlags
       value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
