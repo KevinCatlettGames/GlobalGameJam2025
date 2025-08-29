@@ -29,12 +29,12 @@ public class ScoreManager : MonoBehaviour
         }
         Scores.ResetScores();
     }
-    public void InitialiseScorePanel(int playerID, Sprite playerPortrait)
+    public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {
         currentActivePlayers++;
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
-        scorePanel.SetPortrait(playerPortrait);
+        scorePanel.SetPortrait(playerPortrait, playerColor);
     }
     public void AddPendingScore(int playerID, bool isWin)
     {

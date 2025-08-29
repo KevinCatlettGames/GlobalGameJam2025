@@ -232,7 +232,7 @@ public class PlayerManager : NetworkBehaviour
     {
         playerHUDs[playerID].gameObject.SetActive(true);
         playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
-        ScoreManager.Instance.InitialiseScorePanel(playerID, playerSprites[playerID]);
+        ScoreManager.Instance.InitialiseScorePanel(playerID, playerSprites[playerID], colors[playerID]);
     }
 
     public void ResetPlayerPosition(int playerID)
