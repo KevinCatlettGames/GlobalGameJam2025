@@ -116,7 +116,6 @@ public class PlayerController : NetworkBehaviour
     private int playerID = 0;
     public int PlayerID => playerID;
     public bool initialized = false;
-    private float tempCooldown;
     private List<Item> itemsToEquip = new List<Item>();
     private int slipperyCounter = 0;
     private bool isSlippery = false;
@@ -352,6 +351,11 @@ public class PlayerController : NetworkBehaviour
         else
             CastSpellServerRpc(isFirstSpell);
 
+        if (isFirstSpell)
+            isFirstSpellReady = false;
+        else
+            isSecondSpellReady = false;
+
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
@@ -360,17 +364,20 @@ public class PlayerController : NetworkBehaviour
         else
             SlapAnimServerRpc(isFirstSpell);
 
-        if (isFirstSpell)
-            isFirstSpellReady = false;
-        else
-            isSecondSpellReady = false;
     }
 
     private void CastSpellLocal(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        tempCooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
-        StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
+        if (isFirstSpell)
+        {
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+        }
+        else 
+        {
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -383,8 +390,15 @@ public class PlayerController : NetworkBehaviour
     private void CastSpellClientRpc(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        tempCooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
-        StartCoroutine(SpellCooldown(tempCooldown, isFirstSpell ? 1 : 2));
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
+        if (isFirstSpell)
+        {
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+        }
+        else
+        {
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
