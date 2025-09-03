@@ -27,7 +27,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: -0.591, z: 0}
-  m_LocalScale: {x: 0.36, y: 0.36, z: 0.36}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 8484471731394962238}
@@ -76,7 +76,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: a1446ac4e88d8564f9864513cc404630, type: 3}
+  m_Sprite: {fileID: 0}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -84,7 +84,7 @@ SpriteRenderer:
   m_Size: {x: 5.12, y: 5.12}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
 --- !u!1 &3431600676504119746
@@ -166,6 +166,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   meshFilter: {fileID: 926958764720718228}
   meshRenderer: {fileID: 4782991017872624825}
+  spriteRenderer: {fileID: 6275187814327919439}
   pickUpEffect: {fileID: 8648756826914876848, guid: 0aa191af350f2674d8f64a85fc5152dd,
     type: 3}
   pickUpEvent:
@@ -253,7 +254,7 @@ GameObject:
   - component: {fileID: 4251718306288664826}
   - component: {fileID: 7180276581258466052}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Sparkles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -7,6 +7,7 @@ public class Item : NetworkBehaviour
 {
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     private int spellID;
 
     [Header("Item PickUp")]
@@ -67,6 +68,7 @@ public class Item : NetworkBehaviour
 
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
+        //spriteRenderer.color = spell.IndicatorColor;
 
         Material[] effectMaterials = spell.GetEffectMaterials();
         if (effectMaterials != null && effectMaterials.Length == 2)
