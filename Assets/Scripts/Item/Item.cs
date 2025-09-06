@@ -23,33 +23,15 @@ public class Item : NetworkBehaviour
 
     private Material spellMaterial;
 
-    private NetworkVariable<float> serverSpawnTime = new NetworkVariable<float>(writePerm: NetworkVariableWritePermission.Server);
-    private NetworkVariable<int> spellIndex = new NetworkVariable<int>(-1);
-
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
     [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
+    [SerializeField] private ParticleSystemRenderer waveEffect;
 
     public override void OnNetworkSpawn()
     {
         if (IsServer)
         {
-            //int r = 0;
-            //if (spell == null)
-            //{
-            //    r = Random.Range(0, spells.Length);
-            //    spell = spells[r];
-            //}
-
-            //spellIndex.Value = r;
-            //serverSpawnTime.Value = (float)NetworkManager.ServerTime.Time;
-            //SetupSpell(r);
             StartCoroutine(ServerItemDespawn());
-        }
-        else
-        {
-            //spellIndex.OnValueChanged += (oldVal, newVal) => SetupSpell(newVal);
-            //if (spellIndex.Value >= 0)
-            //    SetupSpell(spellIndex.Value);
         }
     }
 
@@ -68,13 +50,14 @@ public class Item : NetworkBehaviour
 
         spellMaterial = spell.GetMaterial();
         meshRenderer.material = spellMaterial;
-        //spriteRenderer.color = spell.IndicatorColor;
+        spriteRenderer.color = spell.GetEffectColor();
 
         Material[] effectMaterials = spell.GetEffectMaterials();
-        if (effectMaterials != null && effectMaterials.Length == 2)
+        if (effectMaterials != null && effectMaterials.Length >= 3)
         {
             wrapParticleRenderer.material = effectMaterials[0];
             sparkleParticleSystem.material = effectMaterials[1];
+            waveEffect.material = effectMaterials[2];
         }
     }
 

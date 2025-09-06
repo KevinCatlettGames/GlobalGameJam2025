@@ -79,7 +79,6 @@ public class PlayerHUD : MonoBehaviour
             if (firstCoverFill <= 0)
             {
                 firstCoverFill = 0;
-                firstSpellImage.sprite = spellSprites[1];
             }
             firstCoverImage.fillAmount = firstCoverFill;
         }
@@ -90,7 +89,6 @@ public class PlayerHUD : MonoBehaviour
             if (secondCoverFill <= 0)
             {
                 secondCoverFill = 0;
-                secondSpellImage.sprite = spellSprites[2];
             }
             secondCoverImage.fillAmount = secondCoverFill;
         }
@@ -135,13 +133,11 @@ public class PlayerHUD : MonoBehaviour
                 firstCoverFill = 1f;
                 firstCoverImage.fillAmount = firstCoverFill;
                 firstCDRate = cooldownRate;
-                firstSpellImage.sprite = spellSprites[0];
                 break;
             case 2:
                 secondCoverFill = 1f;
                 secondCoverImage.fillAmount = secondCoverFill;
                 secondCDRate = cooldownRate;
-                secondSpellImage.sprite = spellSprites[3];
                 break;
             default:
                 Debug.LogWarning($"SetSpellCooldown called with invalid spellID: {spellID}");
@@ -174,6 +170,9 @@ public class PlayerHUD : MonoBehaviour
         Vector3 originalPosition = spellTransform.position;
         float progress = 0;
         float progression = 1 / shakeTime;
+        int spriteIndex = spellID == 1 ? 0 : 3;
+        Image spellImage = spellID == 1 ? firstSpellImage : secondSpellImage;
+        spellImage.sprite = spellSprites[spriteIndex];
         while (progress < 1)
         {
             spellTransform.position = originalPosition + Vector3.right * shakeCurve.Evaluate(progress) * shakeAmplitude;
@@ -184,10 +183,12 @@ public class PlayerHUD : MonoBehaviour
         switch (spellID)
         {
             case 1:
+                firstSpellImage.sprite = spellSprites[1];
                 firstSpellShake = null;
                 break;
             case 2:
-                secondSpellShake= null;
+                secondSpellImage.sprite = spellSprites[2];
+                secondSpellShake = null;
                 break;
             default:
                 Debug.LogWarning($"Spell shake ID Issue, spellID: {spellID}");

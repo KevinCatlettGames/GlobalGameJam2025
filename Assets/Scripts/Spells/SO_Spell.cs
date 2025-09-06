@@ -31,6 +31,7 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected Mesh itemMesh;
     [SerializeField] protected Material itemMaterial;
     [SerializeField] protected Material[] effectMaterials;
+    [SerializeField] protected Color itemEffectColor;
 
     [Header("Sound Events")]
     [SerializeField] protected EventReference castEventStruct;
@@ -72,5 +73,9 @@ public class SO_Spell : ScriptableObject
     public Material[] GetEffectMaterials()
     {
         return effectMaterials;
+    }
+    public Color GetEffectColor()
+    {
+        return itemEffectColor;
     }
 }
