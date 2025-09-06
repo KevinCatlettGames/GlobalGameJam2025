@@ -7,13 +7,17 @@ using Unity.Netcode;
 [CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
+    [SerializeField] private int spellIndex;
+    public int SpellIndex { get { return spellIndex; } }
 
-    public int spellIndex; 
-    
     [Header("UI")]
-    public Sprite SpellIcon;
-    public Sprite UsedSpellIcon;
-    public Color IndicatorColor;
+    [SerializeField] private Sprite spellIcon;
+    [SerializeField] private Sprite usedSpellIcon;
+    [SerializeField] private Color indicatorColor;
+    public Sprite SpellIcon { get { return spellIcon; } }
+    public Sprite UsedSpellIcon { get { return usedSpellIcon;} }
+    public Color IndicatorColor {  get { return indicatorColor; } }
+    
 
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
@@ -32,10 +36,14 @@ public class SO_Spell : ScriptableObject
     [SerializeField] protected Material itemMaterial;
     [SerializeField] protected Material[] effectMaterials;
     [SerializeField] protected Color itemEffectColor;
+    public Mesh ItemMesh { get { return itemMesh; } }
+    public Material ItemMaterial { get { return itemMaterial; } }
+    public Color ItemEffectColor { get { return itemEffectColor; } }
 
     [Header("Sound Events")]
     [SerializeField] protected EventReference castEventStruct;
     [SerializeField] protected EventReference spellEventStruct;
+    public EventReference SpellEventStruct { get { return spellEventStruct; } }
 
     protected BasicBubble bubbleScript;
     public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
@@ -50,32 +58,15 @@ public class SO_Spell : ScriptableObject
             GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize,
-                inflationSpeed, dir, castEventStruct, playerCollider);
+            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
 
             bubbleInstance.GetComponent<NetworkObject>().Spawn();
         }
 
         return spellCooldown;
     }
-    public Mesh GetMesh()
-    {
-        return itemMesh;
-    }
-    public virtual Material GetMaterial() 
-    {
-        return itemMaterial;
-    }
-    public EventReference GetSpellEventStruct() 
-    {
-        return spellEventStruct;
-    }
     public Material[] GetEffectMaterials()
     {
         return effectMaterials;
-    }
-    public Color GetEffectColor()
-    {
-        return itemEffectColor;
     }
 }
