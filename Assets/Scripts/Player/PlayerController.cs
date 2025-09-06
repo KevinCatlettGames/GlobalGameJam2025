@@ -324,6 +324,7 @@ public class PlayerController : NetworkBehaviour
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
+            playerHUD.AnimateSpellIcon(1);
             return;
         }
 
@@ -336,6 +337,7 @@ public class PlayerController : NetworkBehaviour
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
+            playerHUD.AnimateSpellIcon(2);
             return;
         }
 
@@ -492,13 +494,13 @@ public class PlayerController : NetworkBehaviour
         if (spellSlotID == 1)
         {
             firstSpell = spell;
-            playerHUD.SetSpell(1, firstSpell.SpellIcon);
+            playerHUD.SetSpell(1, firstSpell.SpellIcon, firstSpell.UsedSpellIcon);
             spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
         }
         else
         {
             secondSpell = spell;
-            playerHUD.SetSpell(2, secondSpell.SpellIcon);
+            playerHUD.SetSpell(2, secondSpell.SpellIcon, secondSpell.UsedSpellIcon);
             spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
         }
 
@@ -689,8 +691,8 @@ public class PlayerController : NetworkBehaviour
         ResetSpell(1);
         ResetSpell(2);
 
-        playerHUD.SetSpell(1, firstSpell.SpellIcon);
-        playerHUD.SetSpell(2, secondSpell.SpellIcon);
+        playerHUD.SetSpell(1, firstSpell.SpellIcon, firstSpell.UsedSpellIcon);
+        playerHUD.SetSpell(2, secondSpell.SpellIcon, secondSpell.UsedSpellIcon);
         spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
         spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
     }
@@ -714,7 +716,6 @@ public class PlayerController : NetworkBehaviour
 
     private void ResetSpell(int spellID)
     {
-        Debug.Log("Reset Spell");
         switch (spellID)
         {
             case 1:

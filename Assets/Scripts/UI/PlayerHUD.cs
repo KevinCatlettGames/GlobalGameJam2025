@@ -1,4 +1,5 @@
 using Febucci.UI;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,10 +11,21 @@ public class PlayerHUD : MonoBehaviour
     [SerializeField] private Image firstCoverImage;
     [SerializeField] private Image secondSpellImage;
     [SerializeField] private Image secondCoverImage;
+
     private float firstCoverFill = 0f;
     private float firstCDRate = 1f;
     private float secondCoverFill = 0f;
     private float secondCDRate = 1f;
+    private Sprite[] spellSprites = new Sprite[4];
+
+    [Header("Animation")]
+    [SerializeField] private AnimationCurve shakeCurve;
+    [SerializeField] private float shakeTime = .1f;
+    [SerializeField] private float shakeAmplitude = 2f;
+    [SerializeField] private RectTransform firstSpellTransform;
+    [SerializeField] private RectTransform secondSpellTransform;
+    private Coroutine firstSpellShake;
+    private Coroutine secondSpellShake;
 
     [Header("Damage")]
     [SerializeField] private TypewriterByWord damageTypewriter;
@@ -64,34 +76,121 @@ public class PlayerHUD : MonoBehaviour
         if (firstCoverFill > 0f)
         {
             firstCoverFill -= firstCDRate * Time.deltaTime;
-            firstCoverFill = Mathf.Max(firstCoverFill, 0f);
+            if (firstCoverFill <= 0)
+            {
+                firstCoverFill = 0;
+                firstSpellImage.sprite = spellSprites[1];
+            }
             firstCoverImage.fillAmount = firstCoverFill;
         }
 
         if (secondCoverFill > 0f)
         {
             secondCoverFill -= secondCDRate * Time.deltaTime;
-            secondCoverFill = Mathf.Max(secondCoverFill, 0f);
+            if (secondCoverFill <= 0)
+            {
+                secondCoverFill = 0;
+                secondSpellImage.sprite = spellSprites[2];
+            }
             secondCoverImage.fillAmount = secondCoverFill;
         }
     }
+    public void InitialisePlayerHUD(Color playerColor, Sprite playerPortrait)
+    {
+        foreach (var uiElement in coloredUI)
+        {
+            uiElement.color = playerColor;
+        }
+        portrait.sprite = playerPortrait;
+    }
 
-    public void SetSpell(int spellID, Sprite spellImage)
+    public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
     {
         switch (spellID)
         {
             case 1:
+                spellSprites[1] = spellImage;
+                spellSprites[0] = spellUsedImage;
                 firstSpellImage.sprite = spellImage;
                 firstCoverFill = 0f;
                 firstCoverImage.fillAmount = firstCoverFill;
                 break;
             case 2:
+                spellSprites[2] = spellImage;
+                spellSprites[3] = spellUsedImage;
                 secondSpellImage.sprite = spellImage;
                 secondCoverFill = 0f;
                 secondCoverImage.fillAmount = secondCoverFill;
                 break;
             default:
                 Debug.LogWarning($"SetSpell called with invalid spellID: {spellID}");
+                break;
+        }
+    }
+    public void SetSpellCooldown(int spellID, float cooldownRate)
+    {
+        switch (spellID)
+        {
+            case 1:
+                firstCoverFill = 1f;
+                firstCoverImage.fillAmount = firstCoverFill;
+                firstCDRate = cooldownRate;
+                firstSpellImage.sprite = spellSprites[0];
+                break;
+            case 2:
+                secondCoverFill = 1f;
+                secondCoverImage.fillAmount = secondCoverFill;
+                secondCDRate = cooldownRate;
+                secondSpellImage.sprite = spellSprites[3];
+                break;
+            default:
+                Debug.LogWarning($"SetSpellCooldown called with invalid spellID: {spellID}");
+                break;
+        }
+    }
+    public void AnimateSpellIcon(int spellID)
+    {
+        switch (spellID)
+        {
+            case 1:
+                if (firstSpellShake == null)
+                {
+                    firstSpellShake = StartCoroutine(shakeSpellCoroutine(firstSpellTransform, spellID));
+                }
+                break;
+            case 2:
+                if (secondSpellShake == null)
+                {
+                    secondSpellShake = StartCoroutine(shakeSpellCoroutine(secondSpellTransform, spellID));
+                }
+                break;
+            default:
+                Debug.LogWarning($"AnimateSpellIcon called with invalid spellID: {spellID}");
+                break;
+        }
+    }
+    private IEnumerator shakeSpellCoroutine(RectTransform spellTransform, int spellID)
+    {
+        Vector3 originalPosition = spellTransform.position;
+        float progress = 0;
+        float progression = 1 / shakeTime;
+        while (progress < 1)
+        {
+            spellTransform.position = originalPosition + Vector3.right * shakeCurve.Evaluate(progress) * shakeAmplitude;
+            progress += progression * Time.deltaTime;
+            yield return null;
+        }
+        spellTransform.position = originalPosition;
+        switch (spellID)
+        {
+            case 1:
+                firstSpellShake = null;
+                break;
+            case 2:
+                secondSpellShake= null;
+                break;
+            default:
+                Debug.LogWarning($"Spell shake ID Issue, spellID: {spellID}");
                 break;
         }
     }
@@ -106,25 +205,6 @@ public class PlayerHUD : MonoBehaviour
         }
     }
 
-    public void SetSpellCooldown(int spellID, float cooldownRate)
-    {
-        switch (spellID)
-        {
-            case 1:
-                firstCoverFill = 1f;
-                firstCoverImage.fillAmount = firstCoverFill;
-                firstCDRate = cooldownRate;
-                break;
-            case 2:
-                secondCoverFill = 1f;
-                secondCoverImage.fillAmount = secondCoverFill;
-                secondCDRate = cooldownRate;
-                break;
-            default:
-                Debug.LogWarning($"SetSpellCooldown called with invalid spellID: {spellID}");
-                break;
-        }
-    }
 
     public void AddWin()
     {
@@ -163,14 +243,6 @@ public class PlayerHUD : MonoBehaviour
         UpdateDamageText(0);
     }
 
-    public void InitialisePlayerHUD(Color playerColor, Sprite playerPortrait)
-    {
-        foreach (var uiElement in coloredUI)
-        {
-            uiElement.color = playerColor;
-        }
-        portrait.sprite = playerPortrait;
-    }
     private void OnDestroy()
     {
         if (maxLifes != -1)
