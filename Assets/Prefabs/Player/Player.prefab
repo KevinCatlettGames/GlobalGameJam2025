@@ -15465,11 +15465,10 @@ MonoBehaviour:
   splashEffect: {fileID: 4770424761678473707}
   wetEffect: {fileID: 248059872337048837}
   damageParticleSystem: {fileID: 1527836326199805677}
-  damagedEffect: {fileID: 5594803460608244841}
+  damagedEffect: {fileID: 7211629053520166995}
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
   damageColorEffectDuration: 0.1
-  damageToEmissionMod: 0.1
   damageModifier: 0.15
   slipperyModifier: 2
   rumbleDurationFactor: 0.007
@@ -15760,6 +15759,7 @@ GameObject:
   - component: {fileID: 2845675673389681281}
   - component: {fileID: 5594803460608244841}
   - component: {fileID: 3508264017212994404}
+  - component: {fileID: 7211629053520166995}
   m_Layer: 0
   m_Name: DamagedEffect
   m_TagString: Untagged
@@ -20582,6 +20582,21 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &7211629053520166995
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3771730546468720695}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e72bf9b9c03b0f74fb1f188c6f08292c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  emissionMod: 0.3
+  speedMod: 0.2
+  distance: 2
 --- !u!1 &3925698769396709138
 GameObject:
   m_ObjectHideFlags: 0
