@@ -31,14 +31,17 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
     void Start()
     {
-        SteamMatchmaking.OnLobbyInvite += SteamMatchmakingOnOnLobbyInvite;
+        SteamMatchmaking.OnLobbyInvite += SteamMatchmakingOnLobbyInvite;
         
         //InitializeUnityAuth();
     }
 
-    private void SteamMatchmakingOnOnLobbyInvite(Friend arg1, Lobby arg2)
+    private void SteamMatchmakingOnLobbyInvite(Friend arg1, Lobby arg2)
     {
        Debug.Log("Was invited to lobby");
+       SteamIntegration.instance.steamFriendToJoin = arg1;
+       SteamIntegration.instance.lobbyIDToJoin = arg2.Id.ToString();
+       OpenLobby();
     }
 
     public async void StartGameLocal()
