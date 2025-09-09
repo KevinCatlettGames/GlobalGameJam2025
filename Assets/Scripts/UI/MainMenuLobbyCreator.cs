@@ -14,6 +14,7 @@ using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using Lobby = Steamworks.Data.Lobby;
+using UnityEngine.UI; 
 
 public class MainMenuLobbyCreator : MonoBehaviour
 {
@@ -22,7 +23,8 @@ public class MainMenuLobbyCreator : MonoBehaviour
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
     public LobbyHeartBeat lobbyHeartBeat;
-
+    public Button acceptButton; 
+    
     private void Awake()
     {
         if(Instance == null) 
@@ -41,7 +43,8 @@ public class MainMenuLobbyCreator : MonoBehaviour
        Debug.Log("Was invited to lobby");
        SteamIntegration.instance.steamFriendToJoin = arg1;
        SteamIntegration.instance.lobbyIDToJoin = arg2.Id.ToString();
-       OpenLobby();
+       acceptButton.gameObject.SetActive(true);
+       acceptButton.onClick.AddListener(() => OpenLobby());
     }
 
     public async void StartGameLocal()
