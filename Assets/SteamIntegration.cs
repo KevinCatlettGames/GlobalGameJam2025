@@ -52,6 +52,16 @@ public class SteamIntegration : MonoBehaviour
         SteamClient.Shutdown();
     }
 
+    private void OnEnable()
+    {
+        SteamFriends.OnGameRichPresenceJoinRequested += RichPresenceJoinRequested;
+    }
+
+    private void OnDisable()
+    {
+        SteamFriends.OnGameRichPresenceJoinRequested -= RichPresenceJoinRequested;
+    }
+
     #endregion
 
     void InitializeSteam()
@@ -80,6 +90,17 @@ public class SteamIntegration : MonoBehaviour
             Debug.LogError("Failed to load Steam stats.");
         }
     }
+    
+    #region Matchmaking
+    private void RichPresenceJoinRequested(Friend steamFriend, string lobbyID)
+    {
+        Debug.Log("Trying to join a lobby through steam friend list stuff...");
+        steamFriendToJoin = steamFriend;
+        lobbyIDToJoin = lobbyID;
+        if (MainMenuLobbyCreator.Instance != null)
+            MainMenuLobbyCreator.Instance.OpenLobby();
+    }
+    #endregion 
     
     #region Localization
     // private void SetLocaleBasedOnSteamLanguage()

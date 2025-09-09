@@ -113,7 +113,15 @@ public class GameLobby : MonoBehaviour
         SteamFriends.OnGameLobbyJoinRequested += GameLobbyJoinRequested;
         if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
         {
-            RichPresenceJoinRequested(SteamIntegration.instance.steamFriendToJoin, SteamIntegration.instance.lobbyIDToJoin);
+            // connectString is exactly what you set earlier ("lobby.Id.ToString()")
+            if (ulong.TryParse(SteamIntegration.instance.lobbyIDToJoin, out ulong lobbyId))
+            {
+                JoinSteamLobbyWithID(lobbyId.ToString());
+            }
+            else
+            {
+                Debug.LogError($"Invalid connect string: {SteamIntegration.instance.lobbyIDToJoin}");
+            }
         }
     }
     private void OnDisable()
@@ -121,19 +129,6 @@ public class GameLobby : MonoBehaviour
         SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
         SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
         SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
-    }
-    
-    private void RichPresenceJoinRequested(Friend friend, string connectString)
-    {
-        // connectString is exactly what you set earlier ("lobby.Id.ToString()")
-        if (ulong.TryParse(connectString, out ulong lobbyId))
-        {
-            JoinSteamLobbyWithID(lobbyId.ToString());
-        }
-        else
-        {
-            Debug.LogError($"Invalid connect string: {connectString}");
-        }
     }
     
     private void LobbyCreated(Result result, Lobby lobby)
