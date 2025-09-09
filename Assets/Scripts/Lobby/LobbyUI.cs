@@ -32,7 +32,7 @@ public class LobbyUI : MonoBehaviour
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(false);
             joiningLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.JoinWithCode(joinCodeInputField.text);
+            GameLobby.instance.JoinSteamLobbyWithID(joinCodeInputField.text);
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         createPublicButton.onClick.AddListener(() =>
@@ -41,13 +41,13 @@ public class LobbyUI : MonoBehaviour
             joinCodeInputField.gameObject.SetActive(false);
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.CreateLobby("Empty", false);
+            GameLobby.instance.HostSteamLobby();
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         
-        joinCodeButton.interactable = false;
+        //joinCodeButton.interactable = false;
         
-        joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
+        // joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
     }
     
     public void HideOnCreateUI()
@@ -89,8 +89,8 @@ public class LobbyUI : MonoBehaviour
         }
     }
 
-    private void ValidateJoinButtonActivation(string codeInput)
-    {
-        joinCodeButton.interactable = codeInput.Length == 6;
-    }
+    // private void ValidateJoinButtonActivation(string codeInput)
+    // {
+    //     joinCodeButton.interactable = codeInput.Length == 6;
+    // }
 }

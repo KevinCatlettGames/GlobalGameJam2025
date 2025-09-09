@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
@@ -5,7 +6,7 @@ using UnityEngine;
 
 public class LobbyHeartBeat : MonoBehaviour
 {
-    public Lobby joinedLobby;
+    public Steamworks.Data.Lobby joinedLobby;
     float heartbeatTimer;
 
     void Awake()
@@ -15,20 +16,15 @@ public class LobbyHeartBeat : MonoBehaviour
     
     void Update()
     {
-        if (IsLobbyHost())
+        if (NetworkManager.Singleton && NetworkManager.Singleton.IsServer)
         {
             heartbeatTimer -= Time.deltaTime;
             if (heartbeatTimer <= 0)
             {
                 float heartBeatTimerMax = 15f; 
                 heartbeatTimer = heartBeatTimerMax;
-                LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id);
+                LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id.ToString());
             }
         }
-    }
-
-    bool IsLobbyHost()
-    {
-        return joinedLobby != null && joinedLobby.HostId == AuthenticationService.Instance.PlayerId;
     }
 }

@@ -1,4 +1,5 @@
 using FMODUnity;
+using Steamworks;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -133,19 +134,7 @@ public class PauseManager : MonoBehaviour
 
         try
         {
-            if (GlobalLobby.CurrentLobby != null)
-            {
-                if (NetworkManager.Singleton.IsHost)
-                {
-                    await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
-                }
-                else
-                {
-                    string playerId = AuthenticationService.Instance.PlayerId;
-                    await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
-                }
-                GlobalLobby.CurrentLobby = null;
-            }
+            GlobalLobby.CurrentLobby.Leave();
         }
         catch (LobbyServiceException e)
         {
