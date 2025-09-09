@@ -15,6 +15,7 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using Lobby = Steamworks.Data.Lobby;
 using UnityEngine.UI; 
+using System.Collections; 
 
 public class MainMenuLobbyCreator : MonoBehaviour
 {
@@ -45,6 +46,14 @@ public class MainMenuLobbyCreator : MonoBehaviour
        SteamIntegration.instance.lobbyIDToJoin = arg2.Id.ToString();
        acceptButton.gameObject.SetActive(true);
        acceptButton.onClick.AddListener(() => OpenLobby());
+       StartCoroutine(DisableButtonCoroutine());
+    }
+
+    IEnumerator DisableButtonCoroutine()
+    {
+        yield return new WaitForSeconds(5f);
+        acceptButton.gameObject.SetActive(false);
+        acceptButton.onClick.RemoveAllListeners();
     }
 
     public async void StartGameLocal()
