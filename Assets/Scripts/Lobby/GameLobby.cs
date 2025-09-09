@@ -111,6 +111,10 @@ public class GameLobby : MonoBehaviour
         SteamMatchmaking.OnLobbyCreated += LobbyCreated;
         SteamMatchmaking.OnLobbyEntered += LobbyEntered;
         SteamFriends.OnGameLobbyJoinRequested += GameLobbyJoinRequested;
+        if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
+        {
+            RichPresenceJoinRequested(SteamIntegration.instance.steamFriendToJoin, SteamIntegration.instance.lobbyIDToJoin);
+        }
     }
     private void OnDisable()
     {
@@ -118,7 +122,20 @@ public class GameLobby : MonoBehaviour
         SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
         SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
     }
-
+    
+    private void RichPresenceJoinRequested(Friend friend, string connectString)
+    {
+        // connectString is exactly what you set earlier ("lobby.Id.ToString()")
+        if (ulong.TryParse(connectString, out ulong lobbyId))
+        {
+            JoinSteamLobbyWithID(lobbyId.ToString());
+        }
+        else
+        {
+            Debug.LogError($"Invalid connect string: {connectString}");
+        }
+    }
+    
     private void LobbyCreated(Result result, Lobby lobby)
     {
         if (result == Result.OK)
@@ -127,9 +144,16 @@ public class GameLobby : MonoBehaviour
             lobby.SetJoinable(true);
             lobbyCodeText.gameObject.SetActive(true);
             lobbyCodeText.text = lobby.Id.ToString();
+            SteamFriends.SetRichPresence("connect", lobby.Id.ToString());
+            SteamFriends.SetRichPresence("steam_display", "#Status_InLobby");
             NetworkManager.Singleton.StartHost();
 
         }
+    }
+
+    private void SteamFriendsOnOnGameRichPresenceJoinRequested(Friend arg1, string arg2)
+    {
+        throw new NotImplementedException();
     }
 
     private void LobbyEntered(Lobby lobby)

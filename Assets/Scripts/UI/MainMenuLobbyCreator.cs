@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -12,17 +13,32 @@ using System.Threading.Tasks;
 using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using Lobby = Steamworks.Data.Lobby;
 
 public class MainMenuLobbyCreator : MonoBehaviour
 {
+    public static MainMenuLobbyCreator Instance;
     private Steamworks.Data.Lobby joinedLobby;
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
     public LobbyHeartBeat lobbyHeartBeat;
-    
+
+    private void Awake()
+    {
+        if(Instance == null) 
+            Instance = this;
+    }
+
     void Start()
     {
+        SteamMatchmaking.OnLobbyInvite += SteamMatchmakingOnOnLobbyInvite;
+        
         //InitializeUnityAuth();
+    }
+
+    private void SteamMatchmakingOnOnLobbyInvite(Friend arg1, Lobby arg2)
+    {
+       Debug.Log("Was invited to lobby");
     }
 
     public async void StartGameLocal()
