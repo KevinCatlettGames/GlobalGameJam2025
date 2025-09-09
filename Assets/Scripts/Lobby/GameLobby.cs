@@ -12,6 +12,7 @@ using TMPro;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
+using Netcode.Transports.Facepunch;
 using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
@@ -126,6 +127,8 @@ public class GameLobby : MonoBehaviour
             lobby.SetJoinable(true);
             lobbyCodeText.gameObject.SetActive(true);
             lobbyCodeText.text = lobby.Id.ToString();
+            NetworkManager.Singleton.StartHost();
+
         }
     }
 
@@ -134,6 +137,10 @@ public class GameLobby : MonoBehaviour
         GlobalLobby.CurrentLobby = lobby;
         lobbyHeartBeat.joinedLobby = lobby; 
         Debug.Log("Entered a steam lobby");
+        
+        if (NetworkManager.Singleton.IsHost) return; 
+        NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
+        NetworkManager.Singleton.StartClient();
     }
 
     private async void GameLobbyJoinRequested(Lobby lobby, SteamId id)
@@ -144,7 +151,6 @@ public class GameLobby : MonoBehaviour
     public async void HostSteamLobby()
     {
         await SteamMatchmaking.CreateLobbyAsync(4);
-        NetworkManager.Singleton.StartHost();
         lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
 
         startGameButton.gameObject.SetActive(true);
