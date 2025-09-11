@@ -1,7 +1,8 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-
+using UnityEngine.SceneManagement; 
 public class LocalPlayerInputManager : MonoBehaviour
 {
     public static LocalPlayerInputManager Instance;
@@ -21,6 +22,19 @@ public class LocalPlayerInputManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+    }
+
+    private void Start()
+    {
+        transform.parent = null; 
+        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+    }
+
+    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
+    {
+       if(arg0.buildIndex == 0)
+           Destroy(gameObject);
     }
 
     /// <summary>

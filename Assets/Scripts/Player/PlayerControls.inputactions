@@ -27,7 +27,7 @@
                     "name": "SecondSpell",
                     "type": "Button",
                     "id": "2dac245d-5654-48ca-aa38-b721e36750e2",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -36,7 +36,7 @@
                     "name": "FistSpellEquip",
                     "type": "Button",
                     "id": "9ad28cf6-bc2d-423c-8416-935545e8b051",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -45,7 +45,7 @@
                     "name": "SecondSpellEquip",
                     "type": "Button",
                     "id": "7c11e2ba-bff6-4cf5-8533-14a3e235c25e",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -63,7 +63,7 @@
                     "name": "Sprint",
                     "type": "Button",
                     "id": "58ed049e-d8f8-494b-9bc4-1479ddbb262f",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -73,6 +73,15 @@
                     "type": "PassThrough",
                     "id": "2030e804-b783-43cc-9778-8646289cdc02",
                     "expectedControlType": "Dpad",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "GamepadNorth",
+                    "type": "Button",
+                    "id": "4abfddce-3596-4e01-993b-3f0e770d569d",
+                    "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
@@ -107,7 +116,7 @@
                     "path": "<Mouse>/leftButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "FirstSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -140,7 +149,7 @@
                     "path": "<Mouse>/rightButton",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "SecondSpell",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -169,11 +178,22 @@
                 },
                 {
                     "name": "",
+                    "id": "880fdb6b-27ab-457c-ac45-4ab7ce647194",
+                    "path": "<Gamepad>/buttonNorth",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "GamepadNorth",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "da0b638f-e635-4171-a19c-9c63aeb9d6b0",
                     "path": "<Keyboard>/q",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "FistSpellEquip",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -195,7 +215,7 @@
                     "path": "<Keyboard>/e",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "SecondSpellEquip",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -217,7 +237,7 @@
                     "path": "<Keyboard>/enter",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard",
+                    "groups": "",
                     "action": "JoinAction",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -239,7 +259,7 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Gamepad",
                     "action": "JoinAction",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -261,7 +281,7 @@
                     "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Gamepad",
                     "action": "Sprint",
                     "isComposite": false,
                     "isPartOfComposite": false

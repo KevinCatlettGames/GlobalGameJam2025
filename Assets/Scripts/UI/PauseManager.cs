@@ -135,8 +135,8 @@ public class PauseManager : MonoBehaviour
 
         try
         {
-            if(NetworkManager.Singleton.NetworkConfig.NetworkTransport == NetworkManager.Singleton.GetComponent<FacepunchTransport>()) 
-                GlobalLobby.CurrentLobby.Leave();
+            // if(NetworkManager.Singleton.NetworkConfig.NetworkTransport == NetworkManager.Singleton.GetComponent<FacepunchTransport>()) 
+            //     GlobalLobby.CurrentLobby.Leave();
         }
         catch (LobbyServiceException e)
         {

@@ -5,6 +5,8 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.UI;
 using FMODUnity;
+using UnityEngine.Animations;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -32,6 +34,9 @@ public class PlayerManager : NetworkBehaviour
     public Action OnPlayerWon;
 
     private int playersInitializedCount = 0;
+
+    public InputActionProperty startGameInputAction; 
+    
     
     private void Awake()
     {
@@ -57,7 +62,65 @@ public class PlayerManager : NetworkBehaviour
     {
         if (GameManager.Instance.PlayingLocal)
         {
+            Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
+            startGameInputAction.action.performed += ActionOnPerformed;
+            startGameInputAction.action.Enable();
+        }
+    }
+
+    private void ActionOnPerformed(InputAction.CallbackContext context)
+    {
+        Debug.Log("Spawning");
+        startGameInputAction.action.performed -= ActionOnPerformed;
+        startGameInputAction.action.Disable();
+
+        LocalPlayerInputManager localPlayerInputManager = LocalPlayerInputManager.Instance;
+
+        foreach (LocalPlayerInputManager.PlayerDevice playerDevice in localPlayerInputManager.playerDevices)
+        {
+            if (playerDevice == null) continue; // use continue, not return
+
+            InputDevice device = playerDevice.Device;
+            
+            if (device is Keyboard)
+            {
+                // Join player manually with the correct device
+                PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                    playerDevice.PlayerIndex,       // player index (0,1,2,3)
+                    -1,                             // split-screen index (optional)
+                    "Keyboard",                           // control scheme (optional, null = default)
+                    playerDevice.Device             // assign this device
+                );
+                
+                if (newPlayer != null)
+                {
+                    // Optional: switch control scheme explicitly
+                    newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                }
+                
+                Keyboard keyboard = InputSystem.GetDevice<Keyboard>();
+                Mouse mouse = InputSystem.GetDevice<Mouse>();
+                Debug.Log("Pairing keyboard and mouse");
+                InputUser.PerformPairingWithDevice(mouse);
+                InputUser.PerformPairingWithDevice(keyboard);
+            }
+            else if (device is Gamepad)
+            {
+                // Join player manually with the correct device
+                PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                    playerDevice.PlayerIndex,       // player index (0,1,2,3)
+                    -1,                             // split-screen index (optional)
+                    null,                           // control scheme (optional, null = default)
+                    playerDevice.Device             // assign this device
+                ); 
+                
+                if (newPlayer != null)
+                {
+                    // Optional: switch control scheme explicitly
+                    newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                }
+            }
         }
     }
 

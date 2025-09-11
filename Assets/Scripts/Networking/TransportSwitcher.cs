@@ -15,11 +15,13 @@ public class TransportSwitcher : MonoBehaviour
     private float updateDuration = 0.2f;
     private float timer = 0f;
 
+    public bool isUsingRelay = false; 
+    
     [SerializeField] private UnityTransport unityTransport;
-    [SerializeField] private FacepunchTransport facepunchTransport;
+    [SerializeField] private UnityTransport relayTransport;
 
     public UnityEvent onSwitchToUnityTransport;
-    public UnityEvent onSwitchToFacepunchTransport;
+    public UnityEvent onSwitchToRelayTransport;
 
     [ReadOnly] public bool canSwitch = true;
 
@@ -59,7 +61,7 @@ public class TransportSwitcher : MonoBehaviour
         {
             timer = updateDuration;
 
-            if (NetworkManager.Singleton.IsListening || NetworkManager.Singleton.IsConnectedClient)
+            if (!NetworkManager.Singleton || NetworkManager.Singleton.IsListening || NetworkManager.Singleton.IsConnectedClient)
                 return;
 
             if (!isCheckingConnection && canSwitch)
@@ -81,21 +83,23 @@ public class TransportSwitcher : MonoBehaviour
             yield break;
         }
 
-        MonoBehaviour newTransport = (IsSteamConnected() && hasConnection)
-            ? facepunchTransport
+        MonoBehaviour newTransport = hasConnection
+            ? relayTransport
             : unityTransport;
 
         if (NetworkManager.Singleton.NetworkConfig.NetworkTransport != newTransport)
         {
-            if (newTransport == facepunchTransport)
+            if (newTransport == relayTransport)
             {
-                Debug.Log("[TransportSwitcher] Switching to Facepunch Transport");
-                NetworkManager.Singleton.NetworkConfig.NetworkTransport = facepunchTransport;
-                onSwitchToFacepunchTransport?.Invoke();
+                Debug.Log("[TransportSwitcher] Switching to Relay Transport");
+                NetworkManager.Singleton.NetworkConfig.NetworkTransport = relayTransport;
+                isUsingRelay = true;
+                onSwitchToRelayTransport?.Invoke();
             }
             else
             {
                 Debug.Log("[TransportSwitcher] Switching to Unity Transport");
+                isUsingRelay = false; 
                 NetworkManager.Singleton.NetworkConfig.NetworkTransport = unityTransport;
                 onSwitchToUnityTransport?.Invoke();
             }
@@ -126,14 +130,16 @@ public class TransportSwitcher : MonoBehaviour
         canSwitch = false;
         NetworkManager.Singleton.NetworkConfig.NetworkTransport = unityTransport;
         currentTransport = unityTransport;
+        isUsingRelay = false;
         onSwitchToUnityTransport?.Invoke();
     }
 
-    public void SwitchToFacepunchTransportAndDisable()
+    public void SwitchToRelayTransportAndDisable()
     {
         canSwitch = false;
-        NetworkManager.Singleton.NetworkConfig.NetworkTransport = facepunchTransport;
-        currentTransport = facepunchTransport;
-        onSwitchToFacepunchTransport?.Invoke();
+        NetworkManager.Singleton.NetworkConfig.NetworkTransport = relayTransport;
+        currentTransport = relayTransport;
+        isUsingRelay = true; 
+        onSwitchToRelayTransport?.Invoke();
     }
 }

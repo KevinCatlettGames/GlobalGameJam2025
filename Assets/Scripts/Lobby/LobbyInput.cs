@@ -1,6 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class LobbyInput : MonoBehaviour
 {
@@ -8,18 +9,35 @@ public class LobbyInput : MonoBehaviour
     public InputActionProperty leaveAction;
     public int playerIndex; 
     
+    
+    
     private void OnEnable()
     {
-        readyAction.action.performed += OnReadyPerformed;
+        readyAction.action.canceled += OnReadyPerformed;
         readyAction.action.Enable();
         
         leaveAction.action.performed += OnLeavePerformed;
         leaveAction.action.Enable();
+        
+        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+    }
+
+    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
+    {
+        if (arg0.name == "Lobby") return; 
+        
+        readyAction.action.canceled -= OnReadyPerformed;
+        readyAction.action.Disable();
+        
+        leaveAction.action.performed -= OnLeavePerformed;
+        leaveAction.action.Disable();
+        
+        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
     }
 
     private void OnDisable()
     {
-        readyAction.action.performed -= OnReadyPerformed;
+        readyAction.action.canceled -= OnReadyPerformed;
         readyAction.action.Disable();
         
         leaveAction.action.performed -= OnLeavePerformed;
@@ -29,7 +47,7 @@ public class LobbyInput : MonoBehaviour
     private void OnReadyPerformed(InputAction.CallbackContext context)
     {
         InputDevice device = context.control.device;
-
+        
         int playerIndex = LocalPlayerInputManager.Instance.AssignDeviceToNextFreePlayer(device);
         if (playerIndex == -1) return; // no free slot
 
@@ -38,7 +56,7 @@ public class LobbyInput : MonoBehaviour
     
     private void OnLeavePerformed(InputAction.CallbackContext context)
     {
-        Debug.Log("Leave performed");
-        LobbyManager.instance.RemoveLocalPlayer(context);
+        // Debug.Log("Leave performed");
+        // LobbyManager.instance.RemoveLocalPlayer(context);
     }
 }

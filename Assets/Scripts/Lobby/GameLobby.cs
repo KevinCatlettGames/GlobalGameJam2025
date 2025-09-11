@@ -16,13 +16,11 @@ using Netcode.Transports.Facepunch;
 using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
-using Steamworks.Data;
-using Lobby = Steamworks.Data.Lobby;
 using Random = UnityEngine.Random;
 
 public static class GlobalLobby
 {
-    public static Steamworks.Data.Lobby CurrentLobby;
+    public static Lobby CurrentLobby;
 }
 
 public class GameLobby : MonoBehaviour
@@ -62,10 +60,10 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
-            // GlobalLobby.CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
-            // {
-            //     IsPrivate = isPrivate,
-            // });
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
+            {
+                IsPrivate = isPrivate,
+            });
 
             var allocation = await AllocateRelay();
             string joinCode = await GetRelayJoinCode(allocation);
@@ -108,9 +106,6 @@ public class GameLobby : MonoBehaviour
 
     private void OnEnable()
     {
-        SteamMatchmaking.OnLobbyCreated += LobbyCreated;
-        SteamMatchmaking.OnLobbyEntered += LobbyEntered;
-        SteamFriends.OnGameLobbyJoinRequested += GameLobbyJoinRequested;
         if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
         {
             // connectString is exactly what you set earlier ("lobby.Id.ToString()")
@@ -124,19 +119,19 @@ public class GameLobby : MonoBehaviour
             }
         }
     }
-    private void OnDisable()
-    {
-        SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
-        SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
-        SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
-    }
+    // private void OnDisable()
+    // {
+    //     SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
+    //     SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
+    //     SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
+    // }
     
     private void LobbyCreated(Result result, Lobby lobby)
     {
         if (result == Result.OK)
         {
-            lobby.SetPublic();
-            lobby.SetJoinable(true);
+            // lobby.SetPublic();
+            // lobby.SetJoinable(true);
             lobbyCodeText.gameObject.SetActive(true);
             lobbyCodeText.text = lobby.Id.ToString();
             SteamFriends.SetRichPresence("connect", lobby.Id.ToString());
@@ -158,14 +153,14 @@ public class GameLobby : MonoBehaviour
         Debug.Log("Entered a steam lobby");
         
         if (NetworkManager.Singleton.IsHost) return; 
-        NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
+        //NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
         NetworkManager.Singleton.StartClient();
     }
 
-    private async void GameLobbyJoinRequested(Lobby lobby, SteamId id)
-    {
-       await lobby.Join();
-    }
+    // private async void GameLobbyJoinRequested(Lobby lobby, SteamId id)
+    // {
+    //    await lobby.Join();
+    // }
 
     public async void HostSteamLobby()
     {

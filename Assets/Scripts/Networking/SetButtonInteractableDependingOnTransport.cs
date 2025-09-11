@@ -9,13 +9,13 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     private void Start()
     {
        transportSwitcher = TransportSwitcher.Instance;
-       transportSwitcher.onSwitchToFacepunchTransport.AddListener(MakeInteractable);
+       transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
        transportSwitcher.onSwitchToUnityTransport.AddListener(MakeNonInteractable);
     }
 
     private void OnDisable()
     {
-        transportSwitcher.onSwitchToFacepunchTransport.RemoveListener(MakeInteractable);
+        transportSwitcher.onSwitchToRelayTransport.RemoveListener(MakeInteractable);
         transportSwitcher.onSwitchToUnityTransport.RemoveListener(MakeNonInteractable);
     }
 

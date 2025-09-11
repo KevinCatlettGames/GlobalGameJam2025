@@ -3460,18 +3460,6 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2138006273}
-        m_TargetAssemblyTypeName: TransportSwitcher, Assembly-CSharp
-        m_MethodName: SwitchToUnityTransportAndDisable
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
       - m_Target: {fileID: 1468472511}
         m_TargetAssemblyTypeName: MainMenuLobbyCreator, Assembly-CSharp
         m_MethodName: StartGameLocal
@@ -3945,7 +3933,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 0
+  m_Interactable: 1
   m_TargetGraphic: {fileID: 2124460581}
   m_OnClick:
     m_PersistentCalls:
@@ -4036,6 +4024,7 @@ GameObject:
   - component: {fileID: 2138006272}
   - component: {fileID: 2138006271}
   - component: {fileID: 2138006270}
+  - component: {fileID: 2138006275}
   - component: {fileID: 2138006274}
   - component: {fileID: 2138006273}
   m_Layer: 0
@@ -4143,12 +4132,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 548576d3e90a4724b9c1d11bbc5c191e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isUsingRelay: 0
   unityTransport: {fileID: 2138006270}
-  facepunchTransport: {fileID: 2138006274}
+  relayTransport: {fileID: 2138006275}
   onSwitchToUnityTransport:
     m_PersistentCalls:
       m_Calls: []
-  onSwitchToFacepunchTransport:
+  onSwitchToRelayTransport:
     m_PersistentCalls:
       m_Calls: []
   canSwitch: 1
@@ -4160,7 +4150,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138006269}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 44dd247a00edbfa44b77868d755af6ea, type: 3}
   m_Name: 
@@ -4168,6 +4158,35 @@ MonoBehaviour:
   steamAppId: 3670670
   targetSteamId: 0
   userSteamId: 0
+--- !u!114 &2138006275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2138006269}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6960e84d07fb87f47956e7a81d71c4e6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ProtocolType: 1
+  m_UseWebSockets: 0
+  m_UseEncryption: 0
+  m_MaxPacketQueueSize: 128
+  m_MaxPayloadSize: 6144
+  m_HeartbeatTimeoutMS: 500
+  m_ConnectTimeoutMS: 1000
+  m_MaxConnectAttempts: 60
+  m_DisconnectTimeoutMS: 30000
+  ConnectionData:
+    Address: 
+    Port: 0
+    ServerListenAddress: 127.0.0.1
+  DebugSimulator:
+    PacketDelayMS: 0
+    PacketJitterMS: 0
+    PacketDropRate: 0
 --- !u!1001 &780766930667979975
 PrefabInstance:
   m_ObjectHideFlags: 0

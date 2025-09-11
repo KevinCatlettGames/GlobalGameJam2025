@@ -16,7 +16,7 @@ public class LobbyManager : NetworkBehaviour
     public UnityEvent OnAllPlayersReady;
     public UnityEvent OnNoLongerAllPlayersReady;
 
-    private bool allPlayersReady = false;
+    public bool allPlayersReady = false;
 
     [Header("UI")]
     public GameObject[] playerContainers;
@@ -28,6 +28,8 @@ public class LobbyManager : NetworkBehaviour
 
     public NetworkList<PlayerLobbyState> players = new NetworkList<PlayerLobbyState>();
 
+    public int minPlayers = 1; 
+    
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -58,8 +60,25 @@ public class LobbyManager : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
         }
+        
+        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
 
+    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
+    {
+        enabled = false; 
+    }
+
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
+        }
+        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+    }
+    
     private void OnDisable()
     {
         if (NetworkManager.Singleton != null)
@@ -67,6 +86,7 @@ public class LobbyManager : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
         }
+        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
     }
 
     // private void Start()
@@ -236,7 +256,7 @@ public class LobbyManager : NetworkBehaviour
                 if (allPlayersReady)
                 {
                     allPlayersReady = false;
-                    startButton.gameObject.SetActive(false);
+                    startButton.interactable = false; 
                     OnNoLongerAllPlayersReady?.Invoke();
                 }
                 return;
@@ -244,8 +264,13 @@ public class LobbyManager : NetworkBehaviour
         }
 
         allPlayersReady = true;
-        startButton.gameObject.SetActive(true);
-        OnAllPlayersReady?.Invoke();
+
+        if (players.Count >= minPlayers)
+        {
+            allPlayersReady = true;
+            startButton.interactable = true;
+            OnAllPlayersReady?.Invoke();
+        }
     }
 
     private void UpdatePlayerUI()
@@ -269,12 +294,6 @@ public class LobbyManager : NetworkBehaviour
             }
         }
     }
-
-    public void StartGame()
-    {
-        if (!IsServer) return;
-        NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
-    }
     
     private void RefreshPlayerContainers()
     {
@@ -292,20 +311,5 @@ public class LobbyManager : NetworkBehaviour
                 playerContainers[i].SetActive(true);
             }
         }
-    }
-    
-    public void LoadMainMenu()
-    {
-        NetworkManager.Singleton.Shutdown();
-        try
-        {
-            GlobalLobby.CurrentLobby.Leave();
-        }
-        catch
-        {
-            
-        }
-
-        SceneManager.LoadScene("MainMenu"); 
     }
 }

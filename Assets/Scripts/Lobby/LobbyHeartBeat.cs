@@ -1,12 +1,11 @@
 using Unity.Netcode;
-using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using Unity.Services.Lobbies.Models;
 using UnityEngine;
 
 public class LobbyHeartBeat : MonoBehaviour
 {
-    public Steamworks.Data.Lobby joinedLobby;
+    public Lobby joinedLobby;
     float heartbeatTimer;
 
     void Awake()

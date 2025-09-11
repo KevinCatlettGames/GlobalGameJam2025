@@ -24,8 +24,6 @@ public class PlayerContainerManager : MonoBehaviour
 
     private void Start()
     {
-        // Default state
-        image.color = Color.red;
         image.sprite = unreadySprite; 
 
         // Update UI based on current LobbyManager state
@@ -43,7 +41,6 @@ public class PlayerContainerManager : MonoBehaviour
             if (containerIndex == uiIndex)
             {
                 isReady = player.IsReady;
-                image.color = isReady ? Color.green : Color.red;
                 image.sprite = isReady ? readySprite : unreadySprite;
                 break;
             }
@@ -63,8 +60,6 @@ public class PlayerContainerManager : MonoBehaviour
 
         // Toggle ready state for UI
         isReady = !isReady;
-        image.color = isReady ? Color.green : Color.red;
         image.sprite = isReady ? readySprite : unreadySprite;
-
     }
 }
