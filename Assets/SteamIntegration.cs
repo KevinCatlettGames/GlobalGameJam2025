@@ -10,11 +10,17 @@ public class SteamIntegration : MonoBehaviour
 
     public string[] achievementIds;
     public string[] statIds;
-    private bool statsLoaded = false;
     bool isFullVersion = true;
 
+    private bool statsLoaded = false;
+
+    private float retryInterval = 5f;
+    private float retryTimer = 0f;
+    
     public Friend steamFriendToJoin;
-    public string lobbyIDToJoin; 
+    public string lobbyIDToJoin;
+
+    private bool steamInitialized = false; 
     
     #region Unity Life Cycle
     private void Awake()
@@ -26,30 +32,34 @@ public class SteamIntegration : MonoBehaviour
 
     private void Start()
     {
-        try
-        {
-            InitializeSteam();
-            //SetLocaleBasedOnSteamLanguage();
-            DontDestroyOnLoad(gameObject);
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"Error initializing Steam: {e.Message}");
-        }
+        DontDestroyOnLoad(gameObject);
+        TryInitializeSteam();
     }
 
 
     private void Update()
     {
-        if (!SteamClient.IsValid )
-            InitializeSteam();
-        else 
+        if (steamInitialized)
+        {
             SteamClient.RunCallbacks();
+        }
+        else
+        {
+            retryTimer -= Time.deltaTime;
+            if (retryTimer <= 0f)
+            {
+                TryInitializeSteam();
+                retryTimer = retryInterval;
+            }
+        }
     }
 
-    void OnApplicationQuit()
+    private void OnApplicationQuit()
     {
-        SteamClient.Shutdown();
+        if (SteamClient.IsValid)
+        {
+            SteamClient.Shutdown();
+        }
     }
 
     private void OnEnable()
@@ -64,30 +74,39 @@ public class SteamIntegration : MonoBehaviour
 
     #endregion
 
-    void InitializeSteam()
+    
+    private void TryInitializeSteam()
     {
         try
-        { 
-            if(isFullVersion)
-                SteamClient.Init(3670670, true);
+        {
+            if (SteamClient.IsValid)
+            {
+                steamInitialized = true;
+                Debug.Log("Steam already initialized.");
+                return;
+            }
+
+            uint appId = isFullVersion ? 3670670u : 3769210u;
+            SteamClient.Init(appId, true);
+            Debug.Log("Steam initialized successfully.");
+
+            bool success = SteamUserStats.RequestCurrentStats();
+            if (success)
+            {
+                statsLoaded = true;
+                Debug.Log("Steam stats loaded.");
+            }
             else
-                SteamClient.Init(3769210, true);
+            {
+                Debug.LogWarning("Steam initialized, but failed to load stats.");
+            }
+
+            steamInitialized = true;
         }
         catch (System.Exception e)
         {
-            Debug.Log(e);
-        }
-
-        bool success = SteamUserStats.RequestCurrentStats();
-
-        if (success)
-        {
-            statsLoaded = true;
-            Debug.Log("Steam stats loaded.");
-        }
-        else
-        {
-            Debug.LogError("Failed to load Steam stats.");
+            steamInitialized = false;
+            Debug.LogError($"Steam initialization failed: {e.Message}");
         }
     }
     

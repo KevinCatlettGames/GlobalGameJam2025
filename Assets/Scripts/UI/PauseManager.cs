@@ -1,4 +1,5 @@
 using FMODUnity;
+using Netcode.Transports.Facepunch;
 using Steamworks;
 using Unity.Netcode;
 using UnityEngine;
@@ -134,7 +135,8 @@ public class PauseManager : MonoBehaviour
 
         try
         {
-            GlobalLobby.CurrentLobby.Leave();
+            if(NetworkManager.Singleton.NetworkConfig.NetworkTransport == NetworkManager.Singleton.GetComponent<FacepunchTransport>()) 
+                GlobalLobby.CurrentLobby.Leave();
         }
         catch (LobbyServiceException e)
         {

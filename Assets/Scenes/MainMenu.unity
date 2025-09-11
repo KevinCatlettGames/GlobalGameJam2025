@@ -1231,7 +1231,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &651560401
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2594,7 +2594,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8667cbaf39edbe4f9cebe990944cb2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  indexesToPersist: 0000000002000000
+  indexesToPersist: 000000000200000003000000
 --- !u!114 &1690912879
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3816,6 +3816,7 @@ GameObject:
   - component: {fileID: 2124460580}
   - component: {fileID: 2124460579}
   - component: {fileID: 2124460578}
+  - component: {fileID: 2124460583}
   m_Layer: 5
   m_Name: OnlineButton
   m_TagString: Untagged
@@ -3944,7 +3945,7 @@ MonoBehaviour:
     m_PressedTrigger: Pressed
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
-  m_Interactable: 1
+  m_Interactable: 0
   m_TargetGraphic: {fileID: 2124460581}
   m_OnClick:
     m_PersistentCalls:
@@ -4011,6 +4012,19 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2124460576}
   m_CullTransparentMesh: 1
+--- !u!114 &2124460583
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124460576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6758b710aa0be4d966f253997a1c70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  button: {fileID: 2124460580}
 --- !u!1 &2138006269
 GameObject:
   m_ObjectHideFlags: 0
@@ -4133,34 +4147,10 @@ MonoBehaviour:
   facepunchTransport: {fileID: 2138006274}
   onSwitchToUnityTransport:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2124460580}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onSwitchToFacepunchTransport:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2124460580}
-        m_TargetAssemblyTypeName: UnityEngine.UI.Selectable, UnityEngine.UI
-        m_MethodName: set_interactable
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 1
-        m_CallState: 2
+      m_Calls: []
   canSwitch: 1
   mainMenuSceneName: MainMenu
 --- !u!114 &2138006274

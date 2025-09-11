@@ -100,12 +100,13 @@ public class MainMenuLobbyCreator : MonoBehaviour
             //
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = joinedLobby;
-            NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
+            GlobalLobby.CurrentLobby = joinedLobby; 
+            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
     
     public void OpenLobby()
     {
-        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        SceneManager.LoadScene("OnlineCreation", LoadSceneMode.Single);
     }
     
     private async void InitializeUnityAuth()
