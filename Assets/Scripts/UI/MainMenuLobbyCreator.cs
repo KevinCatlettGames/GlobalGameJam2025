@@ -24,7 +24,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
         InitializeUnityAuth();
     }
 
-    public async void StartGameLocal()
+    public async void StartGameLocal(string sceneName)
     {
          joinedLobby = await LobbyService.Instance.CreateLobbyAsync("Empty", 4, new CreateLobbyOptions
             {
@@ -68,7 +68,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
             
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = joinedLobby;
-            NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
     
     public void OpenLobby()
