@@ -33,10 +33,9 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private ParticleSystem splashEffect;
     [SerializeField] private ParticleSystem wetEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
-    [SerializeField] private ParticleSystem damagedEffect;
+    [SerializeField] private PlayerDamagedEffect damagedEffect;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private float damageColorEffectDuration = 0.1f;
-    [SerializeField] private float damageToEmissionMod = .1f;
 
     #endregion
 
@@ -755,7 +754,7 @@ public class PlayerController : NetworkBehaviour
 
         damage += dmg;
         playerHUD.UpdateDamageText((int)damage);
-        UpdateDamageEffect();
+        damagedEffect.UpdateParticleSystem(damage);
         damageParticleSystem.Play();
 
         if (!IsOwner) return;
@@ -820,7 +819,7 @@ public class PlayerController : NetworkBehaviour
 
         playerHUD.UpdateDamageText((int)damage);
         damageParticleSystem.Play();
-        UpdateDamageEffect();
+        damagedEffect.UpdateParticleSystem(damage);
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -851,19 +850,6 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
     }
 
-    private void UpdateDamageEffect()
-    {
-        var emission = damagedEffect.emission;
-        if (isDead)
-        {
-            emission.rateOverTime = 0;
-        }
-        else
-        {
-            emission.rateOverTime = damage * damageToEmissionMod;
-        }
-    }
-
     [ClientRpc]
     public void DieClientRpc() => Die();
     public void Die()
@@ -871,9 +857,9 @@ public class PlayerController : NetworkBehaviour
         if (isDead) return;
         Debug.Log(playerID + " Died");
         isDead = true;
-        controller.enabled = false; 
-        UpdateDamageEffect();
-        
+        controller.enabled = false;
+        damagedEffect.UpdateParticleSystem(-1);
+
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetBool("IsDead", true);
@@ -965,7 +951,7 @@ public class PlayerController : NetworkBehaviour
     {
         slipperyCounter = 0;
         damage = 0;
-        UpdateDamageEffect();
+        damagedEffect.UpdateParticleSystem(-1);
         isSlippery = false;
         killCreditID = -1;
 
