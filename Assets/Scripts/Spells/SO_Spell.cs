@@ -46,7 +46,7 @@ public class SO_Spell : ScriptableObject
     public EventReference SpellEventStruct { get { return spellEventStruct; } }
 
     protected BasicBubble bubbleScript;
-    public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
+    virtual public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
     {
         dir.Normalize();
 

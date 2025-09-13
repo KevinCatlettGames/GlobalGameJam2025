@@ -2049,7 +2049,7 @@ PrefabInstance:
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
@@ -2238,19 +2238,14 @@ PrefabInstance:
       propertyPath: m_PlayerJoinedEvent.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: JoinLocal
       objectReference: {fileID: 0}
-    m_RemovedComponents:
-    - {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b, type: 3}
+    m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents:
     - targetCorrespondingSourceObject: {fileID: 3737377328279540851, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
-      insertIndex: -1
+      insertIndex: 1
       addedObject: {fileID: 1608606915266651743}
-    - targetCorrespondingSourceObject: {fileID: 3737377328279540851, guid: fcb4f7d39024c7e41a042d4f16f9370b,
-        type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1608606915266651745}
     - targetCorrespondingSourceObject: {fileID: 4108901858045191531, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       insertIndex: -1
@@ -2299,24 +2294,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1608606915266651745
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1608606915266651742}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e872b0aaa8c4cae4e9d807967af8933c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
-    type: 3}
-  gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
-  playerInputManager: {fileID: 1608606915266651744}
-  PlayingLocal: 0
 --- !u!114 &1608606915266651747
 MonoBehaviour:
   m_ObjectHideFlags: 0
