@@ -1,11 +1,18 @@
+using System;
 using Unity.Netcode;
-using UnityEditor.Build.Player;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class StartServerIfNotActive : MonoBehaviour
 {
     [SerializeField] PlayerInputManager playerInputManager;
+
+    private void Awake()
+    {
+        if (NetworkManager.Singleton)
+            Destroy(gameObject);
+    }
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
