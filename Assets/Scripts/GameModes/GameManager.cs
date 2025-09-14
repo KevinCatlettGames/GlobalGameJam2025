@@ -51,6 +51,14 @@ public class GameManager : NetworkBehaviour
         else
             PlayingLocal = true; 
     }
+    
+    private void OnDestroy()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoadCompleted;
+        }
+    }
 
     private void OnSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
     {
@@ -59,7 +67,7 @@ public class GameManager : NetworkBehaviour
 
     private IEnumerator DelayedStartGame()
     {
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitForSeconds(4f);
         StartGameAfterDelay();
     }
 

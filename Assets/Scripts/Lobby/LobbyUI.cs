@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine.EventSystems;
 
 public class LobbyUI : MonoBehaviour
@@ -32,7 +33,7 @@ public class LobbyUI : MonoBehaviour
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(false);
             joiningLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.JoinSteamLobbyWithID(joinCodeInputField.text);
+            GameLobby.instance.JoinWithCode(joinCodeInputField.text);
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         createPublicButton.onClick.AddListener(() =>
@@ -41,7 +42,7 @@ public class LobbyUI : MonoBehaviour
             joinCodeInputField.gameObject.SetActive(false);
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.HostSteamLobby();
+            GameLobby.instance.CreateLobby("Lobby", true);
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         

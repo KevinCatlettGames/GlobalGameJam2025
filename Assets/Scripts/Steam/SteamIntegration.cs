@@ -103,10 +103,10 @@ public class SteamIntegration : MonoBehaviour
 
             steamInitialized = true;
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             steamInitialized = false;
-            Debug.LogError($"Steam initialization failed: {e.Message}");
+            Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     

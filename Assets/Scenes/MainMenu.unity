@@ -3940,7 +3940,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 2138006273}
         m_TargetAssemblyTypeName: TransportSwitcher, Assembly-CSharp
-        m_MethodName: SwitchToFacepunchTransportAndDisable
+        m_MethodName: SwitchToRelayTransportAndDisable
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3950,9 +3950,9 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 1468472511}
-        m_TargetAssemblyTypeName: MainMenuLobbyCreator, Assembly-CSharp
-        m_MethodName: OpenLobby
+      - m_Target: {fileID: 485752535}
+        m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
+        m_MethodName: OpenOnlineCreation
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4023,8 +4023,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2138006272}
   - component: {fileID: 2138006271}
-  - component: {fileID: 2138006270}
   - component: {fileID: 2138006275}
+  - component: {fileID: 2138006270}
   - component: {fileID: 2138006274}
   - component: {fileID: 2138006273}
   m_Layer: 0
@@ -4078,7 +4078,7 @@ MonoBehaviour:
   NetworkManagerExpanded: 0
   NetworkConfig:
     ProtocolVersion: 0
-    NetworkTransport: {fileID: 2138006270}
+    NetworkTransport: {fileID: 2138006275}
     PlayerPrefab: {fileID: 0}
     Prefabs:
       NetworkPrefabsLists:
@@ -4127,7 +4127,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2138006269}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 548576d3e90a4724b9c1d11bbc5c191e, type: 3}
   m_Name: 

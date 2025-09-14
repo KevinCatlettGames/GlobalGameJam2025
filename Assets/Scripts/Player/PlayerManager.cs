@@ -36,7 +36,7 @@ public class PlayerManager : NetworkBehaviour
     private int playersInitializedCount = 0;
 
     public InputActionProperty startGameInputAction; 
-    
+    PlayerInputManager playerInputManager;
     
     private void Awake()
     {
@@ -62,7 +62,7 @@ public class PlayerManager : NetworkBehaviour
         RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
-            Debug.Log("Enabling join text");
+            //Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
             startGameInputAction.action.performed += ActionOnPerformed;
             startGameInputAction.action.Enable();
@@ -71,54 +71,47 @@ public class PlayerManager : NetworkBehaviour
 
     private void ActionOnPerformed(InputAction.CallbackContext context)
     {
-        Debug.Log("Spawning");
+        //Debug.Log("Spawning");
         startGameInputAction.action.performed -= ActionOnPerformed;
         startGameInputAction.action.Disable();
-
-        LocalPlayerInputManager localPlayerInputManager = LocalPlayerInputManager.Instance;
-
-        foreach (LocalPlayerInputManager.PlayerDevice playerDevice in localPlayerInputManager.playerDevices)
+        
+        if (LocalPlayerInputManager.Instance != null)
         {
-            if (playerDevice == null) continue; // use continue, not return
+            LocalPlayerInputManager localPlayerInputManager = LocalPlayerInputManager.Instance;
 
-            InputDevice device = playerDevice.Device;
-            
-            if (device is Keyboard)
+            foreach (LocalPlayerInputManager.PlayerDevice playerDevice in localPlayerInputManager.playerDevices)
             {
-                // Join player manually with the correct device
-                PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                    playerDevice.PlayerIndex,       // player index (0,1,2,3)
-                    -1,                             // split-screen index (optional)
-                    "Keyboard",                           // control scheme (optional, null = default)
-                    playerDevice.Device             // assign this device
-                );
-                
-                if (newPlayer != null)
+                if (playerDevice == null) continue; // use continue, not return
+
+                InputDevice device = playerDevice.Device;
+
+                if (device is Keyboard)
                 {
-                    // Optional: switch control scheme explicitly
-                    newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        "Keyboard", // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+                    //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
                 }
-                
-                Keyboard keyboard = InputSystem.GetDevice<Keyboard>();
-                Mouse mouse = InputSystem.GetDevice<Mouse>();
-                Debug.Log("Pairing keyboard and mouse");
-                InputUser.PerformPairingWithDevice(mouse);
-                InputUser.PerformPairingWithDevice(keyboard);
-            }
-            else if (device is Gamepad)
-            {
-                // Join player manually with the correct device
-                PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                    playerDevice.PlayerIndex,       // player index (0,1,2,3)
-                    -1,                             // split-screen index (optional)
-                    null,                           // control scheme (optional, null = default)
-                    playerDevice.Device             // assign this device
-                ); 
-                
-                if (newPlayer != null)
+                else if (device is Gamepad)
                 {
-                    // Optional: switch control scheme explicitly
-                    newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        null, // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+
+                    if (newPlayer != null)
+                    {
+                        // Optional: switch control scheme explicitly
+                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
+                    }
                 }
             }
         }
@@ -131,7 +124,7 @@ public class PlayerManager : NetworkBehaviour
         if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
         joinGameText.SetActive(false);
-        Debug.Log("JoinLocal");
+        //Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -169,7 +162,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if(!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
-        Debug.Log("OnPlayerJoined");
+        //Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -214,7 +207,7 @@ public class PlayerManager : NetworkBehaviour
     public void Initialize()
     {
         RerollSpells();
-        Debug.Log($"Initializing players: Count = {players.Count}");
+        //Debug.Log($"Initializing players: Count = {players.Count}");
         foreach (var playerRef in players)
         {
             if (playerRef.TryGet(out NetworkObject networkObject))
@@ -249,7 +242,7 @@ public class PlayerManager : NetworkBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("Failed to resolve player reference.");
+                    //Debug.LogWarning("Failed to resolve player reference.");
                 }
             }
         }
@@ -285,7 +278,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
         {
-            Debug.LogError("Too many players for available HUDs or spawn points!");
+            //Debug.LogError("Too many players for available HUDs or spawn points!");
             return false;
         }
         return true;
@@ -310,14 +303,14 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
+                //Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
             }
         }
         else
         {
             if (playerID >= players.Count)
             {
-                Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
+                //Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
                 return;
             }
 
@@ -329,7 +322,7 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+                //Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
             }
         }
     }

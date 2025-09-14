@@ -22,7 +22,7 @@ public class BubbleExplosion : NetworkBehaviour
             if (col == null || col.gameObject == this.transform.parent.gameObject) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
-            Debug.Log(col.name);
+            //Debug.Log(col.name);
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
                 if (col.CompareTag("Player"))

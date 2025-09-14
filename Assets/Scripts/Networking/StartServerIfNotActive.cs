@@ -10,7 +10,7 @@ public class StartServerIfNotActive : MonoBehaviour
 
     private void Awake()
     {
-        if (NetworkManager.Singleton)
+        if (NetworkManager.Singleton && NetworkManager.Singleton.gameObject != gameObject)
             Destroy(gameObject);
     }
     

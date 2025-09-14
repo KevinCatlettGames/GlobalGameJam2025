@@ -22,6 +22,9 @@ public class LocalPlayerInputManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
+
+        if (TransportSwitcher.Instance.isUsingRelay)
+            maxPlayers = 1; 
     }
 
     private void Start()
@@ -29,6 +32,11 @@ public class LocalPlayerInputManager : MonoBehaviour
         transform.parent = null; 
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
     }
 
     private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
@@ -59,7 +67,7 @@ public class LocalPlayerInputManager : MonoBehaviour
             playerDevices.Add(new PlayerDevice { PlayerIndex = playerIndex, Device = device });
         }
 
-        Debug.Log($"Assigned device {device.displayName} to player {playerIndex}");
+        //Debug.Log($"Assigned device {device.displayName} to player {playerIndex}");
     }
 
     /// <summary>
@@ -92,7 +100,7 @@ public class LocalPlayerInputManager : MonoBehaviour
             }
         }
 
-        Debug.LogWarning("No free player slots available for device: " + device.displayName);
+        //Debug.LogWarning("No free player slots available for device: " + device.displayName);
         return -1;
     }
     

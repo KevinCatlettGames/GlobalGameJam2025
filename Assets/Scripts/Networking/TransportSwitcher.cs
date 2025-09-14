@@ -91,14 +91,14 @@ public class TransportSwitcher : MonoBehaviour
         {
             if (newTransport == relayTransport)
             {
-                Debug.Log("[TransportSwitcher] Switching to Relay Transport");
+                //Debug.Log("[TransportSwitcher] Switching to Relay Transport");
                 NetworkManager.Singleton.NetworkConfig.NetworkTransport = relayTransport;
                 isUsingRelay = true;
                 onSwitchToRelayTransport?.Invoke();
             }
             else
             {
-                Debug.Log("[TransportSwitcher] Switching to Unity Transport");
+                //Debug.Log("[TransportSwitcher] Switching to Unity Transport");
                 isUsingRelay = false; 
                 NetworkManager.Singleton.NetworkConfig.NetworkTransport = unityTransport;
                 onSwitchToUnityTransport?.Invoke();

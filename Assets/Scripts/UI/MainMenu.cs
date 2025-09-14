@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -81,5 +82,10 @@ public class MainMenu : MonoBehaviour
         {
             backAction.performed -= OnBackInput;
         }
+    }
+
+    public void OpenOnlineCreation()
+    {
+        SceneManager.LoadScene("OnlineCreation");
     }
 }

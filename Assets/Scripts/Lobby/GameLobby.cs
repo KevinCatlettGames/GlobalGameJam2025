@@ -73,17 +73,18 @@ public class GameLobby : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
-
+            
             startGameButton.gameObject.SetActive(true);
             startGameButton.onClick.AddListener(() =>
             {
                 NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
             });
-
+            
             lobbyCodeText.gameObject.SetActive(true);
-            lobbyCodeText.text = GlobalLobby.CurrentLobby.Id.ToString();
-
+            lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
+            
             lobbyUI.HideOnCreateUI();
+           // NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {
@@ -201,61 +202,61 @@ public class GameLobby : MonoBehaviour
 
     #region Joining Lobby
 
-    // public async void QuickJoin()
-    // {
-    //     try
-    //     {
-    //         GlobalLobby.CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
-    //         await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
-    //     }
-    //     catch (LobbyServiceException e)
-    //     {
-    //         Debug.LogError(e);
-    //     }
-    // }
-    //
-    // public async void LeaveLobby()
-    // {
-    //     try
-    //     {
-    //         if (GlobalLobby.CurrentLobby != null)
-    //         {
-    //             if (NetworkManager.Singleton.IsHost && !string.IsNullOrEmpty(GlobalLobby.CurrentLobby.Id))
-    //             {
-    //                 await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
-    //             }
-    //             else
-    //             {
-    //                 string playerId = AuthenticationService.Instance.PlayerId;
-    //                 await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
-    //             }
-    //
-    //             GlobalLobby.CurrentLobby = null;
-    //         }
-    //
-    //         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-    //         {
-    //             NetworkManager.Singleton.Shutdown();
-    //         }
-    //     }
-    //     catch (LobbyServiceException e)
-    //     {
-    //         Debug.LogError($"Failed to leave lobby: {e}");
-    //     }
-    // }
-    //
-    // public async void JoinWithCode(string code)
-    // {
-    //     try
-    //     {
-    //         GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
-    //         await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
-    //     }
-    //     catch (LobbyServiceException e)
-    //     {
-    //         Debug.LogError(e);
-    //     }
-    // }
+    public async void QuickJoin()
+    {
+        try
+        {
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError(e);
+        }
+    }
+    
+    public async void LeaveLobby()
+    {
+        try
+        {
+            if (GlobalLobby.CurrentLobby != null)
+            {
+                if (NetworkManager.Singleton.IsHost && !string.IsNullOrEmpty(GlobalLobby.CurrentLobby.Id))
+                {
+                    await LobbyService.Instance.DeleteLobbyAsync(GlobalLobby.CurrentLobby.Id);
+                }
+                else
+                {
+                    string playerId = AuthenticationService.Instance.PlayerId;
+                    await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
+                }
+    
+                GlobalLobby.CurrentLobby = null;
+            }
+    
+            if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            {
+                NetworkManager.Singleton.Shutdown();
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to leave lobby: {e}");
+        }
+    }
+    
+    public async void JoinWithCode(string code)
+    {
+        try
+        {
+            GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError(e);
+        }
+    }
 
     private async Task JoinRelayAndStartClient(string joinCode)
     {

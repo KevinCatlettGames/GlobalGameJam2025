@@ -70,7 +70,7 @@ public class LobbyButtons : MonoBehaviour
             if (heldTime >= startGameHoldDuration)
             {
                 gameStarting = true;
-                Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
+                //Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
                 NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
             }
         }
@@ -115,9 +115,10 @@ public class LobbyButtons : MonoBehaviour
     private void StartGame()
     {
         if (!IsHost()) return;
+        
         if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0) return;
-
-        Debug.Log("Start game triggered");
+        if (TransportSwitcher.Instance.isUsingRelay && LobbyManager.instance.players.Count <= 1) return; 
+        
         isPressingStartGame = true;
         startGamePressTime = Time.time;
         gameStarting = false;

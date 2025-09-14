@@ -263,8 +263,16 @@ public class LobbyManager : NetworkBehaviour
             }
         }
 
+        if (TransportSwitcher.Instance.isUsingRelay && LobbyManager.instance.players.Count <= 1)
+        {
+            allPlayersReady = false;
+            startButton.interactable = false; 
+            OnNoLongerAllPlayersReady?.Invoke();
+            return; 
+        }
+        
         allPlayersReady = true;
-
+        
         if (players.Count >= minPlayers)
         {
             allPlayersReady = true;
