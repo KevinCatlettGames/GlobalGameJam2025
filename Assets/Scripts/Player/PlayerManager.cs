@@ -53,13 +53,13 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGameStarted += ResetPlayers;
-        RerollSpells();
         Invoke(nameof(EnableJoinText), .3f);
     }
 
     private void EnableJoinText()
     {
+        GameManager.Instance.OnGameStarted += ResetPlayers;
+        RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
             Debug.Log("Enabling join text");

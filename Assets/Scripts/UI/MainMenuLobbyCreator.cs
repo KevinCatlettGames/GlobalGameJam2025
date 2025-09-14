@@ -33,29 +33,10 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
     void Start()
     {
-        // SteamMatchmaking.OnLobbyInvite += SteamMatchmakingOnLobbyInvite;
-
-        //InitializeUnityAuth();
+        InitializeUnityAuth();
     }
 
-    private void SteamMatchmakingOnLobbyInvite(Friend arg1, Lobby arg2)
-    {
-       Debug.Log("Was invited to lobby");
-       SteamIntegration.instance.steamFriendToJoin = arg1;
-       SteamIntegration.instance.lobbyIDToJoin = arg2.Id.ToString();
-       acceptButton.gameObject.SetActive(true);
-       acceptButton.onClick.AddListener(() => OpenLobby());
-       StartCoroutine(DisableButtonCoroutine());
-    }
-
-    IEnumerator DisableButtonCoroutine()
-    {
-        yield return new WaitForSeconds(5f);
-        acceptButton.gameObject.SetActive(false);
-        acceptButton.onClick.RemoveAllListeners();
-    }
-
-    public async void StartGameLocal()
+    public async void StartGameLocal(string sceneName)
     {
         NetworkManager.Singleton.GetComponent<TransportSwitcher>().SwitchToUnityTransportAndDisable();
         
@@ -108,7 +89,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     
     public void OpenLobby()
     {
-        SceneManager.LoadScene("OnlineCreation", LoadSceneMode.Single);
+        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
     
     private async void InitializeUnityAuth()
