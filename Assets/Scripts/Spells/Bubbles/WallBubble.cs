@@ -19,12 +19,6 @@ public class WallBubble : BasicBubble
             Debug.LogWarning("Reflector component missing on WallBubble.");
         }
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(dmg));
-        Rigidbody rb = GetComponent<Rigidbody>();
-        rb.linearVelocity = dir * speed;
-    }
-    protected override void BubbleMovement()
-    {
-        return;
     }
     public override void BubbleCollision(GameObject other)
     {
