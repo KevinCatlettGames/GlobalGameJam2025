@@ -10,6 +10,8 @@ public class LevelSwitcher : MonoBehaviour
     
     void Update()
     {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay) return; 
+        
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);

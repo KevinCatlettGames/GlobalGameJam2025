@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -9,16 +10,27 @@ using UnityEngine.SceneManagement;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
+using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using UnityEngine.UI; 
+using System.Collections; 
 
 public class MainMenuLobbyCreator : MonoBehaviour
 {
+    public static MainMenuLobbyCreator Instance;
     private Lobby joinedLobby;
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
     public LobbyHeartBeat lobbyHeartBeat;
+    public Button acceptButton; 
     
+    private void Awake()
+    {
+        if(Instance == null) 
+            Instance = this;
+    }
+
     void Start()
     {
         InitializeUnityAuth();
@@ -26,49 +38,53 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
     public async void StartGameLocal(string sceneName)
     {
-         joinedLobby = await LobbyService.Instance.CreateLobbyAsync("Empty", 4, new CreateLobbyOptions
-            {
-                IsPrivate = false,
-            });
+        NetworkManager.Singleton.GetComponent<TransportSwitcher>().SwitchToUnityTransportAndDisable();
+        
+        
+         // joinedLobby = await LobbyService.Instance.CreateLobbyAsync("Empty", 4, new CreateLobbyOptions
+         //    {
+         //        IsPrivate = false,
+         //    });
 
-            Allocation allocation =  await AllocateRelay();
-            string relayJoinCode = await GetRelayJoinCode(allocation);
-            LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
-            {
-                Data = new Dictionary<string, DataObject>
-                {
-                    {
-                        KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-                    }
-                }
-            });
-
-            // Assume 'allocation' is the Allocation object from AllocateRelayAsync
-            string host = allocation.RelayServer.IpV4; 
-            ushort port = (ushort)allocation.RelayServer.Port; 
-            byte[] joinAllocationId = allocation.AllocationIdBytes; 
-            byte[] connectionData = allocation.ConnectionData; 
-            byte[] hostConnectionData = allocation.ConnectionData; 
-            byte[] key = allocation.Key;
-            bool isSecure = false;
-            
-            foreach (var endpoint in allocation.ServerEndpoints)
-            {
-                if (endpoint.ConnectionType == "dtls")
-                {
-                    host = endpoint.Host;
-                    port = (ushort)endpoint.Port;
-                    isSecure = endpoint.Secure;
-                }
-            }
-            
-            NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
-                new RelayServerData(host, port, joinAllocationId, 
-                    connectionData, hostConnectionData, key, isSecure));
-            
+            // Allocation allocation =  await AllocateRelay();
+            // string relayJoinCode = await GetRelayJoinCode(allocation);
+            // LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
+            // {
+            //     Data = new Dictionary<string, DataObject>
+            //     {
+            //         {
+            //             KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
+            //         }
+            //     }
+            // });
+            //
+            // // Assume 'allocation' is the Allocation object from AllocateRelayAsync
+            // string host = allocation.RelayServer.IpV4; 
+            // ushort port = (ushort)allocation.RelayServer.Port; 
+            // byte[] joinAllocationId = allocation.AllocationIdBytes; 
+            // byte[] connectionData = allocation.ConnectionData; 
+            // byte[] hostConnectionData = allocation.ConnectionData; 
+            // byte[] key = allocation.Key;
+            // bool isSecure = false;
+            //
+            // foreach (var endpoint in allocation.ServerEndpoints)
+            // {
+            //     if (endpoint.ConnectionType == "dtls")
+            //     {
+            //         host = endpoint.Host;
+            //         port = (ushort)endpoint.Port;
+            //         isSecure = endpoint.Secure;
+            //     }
+            // }
+            //
+            // NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
+            //     new RelayServerData(host, port, joinAllocationId, 
+            //         connectionData, hostConnectionData, key, isSecure));
+            //
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = joinedLobby;
-            NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+            GlobalLobby.CurrentLobby = joinedLobby; 
+            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
     
     public void OpenLobby()
