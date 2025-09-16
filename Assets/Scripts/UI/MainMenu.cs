@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class MainMenu : MonoBehaviour
 {
@@ -38,6 +39,9 @@ public class MainMenu : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+        #if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+        #endif
     }
 
     public void ToggleSubMenu(GameObject subMenu)
@@ -78,5 +82,10 @@ public class MainMenu : MonoBehaviour
         {
             backAction.performed -= OnBackInput;
         }
+    }
+
+    public void OpenOnlineCreation()
+    {
+        SceneManager.LoadScene("OnlineCreation");
     }
 }

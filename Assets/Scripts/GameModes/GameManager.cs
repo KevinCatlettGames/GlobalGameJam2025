@@ -51,10 +51,13 @@ public class GameManager : NetworkBehaviour
         else
             PlayingLocal = true; 
     }
-    private void OnDisable()
+    
+    private void OnDestroy()
     {
-        if(NetworkManager.Singleton != null) 
+        if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoadCompleted;
+        }
     }
 
     private void OnSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)

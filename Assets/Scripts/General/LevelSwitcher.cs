@@ -2,30 +2,31 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.Netcode; 
 
 public class LevelSwitcher : MonoBehaviour
 {
+    public string[] scenes; 
+    
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Alpha0))
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay) return; 
+        
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            SceneManager.LoadScene(0);
-        }
-        else if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            SceneManager.LoadScene(1);
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            SceneManager.LoadScene(2);
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[1], LoadSceneMode.Single);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            SceneManager.LoadScene(3);
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[2], LoadSceneMode.Single);
         }
         else if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            SceneManager.LoadScene(4);
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[3], LoadSceneMode.Single);
         }
     }
 }
