@@ -5,6 +5,7 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.UI;
 using FMODUnity;
+using Unity.VisualScripting;
 using UnityEngine.Animations;
 using UnityEngine.InputSystem.Users;
 
@@ -56,6 +57,12 @@ public class PlayerManager : NetworkBehaviour
         Invoke(nameof(EnableJoinText), .3f);
     }
 
+    private void OnDisable()
+    {
+        startGameInputAction.action.performed -= ActionOnPerformed;
+        startGameInputAction.action.Disable();
+    }
+
     private void EnableJoinText()
     {
         GameManager.Instance.OnGameStarted += ResetPlayers;
@@ -64,11 +71,15 @@ public class PlayerManager : NetworkBehaviour
         {
             //Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
+            
+            if(LocalPlayerInputManager.Instance != null) 
+                PlayerInputManager.instance.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
+            
             startGameInputAction.action.performed += ActionOnPerformed;
             startGameInputAction.action.Enable();
         }
     }
-
+    
     private void ActionOnPerformed(InputAction.CallbackContext context)
     {
         //Debug.Log("Spawning");

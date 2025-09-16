@@ -22,6 +22,8 @@ public class LobbyButtons : MonoBehaviour
 
     private const float startGameHoldDuration = 1f;
 
+    public string levelToLoad = "Lvl_MainScene";
+    
     private void OnEnable()
     {
         toggleGameModeInputAction.action.performed += OnToggleGameModeSelection;
@@ -71,7 +73,7 @@ public class LobbyButtons : MonoBehaviour
             {
                 gameStarting = true;
                 //Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
-                NetworkManager.Singleton.SceneManager.LoadScene("Lvl_MainScene", LoadSceneMode.Single);
+                NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
             }
         }
     }
