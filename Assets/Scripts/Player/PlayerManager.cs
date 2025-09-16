@@ -5,6 +5,9 @@ using UnityEngine.InputSystem;
 using Unity.Netcode;
 using UnityEngine.UI;
 using FMODUnity;
+using Unity.VisualScripting;
+using UnityEngine.Animations;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -32,6 +35,9 @@ public class PlayerManager : NetworkBehaviour
     public Action OnPlayerWon;
 
     private int playersInitializedCount = 0;
+
+    public InputActionProperty startGameInputAction; 
+    PlayerInputManager playerInputManager;
     
     private void Awake()
     {
@@ -47,16 +53,77 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGameStarted += ResetPlayers;
-        RerollSpells();
         Invoke(nameof(EnableJoinText), .3f);
+    }
+
+    private void OnDisable()
+    {
+        startGameInputAction.action.performed -= ActionOnPerformed;
+        startGameInputAction.action.Disable();
     }
 
     private void EnableJoinText()
     {
+        GameManager.Instance.OnGameStarted += ResetPlayers;
+        RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
+            //Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
+            
+            if(LocalPlayerInputManager.Instance != null) 
+                PlayerInputManager.instance.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
+            
+            startGameInputAction.action.performed += ActionOnPerformed;
+            startGameInputAction.action.Enable();
+        }
+    }
+    
+    private void ActionOnPerformed(InputAction.CallbackContext context)
+    {
+        //Debug.Log("Spawning");
+        startGameInputAction.action.performed -= ActionOnPerformed;
+        startGameInputAction.action.Disable();
+        
+        if (LocalPlayerInputManager.Instance != null)
+        {
+            LocalPlayerInputManager localPlayerInputManager = LocalPlayerInputManager.Instance;
+
+            foreach (LocalPlayerInputManager.PlayerDevice playerDevice in localPlayerInputManager.playerDevices)
+            {
+                if (playerDevice == null) continue; // use continue, not return
+
+                InputDevice device = playerDevice.Device;
+
+                if (device is Keyboard)
+                {
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        "Keyboard", // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+                    //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
+                }
+                else if (device is Gamepad)
+                {
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        null, // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+
+                    if (newPlayer != null)
+                    {
+                        // Optional: switch control scheme explicitly
+                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
+                    }
+                }
+            }
         }
     }
 
@@ -67,7 +134,7 @@ public class PlayerManager : NetworkBehaviour
         if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
         joinGameText.SetActive(false);
-        Debug.Log("JoinLocal");
+        //Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -105,7 +172,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if(!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
-        Debug.Log("OnPlayerJoined");
+        //Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -150,7 +217,7 @@ public class PlayerManager : NetworkBehaviour
     public void Initialize()
     {
         RerollSpells();
-        Debug.Log($"Initializing players: Count = {players.Count}");
+        //Debug.Log($"Initializing players: Count = {players.Count}");
         foreach (var playerRef in players)
         {
             if (playerRef.TryGet(out NetworkObject networkObject))
@@ -185,7 +252,7 @@ public class PlayerManager : NetworkBehaviour
                 }
                 else
                 {
-                    Debug.LogWarning("Failed to resolve player reference.");
+                    //Debug.LogWarning("Failed to resolve player reference.");
                 }
             }
         }
@@ -221,7 +288,7 @@ public class PlayerManager : NetworkBehaviour
     {
         if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
         {
-            Debug.LogError("Too many players for available HUDs or spawn points!");
+            //Debug.LogError("Too many players for available HUDs or spawn points!");
             return false;
         }
         return true;
@@ -246,14 +313,14 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
+                //Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
             }
         }
         else
         {
             if (playerID >= players.Count)
             {
-                Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
+                //Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
                 return;
             }
 
@@ -265,7 +332,7 @@ public class PlayerManager : NetworkBehaviour
             }
             else
             {
-                Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
+                //Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
             }
         }
     }

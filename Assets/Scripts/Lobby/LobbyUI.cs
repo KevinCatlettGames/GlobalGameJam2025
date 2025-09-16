@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine.EventSystems;
 
 public class LobbyUI : MonoBehaviour
@@ -41,13 +42,13 @@ public class LobbyUI : MonoBehaviour
             joinCodeInputField.gameObject.SetActive(false);
             createPublicButton.gameObject.SetActive(false);
             creatingLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.CreateLobby("Empty", false);
+            GameLobby.instance.CreateLobby("Lobby", true);
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
         });
         
-        joinCodeButton.interactable = false;
+        //joinCodeButton.interactable = false;
         
-        joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
+        // joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
     }
     
     public void HideOnCreateUI()
@@ -89,8 +90,8 @@ public class LobbyUI : MonoBehaviour
         }
     }
 
-    private void ValidateJoinButtonActivation(string codeInput)
-    {
-        joinCodeButton.interactable = codeInput.Length == 6;
-    }
+    // private void ValidateJoinButtonActivation(string codeInput)
+    // {
+    //     joinCodeButton.interactable = codeInput.Length == 6;
+    // }
 }

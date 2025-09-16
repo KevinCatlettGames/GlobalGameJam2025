@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -11,8 +12,11 @@ using TMPro;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
+using Netcode.Transports.Facepunch;
+using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using Random = UnityEngine.Random;
 
 public static class GlobalLobby
 {
@@ -69,17 +73,18 @@ public class GameLobby : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
             lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
-
+            
             startGameButton.gameObject.SetActive(true);
             startGameButton.onClick.AddListener(() =>
             {
                 NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
             });
-
+            
             lobbyCodeText.gameObject.SetActive(true);
             lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
-
+            
             lobbyUI.HideOnCreateUI();
+           // NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {
@@ -89,7 +94,7 @@ public class GameLobby : MonoBehaviour
 
     private async Task UpdateLobbyWithRelayCode(string joinCode)
     {
-        await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id, new UpdateLobbyOptions
+        await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id.ToString(), new UpdateLobbyOptions
         {
             Data = new Dictionary<string, DataObject>
             {
@@ -98,6 +103,101 @@ public class GameLobby : MonoBehaviour
         });
     }
 
+    #region Facepunch Lobby Logic
+
+    private void OnEnable()
+    {
+        if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
+        {
+            // connectString is exactly what you set earlier ("lobby.Id.ToString()")
+            if (ulong.TryParse(SteamIntegration.instance.lobbyIDToJoin, out ulong lobbyId))
+            {
+                JoinSteamLobbyWithID(lobbyId.ToString());
+            }
+            else
+            {
+                Debug.LogError($"Invalid connect string: {SteamIntegration.instance.lobbyIDToJoin}");
+            }
+        }
+    }
+    // private void OnDisable()
+    // {
+    //     SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
+    //     SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
+    //     SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
+    // }
+    
+    private void LobbyCreated(Result result, Lobby lobby)
+    {
+        if (result == Result.OK)
+        {
+            // lobby.SetPublic();
+            // lobby.SetJoinable(true);
+            lobbyCodeText.gameObject.SetActive(true);
+            lobbyCodeText.text = lobby.Id.ToString();
+            SteamFriends.SetRichPresence("connect", lobby.Id.ToString());
+            SteamFriends.SetRichPresence("steam_display", "#Status_InLobby");
+            NetworkManager.Singleton.StartHost();
+
+        }
+    }
+
+    private void SteamFriendsOnOnGameRichPresenceJoinRequested(Friend arg1, string arg2)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void LobbyEntered(Lobby lobby)
+    {
+        GlobalLobby.CurrentLobby = lobby;
+        lobbyHeartBeat.joinedLobby = lobby; 
+        Debug.Log("Entered a steam lobby");
+        
+        if (NetworkManager.Singleton.IsHost) return; 
+        //NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
+        NetworkManager.Singleton.StartClient();
+    }
+
+    // private async void GameLobbyJoinRequested(Lobby lobby, SteamId id)
+    // {
+    //    await lobby.Join();
+    // }
+
+    public async void HostSteamLobby()
+    {
+        await SteamMatchmaking.CreateLobbyAsync(4);
+        lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
+
+        startGameButton.gameObject.SetActive(true);
+        startGameButton.onClick.AddListener(() =>
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+        });
+
+        lobbyUI.HideOnCreateUI();
+    }
+
+    public async void JoinSteamLobbyWithID(string id)
+    {
+        ulong ID;
+        if (!ulong.TryParse(id, out ID))
+            return;
+
+        Steamworks.Data.Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).RequestAsync();
+
+        foreach (Steamworks.Data.Lobby lobby in lobbies)
+        {
+            if (lobby.Id == ID)
+            {
+                await lobby.Join();
+                return; 
+            }
+        }
+    }
+    #endregion
+    
+    
+    
     #endregion
 
     #region Joining Lobby
@@ -114,7 +214,7 @@ public class GameLobby : MonoBehaviour
             Debug.LogError(e);
         }
     }
-
+    
     public async void LeaveLobby()
     {
         try
@@ -130,10 +230,10 @@ public class GameLobby : MonoBehaviour
                     string playerId = AuthenticationService.Instance.PlayerId;
                     await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
                 }
-
+    
                 GlobalLobby.CurrentLobby = null;
             }
-
+    
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             {
                 NetworkManager.Singleton.Shutdown();
@@ -144,7 +244,7 @@ public class GameLobby : MonoBehaviour
             Debug.LogError($"Failed to leave lobby: {e}");
         }
     }
-
+    
     public async void JoinWithCode(string code)
     {
         try
