@@ -19,8 +19,6 @@ public class PlayerManager : NetworkBehaviour
     [Header("Player Setup")]
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Spell[] startingSpells;
-    [SerializeField] private Sprite[] playerSprites;
-    [SerializeField] private Color[] colors;
     [SerializeField] private Transform[] spawnPoints;
 
     [Header("UI")]
@@ -72,7 +70,7 @@ public class PlayerManager : NetworkBehaviour
             //Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
             
-            if(LocalPlayerInputManager.Instance != null) 
+            if(LobbyPlayerHandler.Instance != null) 
                 PlayerInputManager.instance.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
             
             startGameInputAction.action.performed += ActionOnPerformed;
@@ -86,11 +84,11 @@ public class PlayerManager : NetworkBehaviour
         startGameInputAction.action.performed -= ActionOnPerformed;
         startGameInputAction.action.Disable();
         
-        if (LocalPlayerInputManager.Instance != null)
+        if (LobbyPlayerHandler.Instance != null)
         {
-            LocalPlayerInputManager localPlayerInputManager = LocalPlayerInputManager.Instance;
+            LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
 
-            foreach (LocalPlayerInputManager.PlayerDevice playerDevice in localPlayerInputManager.playerDevices)
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
             {
                 if (playerDevice == null) continue; // use continue, not return
 
@@ -159,7 +157,11 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
 
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
+        if (LobbyPlayerHandler.Instance)
+            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+        else
+            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+       
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;
@@ -194,7 +196,11 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
 
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, colors[playerID]);
+        if (LobbyPlayerHandler.Instance)
+            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+        else
+            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;
@@ -298,8 +304,18 @@ public class PlayerManager : NetworkBehaviour
     private void SetupPlayerHUD(int playerID)
     {
         playerHUDs[playerID].gameObject.SetActive(true);
-        playerHUDs[playerID].InitialisePlayerHUD(colors[playerID], playerSprites[playerID]);
-        ScoreManager.Instance.InitialiseScorePanel(playerID, playerSprites[playerID], colors[playerID]);
+
+        if (LobbyPlayerHandler.Instance)
+        {
+            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+
+        }
+        else
+        {
+            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+        }
     }
 
     public void ResetPlayerPosition(int playerID)

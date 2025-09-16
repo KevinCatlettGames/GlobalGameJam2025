@@ -14,7 +14,8 @@ using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using UnityEngine.UI; 
-using System.Collections; 
+using System.Collections;
+using UnityEngine.Serialization;
 
 public class MainMenuLobbyCreator : MonoBehaviour
 {
@@ -22,7 +23,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     private Lobby joinedLobby;
     private bool isStartMenuOpen = false;
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
-    public LobbyHeartBeat lobbyHeartBeat;
+    [FormerlySerializedAs("lobbyHeartBeat")] public RelayServerHeartbeat relayServerHeartbeat;
     public Button acceptButton; 
     
     private void Awake()
@@ -82,7 +83,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
             //         connectionData, hostConnectionData, key, isSecure));
             //
             NetworkManager.Singleton.StartHost();
-            lobbyHeartBeat.joinedLobby = joinedLobby;
+            relayServerHeartbeat.joinedLobby = joinedLobby;
             GlobalLobby.CurrentLobby = joinedLobby; 
             NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }

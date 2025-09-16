@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Unity.Services.Lobbies;       
+using Unity.Services.Authentication; 
 
 public class LobbyButtons : MonoBehaviour
 {
@@ -108,11 +110,32 @@ public class LobbyButtons : MonoBehaviour
         }
     }
 
-    private void GoToMainMenu()
+    private async void GoToMainMenu()
     {
-        NetworkManager.Singleton.Shutdown();
+        try
+        {
+            if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
+            {
+                string lobbyId = GlobalLobby.CurrentLobby.Id;
+                
+                if (GlobalLobby.CurrentLobby.HostId == AuthenticationService.Instance.PlayerId)
+                    await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+                else
+                    await LobbyService.Instance.RemovePlayerAsync(lobbyId, AuthenticationService.Instance.PlayerId);
+
+                GlobalLobby.CurrentLobby = null;
+            }
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to clean up lobby: {e}");
+        }
+        
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
         SceneManager.LoadScene("MainMenu");
     }
+
 
     private void StartGame()
     {

@@ -991,10 +991,16 @@ public class PlayerController : NetworkBehaviour
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 
-        characters[playerID].SetActive(true);
-        mainAnimator = characters[playerID].GetComponent<Animator>();
-        shaderManager = characters[playerID].GetComponentInChildren<PlayerShaderManager>();
-
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+        {
+            if (playerValues.PlayerIndex == playerID)
+            {
+                characters[playerValues.Skin.Index].SetActive(true);
+                mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
+                shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
+            }
+        }
+       
         foreach (var element in coloredElements)
             element.color = color;
 

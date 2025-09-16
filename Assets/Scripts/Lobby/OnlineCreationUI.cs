@@ -6,12 +6,15 @@ using TMPro;
 using Unity.Netcode.Transports.UTP;
 using UnityEngine.EventSystems;
 
-public class LobbyUI : MonoBehaviour
+public class OnlineCreationUI : MonoBehaviour
 {
     [SerializeField] private Button mainMenuButton;
     [SerializeField] private Button joinCodeButton;
     [SerializeField] private Button startGameButton;
     [SerializeField] private Button createPublicButton;
+    [SerializeField] private Button createPrivateButton;
+    [SerializeField] private Button refreshButton;
+    [SerializeField] private GameObject lobbyList;
     
     [SerializeField] private TMP_InputField joinCodeInputField;
     [SerializeField] private TextMeshProUGUI playerCountText;
@@ -31,6 +34,9 @@ public class LobbyUI : MonoBehaviour
             joinCodeButton.gameObject.SetActive(false);
             joinCodeInputField.gameObject.SetActive(false);
             createPublicButton.gameObject.SetActive(false);
+            createPrivateButton.gameObject.SetActive(false);
+            refreshButton.gameObject.SetActive(false);
+            lobbyList.SetActive(false);
             creatingLobbyText.gameObject.SetActive(false);
             joiningLobbyText.gameObject.SetActive(true);
             GameLobby.instance.JoinWithCode(joinCodeInputField.text);
@@ -38,17 +44,30 @@ public class LobbyUI : MonoBehaviour
         });
         createPublicButton.onClick.AddListener(() =>
         {
-            joinCodeButton.gameObject.SetActive(false);
-            joinCodeInputField.gameObject.SetActive(false);
-            createPublicButton.gameObject.SetActive(false);
-            creatingLobbyText.gameObject.SetActive(true);
-            GameLobby.instance.CreateLobby("Lobby", true);
-            eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
+            InitLobbyCreation(false);
+        });
+        
+        createPrivateButton.onClick.AddListener(() =>
+        {
+            InitLobbyCreation(true);
         });
         
         //joinCodeButton.interactable = false;
         
         // joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
+    }
+
+    void InitLobbyCreation(bool isPrivate)
+    {
+        joinCodeButton.gameObject.SetActive(false);
+        joinCodeInputField.gameObject.SetActive(false);
+        createPublicButton.gameObject.SetActive(false);
+        createPrivateButton.gameObject.SetActive(false);
+        refreshButton.gameObject.SetActive(false);
+        lobbyList.SetActive(false);
+        creatingLobbyText.gameObject.SetActive(true);
+        GameLobby.instance.CreateLobby("Lobby", isPrivate);
+        eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
     }
     
     public void HideOnCreateUI()
@@ -57,8 +76,10 @@ public class LobbyUI : MonoBehaviour
         joinCodeInputField.gameObject.SetActive(false);
         createPublicButton.gameObject.SetActive(false);
         creatingLobbyText.gameObject.SetActive(false);
-        playerCountText.gameObject.SetActive(true);
-        copyAndShareText.gameObject.SetActive(true);
+        // playerCountText.gameObject.SetActive(true);
+        // copyAndShareText.gameObject.SetActive(true);
+        refreshButton.gameObject.SetActive(false);
+        lobbyList.SetActive(false);
         NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
     }
 
@@ -67,8 +88,11 @@ public class LobbyUI : MonoBehaviour
         joinCodeButton.gameObject.SetActive(false);
         joinCodeInputField.gameObject.SetActive(false);
         createPublicButton.gameObject.SetActive(false);
+        createPrivateButton.gameObject.SetActive(false);
         creatingLobbyText.gameObject.SetActive(false); 
         joiningLobbyText.gameObject.SetActive(false);
+        refreshButton.gameObject.SetActive(false);
+        lobbyList.SetActive(false);
         NetworkManager.Singleton.OnClientConnectedCallback += UpdatePlayerCount;
     }
 

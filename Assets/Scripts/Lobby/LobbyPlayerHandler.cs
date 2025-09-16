@@ -2,19 +2,23 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
-using UnityEngine.SceneManagement; 
-public class LocalPlayerInputManager : MonoBehaviour
+using Unity.Netcode;
+using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
+
+public class LobbyPlayerHandler : NetworkBehaviour
 {
-    public static LocalPlayerInputManager Instance;
+    public static LobbyPlayerHandler Instance;
 
     [System.Serializable]
-    public class PlayerDevice
+    public class PlayerValues
     {
         public int PlayerIndex; // 0,1,2,3
         public InputDevice Device;
+        public SkinSO Skin;
     }
 
-    public List<PlayerDevice> playerDevices = new List<PlayerDevice>();
+    public List<PlayerValues> playerValues = new List<PlayerValues>();
 
     public int maxPlayers = 4;
 
@@ -24,12 +28,14 @@ public class LocalPlayerInputManager : MonoBehaviour
         else Destroy(gameObject);
 
         if (TransportSwitcher.Instance.isUsingRelay)
-            maxPlayers = 1; 
+            maxPlayers = 1;
     }
 
     private void Start()
     {
-        transform.parent = null; 
+        if(NetworkManager.Singleton.IsServer) 
+            transform.parent = null; 
+        
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
@@ -54,17 +60,18 @@ public class LocalPlayerInputManager : MonoBehaviour
         if (device == null) return;
 
         // Prevent duplicate assignment
-        var existingDevice = playerDevices.Find(pd => pd.Device == device);
+        var existingDevice = playerValues.Find(pd => pd.Device == device);
         if (existingDevice != null) return;
 
-        var existingPlayer = playerDevices.Find(pd => pd.PlayerIndex == playerIndex);
+        var existingPlayer = playerValues.Find(pd => pd.PlayerIndex == playerIndex);
         if (existingPlayer != null)
         {
             existingPlayer.Device = device; // reassign device to this player
         }
         else
         {
-            playerDevices.Add(new PlayerDevice { PlayerIndex = playerIndex, Device = device });
+            
+            playerValues.Add(new PlayerValues { PlayerIndex = playerIndex, Device = device});
         }
 
         //Debug.Log($"Assigned device {device.displayName} to player {playerIndex}");
@@ -75,7 +82,7 @@ public class LocalPlayerInputManager : MonoBehaviour
     /// </summary>
     public int GetPlayerIndex(InputDevice device)
     {
-        var pd = playerDevices.Find(p => p.Device == device);
+        var pd = playerValues.Find(p => p.Device == device);
         return pd != null ? pd.PlayerIndex : -1;
     }
 
@@ -93,7 +100,7 @@ public class LocalPlayerInputManager : MonoBehaviour
         // Find the next free slot
         for (int i = 0; i < maxPlayers; i++)
         {
-            if (!playerDevices.Exists(pd => pd.PlayerIndex == i))
+            if (!playerValues.Exists(pd => pd.PlayerIndex == i))
             {
                 AssignDeviceToPlayer(i, device);
                 return i;
@@ -106,21 +113,21 @@ public class LocalPlayerInputManager : MonoBehaviour
     
     public InputDevice GetDevice(int playerIndex)
     {
-        for (int i = 0; i < playerDevices.Count; i++)
+        for (int i = 0; i < playerValues.Count; i++)
         {
-            if (playerDevices[i].PlayerIndex == playerIndex)
-                return playerDevices[i].Device;
+            if (playerValues[i].PlayerIndex == playerIndex)
+                return playerValues[i].Device;
         }
         return null;
     }
     
     public void RemoveDevice(int playerIndex)
     {
-        for (int i = 0; i < playerDevices.Count; i++)
+        for (int i = 0; i < playerValues.Count; i++)
         {
-            if (playerDevices[i].PlayerIndex == playerIndex)
+            if (playerValues[i].PlayerIndex == playerIndex)
             {
-                playerDevices.RemoveAt(i);
+                playerValues.RemoveAt(i);
                 break;
             }
         }

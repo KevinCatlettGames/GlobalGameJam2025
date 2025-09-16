@@ -16,6 +16,7 @@ using Netcode.Transports.Facepunch;
 using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 public static class GlobalLobby
@@ -32,8 +33,8 @@ public class GameLobby : MonoBehaviour
     public TextMeshProUGUI waitForHostText;
     [SerializeField] private TMP_InputField lobbyCodeText;
 
-    public LobbyHeartBeat lobbyHeartBeat;
-    public LobbyUI lobbyUI;
+    [FormerlySerializedAs("lobbyHeartBeat")] public RelayServerHeartbeat relayServerHeartbeat;
+    [FormerlySerializedAs("lobbyUI")] public OnlineCreationUI onlineCreationUI;
     public static GameLobby instance { get; private set; }
 
     private void Awake()
@@ -72,19 +73,19 @@ public class GameLobby : MonoBehaviour
             ConfigureTransport(allocation);
 
             NetworkManager.Singleton.StartHost();
-            lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
+            relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
             
-            startGameButton.gameObject.SetActive(true);
-            startGameButton.onClick.AddListener(() =>
-            {
-                NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
-            });
+            // startGameButton.gameObject.SetActive(true);
+            // startGameButton.onClick.AddListener(() =>
+            // {
+            //     NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
+            // });
+            //
+            // lobbyCodeText.gameObject.SetActive(true);
+            // lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
             
-            lobbyCodeText.gameObject.SetActive(true);
-            lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
-            
-            lobbyUI.HideOnCreateUI();
-           // NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+            onlineCreationUI.HideOnCreateUI();
+            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {
@@ -105,21 +106,21 @@ public class GameLobby : MonoBehaviour
 
     #region Facepunch Lobby Logic
 
-    private void OnEnable()
-    {
-        if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
-        {
-            // connectString is exactly what you set earlier ("lobby.Id.ToString()")
-            if (ulong.TryParse(SteamIntegration.instance.lobbyIDToJoin, out ulong lobbyId))
-            {
-                JoinSteamLobbyWithID(lobbyId.ToString());
-            }
-            else
-            {
-                Debug.LogError($"Invalid connect string: {SteamIntegration.instance.lobbyIDToJoin}");
-            }
-        }
-    }
+    // private void OnEnable()
+    // {
+    //     if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
+    //     {
+    //         // connectString is exactly what you set earlier ("lobby.Id.ToString()")
+    //         if (ulong.TryParse(SteamIntegration.instance.lobbyIDToJoin, out ulong lobbyId))
+    //         {
+    //             JoinSteamLobbyWithID(lobbyId.ToString());
+    //         }
+    //         else
+    //         {
+    //             Debug.LogError($"Invalid connect string: {SteamIntegration.instance.lobbyIDToJoin}");
+    //         }
+    //     }
+    // }
     // private void OnDisable()
     // {
     //     SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
@@ -150,7 +151,7 @@ public class GameLobby : MonoBehaviour
     private void LobbyEntered(Lobby lobby)
     {
         GlobalLobby.CurrentLobby = lobby;
-        lobbyHeartBeat.joinedLobby = lobby; 
+        relayServerHeartbeat.joinedLobby = lobby; 
         Debug.Log("Entered a steam lobby");
         
         if (NetworkManager.Singleton.IsHost) return; 
@@ -166,7 +167,7 @@ public class GameLobby : MonoBehaviour
     public async void HostSteamLobby()
     {
         await SteamMatchmaking.CreateLobbyAsync(4);
-        lobbyHeartBeat.joinedLobby = GlobalLobby.CurrentLobby;
+        relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
 
         startGameButton.gameObject.SetActive(true);
         startGameButton.onClick.AddListener(() =>
@@ -174,24 +175,40 @@ public class GameLobby : MonoBehaviour
             NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
         });
 
-        lobbyUI.HideOnCreateUI();
+        onlineCreationUI.HideOnCreateUI();
     }
 
-    public async void JoinSteamLobbyWithID(string id)
+    // public async void JoinSteamLobbyWithID(string id)
+    // {
+    //     ulong ID;
+    //     if (!ulong.TryParse(id, out ID))
+    //         return;
+    //
+    //     Steamworks.Data.Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).RequestAsync();
+    //
+    //     foreach (Steamworks.Data.Lobby lobby in lobbies)
+    //     {
+    //         if (lobby.Id == ID)
+    //         {
+    //             await lobby.Join();
+    //             return; 
+    //         }
+    //     }
+    // }
+    
+    public async void JoinWithId(string lobbyId)
     {
-        ulong ID;
-        if (!ulong.TryParse(id, out ID))
-            return;
-
-        Steamworks.Data.Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).RequestAsync();
-
-        foreach (Steamworks.Data.Lobby lobby in lobbies)
+        try
         {
-            if (lobby.Id == ID)
-            {
-                await lobby.Join();
-                return; 
-            }
+            Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
+            GlobalLobby.CurrentLobby = joinedLobby;
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+
+
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to join lobby: {e}");
         }
     }
     #endregion
@@ -265,7 +282,7 @@ public class GameLobby : MonoBehaviour
         ConfigureTransport(joinAllocation);
         NetworkManager.Singleton.StartClient();
 
-        lobbyUI.HideOnJoinUI();
+        onlineCreationUI.HideOnJoinUI();
         waitForHostText.gameObject.SetActive(true);
     }
 

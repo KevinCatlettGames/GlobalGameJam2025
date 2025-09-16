@@ -51,6 +51,7 @@ public class TransportSwitcher : MonoBehaviour
         if (scene.name == mainMenuSceneName)
         {
             canSwitch = true;
+            isUsingRelay = false; 
         }
     }
 
