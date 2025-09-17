@@ -51,7 +51,7 @@ public class SoapDroplet : NetworkBehaviour
 
             if (hasExploded) return;
             hasExploded = true;
-            Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Bubble", "Player"));
+            Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
             Vector3 origin;
             Vector3 direction;
             foreach (Collider col in explosionOverlaps)
