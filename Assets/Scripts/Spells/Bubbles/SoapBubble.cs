@@ -6,16 +6,20 @@ public class SoapBubble : BasicBubble
 {
     [SerializeField] private GameObject soapPuddleObject;
     [SerializeField] private GameObject soapSplatObject;
+    [SerializeField] private float startDelay = 10f;
     [SerializeField] private float soapDropInterval = 0.2f;
     [SerializeField] private LayerMask groundedLayerMask;
     private const float raycastDistance = 5f;
 
-    private float timer = 0; 
-    
+    private float timer = 0;
+
+    private void Start()
+    {
+        timer -= startDelay; 
+    }
     private void Update()
     {
         if (soapPuddleObject == null) return;
-
         timer += Time.deltaTime;
         if (timer >= soapDropInterval)
         {
