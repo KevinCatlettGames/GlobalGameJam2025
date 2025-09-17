@@ -43,7 +43,7 @@ public class SoapDroplet : NetworkBehaviour
             dropletFallSpeed += Time.fixedDeltaTime * gravity;
             dropletTransform.position = dropletTransform.position + Vector3.down * dropletFallSpeed * Time.fixedDeltaTime;
         }
-        else
+        else if (activeDroplet)
         {
             GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
             splash.GetComponent<NetworkObject>()?.Spawn();
