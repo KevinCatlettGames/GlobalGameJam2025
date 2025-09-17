@@ -15,7 +15,7 @@ public class SoapMapEvent : MonoBehaviour
     void Start()
     {
         if (!isMapEventEnabled) Destroy(this);
-        //if (NetworkManager.Singleton.IsServer )
+        //if (NetworkManager.Singleton.IsServer)
         //{
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
