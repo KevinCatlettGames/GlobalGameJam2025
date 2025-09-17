@@ -14,12 +14,17 @@ public class SoapDroplet : NetworkBehaviour
     [SerializeField] private float damage = 10f;
     [SerializeField] private float knockback = 5f;
     [SerializeField] private float radius = 5f;
+    [SerializeField] private float minSize = 1f;
+    [SerializeField] private float maxSize = 2f;
+    private float size = 1f; 
 
     private bool hasExploded;
 
     void Start()
     {
         dropletTransform.position = new Vector3 (dropletTransform.position.x, startHeight, dropletTransform.position.z);
+        size = Random.Range(minSize, maxSize);
+        transform.localScale = Vector3.one * size;
     }
 
     void FixedUpdate()
@@ -33,6 +38,7 @@ public class SoapDroplet : NetworkBehaviour
         {
             GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
             splash.GetComponent<NetworkObject>()?.Spawn();
+            splash.transform.localScale = Vector3.one * size;
 
             if (hasExploded) return;
             hasExploded = true;
@@ -52,9 +58,9 @@ public class SoapDroplet : NetworkBehaviour
                         if (player != null)
                         {
                             if (GameManager.Instance.PlayingLocal)
-                                player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+                                player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
                             else
-                                player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
+                                player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
                         }
                     }
                     else
