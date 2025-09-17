@@ -9907,10 +9907,11 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   soapSplash: {fileID: 5835028745261568127, guid: b20db66dbcb1ddc4f93ca0bd8d16e506,
     type: 3}
+  startDelay: 0.5
   dropletTransform: {fileID: 1097493945000504887}
   startHeight: 50
   dropletFallSpeed: 50
-  gravity: 20
+  gravity: 30
   damage: 10
   knockback: 5
   radius: 2.65
@@ -10105,8 +10106,18 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2084084149669246535, guid: e430d57132d054e48a8fccece6bbc241,
         type: 3}
+      propertyPath: lengthInSec
+      value: 2.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084084149669246535, guid: e430d57132d054e48a8fccece6bbc241,
+        type: 3}
       propertyPath: InitialModule.startSize.scalar
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2084084149669246535, guid: e430d57132d054e48a8fccece6bbc241,
+        type: 3}
+      propertyPath: InitialModule.startLifetime.scalar
+      value: 2.4
       objectReference: {fileID: 0}
     - target: {fileID: 3280468813168702649, guid: e430d57132d054e48a8fccece6bbc241,
         type: 3}
