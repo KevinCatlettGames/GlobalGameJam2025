@@ -4,6 +4,7 @@ using UnityEngine;
 public class SoapDroplet : NetworkBehaviour
 {
     [SerializeField] private GameObject soapSplash;
+    [SerializeField] private float startDelay = .5f;
     [Header("Droplet Physics")]
     [SerializeField] private Transform dropletTransform;
     [SerializeField] private float startHeight = 50;
@@ -19,17 +20,25 @@ public class SoapDroplet : NetworkBehaviour
     private float size = 1f; 
 
     private bool hasExploded;
+    bool activeDroplet = false;
 
     void Start()
     {
         dropletTransform.position = new Vector3 (dropletTransform.position.x, startHeight, dropletTransform.position.z);
+        dropletTransform.gameObject.SetActive(false);
         size = Random.Range(minSize, maxSize);
         transform.localScale = Vector3.one * size;
+        Invoke(nameof(ActivateDroplet), startDelay);
     }
 
+    private void ActivateDroplet()
+    {
+        dropletTransform.gameObject.SetActive(true);
+        activeDroplet = true;
+    }
     void FixedUpdate()
     {
-        if (dropletTransform.position.y > 0)
+        if (activeDroplet && dropletTransform.position.y > 0)
         {
             dropletFallSpeed += Time.fixedDeltaTime * gravity;
             dropletTransform.position = dropletTransform.position + Vector3.down * dropletFallSpeed * Time.fixedDeltaTime;
