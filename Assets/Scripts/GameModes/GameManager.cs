@@ -20,8 +20,7 @@ public class GameManager : NetworkBehaviour
     public Action OnGameEnded;
     public Action OnGameStarted;
 
-    [SerializeField] protected GameObject scoreScreen;
-    [SerializeField] protected Animator victoryAnimator;
+    [SerializeField] protected SO_GameSettings gameSettings;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];
@@ -117,7 +116,7 @@ public class GameManager : NetworkBehaviour
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
-        scoreScreen.SetActive(true);
+        UIManager.Instance.SetScoreScreenActive(true);
         ScoreManager.Instance.ResolveScores();
         isReadyToRestart = true;
     }
@@ -139,7 +138,7 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
-        scoreScreen.SetActive(false);
+        UIManager.Instance.SetScoreScreenActive(false);
     }
 
     public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD)
@@ -158,8 +157,7 @@ public class GameManager : NetworkBehaviour
             ChangePlayerHUDClientRpc(killCredit);
             ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
-        CheckForRoundEndServerRpc();
-        
+        CheckForRoundEndServerRpc();       
     }
 
     public virtual void DeathReportLocal(int playerID, int killCredit)

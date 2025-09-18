@@ -1,43 +1,29 @@
 using System.Collections;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 
-public class SingleEliminationGM : GameManager
+public class TimedGM : GameManager
 {
+    private Timer timer;
     private void Start()
     {
         Time.timeScale = 1;
+        timer = UIManager.Instance.GetTimer();
+        OnGameStarted += StartTimer;
+        if (PlayingLocal)
+        {
+            timer.OnTimerComplete += CallGameEndLocal;
+        }
+        else
+        {
+            timer.OnTimerComplete += CallGameEndClientRpc;
+        }
+        timer.StartTimer(gameSettings.Time);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public override void CheckForRoundEndServerRpc()
+    private void StartTimer()
     {
-        if (gameEnded) return;
-        if (CountAlivePlayers() <= 1)
-        {
-            gameEnded = true;
-            CallGameEndClientRpc();
-        }
-    }
-
-    public override void CheckForRoundEndLocal()
-    {
-        if (gameEnded) return;
-        if (CountAlivePlayers() <= 1)
-        {
-            gameEnded = true;
-            CallGameEndLocal();
-        }
-    }
-
-    private int CountAlivePlayers()
-    {
-        int count = 0;
-        foreach (var state in playerStates)
-        {
-            if (state == PlayerState.alive || state == PlayerState.pendingRespawn) count++;
-        }
-        return count;
+        timer.StartTimer(gameSettings.Time);
     }
 
     [ClientRpc]
@@ -65,17 +51,17 @@ public class SingleEliminationGM : GameManager
         yield return new WaitForSeconds(gameEndDelay);
 
         int winnerID = -1;
-        for (int i = 0; i < playerStates.Length; i++)
+        int[] kills = ScoreManager.Instance.GetKillScores();
+        int currentTopScore = 0;
+        for (int i = 0; i < kills.Length; i++)
         {
-            if (playerStates[i] == PlayerState.alive)
+            if (kills[i] > currentTopScore)
             {
                 winnerID = i;
-                players[winnerID].Victory();
-                ScoreManager.Instance.AddPendingScore(winnerID, true);
-                break;
             }
         }
-
+        if (winnerID != -1)
+            ScoreManager.Instance.AddPendingScore(winnerID, true);
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {
@@ -88,5 +74,17 @@ public class SingleEliminationGM : GameManager
             yield return new WaitForSeconds(0.75f);
         }
         EndGame();
+    }
+    private void OnDestroy()
+    {
+        OnGameStarted -= StartTimer;
+        if (PlayingLocal)
+        {
+            timer.OnTimerComplete += CallGameEndLocal;
+        }
+        else
+        {
+            timer.OnTimerComplete += CallGameEndClientRpc;
+        }
     }
 }

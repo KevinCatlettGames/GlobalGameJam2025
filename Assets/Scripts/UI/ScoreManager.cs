@@ -7,7 +7,7 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
 
     [SerializeField] private ScorePanel[] scorePanels;
-    [SerializeField] private SO_Scores Scores;
+    [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject restarText;
 
     private int[] pendingWins = new int[4];
@@ -27,7 +27,8 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(this);
         }
-        Scores.ResetScores();
+        scores.ResetWins();
+        scores.ResetKills();
     }
     public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {
@@ -42,12 +43,12 @@ public class ScoreManager : MonoBehaviour
         if (isWin)
         {
             pendingWins[playerID]++;
-            Scores.WinScores[playerID]++;
+            scores.WinScores[playerID]++;
         }
         else
         {
             pendingKills[playerID]++;
-            Scores.KillScores[playerID]++;
+            scores.KillScores[playerID]++;
         }
     }
     public void ResolveScores()
@@ -61,8 +62,8 @@ public class ScoreManager : MonoBehaviour
         restarText.SetActive(false);
         for (int i = 0; i < currentActivePlayers; i++)
         {
-            int kills = Scores.KillScores[i] - pendingKills[i];
-            int wins = Scores.WinScores[i] - pendingWins[i];
+            int kills = scores.KillScores[i] - pendingKills[i];
+            int wins = scores.WinScores[i] - pendingWins[i];
             scorePanels[i].SetScores(wins, kills);
         }
         yield return new WaitForSeconds(.2f);
@@ -87,6 +88,11 @@ public class ScoreManager : MonoBehaviour
     }
     public void ResetScores()
     {
-        Scores.ResetScores();
+        scores.ResetWins();
+        scores.ResetKills();
+    }
+    public int[] GetKillScores()
+    {
+        return scores.KillScores;
     }
 }

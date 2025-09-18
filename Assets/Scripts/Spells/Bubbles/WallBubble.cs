@@ -20,7 +20,6 @@ public class WallBubble : BasicBubble
         }
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(dmg));
     }
-
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || !IsServer) return;
