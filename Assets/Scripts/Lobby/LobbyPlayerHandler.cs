@@ -27,7 +27,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        if (TransportSwitcher.Instance.isUsingRelay)
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             maxPlayers = 1;
     }
 

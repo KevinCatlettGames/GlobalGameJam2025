@@ -70,7 +70,7 @@ public class PlayerManager : NetworkBehaviour
             //Debug.Log("Enabling join text");
             joinGameText.SetActive(true);
             
-            if(LobbyPlayerHandler.Instance != null) 
+            if(LobbyPlayerHandler.Instance != null && TransportSwitcher.Instance) 
                 PlayerInputManager.instance.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
             
             startGameInputAction.action.performed += ActionOnPerformed;
