@@ -6,6 +6,7 @@ public class SoapMapEvent : MonoBehaviour
     [SerializeField] private bool isMapEventEnabled = true;
     [SerializeField] private GameObject soapDroplet;
     [SerializeField] private float spawnRadius = 21f;
+    [SerializeField] private float startDelay = 10f;
     [SerializeField] private float startInvterval = 2f;
     [SerializeField] private float minInterval = .3f;
     [SerializeField] private float intervalAdjustment = -.1f;
@@ -19,7 +20,7 @@ public class SoapMapEvent : MonoBehaviour
         //{
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
-            StartSpawning();
+            Invoke(nameof(StartSpawning), startDelay);
         //}
     }
 
