@@ -613,11 +613,12 @@ public class PlayerController : NetworkBehaviour
     {
         switch (value.x, value.y)
         {
-            case (0, 1): mainAnimator.SetTrigger("EmoteUp"); break;
-            case (0, -1): break; // EmoteDown
-            case (-1, 0): break; // EmoteLeft
-            case (1, 0): break; // EmoteRight
+            case (0, 1): mainAnimator.SetInteger("EmoteID", 1); break;   // EmoteUp
+            case (1, 0): mainAnimator.SetInteger("EmoteID", 2); break;  // EmoteRight
+            case (0, -1): mainAnimator.SetInteger("EmoteID", 3); break; // EmoteDown
+            case (-1, 0): mainAnimator.SetInteger("EmoteID", 4); break; // EmoteLeft
         }
+        mainAnimator.SetTrigger("Emote");
     }
 
     #endregion
@@ -825,7 +826,7 @@ public class PlayerController : NetworkBehaviour
         {
             mainAnimator.SetTrigger("Flinch");
             RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
-            shaderManager.DamageEffect(damageColorEffectDuration);
+            shaderManager?.DamageEffect(damageColorEffectDuration);
         }
         else
         {
