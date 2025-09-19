@@ -6,9 +6,12 @@ public class SO_Scores : ScriptableObject
     public int[] WinScores = new int[4];
     public int[] KillScores = new int[4];
 
-    public void ResetScores()
+    public void ResetWins()
     {
         WinScores = new int[4];
+    }
+    public void ResetKills()
+    {
         KillScores = new int[4];
     }
 }

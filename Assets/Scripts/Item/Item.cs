@@ -46,11 +46,11 @@ public class Item : NetworkBehaviour
     {
         spellID = index;
         SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);
-        meshFilter.mesh = spell.GetMesh();
+        meshFilter.mesh = spell.ItemMesh;
 
-        spellMaterial = spell.GetMaterial();
+        spellMaterial = spell.ItemMaterial;
         meshRenderer.material = spellMaterial;
-        spriteRenderer.color = spell.GetEffectColor();
+        spriteRenderer.color = spell.ItemEffectColor;
 
         Material[] effectMaterials = spell.GetEffectMaterials();
         if (effectMaterials != null && effectMaterials.Length >= 3)

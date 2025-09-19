@@ -10,12 +10,11 @@ public class SoapBubble : BasicBubble
     [SerializeField] private LayerMask groundedLayerMask;
     private const float raycastDistance = 5f;
 
-    private float timer = 0; 
-    
+    private float timer = 0;
+
     private void Update()
     {
         if (soapPuddleObject == null) return;
-
         timer += Time.deltaTime;
         if (timer >= soapDropInterval)
         {

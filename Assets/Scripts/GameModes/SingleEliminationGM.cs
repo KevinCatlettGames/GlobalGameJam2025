@@ -79,13 +79,12 @@ public class SingleEliminationGM : GameManager
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {
-            victoryAnimator.gameObject.SetActive(true);
-            victoryAnimator.Play($"P{winnerID}");
+            UIManager.Instance.PlayVictoryAnimation(winnerID);
             yield return null;
-            AnimatorStateInfo animatorStateInfo = victoryAnimator.GetCurrentAnimatorStateInfo(0);
-            yield return new WaitForSeconds(animatorStateInfo.length);
+            float duration = UIManager.Instance.GetVictoryAnimationDuration();
+            yield return new WaitForSeconds(duration);
             playerHUDs[winnerID].AddWin();
-            victoryAnimator.gameObject.SetActive(false);
+            UIManager.Instance.PlayVictoryAnimation(-1);
             yield return new WaitForSeconds(0.75f);
         }
         EndGame();

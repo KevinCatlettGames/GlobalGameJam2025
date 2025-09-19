@@ -39,7 +39,6 @@ public class PlayerManager : NetworkBehaviour
     
     private void Awake()
     {
-        // Ensure singleton pattern
         if (Instance == null)
         {
             Instance = this;
