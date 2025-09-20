@@ -225,8 +225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   playerPrefab: {fileID: 0}
-  scoreScreen: {fileID: 0}
-  victoryAnimator: {fileID: 0}
+  gameSettings: {fileID: 0}
   playerInputManager: {fileID: 0}
   PlayingLocal: 0
 --- !u!1 &3857527044487169854
@@ -288,8 +287,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1378864988898156826}
   - component: {fileID: 8605951647801297494}
-  - component: {fileID: 8067442931815521231}
   - component: {fileID: 7696428306119682472}
+  - component: {fileID: 8067442931815521231}
   m_Layer: 0
   m_Name: PlayerManager
   m_TagString: Untagged
@@ -320,7 +319,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4108901858045191531}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
   m_Name: 
@@ -334,7 +333,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8067442931815521231}
         m_TargetAssemblyTypeName: PlayerManager, Assembly-CSharp
-        m_MethodName: OnPlayerJoined
+        m_MethodName: JoinLocal
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -371,54 +370,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &8067442931815521231
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4108901858045191531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ab46762cf45504478907700c6ee8aa5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  winSound:
-    Guid:
-      Data1: 830205260
-      Data2: 1253840928
-      Data3: -2084654960
-      Data4: 754965626
-    Path: event:/voice/win_voice
-  playerHUDs: []
-  startingSpells:
-  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
-  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
-  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
-  - {fileID: 11400000, guid: b9c65d75b23394443b192a0c4366e3d4, type: 2}
-  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
-  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
-  - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
-  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
-  spawnPoints:
-  - {fileID: 2737577178785275174}
-  - {fileID: 1647630035624308313}
-  - {fileID: 3164768564512664138}
-  - {fileID: 8757892686786655870}
-  joinGameText: {fileID: 0}
-  startGameInputAction:
-    m_UseReference: 0
-    m_Action:
-      m_Name: 
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 46da3172-5d93-4ce8-8f9d-5f9979ee17a1
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings: []
-      m_Flags: 0
-    m_Reference: {fileID: 0}
 --- !u!114 &7696428306119682472
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -444,6 +395,60 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!114 &8067442931815521231
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108901858045191531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1ab46762cf45504478907700c6ee8aa5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  winSound:
+    Guid:
+      Data1: 830205260
+      Data2: 1253840928
+      Data3: -2084654960
+      Data4: 754965626
+    Path: event:/voice/win_voice
+  playerHUDs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  startingSpells:
+  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
+  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
+  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
+  - {fileID: 11400000, guid: b9c65d75b23394443b192a0c4366e3d4, type: 2}
+  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
+  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
+  - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
+  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
+  spawnPoints:
+  - {fileID: 2737577178785275174}
+  - {fileID: 1647630035624308313}
+  - {fileID: 3164768564512664138}
+  - {fileID: 8757892686786655870}
+  joinGameText: {fileID: 0}
+  startGameInputAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Start Game Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 46da3172-5d93-4ce8-8f9d-5f9979ee17a1
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
+      type: 3}
+  playerInputManager: {fileID: 8605951647801297494}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0

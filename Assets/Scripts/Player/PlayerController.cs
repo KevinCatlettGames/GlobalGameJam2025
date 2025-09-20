@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq; 
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -995,15 +996,35 @@ public class PlayerController : NetworkBehaviour
         {
             if (playerValues.PlayerIndex == playerID)
             {
-                characters[playerValues.Skin.Index].SetActive(true);
-                mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
+                if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = color;
+                    characters[playerValues.Skin.Index].SetActive(true);
+                    ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
+                    ActivateCorrectColorClientRpc(playerID);
+                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
+                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
+                }
+                else if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = color;
+                    characters[playerValues.Skin.Index].SetActive(true);
+                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
+                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
+                }
+                else
+                {
+                    foreach (var element in coloredElements)
+                        element.color = color;
+                    characters[playerValues.Skin.Index].SetActive(true);
+                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
+                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>(); 
+                }
             }
         }
-       
-        foreach (var element in coloredElements)
-            element.color = color;
-
+        
         playerHUD.UpdateDamageText((int)damage);
 
         if (controllerRumbler != null)
@@ -1013,6 +1034,25 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
+    }
+
+    [ClientRpc]
+    void ActivateCorrectSkinClientRpc(int index)
+    {
+        foreach (GameObject character in characters)
+            character.SetActive(false);
+
+        characters[index].SetActive(true);
+    }
+
+    [ClientRpc]
+    void ActivateCorrectColorClientRpc(int index)
+    {
+        foreach (Image image in coloredElements)
+        {
+            image.color = LobbyPlayerHandler.Instance.playerValues[index].Skin
+                .Color; 
+        }
     }
     #endregion
 }

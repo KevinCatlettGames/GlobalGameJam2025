@@ -26,20 +26,15 @@ public class LobbyPlayerHandler : NetworkBehaviour
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
-
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-            maxPlayers = 1;
     }
 
     private void Start()
     {
-        if(NetworkManager.Singleton.IsServer) 
-            transform.parent = null; 
-        
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
-
+    
+    
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;

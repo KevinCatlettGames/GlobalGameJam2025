@@ -1,25 +1,23 @@
-using System;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerContainerSkinChange : MonoBehaviour
+public class PlayerContainerSkinChange : NetworkBehaviour
 {
     public Image containerBackground;
     public Outline containerBackgroundOutline;
     public Image avatarBackground;
     public Image avatar;
 
-    public int currentColorIndex; 
+    public int currentColorIndex;
     public int playerIndex = 0;
-    public bool currentlyOnLocked = false;
-
-    private void Awake()
-    {
-        ApplySkinVisuals();
-    }
+    
+    public bool currentlyOnLocked;
 
     public void SwapColorWithIncrementation(bool increment)
     {
+        if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return; 
+        
         int totalSkins = LobbyManager.instance.possibleSkins.Length;
 
         currentColorIndex = increment
@@ -29,11 +27,27 @@ public class PlayerContainerSkinChange : MonoBehaviour
         UpdateSkin();
     }
 
+    // This RPC ensures that the skin updates across all clients
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateSkinServerRpc()
+    {
+        UpdateSkin();
+        UpdateSkinClientRpc(); // Send updated skin info to all clients
+    }
+
+    [ClientRpc]
+    void UpdateSkinClientRpc()
+    {
+        UpdateSkin();
+    }
+
+    // This function handles both the skin change and checking if the skin is locked
     public void UpdateSkin()
     {
         SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
         bool skinLocked = false;
 
+        // Check if any other player has the same skin and is ready
         for (int i = 0; i < LobbyPlayerHandler.Instance.playerValues.Count; i++)
         {
             if (i == playerIndex) continue;
@@ -49,6 +63,7 @@ public class PlayerContainerSkinChange : MonoBehaviour
             }
         }
 
+        // Update the lock status
         currentlyOnLocked = skinLocked;
 
         if (!currentlyOnLocked && playerIndex >= 0 && playerIndex < LobbyPlayerHandler.Instance.playerValues.Count)
@@ -59,11 +74,7 @@ public class PlayerContainerSkinChange : MonoBehaviour
         ApplySkinVisuals();
     }
 
-    public void RecheckSkinValidity()
-    {
-        UpdateSkin();
-    }
-
+    // Apply the visuals based on the lock state
     private void ApplySkinVisuals()
     {
         SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];

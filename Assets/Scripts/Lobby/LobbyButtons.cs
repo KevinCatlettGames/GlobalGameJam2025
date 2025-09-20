@@ -63,20 +63,43 @@ public class LobbyButtons : MonoBehaviour
 
     private void Update()
     {
-        if (isPressingStartGame && !gameStarting)
+        if (TransportSwitcher.Instance.isUsingRelay)
         {
-            float heldTime = Time.time - startGamePressTime;
-            float progress = Mathf.Clamp01(heldTime / startGameHoldDuration);
-
-            if (radialFillImage != null)
-                radialFillImage.fillAmount = progress;
-
-            if (heldTime >= startGameHoldDuration)
+            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+            
+            if (isPressingStartGame && !gameStarting)
             {
-                gameStarting = true;
-                //Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
-                NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
-            }
+                float heldTime = Time.time - startGamePressTime;
+                float progress = Mathf.Clamp01(heldTime / startGameHoldDuration);
+
+                if (radialFillImage != null)
+                    radialFillImage.fillAmount = progress;
+
+                if (heldTime >= startGameHoldDuration)
+                {
+                    gameStarting = true;
+                    //Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
+                    NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
+                }
+            } 
+        }
+        else
+        {
+            if (isPressingStartGame && !gameStarting)
+            {
+                float heldTime = Time.time - startGamePressTime;
+                float progress = Mathf.Clamp01(heldTime / startGameHoldDuration);
+
+                if (radialFillImage != null)
+                    radialFillImage.fillAmount = progress;
+
+                if (heldTime >= startGameHoldDuration)
+                {
+                    gameStarting = true;
+                    //Debug.Log("Start game auto-triggered after holding for " + heldTime + " seconds");
+                    NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
+                }
+            } 
         }
     }
 
@@ -139,26 +162,51 @@ public class LobbyButtons : MonoBehaviour
 
     private void StartGame()
     {
-        if (!IsHost()) return;
-        
-        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0) return;
-        if (TransportSwitcher.Instance.isUsingRelay && LobbyManager.instance.players.Count <= 1) return; 
-        
-        isPressingStartGame = true;
-        startGamePressTime = Time.time;
-        gameStarting = false;
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0) return;
+            // if (TransportSwitcher.Instance.isUsingRelay && LobbyManager.instance.players.Count <= 1) return;
+            isPressingStartGame = true;
+            startGamePressTime = Time.time;
+            gameStarting = false;
 
-        if (radialFillImage != null)
-            radialFillImage.fillAmount = 0f;
+            if (radialFillImage != null)
+                radialFillImage.fillAmount = 0f;
+        }
+        else
+        {
+            if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0) return;
+
+            isPressingStartGame = true;
+            startGamePressTime = Time.time;
+            gameStarting = false;
+
+            if (radialFillImage != null)
+                radialFillImage.fillAmount = 0f;
+        }
     }
 
     private void StopStartGame()
     {
-        isPressingStartGame = false;
-        startGamePressTime = 0f;
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            
+            isPressingStartGame = false;
+            startGamePressTime = 0f;
 
-        if (!gameStarting && radialFillImage != null)
-            radialFillImage.fillAmount = 0f;
+            if (!gameStarting && radialFillImage != null)
+                radialFillImage.fillAmount = 0f;
+        }
+        else
+        {
+            isPressingStartGame = false;
+            startGamePressTime = 0f;
+
+            if (!gameStarting && radialFillImage != null)
+                radialFillImage.fillAmount = 0f;
+        }
     }
 
     private bool IsHost()

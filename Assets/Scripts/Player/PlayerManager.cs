@@ -35,7 +35,7 @@ public class PlayerManager : NetworkBehaviour
     private int playersInitializedCount = 0;
 
     public InputActionProperty startGameInputAction; 
-    PlayerInputManager playerInputManager;
+    public PlayerInputManager playerInputManager;
     
     private void Awake()
     {
@@ -47,6 +47,8 @@ public class PlayerManager : NetworkBehaviour
         {
             Destroy(gameObject);
         }
+        
+        playerInputManager = GetComponent<PlayerInputManager>();
     }
 
     private void Start()
@@ -66,14 +68,29 @@ public class PlayerManager : NetworkBehaviour
         RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
-            //Debug.Log("Enabling join text");
-            joinGameText.SetActive(true);
+            if (!TransportSwitcher.Instance)
+            {
+                //Debug.Log("Enabling join text");
+                joinGameText.SetActive(true);
+                startGameInputAction.action.performed += ActionOnPerformed;
+                startGameInputAction.action.Enable();
+            }
+
+            playerInputManager.enabled = true;
             
-            if(LobbyPlayerHandler.Instance != null && TransportSwitcher.Instance) 
-                PlayerInputManager.instance.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
-            
-            startGameInputAction.action.performed += ActionOnPerformed;
-            startGameInputAction.action.Enable();
+            // if (TransportSwitcher.Instance)
+            // {
+            //     playerInputManager.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
+            // }
+        }
+        
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            playerInputManager.enabled = false;
+        }
+        else if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+        {
+            StartLocalGame();
         }
     }
     
@@ -125,6 +142,51 @@ public class PlayerManager : NetworkBehaviour
         }
     }
 
+    void StartLocalGame()
+    {
+        if (LobbyPlayerHandler.Instance != null)
+        {
+            LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
+
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
+            {
+                if (playerDevice == null) continue; // use continue, not return
+
+                InputDevice device = playerDevice.Device;
+
+                if (device is Keyboard)
+                {
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        "Keyboard", // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+                    //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
+                }
+                else if (device is Gamepad)
+                {
+                    // Join player manually with the correct device
+                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
+                        playerDevice.PlayerIndex, // player index (0,1,2,3)
+                        -1, // split-screen index (optional)
+                        null, // control scheme (optional, null = default)
+                        playerDevice.Device // assign this device
+                    );
+
+                    if (newPlayer != null)
+                    {
+                        // Optional: switch control scheme explicitly
+                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
+                    }
+                }
+            }
+        }
+        ItemSpawner.Instance.InitialSpawn();
+    }
+
     #region Player Joining and Initialization
 
     public void JoinLocal(PlayerInput input)
@@ -155,12 +217,8 @@ public class PlayerManager : NetworkBehaviour
             rumbler = input.gameObject.AddComponent<ControllerRumbler>();
             rumbler.SetController(gamePad);
         }
-
-        if (LobbyPlayerHandler.Instance)
-            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-        else
-            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-       
+        
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;
@@ -194,12 +252,8 @@ public class PlayerManager : NetworkBehaviour
             rumbler = input.gameObject.AddComponent<ControllerRumbler>();
             rumbler.SetController(gamePad);
         }
-
-        if (LobbyPlayerHandler.Instance)
-            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-        else
-            playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-
+        
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;

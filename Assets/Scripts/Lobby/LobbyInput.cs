@@ -2,11 +2,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using Steamworks.Data;
+using Unity.Netcode;
 
-public class LobbyInput : MonoBehaviour
+public class LobbyInput : NetworkBehaviour
 {
     public InputActionProperty readyAction;
-    public InputActionProperty leaveAction;
     public InputActionProperty rightColorChange;
     public InputActionProperty leftColorChange;
 
@@ -15,14 +16,14 @@ public class LobbyInput : MonoBehaviour
     private Dictionary<InputDevice, float> readyActionStartTimes = new();
     private const float QuickTapThreshold = 0.2f; // seconds
 
+    private float onlineHostReadyStartTime = 0;
+    private InputAction.CallbackContext currentContext;
+    
     private void OnEnable()
     {
         readyAction.action.started += OnReadyStarted;
         readyAction.action.performed += OnReadyPerformed;
         readyAction.action.Enable();
-
-        leaveAction.action.performed += OnLeavePerformed;
-        leaveAction.action.Enable();
 
         rightColorChange.action.performed += OnRightColorChange;
         rightColorChange.action.Enable();
@@ -41,9 +42,6 @@ public class LobbyInput : MonoBehaviour
         readyAction.action.performed -= OnReadyPerformed;
         readyAction.action.Disable();
 
-        leaveAction.action.performed -= OnLeavePerformed;
-        leaveAction.action.Disable();
-
         rightColorChange.action.performed -= OnRightColorChange;
         rightColorChange.action.Disable();
         
@@ -59,9 +57,6 @@ public class LobbyInput : MonoBehaviour
         readyAction.action.performed -= OnReadyPerformed;
         readyAction.action.Disable();
 
-        leaveAction.action.performed -= OnLeavePerformed;
-        leaveAction.action.Disable();
-
         rightColorChange.action.performed -= OnRightColorChange;
         rightColorChange.action.Disable();
         
@@ -71,56 +66,130 @@ public class LobbyInput : MonoBehaviour
 
     private void OnReadyStarted(InputAction.CallbackContext context)
     {
-        InputDevice device = context.control.device;
-        readyActionStartTimes[device] = Time.time;
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            onlineHostReadyStartTime = Time.time; 
+        }
+        else
+        {
+            InputDevice device = context.control.device;
+            readyActionStartTimes[device] = Time.time;
+        }
     }
 
     private void OnReadyPerformed(InputAction.CallbackContext context)
     {
-        InputDevice device = context.control.device;
-
-        if (!readyActionStartTimes.TryGetValue(device, out float startTime))
-            return;
-
-        float duration = Time.time - startTime;
-
-        if (duration <= QuickTapThreshold)
+        if (TransportSwitcher.Instance.isUsingRelay)
         {
-            int playerIndex = LobbyPlayerHandler.Instance.AssignDeviceToNextFreePlayer(device);
-            if (playerIndex == -1) return; // no free slot
-
-            LobbyManager.instance.ToggleReadyLocal(playerIndex);
-            foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+            if (NetworkManager.Singleton.IsServer)
             {
-                playerContainer.GetComponent<PlayerContainerSkinChange>().RecheckSkinValidity();
+                float duration = Time.time - onlineHostReadyStartTime;
+                if (duration <= QuickTapThreshold)
+                {
+                    LobbyManager.instance.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
+                    onlineHostReadyStartTime = 0; 
+                }
+                
+                foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+                {
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
+                }
+            }
+            else
+            {
+                LobbyManager.instance.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
+                foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+                {
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
+                }
             }
         }
+        else
+        {
+            InputDevice device = context.control.device;
 
-        readyActionStartTimes.Remove(device);
+            if (!readyActionStartTimes.TryGetValue(device, out float startTime))
+                return;
+
+            float duration = Time.time - startTime;
+
+            if (duration <= QuickTapThreshold)
+            {
+                int playerIndex = LobbyPlayerHandler.Instance.AssignDeviceToNextFreePlayer(device);
+                if (playerIndex == -1) return; // no free slot
+
+                LobbyManager.instance.ToggleReady(playerIndex);
+                foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+                {
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+                }
+            }
+
+            readyActionStartTimes.Remove(device);
+        }
     }
-
-    private void OnLeavePerformed(InputAction.CallbackContext context)
-    {
-        // Implement your leave logic here
-        // LobbyManager.instance.RemoveLocalPlayer(context);
-    }
-
+    
     private void OnRightColorChange(InputAction.CallbackContext context)
     {
-        int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
-        if (LobbyManager.instance.players[playerIndex].IsReady) return; 
-        
-        LobbyManager.instance.playerContainers[playerIndex]
-            .GetComponent<PlayerContainerSkinChange>()
-            .SwapColorWithIncrementation(true);
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            RightColorChangeServerRpc((int)NetworkManager.Singleton.LocalClientId);
+        }
+        else
+        {
+            int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
+            if (LobbyManager.instance.players[playerIndex].IsReady) return;
+
+            LobbyManager.instance.playerContainers[playerIndex]
+                .GetComponent<PlayerContainerSkinChange>()
+                .SwapColorWithIncrementation(true);
+        }
     }
 
     private void OnLeftColorChange(InputAction.CallbackContext context)
     {
-        int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
-        if (LobbyManager.instance.players[playerIndex].IsReady) return; 
-        
-        LobbyManager.instance.playerContainers[playerIndex]
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            LeftColorChangeServerRpc((int)NetworkManager.Singleton.LocalClientId);
+        }
+        else
+        {
+            int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
+            if (LobbyManager.instance.players[playerIndex].IsReady) return;
+
+            LobbyManager.instance.playerContainers[playerIndex]
+                .GetComponent<PlayerContainerSkinChange>()
+                .SwapColorWithIncrementation(false);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void RightColorChangeServerRpc(int index)
+    {
+        RightColorChangeClientRpc(index);
+    }
+    
+    [ServerRpc(RequireOwnership = false)]
+    void LeftColorChangeServerRpc(int index)
+    {
+        LeftColorChangeClientRpc(index);
+    }
+
+    [ClientRpc]
+    void RightColorChangeClientRpc(int index)
+    {
+        if (LobbyManager.instance.players[index].IsReady) return;
+        LobbyManager.instance.playerContainers[index]
+            .GetComponent<PlayerContainerSkinChange>()
+            .SwapColorWithIncrementation(true);
+    }
+
+    [ClientRpc]
+    void LeftColorChangeClientRpc(int index)
+    {
+        if (LobbyManager.instance.players[index].IsReady) return;
+        LobbyManager.instance.playerContainers[index]
             .GetComponent<PlayerContainerSkinChange>()
             .SwapColorWithIncrementation(false);
     }

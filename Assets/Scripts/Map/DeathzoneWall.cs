@@ -1,7 +1,8 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DeathzoneWall : MonoBehaviour
+public class DeathzoneWall : NetworkBehaviour
 {
     [SerializeField] private float cameraShakeTime = .2f;
     [SerializeField] private float cameraShakeIntensity = 1.0f;
@@ -16,14 +17,27 @@ public class DeathzoneWall : MonoBehaviour
     {
         if (!GameManager.Instance.PlayingLocal)
         {
-            if (isFloor) Invoke("StartDisable", 1f);
-            GameManager.Instance.OnGameStarted += StartDisable;
+            DisableColServerRpc();
         }
         else if (isFloor)
         {
             GetComponent<BoxCollider>().enabled = true;
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void DisableColServerRpc()
+    {
+        DisableColClientRpc();
+    }
+
+    [ClientRpc]
+    void DisableColClientRpc()
+    {
+        BoxCollider col = GetComponent<BoxCollider>();
+        col.enabled = false;
+    }
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player")) 
@@ -52,18 +66,25 @@ public class DeathzoneWall : MonoBehaviour
     {
         StartCoroutine(TemporarilyDisableCollider());
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void EnableColServerRpc()
+    {
+       EnableColClientRpc();
+    }
+
+    [ClientRpc]
+    void EnableColClientRpc()
+    {
+        BoxCollider col = GetComponent<BoxCollider>();
+        col.enabled = true;
+    }
+    
     private IEnumerator TemporarilyDisableCollider()
     {
         BoxCollider col = GetComponent<BoxCollider>();
         col.enabled = false;
         yield return new WaitForSeconds(.1f);
         col.enabled = true;
-    }
-    private void OnDestroy()
-    {
-        if (!GameManager.Instance.PlayingLocal)
-        {
-            GameManager.Instance.OnGameStarted -= StartDisable;
-        }
     }
 }

@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using Object = System.Object;
 
 public class GameManager : NetworkBehaviour
 {
@@ -45,28 +46,17 @@ public class GameManager : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
 
-        if (NetworkManager.Singleton != null)
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            StartCoroutine(DelayedStartGame());
         else
-            PlayingLocal = true; 
-    }
-    
-    private void OnDestroy()
-    {
-        if (NetworkManager.Singleton != null)
         {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoadCompleted;
+            PlayingLocal = true;
         }
-    }
-
-    private void OnSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        StartCoroutine(DelayedStartGame());
     }
 
     private IEnumerator DelayedStartGame()
     {
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitForSeconds(10f);
         StartGameAfterDelay();
     }
 
@@ -90,6 +80,10 @@ public class GameManager : NetworkBehaviour
             }
 
             PlayerManager.Instance.Initialize();
+            
+            GameObject[] deathZones = GameObject.FindGameObjectsWithTag("Deathzone");
+            foreach (GameObject deathZone in deathZones)
+                deathZone.GetComponent<DeathzoneWall>().EnableColServerRpc();
         }
 
         ItemSpawner.Instance.InitialSpawn();

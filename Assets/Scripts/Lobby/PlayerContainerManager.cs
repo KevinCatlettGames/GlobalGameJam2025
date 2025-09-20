@@ -24,41 +24,24 @@ public class PlayerContainerManager : MonoBehaviour
 
     private void Start()
     {
-        image.sprite = unreadySprite; 
-
-        // Update UI based on current LobbyManager state
+        image.sprite = unreadySprite;
+        
         foreach (var player in LobbyManager.instance.players)
         {
-            ulong clientId = player.ClientId;
-
-            int containerIndex;
-
-            if (clientId >= 1000) // Local player offset
-                containerIndex = (int)(clientId - 1000);
-            else
-                containerIndex = (int)clientId; // Online player
-
-            if (containerIndex == uiIndex)
+            if ((int)player.ClientId == uiIndex)
             {
                 isReady = player.IsReady;
                 image.sprite = isReady ? readySprite : unreadySprite;
                 break;
             }
         }
+        gameObject.SetActive(false);
     }
 
     private void ReadyStateUpdated(ulong clientId)
     {
-        int containerIndex;
-
-        if (clientId >= 1000)
-            containerIndex = (int)(clientId - 1000);
-        else
-            containerIndex = (int)clientId;
-
-        if (containerIndex != uiIndex) return;
-
-        // Toggle ready state for UI
+        if ((int)clientId != uiIndex) return;
+        
         isReady = !isReady;
         image.sprite = isReady ? readySprite : unreadySprite;
     }
