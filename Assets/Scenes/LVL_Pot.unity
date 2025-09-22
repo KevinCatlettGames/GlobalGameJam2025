@@ -23,10 +23,10 @@ RenderSettings:
   m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
   m_AmbientEquatorColor: {r: 0.114, g: 0.125, b: 0.133, a: 1}
   m_AmbientGroundColor: {r: 0.047, g: 0.043, b: 0.035, a: 1}
-  m_AmbientIntensity: 0.01
+  m_AmbientIntensity: 0.5
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.43173727, g: 0.4857667, b: 0.6226415, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 83c749db828b564438cee7288dccab65, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -35,7 +35,7 @@ RenderSettings:
   m_DefaultReflectionMode: 0
   m_DefaultReflectionResolution: 128
   m_ReflectionBounces: 1
-  m_ReflectionIntensity: 0
+  m_ReflectionIntensity: 0.5
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
   m_UseRadianceAmbientProbe: 0
@@ -24332,6 +24332,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 402791166007042305, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_Shadows.m_Strength
+      value: 0.8
+      objectReference: {fileID: 0}
     - target: {fileID: 790053808232493221, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_Enabled
@@ -28453,6 +28458,36 @@ PrefabInstance:
       propertyPath: m_Name
       value: PostProcessing Volume
       objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalPosition.z
+      value: -18
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.953717
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0.30070576
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5984412973638469692, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 35
+      objectReference: {fileID: 0}
     - target: {fileID: 6002289494887291752, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_IsActive
@@ -28526,17 +28561,22 @@ PrefabInstance:
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxSize.x
-      value: 264.78394
+      value: 273.13934
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxSize.y
-      value: 98.09292
+      value: 289.95325
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxSize.z
-      value: 151.52713
+      value: 157.72508
+      objectReference: {fileID: 0}
+    - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_ClearFlags
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
@@ -28546,17 +28586,17 @@ PrefabInstance:
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxOffset.x
-      value: -14.055481
+      value: -18.233215
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxOffset.y
-      value: 8.369022
+      value: -25.57669
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BoxOffset.z
-      value: 25.212963
+      value: 22.11399
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
@@ -28566,17 +28606,17 @@ PrefabInstance:
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BackGroundColor.b
-      value: 0.7169812
+      value: 0.8962264
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BackGroundColor.g
-      value: 0.65784055
+      value: 0.8413504
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_BackGroundColor.r
-      value: 0.5155094
+      value: 0.70598966
       objectReference: {fileID: 0}
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
@@ -28586,7 +28626,7 @@ PrefabInstance:
     - target: {fileID: 7554406971092562730, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_IntensityMultiplier
-      value: 1
+      value: 1.1
       objectReference: {fileID: 0}
     - target: {fileID: 7844242243766603707, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
