@@ -13,6 +13,7 @@ public class GameManager : NetworkBehaviour
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
 
+    public DeathzoneWall[] deathZones; 
     protected const int maxPlayers = 4;
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
@@ -47,11 +48,20 @@ public class GameManager : NetworkBehaviour
         IsGamePaused = false;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-            StartCoroutine(DelayedStartGame());
+        {
+            Debug.Log("Playing online"); 
+            LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
+        }
         else
         {
+            Debug.Log("Playing local");
             PlayingLocal = true;
         }
+        // else
+        // {
+        //     if (IsServer)
+        //         LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
+        // }
     }
 
     private IEnumerator DelayedStartGame()
@@ -60,15 +70,21 @@ public class GameManager : NetworkBehaviour
         StartGameAfterDelay();
     }
 
+    private void OnDisable()
+    {
+        if(LobbyManager.instance) 
+            LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(StartGameAfterDelay);
+    }
+
     private void StartGameAfterDelay()
     {
-        if (NetworkManager.Singleton.ConnectedClients.Count < 2)
+        if (!TransportSwitcher.Instance && NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
             ChangePlayerStatesLocal(playerStates);
             PlayingLocal = true;
             playerInputManager.enabled = true;
         }
-        else if (IsServer)
+        else if (IsServer || NetworkManager.Singleton.ConnectedClients.Count == 1)
         {
             ChangePlayerStatesServerRpc(playerStates);
 
@@ -78,15 +94,23 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
-
             PlayerManager.Instance.Initialize();
-            
-            GameObject[] deathZones = GameObject.FindGameObjectsWithTag("Deathzone");
-            foreach (GameObject deathZone in deathZones)
-                deathZone.GetComponent<DeathzoneWall>().EnableColServerRpc();
+            Invoke(nameof(EnableDeathzonesServerRpc), 1f);
         }
-
         ItemSpawner.Instance.InitialSpawn();
+    }
+
+    [ServerRpc]
+    void EnableDeathzonesServerRpc()
+    {
+        EnableDeathzonesClientRpc();
+    }
+
+    [ClientRpc]
+    void EnableDeathzonesClientRpc()
+    {
+        foreach (DeathzoneWall deathZone in deathZones)
+            deathZone.GetComponent<DeathzoneWall>().EnableCol();
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -32,6 +33,37 @@ public class LobbyInput : NetworkBehaviour
         leftColorChange.action.Enable();
 
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+    }
+
+    // private void Start()
+    // {
+    //     if(TransportSwitcher.Instance.isUsingRelay) 
+    //         Invoke(nameof(AutoAssign), .2f);
+    // }
+
+    void AutoAssign()
+    {
+        Debug.Log("AutoAssign");
+        if (NetworkManager.Singleton.IsServer)
+        {
+            LobbyManager.instance.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
+                
+            foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+            {
+                if(playerContainer) 
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
+            }
+        }
+        else
+        {
+            LobbyManager.instance.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
+            
+            foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
+            {
+                if(playerContainer) 
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
+            }
+        }
     }
 
     private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)
@@ -93,7 +125,8 @@ public class LobbyInput : NetworkBehaviour
                 
                 foreach (GameObject playerContainer in LobbyManager.instance.playerContainers)
                 {
-                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
+                    if(playerContainer) 
+                        playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
                 }
             }
             else

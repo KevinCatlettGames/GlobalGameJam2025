@@ -19,7 +19,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
     }
 
     public List<PlayerValues> playerValues = new List<PlayerValues>();
-
+    
     public int maxPlayers = 4;
 
     private void Awake()
@@ -34,7 +34,6 @@ public class LobbyPlayerHandler : NetworkBehaviour
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
     
-    
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
@@ -42,8 +41,16 @@ public class LobbyPlayerHandler : NetworkBehaviour
 
     private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
-       if(arg0.buildIndex == 0)
-           Destroy(gameObject);
+        if (arg0.buildIndex == 0)
+            Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// Keeps the playerValues list sorted by PlayerIndex.
+    /// </summary>
+    public void SortPlayerValues()
+    {
+        playerValues.Sort((a, b) => a.PlayerIndex.CompareTo(b.PlayerIndex));
     }
 
     /// <summary>
@@ -65,11 +72,9 @@ public class LobbyPlayerHandler : NetworkBehaviour
         }
         else
         {
-            
-            playerValues.Add(new PlayerValues { PlayerIndex = playerIndex, Device = device});
+            playerValues.Add(new PlayerValues { PlayerIndex = playerIndex, Device = device });
+            SortPlayerValues();
         }
-
-        //Debug.Log($"Assigned device {device.displayName} to player {playerIndex}");
     }
 
     /// <summary>
@@ -102,8 +107,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
             }
         }
 
-        //Debug.LogWarning("No free player slots available for device: " + device.displayName);
-        return -1;
+        return -1; // No free slots
     }
     
     public InputDevice GetDevice(int playerIndex)
@@ -123,6 +127,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
             if (playerValues[i].PlayerIndex == playerIndex)
             {
                 playerValues.RemoveAt(i);
+                SortPlayerValues();
                 break;
             }
         }

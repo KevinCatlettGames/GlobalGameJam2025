@@ -29,7 +29,9 @@ public class LobbyManager : NetworkBehaviour
     public int minPlayers = 1;
 
     public SkinSO[] possibleSkins;
-  
+
+    public UnityEvent OnAllPlayersLoadedIn; 
+    
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -40,13 +42,30 @@ public class LobbyManager : NetworkBehaviour
     {
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
+        
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
+    }
+
+    private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    {
+        if (scenename != "Lobby" && scenename != "MainMenu")
+        {
+            Debug.Log("loaded");
+            Invoke(nameof(InvokeEvent), 2f);
+        }
+    }
+
+    void InvokeEvent()
+    {
+        Debug.Log("Invoked");
+        OnAllPlayersLoadedIn?.Invoke();
     }
 
     private void OnPlayersListChanged(NetworkListEvent<PlayerLobbyState> changeEvent)
     {
         UpdatePlayerUI();
     }
-    
 
     public struct PlayerLobbyState : INetworkSerializable, IEquatable<PlayerLobbyState>
     {
@@ -68,27 +87,17 @@ public class LobbyManager : NetworkBehaviour
     {
         if(TransportSwitcher.Instance.isUsingRelay) 
             players.OnListChanged += OnPlayersListChanged;
-        
-        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
 
-    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
-    { 
-        if(arg0.name != "Lobby") 
-            enabled = false; 
-    }
+ 
 
     private void OnDestroy()
     {
         if(TransportSwitcher.Instance.isUsingRelay) 
             players.OnListChanged -= OnPlayersListChanged;
         
-        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
-    }
-    
-    private void OnDisable()
-    {
-        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
     }
     
     public void ToggleReady(int playerIndex)
@@ -130,7 +139,7 @@ public class LobbyManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public void ToggleReadyServerRpc(ulong clientID)
     {
-        Debug.Log("Player with id" + clientID + "pressed ready... debug from server");
+        //Debug.Log("Player with id" + clientID + "pressed ready... debug from server");
         
         int index = -1;
         for (int i = 0; i < players.Count; i++)
@@ -168,6 +177,8 @@ public class LobbyManager : NetworkBehaviour
     {
         LobbyPlayerHandler.Instance.playerValues.Add(new LobbyPlayerHandler.PlayerValues
             { PlayerIndex = clientID, Device = null, Skin = possibleSkins[clientID] });
+        
+        LobbyPlayerHandler.Instance.SortPlayerValues();
     }
 
     [ClientRpc]

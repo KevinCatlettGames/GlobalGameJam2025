@@ -17,25 +17,13 @@ public class DeathzoneWall : NetworkBehaviour
     {
         if (!GameManager.Instance.PlayingLocal)
         {
-            DisableColServerRpc();
+            BoxCollider col = GetComponent<BoxCollider>();
+            col.enabled = false;
         }
         else if (isFloor)
         {
             GetComponent<BoxCollider>().enabled = true;
         }
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    void DisableColServerRpc()
-    {
-        DisableColClientRpc();
-    }
-
-    [ClientRpc]
-    void DisableColClientRpc()
-    {
-        BoxCollider col = GetComponent<BoxCollider>();
-        col.enabled = false;
     }
     
     private void OnTriggerEnter(Collider other)
@@ -62,29 +50,10 @@ public class DeathzoneWall : NetworkBehaviour
     {
         Instantiate(blastZoneEffect, effectPosition, Quaternion.identity);
     }
-    private void StartDisable()
-    {
-        StartCoroutine(TemporarilyDisableCollider());
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void EnableColServerRpc()
-    {
-       EnableColClientRpc();
-    }
-
-    [ClientRpc]
-    void EnableColClientRpc()
-    {
-        BoxCollider col = GetComponent<BoxCollider>();
-        col.enabled = true;
-    }
     
-    private IEnumerator TemporarilyDisableCollider()
+    public void EnableCol()
     {
         BoxCollider col = GetComponent<BoxCollider>();
-        col.enabled = false;
-        yield return new WaitForSeconds(.1f);
         col.enabled = true;
     }
 }
