@@ -124,6 +124,61 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1124112603073538366}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &2785403987143167358
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8026881040917413251}
+  - component: {fileID: 5908304935213902004}
+  m_Layer: 0
+  m_Name: LobbyPlayerHandler
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8026881040917413251
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2785403987143167358}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7349568484040912180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5908304935213902004
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2785403987143167358}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a11ed02b5cb02fe49be48aac8e5f1c8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerValues:
+  - PlayerIndex: 0
+    Skin: {fileID: 11400000, guid: a89659f1bebec2240920383b74987893, type: 2}
+  - PlayerIndex: 1
+    Skin: {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4, type: 2}
+  - PlayerIndex: 2
+    Skin: {fileID: 11400000, guid: 9e7d19a9dd1bd204da93d9a1c04eb672, type: 2}
+  - PlayerIndex: 3
+    Skin: {fileID: 11400000, guid: f2bb8c2cc88648e4ba1b02fb6eb829c1, type: 2}
+  maxPlayers: 4
 --- !u!1 &3737377328279540851
 GameObject:
   m_ObjectHideFlags: 0
@@ -218,7 +273,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scenes:
-  - LVL_Pot
+  - LVL_2Kochtopf
   - LVL_Eimer
   - LVL_MainScene
   - LVL_TunaDose
@@ -232,6 +287,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1378864988898156826}
   - component: {fileID: 8605951647801297494}
+  - component: {fileID: 7696428306119682472}
   - component: {fileID: 8067442931815521231}
   m_Layer: 0
   m_Name: PlayerManager
@@ -263,7 +319,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4108901858045191531}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
   m_Name: 
@@ -277,7 +333,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 8067442931815521231}
         m_TargetAssemblyTypeName: PlayerManager, Assembly-CSharp
-        m_MethodName: OnPlayerJoined
+        m_MethodName: JoinLocal
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -314,6 +370,31 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &7696428306119682472
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4108901858045191531}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2029689404
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 1
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!114 &8067442931815521231
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -334,7 +415,11 @@ MonoBehaviour:
       Data3: -2084654960
       Data4: 754965626
     Path: event:/voice/win_voice
-  playerHUDs: []
+  playerHUDs:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
   startingSpells:
   - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
   - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
@@ -344,16 +429,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
   - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
   - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
-  playerSprites:
-  - {fileID: 21300000, guid: 4c8fa7cc3bf0fbc45b500479b7c6a161, type: 3}
-  - {fileID: 21300000, guid: a5e4a14090dd9f046b9c176d49bae14f, type: 3}
-  - {fileID: 21300000, guid: f92c1f7cacd11314696cebdde631a127, type: 3}
-  - {fileID: 21300000, guid: d55fe94949190084784dc578f8c9b3ab, type: 3}
-  colors:
-  - {r: 0.11137152, g: 1, b: 0, a: 1}
-  - {r: 0, g: 0.9500494, b: 1, a: 1}
-  - {r: 1, g: 0, b: 0, a: 1}
-  - {r: 1, g: 0, b: 0.76150465, a: 1}
   spawnPoints:
   - {fileID: 2737577178785275174}
   - {fileID: 1647630035624308313}
@@ -361,17 +436,19 @@ MonoBehaviour:
   - {fileID: 8757892686786655870}
   joinGameText: {fileID: 0}
   startGameInputAction:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
-      m_Name: 
+      m_Name: Start Game Input
       m_Type: 0
       m_ExpectedControlType: 
-      m_Id: e1d981d9-2b80-4b64-9fdb-4612b508882a
+      m_Id: 46da3172-5d93-4ce8-8f9d-5f9979ee17a1
       m_Processors: 
       m_Interactions: 
       m_SingletonActionBindings: []
       m_Flags: 0
-    m_Reference: {fileID: 0}
+    m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
+      type: 3}
+  playerInputManager: {fileID: 8605951647801297494}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0
@@ -406,6 +483,7 @@ Transform:
   - {fileID: 1124112603073538366}
   - {fileID: 2948053536636108897}
   - {fileID: 8950919163246275209}
+  - {fileID: 8026881040917413251}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5127531587296251534
