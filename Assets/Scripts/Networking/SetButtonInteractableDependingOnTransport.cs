@@ -1,31 +1,58 @@
-using System;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI; 
 
+/// <summary>
+/// Controls the interactable state of a UI button based on the currently active network transport.
+/// Listens to transport switch events and enables or disables the button accordingly.
+/// </summary>
 public class SetButtonInteractableDependingOnTransport : MonoBehaviour
 {
-    TransportSwitcher transportSwitcher;
+    /// <summary>
+    /// Reference to the singleton TransportSwitcher that manages network transports.
+    /// </summary>
+    private TransportSwitcher transportSwitcher;
+
+    /// <summary>
+    /// The UI button whose interactable state will be modified.
+    /// </summary>
     public Button button;
+
+    /// <summary>
+    /// Unity Start method. Initializes the transportSwitcher reference and subscribes
+    /// to transport switch events.
+    /// </summary>
     private void Start()
     {
-       transportSwitcher = TransportSwitcher.Instance;
-       transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
-       transportSwitcher.onSwitchToUnityTransport.AddListener(MakeNonInteractable);
+        transportSwitcher = TransportSwitcher.Instance;
+        transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
+        transportSwitcher.onSwitchToUnityTransport.AddListener(MakeNonInteractable);
     }
 
+    /// <summary>
+    /// Unity OnDisable method. Unsubscribes from transport switch events
+    /// to prevent memory leaks.
+    /// </summary>
     private void OnDisable()
     {
-        transportSwitcher.onSwitchToRelayTransport.RemoveListener(MakeInteractable);
-        transportSwitcher.onSwitchToUnityTransport.RemoveListener(MakeNonInteractable);
+        if (TransportSwitcher.Instance)
+        {
+            transportSwitcher.onSwitchToRelayTransport.RemoveListener(MakeInteractable);
+            transportSwitcher.onSwitchToUnityTransport.RemoveListener(MakeNonInteractable);
+        }
     }
 
-    void MakeInteractable()
+    /// <summary>
+    /// Makes the assigned button interactable.
+    /// </summary>
+    private void MakeInteractable()
     {
         button.interactable = true; 
     }
 
-    void MakeNonInteractable()
+    /// <summary>
+    /// Makes the assigned button non-interactable.
+    /// </summary>
+    private void MakeNonInteractable()
     {
         button.interactable = false; 
     }

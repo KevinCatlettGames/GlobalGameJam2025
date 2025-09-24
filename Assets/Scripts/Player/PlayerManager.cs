@@ -277,7 +277,6 @@ public class PlayerManager : NetworkBehaviour
     public void Initialize()
     {
         RerollSpells();
-        //Debug.Log($"Initializing players: Count = {players.Count}");
         foreach (var playerRef in players)
         {
             if (playerRef.TryGet(out NetworkObject networkObject))

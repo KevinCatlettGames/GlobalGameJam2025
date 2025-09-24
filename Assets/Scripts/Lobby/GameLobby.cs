@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using Unity.Services.Authentication;
 using Unity.Services.Core;
@@ -12,37 +11,82 @@ using TMPro;
 using Unity.Services.Relay;
 using Unity.Services.Relay.Models;
 using System.Threading.Tasks;
-using Netcode.Transports.Facepunch;
-using Steamworks;
 using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
+/// <summary>
+/// Holds the currently active lobby globally.
+/// </summary>
 public static class GlobalLobby
 {
+    /// <summary>
+    /// The currently active lobby.
+    /// </summary>
     public static Lobby CurrentLobby;
 }
 
+/// <summary>
+/// Manages lobby creation, joining, leaving, and Relay/Steam integration.
+/// Handles Unity Relay setup and manages UI updates for online lobbies.
+/// </summary>
 public class GameLobby : MonoBehaviour
 {
+    /// <summary>
+    /// Key used to store Relay join codes in lobby metadata.
+    /// </summary>
     private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
 
+    /// <summary>
+    /// Scene to load when starting the game.
+    /// </summary>
     public string sceneToLoad;
+
+    /// <summary>
+    /// Button to start the game once ready.
+    /// </summary>
     public Button startGameButton;
+
+    /// <summary>
+    /// Text shown to players while waiting for host to start.
+    /// </summary>
     public TextMeshProUGUI waitForHostText;
+
+    /// <summary>
+    /// Input field to display the lobby code.
+    /// </summary>
     [SerializeField] private TMP_InputField lobbyCodeText;
 
-    [FormerlySerializedAs("lobbyHeartBeat")] public RelayServerHeartbeat relayServerHeartbeat;
-    [FormerlySerializedAs("lobbyUI")] public OnlineCreationUI onlineCreationUI;
+    /// <summary>
+    /// Heartbeat handler to maintain lobby connection.
+    /// </summary>
+    [FormerlySerializedAs("lobbyHeartBeat")] 
+    public RelayServerHeartbeat relayServerHeartbeat;
+
+    /// <summary>
+    /// UI handler for online lobby creation.
+    /// </summary>
+    [FormerlySerializedAs("lobbyUI")] 
+    public OnlineCreationUI onlineCreationUI;
+
+    /// <summary>
+    /// Singleton instance of this class.
+    /// </summary>
     public static GameLobby instance { get; private set; }
 
+    /// <summary>
+    /// Unity Awake method. Initializes singleton and Unity Authentication.
+    /// </summary>
     private void Awake()
     {
         instance = this;
         InitializeUnityAuth();
     }
 
+    /// <summary>
+    /// Initializes Unity Services and signs in anonymously.
+    /// </summary>
     private async void InitializeUnityAuth()
     {
         if (UnityServices.State != ServicesInitializationState.Initialized)
@@ -55,8 +99,11 @@ public class GameLobby : MonoBehaviour
         }
     }
 
-    #region Lobby Creation
-
+    /// <summary>
+    /// Creates a new lobby, sets up Relay, and starts host.
+    /// </summary>
+    /// <param name="lobbyName">The lobby name.</param>
+    /// <param name="isPrivate">Whether the lobby is private.</param>
     public async void CreateLobby(string lobbyName, bool isPrivate)
     {
         try
@@ -74,16 +121,7 @@ public class GameLobby : MonoBehaviour
 
             NetworkManager.Singleton.StartHost();
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
-            
-            // startGameButton.gameObject.SetActive(true);
-            // startGameButton.onClick.AddListener(() =>
-            // {
-            //     NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
-            // });
-            //
-            // lobbyCodeText.gameObject.SetActive(true);
-            // lobbyCodeText.text = GlobalLobby.CurrentLobby.LobbyCode;
-            
+
             onlineCreationUI.HideOnCreateUI();
             NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
         }
@@ -93,6 +131,10 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Updates the lobby with the Relay join code.
+    /// </summary>
+    /// <param name="joinCode">The Relay join code.</param>
     private async Task UpdateLobbyWithRelayCode(string joinCode)
     {
         await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id.ToString(), new UpdateLobbyOptions
@@ -104,121 +146,11 @@ public class GameLobby : MonoBehaviour
         });
     }
 
-    #region Facepunch Lobby Logic
-
-    // private void OnEnable()
-    // {
-    //     if (SteamIntegration.instance && SteamIntegration.instance.lobbyIDToJoin != "")
-    //     {
-    //         // connectString is exactly what you set earlier ("lobby.Id.ToString()")
-    //         if (ulong.TryParse(SteamIntegration.instance.lobbyIDToJoin, out ulong lobbyId))
-    //         {
-    //             JoinSteamLobbyWithID(lobbyId.ToString());
-    //         }
-    //         else
-    //         {
-    //             Debug.LogError($"Invalid connect string: {SteamIntegration.instance.lobbyIDToJoin}");
-    //         }
-    //     }
-    // }
-    // private void OnDisable()
-    // {
-    //     SteamMatchmaking.OnLobbyCreated -= LobbyCreated;
-    //     SteamMatchmaking.OnLobbyEntered -= LobbyEntered;
-    //     SteamFriends.OnGameLobbyJoinRequested -= GameLobbyJoinRequested;
-    // }
-    
-    private void LobbyCreated(Result result, Lobby lobby)
-    {
-        if (result == Result.OK)
-        {
-            // lobby.SetPublic();
-            // lobby.SetJoinable(true);
-            lobbyCodeText.gameObject.SetActive(true);
-            lobbyCodeText.text = lobby.Id.ToString();
-            SteamFriends.SetRichPresence("connect", lobby.Id.ToString());
-            SteamFriends.SetRichPresence("steam_display", "#Status_InLobby");
-            NetworkManager.Singleton.StartHost();
-
-        }
-    }
-
-    private void SteamFriendsOnOnGameRichPresenceJoinRequested(Friend arg1, string arg2)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void LobbyEntered(Lobby lobby)
-    {
-        GlobalLobby.CurrentLobby = lobby;
-        relayServerHeartbeat.joinedLobby = lobby; 
-        Debug.Log("Entered a steam lobby");
-        
-        if (NetworkManager.Singleton.IsHost) return; 
-        //NetworkManager.Singleton.gameObject.GetComponent<FacepunchTransport>().targetSteamId = lobby.Owner.Id;
-        NetworkManager.Singleton.StartClient();
-    }
-
-    // private async void GameLobbyJoinRequested(Lobby lobby, SteamId id)
-    // {
-    //    await lobby.Join();
-    // }
-
-    public async void HostSteamLobby()
-    {
-        await SteamMatchmaking.CreateLobbyAsync(4);
-        relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
-
-        startGameButton.gameObject.SetActive(true);
-        startGameButton.onClick.AddListener(() =>
-        {
-            NetworkManager.Singleton.SceneManager.LoadScene(sceneToLoad, LoadSceneMode.Single);
-        });
-
-        onlineCreationUI.HideOnCreateUI();
-    }
-
-    // public async void JoinSteamLobbyWithID(string id)
-    // {
-    //     ulong ID;
-    //     if (!ulong.TryParse(id, out ID))
-    //         return;
-    //
-    //     Steamworks.Data.Lobby[] lobbies = await SteamMatchmaking.LobbyList.WithSlotsAvailable(1).RequestAsync();
-    //
-    //     foreach (Steamworks.Data.Lobby lobby in lobbies)
-    //     {
-    //         if (lobby.Id == ID)
-    //         {
-    //             await lobby.Join();
-    //             return; 
-    //         }
-    //     }
-    // }
-    
-    public async void JoinWithId(string lobbyId)
-    {
-        try
-        {
-            Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
-            GlobalLobby.CurrentLobby = joinedLobby;
-            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
-
-
-        }
-        catch (LobbyServiceException e)
-        {
-            Debug.LogError($"Failed to join lobby: {e}");
-        }
-    }
-    #endregion
-    
-    
-    
-    #endregion
-
     #region Joining Lobby
 
+    /// <summary>
+    /// Joins the first available lobby using Quick Join.
+    /// </summary>
     public async void QuickJoin()
     {
         try
@@ -231,7 +163,10 @@ public class GameLobby : MonoBehaviour
             Debug.LogError(e);
         }
     }
-    
+
+    /// <summary>
+    /// Leaves the current lobby and shuts down network if hosting.
+    /// </summary>
     public async void LeaveLobby()
     {
         try
@@ -247,10 +182,10 @@ public class GameLobby : MonoBehaviour
                     string playerId = AuthenticationService.Instance.PlayerId;
                     await LobbyService.Instance.RemovePlayerAsync(GlobalLobby.CurrentLobby.Id, playerId);
                 }
-    
+
                 GlobalLobby.CurrentLobby = null;
             }
-    
+
             if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             {
                 NetworkManager.Singleton.Shutdown();
@@ -261,7 +196,11 @@ public class GameLobby : MonoBehaviour
             Debug.LogError($"Failed to leave lobby: {e}");
         }
     }
-    
+
+    /// <summary>
+    /// Joins a lobby using a lobby code.
+    /// </summary>
+    /// <param name="code">The lobby code.</param>
     public async void JoinWithCode(string code)
     {
         try
@@ -275,21 +214,54 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Joins a lobby using its ID.
+    /// </summary>
+    /// <param name="lobbyId">The lobby ID.</param>
+    public async void JoinWithId(string lobbyId)
+    {
+        try
+        {
+            Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
+            GlobalLobby.CurrentLobby = joinedLobby;
+            await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
+        }
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to join lobby: {e}");
+        }
+    }
+
+    /// <summary>
+    /// Joins Relay and starts client connection for the lobby.
+    /// </summary>
+    /// <param name="joinCode">Relay join code.</param>
     private async Task JoinRelayAndStartClient(string joinCode)
     {
-        var joinAllocation = await JoinRelay(joinCode);
+        try
+        {
+            var joinAllocation = await JoinRelay(joinCode);
 
-        ConfigureTransport(joinAllocation);
-        NetworkManager.Singleton.StartClient();
+            ConfigureTransport(joinAllocation);
+            NetworkManager.Singleton.StartClient();
 
-        onlineCreationUI.HideOnJoinUI();
-        waitForHostText.gameObject.SetActive(true);
+            onlineCreationUI.HideOnJoinUI();
+            waitForHostText.gameObject.SetActive(true);
+        }
+        catch
+        {
+            NetworkManager.Singleton.Shutdown();
+            SceneManager.LoadScene("MainMenu");
+        }
     }
 
     #endregion
 
     #region Relay Setup
 
+    /// <summary>
+    /// Allocates a Relay server for hosting.
+    /// </summary>
     private async Task<Allocation> AllocateRelay()
     {
         try
@@ -303,6 +275,9 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Gets a join code for a Relay allocation.
+    /// </summary>
     private async Task<string> GetRelayJoinCode(Allocation allocation)
     {
         try
@@ -316,6 +291,9 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Joins an existing Relay allocation.
+    /// </summary>
     private async Task<JoinAllocation> JoinRelay(string joinCode)
     {
         try
@@ -329,6 +307,10 @@ public class GameLobby : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Configures the Unity Transport with Relay allocation data.
+    /// </summary>
+    /// <param name="allocationBase">Either Allocation or JoinAllocation object.</param>
     private void ConfigureTransport(object allocationBase)
     {
         string host = "";
@@ -389,5 +371,8 @@ public class GameLobby : MonoBehaviour
 
     #endregion
 
+    /// <summary>
+    /// Returns the currently active lobby.
+    /// </summary>
     public Lobby GetLobby() => GlobalLobby.CurrentLobby;
 }

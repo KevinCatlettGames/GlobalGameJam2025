@@ -1,25 +1,49 @@
-using System;
-using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
+/// <summary>
+/// Handles player-device assignments and synchronization across clients in the lobby.
+/// Maintains a list of player values including index, assigned device, and selected skin.
+/// Ensures lobby UI reflects player states correctly.
+/// </summary>
 public class LobbyPlayerHandler : NetworkBehaviour
 {
+    /// <summary>
+    /// Singleton instance of the LobbyPlayerHandler.
+    /// </summary>
     public static LobbyPlayerHandler Instance;
 
+    private bool set; 
+
+    /// <summary>
+    /// Stores data for each player including player index, assigned input device, and selected skin.
+    /// </summary>
     [System.Serializable]
     public class PlayerValues
     {
-        public int PlayerIndex; // 0,1,2,3
+        public PlayerValues(int playerIndex, InputDevice device, SkinSO skin)
+        {
+            PlayerIndex = playerIndex;
+            Device = device;
+            Skin = skin;
+        }
+
+        /// <summary>Logical player index (0,1,2,3).</summary>
+        public int PlayerIndex;
+
+        /// <summary>The input device assigned to this player.</summary>
         public InputDevice Device;
+
+        /// <summary>The selected skin for this player.</summary>
         public SkinSO Skin;
     }
 
+    /// <summary>List of all connected players and their values.</summary>
     public List<PlayerValues> playerValues = new List<PlayerValues>();
-    
+
+    /// <summary>Maximum number of players supported locally.</summary>
     public int maxPlayers = 4;
 
     private void Awake()
@@ -32,8 +56,67 @@ public class LobbyPlayerHandler : NetworkBehaviour
     {
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay) 
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
     }
-    
+
+    private void OnClientConnectedCallback(ulong clientId)
+    {
+        Invoke(nameof(SharePlayerValues), .5f);
+    }
+
+    void SharePlayerValues()
+    {
+        foreach (PlayerValues pv in playerValues)
+        {
+            bool isReady = LobbyManager.instance.playerContainers[pv.PlayerIndex]
+                .GetComponent<PlayerContainerManager>().isReady;
+            SharePlayerValuesServerRpc(pv.PlayerIndex, pv.Skin.Index, isReady);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = true)]
+    void SharePlayerValuesServerRpc(int playerIndex, int skinIndex, bool isReady)
+    {
+        SharePlayerValuesClientRpc(playerIndex, skinIndex, isReady);
+    }
+
+    [ClientRpc]
+    void SharePlayerValuesClientRpc(int playerIndex, int skinIndex, bool isReady)
+    {
+        if (IsServer) return;
+
+        playerValues.Clear();
+
+        SkinSO skinToUse = LobbyManager.instance.possibleSkins[0];
+        foreach (SkinSO skin in LobbyManager.instance.possibleSkins)
+        {
+            if(skin.Index == skinIndex)
+                skinToUse = skin;
+        }
+
+        playerValues.Add(new PlayerValues(playerIndex, null, skinToUse));
+        SortPlayerValues();
+        LobbyManager.instance.UpdatePlayerUI();
+
+        LobbyManager.instance.playerContainers[playerIndex]
+            .GetComponent<PlayerContainerSkinChange>()
+            .currentColorIndex = skinToUse.Index;
+
+        LobbyManager.instance.playerContainers[playerIndex]
+            .GetComponent<PlayerContainerSkinChange>()
+            .UpdateSkinServerRpc();
+
+        if(isReady && !LobbyManager.instance.playerContainers[playerIndex]
+               .GetComponent<PlayerContainerManager>().isReady)
+        {
+            LobbyManager.instance.playerContainers[playerIndex]
+                .GetComponent<PlayerContainerManager>()
+                .ReadyStateUpdated((ulong)playerIndex);
+        }
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
@@ -54,31 +137,30 @@ public class LobbyPlayerHandler : NetworkBehaviour
     }
 
     /// <summary>
-    /// Assigns a device to a logical player index
+    /// Assigns a device to a specific player index.
     /// </summary>
     public void AssignDeviceToPlayer(int playerIndex, InputDevice device)
     {
         if (playerIndex < 0 || playerIndex >= maxPlayers) return;
         if (device == null) return;
-
-        // Prevent duplicate assignment
+        
         var existingDevice = playerValues.Find(pd => pd.Device == device);
         if (existingDevice != null) return;
 
         var existingPlayer = playerValues.Find(pd => pd.PlayerIndex == playerIndex);
         if (existingPlayer != null)
         {
-            existingPlayer.Device = device; // reassign device to this player
+            existingPlayer.Device = device;
         }
         else
         {
-            playerValues.Add(new PlayerValues { PlayerIndex = playerIndex, Device = device });
+            playerValues.Add(new PlayerValues(playerIndex, device, LobbyManager.instance.possibleSkins[0]));
             SortPlayerValues();
         }
     }
 
     /// <summary>
-    /// Returns the logical player index for a given input device
+    /// Returns the logical player index for a given input device.
     /// </summary>
     public int GetPlayerIndex(InputDevice device)
     {
@@ -87,17 +169,15 @@ public class LobbyPlayerHandler : NetworkBehaviour
     }
 
     /// <summary>
-    /// Assign a device automatically to the next free player slot
+    /// Assigns a device automatically to the next free player slot.
     /// </summary>
     public int AssignDeviceToNextFreePlayer(InputDevice device)
     {
         if (device == null) return -1;
 
-        // Check if the device is already assigned
         int existingIndex = GetPlayerIndex(device);
         if (existingIndex != -1) return existingIndex;
 
-        // Find the next free slot
         for (int i = 0; i < maxPlayers; i++)
         {
             if (!playerValues.Exists(pd => pd.PlayerIndex == i))
@@ -107,9 +187,12 @@ public class LobbyPlayerHandler : NetworkBehaviour
             }
         }
 
-        return -1; // No free slots
+        return -1;
     }
-    
+
+    /// <summary>
+    /// Returns the device assigned to a specific player index.
+    /// </summary>
     public InputDevice GetDevice(int playerIndex)
     {
         for (int i = 0; i < playerValues.Count; i++)
@@ -119,7 +202,10 @@ public class LobbyPlayerHandler : NetworkBehaviour
         }
         return null;
     }
-    
+
+    /// <summary>
+    /// Removes the device assignment from a specific player index.
+    /// </summary>
     public void RemoveDevice(int playerIndex)
     {
         for (int i = 0; i < playerValues.Count; i++)
