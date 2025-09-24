@@ -20,7 +20,8 @@ public class Abschieber : MonoBehaviour
                 direction.Normalize();
             }
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            player.ApplyKnockbackServerRpc(-1, direction, knockback * Time.deltaTime, damage * Time.deltaTime);
+
+            player.ApplyKnockbackLocal(-1, direction, knockback * Time.deltaTime, damage * Time.deltaTime);
         }
     }
 }
