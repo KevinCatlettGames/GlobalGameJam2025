@@ -18,6 +18,7 @@ public class GameManager : NetworkBehaviour
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
+    protected int finishedRoundCount = 0;
 
     public Action OnGameEnded;
     public Action OnGameStarted;
@@ -136,6 +137,7 @@ public class GameManager : NetworkBehaviour
         OnGameEnded?.Invoke();
         UIManager.Instance.SetScoreScreenActive(true);
         ScoreManager.Instance.ResolveScores();
+        finishedRoundCount++;
         isReadyToRestart = true;
     }
 

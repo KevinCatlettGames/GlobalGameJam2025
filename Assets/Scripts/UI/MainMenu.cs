@@ -86,6 +86,6 @@ public class MainMenu : MonoBehaviour
 
     public void OpenOnlineCreation()
     {
-        SceneManager.LoadScene("OnlineCreation");
+        SceneManager.LoadScene("UI_OnlineCreation");
     }
 }

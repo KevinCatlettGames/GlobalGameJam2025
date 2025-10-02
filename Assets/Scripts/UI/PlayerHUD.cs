@@ -285,6 +285,14 @@ public class PlayerHUD : NetworkBehaviour
         UpdateDamageText(0);
     }
 
+    public void SetInitaialScores(int _kills, int _wins)
+    {
+        kills = _kills;
+        wins = _wins;
+        killsTypewriter.ShowText(kills.ToString());
+        winsTypewriter.ShowText(wins.ToString());
+    }
+
     private void OnDestroy()
     {
         if (maxLifes != -1)

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 /// </summary>
 public class LobbyManager : NetworkBehaviour
 {
+    [SerializeField] private SO_Scores scores;
     /// <summary>
     /// Singleton instance of the LobbyManager.
     /// </summary>
@@ -74,6 +75,8 @@ public class LobbyManager : NetworkBehaviour
     /// </summary>
     private void Start()
     {
+        scores.ResetKills();
+        scores.ResetWins();
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
         
@@ -86,7 +89,7 @@ public class LobbyManager : NetworkBehaviour
     /// </summary>
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
-        if (scenename != "Lobby" && scenename != "MainMenu")
+        if (scenename != "UI_Lobby" && scenename != "UI_MainMenu")
         {
             Debug.Log("loaded");
             Invoke(nameof(InvokeEvent), 2f);

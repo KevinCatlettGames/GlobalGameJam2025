@@ -73,7 +73,7 @@ public class LobbyInput : NetworkBehaviour
     /// </summary>
     private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (scene.name == "Lobby") return;
+        if (scene.name == "UI_Lobby") return;
 
         readyAction.action.started -= OnReadyStarted;
         readyAction.action.performed -= OnReadyPerformed;
@@ -113,7 +113,7 @@ public class LobbyInput : NetworkBehaviour
         if (TransportSwitcher.Instance.isUsingRelay)
         {
             if (!NetworkManager.Singleton.IsServer) return;
-            onlineHostReadyStartTime = Time.time; 
+            onlineHostReadyStartTime = Time.time;
         }
         else
         {

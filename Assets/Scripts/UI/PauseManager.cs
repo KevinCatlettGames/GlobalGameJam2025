@@ -18,6 +18,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
+    [SerializeField] private SO_Scores scores;
 
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
@@ -114,6 +115,8 @@ public class PauseManager : MonoBehaviour
     public void RestartGame()
     {
         GameManager.IsGamePaused = false;
+        scores.ResetKills();
+        scores.ResetWins();
         if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
