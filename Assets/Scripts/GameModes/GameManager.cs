@@ -5,6 +5,7 @@ using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
+using Object = System.Object;
 
 public class GameManager : NetworkBehaviour
 {
@@ -12,6 +13,7 @@ public class GameManager : NetworkBehaviour
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
 
+    public DeathzoneWall[] deathZones; 
     protected const int maxPlayers = 4;
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
@@ -45,40 +47,44 @@ public class GameManager : NetworkBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
 
-        if (NetworkManager.Singleton != null)
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnSceneLoadCompleted;
-        else
-            PlayingLocal = true; 
-    }
-    
-    private void OnDestroy()
-    {
-        if (NetworkManager.Singleton != null)
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnSceneLoadCompleted;
+            Debug.Log("Playing online"); 
+            LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
         }
-    }
-
-    private void OnSceneLoadCompleted(string sceneName, LoadSceneMode loadSceneMode, List<ulong> clientsCompleted, List<ulong> clientsTimedOut)
-    {
-        StartCoroutine(DelayedStartGame());
+        else
+        {
+            Debug.Log("Playing local");
+            PlayingLocal = true;
+        }
+        // else
+        // {
+        //     if (IsServer)
+        //         LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
+        // }
     }
 
     private IEnumerator DelayedStartGame()
     {
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitForSeconds(10f);
         StartGameAfterDelay();
+    }
+
+    private void OnDisable()
+    {
+        if(LobbyManager.instance) 
+            LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(StartGameAfterDelay);
     }
 
     private void StartGameAfterDelay()
     {
-        if (NetworkManager.Singleton.ConnectedClients.Count < 2)
+        if (!TransportSwitcher.Instance && NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
             ChangePlayerStatesLocal(playerStates);
             PlayingLocal = true;
             playerInputManager.enabled = true;
         }
-        else if (IsServer)
+        else if (IsServer || NetworkManager.Singleton.ConnectedClients.Count == 1)
         {
             ChangePlayerStatesServerRpc(playerStates);
 
@@ -88,11 +94,23 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
-
             PlayerManager.Instance.Initialize();
+            Invoke(nameof(EnableDeathzonesServerRpc), 1f);
         }
-
         ItemSpawner.Instance.InitialSpawn();
+    }
+
+    [ServerRpc]
+    void EnableDeathzonesServerRpc()
+    {
+        EnableDeathzonesClientRpc();
+    }
+
+    [ClientRpc]
+    void EnableDeathzonesClientRpc()
+    {
+        foreach (DeathzoneWall deathZone in deathZones)
+            deathZone.GetComponent<DeathzoneWall>().EnableCol();
     }
 
     [ServerRpc(RequireOwnership = false)]

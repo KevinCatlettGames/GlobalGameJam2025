@@ -97,6 +97,11 @@ MonoBehaviour:
   startButton: {fileID: 0}
   maxLocalPlayers: 4
   minPlayers: 1
+  possibleSkins:
+  - {fileID: 11400000, guid: a89659f1bebec2240920383b74987893, type: 2}
+  - {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4, type: 2}
+  - {fileID: 11400000, guid: 9e7d19a9dd1bd204da93d9a1c04eb672, type: 2}
+  - {fileID: 11400000, guid: f2bb8c2cc88648e4ba1b02fb6eb829c1, type: 2}
 --- !u!114 &2852316987427541845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,6 +156,32 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 7727032971491509709, guid: 65525ca92864d594f832e5320b39cf90,
       type: 3}
+  rightColorChange:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Right Color Change
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 8cae13ba-1981-4637-9f90-217a39a748d4
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: -2826433781774720111, guid: dfa62059069876143a5ec771652f3d1f,
+      type: 3}
+  leftColorChange:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Left Color Change
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 0f9b7e46-7554-4b8b-9cb3-c886eeaee4ec
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 3627369705847228881, guid: dfa62059069876143a5ec771652f3d1f,
+      type: 3}
   playerIndex: 0
 --- !u!114 &7655121657743868098
 MonoBehaviour:
@@ -164,7 +195,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a11ed02b5cb02fe49be48aac8e5f1c8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerDevices: []
+  ShowTopMostFoldoutHeaderGroup: 1
+  playerValues: []
   maxPlayers: 4
 --- !u!1 &5072066045887107626
 GameObject:

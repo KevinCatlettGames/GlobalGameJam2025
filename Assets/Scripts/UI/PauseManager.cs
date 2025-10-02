@@ -1,3 +1,4 @@
+using System;
 using FMODUnity;
 using Netcode.Transports.Facepunch;
 using Steamworks;
@@ -9,6 +10,7 @@ using Unity.Services.Lobbies;
 using Unity.Services.Authentication;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using System.Threading.Tasks;
 
 public class PauseManager : MonoBehaviour
 {
@@ -44,7 +46,31 @@ public class PauseManager : MonoBehaviour
         }
 
     }
+
+    private void OnEnable()
+    {
+        // Subscribe to NGO disconnects as fallback
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+    }
     
+    private void OnClientDisconnect(ulong clientId)
+    {
+        // Fired for any disconnect; only care if host disconnects
+        if (clientId == 1)
+        {
+            Debug.Log("Host disconnected — returning to main menu...");
+            ReturnToMainMenu();
+        }
+    }
+
+    private void OnDisable()
+    {
+        // Unsubscribe NGO disconnects
+        if (NetworkManager.Singleton != null)
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+    }
+
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
@@ -131,25 +157,47 @@ public class PauseManager : MonoBehaviour
 
     public async void ReturnToMainMenu()
     {
-        Time.timeScale = 1f;
-
+        Cursor.visible = true;
+        Time.timeScale = 1f; 
+        
         try
         {
-            // if(NetworkManager.Singleton.NetworkConfig.NetworkTransport == NetworkManager.Singleton.GetComponent<FacepunchTransport>()) 
-            //     GlobalLobby.CurrentLobby.Leave();
+            if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
+            {
+                string lobbyId = GlobalLobby.CurrentLobby.Id;
+                string playerId = AuthenticationService.Instance.PlayerId;
+
+                if (IsHost())
+                {
+                    var options = new UpdateLobbyOptions { IsPrivate = true };
+                    await LobbyService.Instance.UpdateLobbyAsync(lobbyId, options);
+                    await Task.Delay(100); // tiny pause to ensure update propagates
+                    await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
+                }
+                else
+                {
+                    await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
+                }
+            }
         }
         catch (LobbyServiceException e)
         {
-            Debug.LogError($"Error leaving lobby: {e.Message}");
+            Debug.LogError($"Failed to clean up lobby: {e}");
         }
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-        {
             NetworkManager.Singleton.Shutdown();
+        
+        if(NetworkManager.Singleton)
             Destroy(NetworkManager.Singleton.gameObject);
-        }
 
-        SceneManager.LoadScene(0);
+        GlobalLobby.CurrentLobby = null;
+        SceneManager.LoadScene("MainMenu");
+    }
+    
+    private bool IsHost()
+    {
+        return NetworkManager.Singleton.IsHost;
     }
     
     public void SetSelected()

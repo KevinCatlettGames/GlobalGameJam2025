@@ -5,12 +5,10 @@ using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class LobbyHeartBeat : MonoBehaviour
+public class RelayServerHeartbeat : MonoBehaviour
 {
     public Lobby joinedLobby;
     float heartbeatTimer;
-    
-    
     
     void Awake()
     {

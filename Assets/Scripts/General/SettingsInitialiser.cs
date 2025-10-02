@@ -43,6 +43,5 @@ public class SettingsInitialiser : MonoBehaviour
             Application.targetFrameRate = 60;
         else
             Application.targetFrameRate = -1;
-
     }
 }

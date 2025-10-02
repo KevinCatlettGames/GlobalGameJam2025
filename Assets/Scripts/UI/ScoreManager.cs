@@ -27,8 +27,12 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(this);
         }
-        scores.ResetWins();
-        scores.ResetKills();
+
+        if (scores)
+        {
+            scores.ResetWins();
+            scores.ResetKills();
+        }
     }
     public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {

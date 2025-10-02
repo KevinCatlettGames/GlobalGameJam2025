@@ -1,10 +1,12 @@
 using Febucci.UI;
 using System.Collections;
 using TMPro;
+using Unity.Netcode;
+using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class PlayerHUD : MonoBehaviour
+public class PlayerHUD : NetworkBehaviour
 {
     [Header("Spells")]
     [SerializeField] private Image firstSpellImage;
@@ -100,6 +102,45 @@ public class PlayerHUD : MonoBehaviour
             uiElement.color = playerColor;
         }
         portrait.sprite = playerPortrait;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (IsServer)
+            {
+                int skinIndex = 0; 
+                    
+                foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+                {
+                    if (playerValues.Skin.Color == playerColor)
+                    {
+                        skinIndex = playerValues.Skin.Index;
+                        break;
+                    }
+                }
+                InitializePlayerHudClientRpc(skinIndex);
+            }
+        }
+    }
+
+    [ClientRpc]
+    void InitializePlayerHudClientRpc(int skinIndex)
+    {
+        SkinSO skinToUse = null; 
+        
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+        {
+            if (playerValues.Skin.Index == skinIndex)
+            {
+                skinToUse = playerValues.Skin;
+                break;
+            }
+        }
+
+        foreach (var uiElement in coloredUI)
+        {
+            uiElement.color = skinToUse.Color;
+        }
+        portrait.sprite = skinToUse.Sprite;
     }
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
