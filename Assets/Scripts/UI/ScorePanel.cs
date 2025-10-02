@@ -20,8 +20,8 @@ public class ScorePanel : MonoBehaviour
 
     void Start()
     {
-        killsTypewriter.ShowText(kills.ToString());
-        winsTypewriter.ShowText(wins.ToString());
+        //killsTypewriter.ShowText(kills.ToString());
+        //winsTypewriter.ShowText(wins.ToString());
     }
 
     public void SetPortrait(Sprite playerPortrait, Color playerColor)
@@ -47,6 +47,9 @@ public class ScorePanel : MonoBehaviour
 
     public void SetScores(int _wins, int _kills)
     {
+        //REMOVE LATER!!!!!!
+        return;
+        //REMOVE LATER!!!!!!
         wins = _wins;
         //winsTypewriter.ShowText(kills.ToString());
         //winsTypewriter.SkipTypewriter();
