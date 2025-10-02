@@ -12,6 +12,7 @@ using System.Collections.Generic;
 /// </summary>
 public class LobbyManager : NetworkBehaviour
 {
+    [SerializeField] private SO_Scores scores;
     /// <summary>
     /// Singleton instance of the LobbyManager.
     /// </summary>
@@ -74,6 +75,8 @@ public class LobbyManager : NetworkBehaviour
     /// </summary>
     private void Start()
     {
+        scores.ResetKills();
+        scores.ResetWins();
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
         

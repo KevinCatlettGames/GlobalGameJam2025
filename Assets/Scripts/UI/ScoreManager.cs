@@ -7,6 +7,7 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
 
     [SerializeField] private ScorePanel[] scorePanels;
+    [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject restarText;
 
@@ -27,12 +28,6 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(this);
         }
-
-        if (scores)
-        {
-            scores.ResetWins();
-            scores.ResetKills();
-        }
     }
     public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {
@@ -40,6 +35,7 @@ public class ScoreManager : MonoBehaviour
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
         scorePanel.SetPortrait(playerPortrait, playerColor);
+        playerHUDs[playerID].SetInitaialScores(scores.KillScores[playerID], scores.WinScores[playerID]);
     }
     public void AddPendingScore(int playerID, bool isWin)
     {
