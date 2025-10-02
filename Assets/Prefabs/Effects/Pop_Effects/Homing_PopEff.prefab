@@ -50,7 +50,7 @@ ParticleSystem:
   emitterVelocityMode: 1
   looping: 0
   prewarm: 0
-  playOnAwake: 0
+  playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
   startDelay:
@@ -4901,7 +4901,6 @@ GameObject:
   m_Component:
   - component: {fileID: 6081551340156864742}
   - component: {fileID: 3014141589086803380}
-  - component: {fileID: 1566107180514272754}
   m_Layer: 0
   m_Name: Homing_PopEff
   m_TagString: Untagged
@@ -4939,17 +4938,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waitDuration: 3
   destroyOnRestart: 1
---- !u!114 &1566107180514272754
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7883030796252567183}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 66e2f43d3c86e704fb3439c988421d2d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  popParticleSystem: {fileID: 3580366476286885389}
-  sizeBurstRatio: 20

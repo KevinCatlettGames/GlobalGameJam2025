@@ -198,7 +198,6 @@ public class BasicBubble : NetworkBehaviour
     private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
     {
         var effect = Instantiate(popEffect, pos, Quaternion.identity);
-        effect.GetComponent<BubbleEffect>()?.Initialise(scale);
     }
     private void DestroyBubble()
     {

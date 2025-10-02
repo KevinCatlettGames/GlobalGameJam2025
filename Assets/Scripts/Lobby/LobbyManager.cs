@@ -89,7 +89,7 @@ public class LobbyManager : NetworkBehaviour
     /// </summary>
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
-        if (scenename != "Lobby" && scenename != "MainMenu")
+        if (scenename != "UI_Lobby" && scenename != "UI_MainMenu")
         {
             Debug.Log("loaded");
             Invoke(nameof(InvokeEvent), 2f);

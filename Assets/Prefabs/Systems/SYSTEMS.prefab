@@ -246,6 +246,8 @@ MonoBehaviour:
   sceneNames:
   - LVL_Pot
   - LVL_MainScene
+  - LVL_TunaDose
+  - LVL_Eimer
 --- !u!1 &3857527044487169854
 GameObject:
   m_ObjectHideFlags: 0
@@ -291,7 +293,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scenes:
-  - LVL_2Kochtopf
+  - LVL_Pot
   - LVL_Eimer
   - LVL_MainScene
   - LVL_TunaDose
@@ -502,6 +504,7 @@ Transform:
   - {fileID: 2948053536636108897}
   - {fileID: 8950919163246275209}
   - {fileID: 8026881040917413251}
+  - {fileID: 2025811958067257644}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5127531587296251534
@@ -604,6 +607,51 @@ MonoBehaviour:
   - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
   maxAmount: 1
   currentAmount: 0
+--- !u!1 &7198490919497150978
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2025811958067257644}
+  - component: {fileID: 5514678915060377712}
+  m_Layer: 0
+  m_Name: StartServerManually
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2025811958067257644
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7198490919497150978}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 28.196068, y: 17.426764, z: -4.9236445}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7349568484040912180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5514678915060377712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7198490919497150978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ba1bb9522c0445a8e984ee1700c95a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerInputManager: {fileID: 0}
 --- !u!1 &7263817019907230709
 GameObject:
   m_ObjectHideFlags: 0
