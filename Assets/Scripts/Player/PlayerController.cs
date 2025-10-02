@@ -840,8 +840,6 @@ public class PlayerController : NetworkBehaviour
 
         direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
-        Debug.Log(knockback.magnitude);
-
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
