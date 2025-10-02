@@ -8,7 +8,7 @@ public class RisingWall : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
-        WallManager.Instance.InactiveWalls.Add(this);
+        WallManager.Instance.AddWall(this);
         gameObject.SetActive(false);
 
     }

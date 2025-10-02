@@ -43,7 +43,6 @@ public class SingleEliminationGM : GameManager
     [ClientRpc]
     private void CallGameEndClientRpc()
     {
-        Debug.Log("GameEnded");
         StartCoroutine(AwardVictory());
     }
 
@@ -56,7 +55,10 @@ public class SingleEliminationGM : GameManager
     {
         if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
-            RestartGame();
+            if (!MapRotationSystem.Instance.CheckForMapSwitch(finishedRoundCount))
+            {
+                RestartGame();
+            }
         }
     }
 
@@ -75,7 +77,6 @@ public class SingleEliminationGM : GameManager
                 break;
             }
         }
-
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {
