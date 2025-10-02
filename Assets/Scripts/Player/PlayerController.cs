@@ -1,3 +1,4 @@
+using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,7 +7,8 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
+using UnityEngine.Assertions.Must;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -15,6 +17,8 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Sound Events")] 
     [SerializeField] private EventReference knockBackEvent;
+    [SerializeField] string knockBackEventIntensityParam;
+    [SerializeField] int knockBackEventMaxIntensity = 100; 
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference dashEvent;
 
@@ -774,7 +778,20 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
-            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+
+            EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+
+            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+
+            myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+
+            myEvent.start();
+            myEvent.release();
+
+
             shaderManager.DamageEffect(damageColorEffectDuration);
         }
         else
@@ -796,7 +813,18 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void FlinchAnimClientRpc(float force, float dmg)
     {
-        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
+        RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+
+        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
+        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+
+        myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+
+        myEvent.start();
+        myEvent.release();
+
         shaderManager.DamageEffect(damageColorEffectDuration);
     }
 
@@ -812,6 +840,8 @@ public class PlayerController : NetworkBehaviour
 
         direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        Debug.Log(knockback.magnitude);
+
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
@@ -826,7 +856,19 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
-            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+
+            EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+
+            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+
+            myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+
+            myEvent.start();
+            myEvent.release();
+
             shaderManager?.DamageEffect(damageColorEffectDuration);
         }
         else
