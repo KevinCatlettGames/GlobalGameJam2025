@@ -22,11 +22,9 @@ public class MapRotationSystem : MonoBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        Debug.Log("roundcount: " + roundCount);
         if (roundCount < maxRounds || sceneNames.Length <= 1)
-        {
             return false; 
-        }
+        
         string i;
         do
         {
