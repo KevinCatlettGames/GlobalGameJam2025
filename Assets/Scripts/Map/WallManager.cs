@@ -7,7 +7,6 @@ public class WallManager : MonoBehaviour
 {
     public static WallManager Instance;
     private List<RisingWall> walls;
-    private bool[] wallStatus;
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private int maxActiveWalls = 3;
     private float timer = 0f;
@@ -40,7 +39,6 @@ public class WallManager : MonoBehaviour
             if (!initialised)
             {
                 totalWalls = walls.Count;
-                wallStatus = new bool[totalWalls];
                 wallIndex = new int[totalWalls];
                 for (int i = 0; i < wallIndex.Length; i++)
                 {
@@ -94,7 +92,6 @@ public class WallManager : MonoBehaviour
     }
     private void ShuffleIndexes()
     {
-        Debug.Log(wallIndex.Length);
         for (int i = wallIndex.Length -1; i > 0; i--)
         {
             int x = Random.Range(0, i + 1);

@@ -54,9 +54,16 @@ public class SingleEliminationGM : GameManager
 
     private void Update()
     {
+        if (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return))
+        {
+            Debug.Log("ScoreResolve: " + ScoreManager.Instance.ScoresResolved + " isReady to restart: " + isReadyToRestart);
+        }
         if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
-            RestartGame();
+            if (!MapRotationSystem.Instance.CheckForMapSwitch(finishedRoundCount))
+            {
+                RestartGame();
+            }
         }
     }
 
@@ -75,7 +82,6 @@ public class SingleEliminationGM : GameManager
                 break;
             }
         }
-
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {

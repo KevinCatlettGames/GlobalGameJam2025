@@ -189,6 +189,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5395857063166275379}
   - component: {fileID: 2318929943055816316}
+  - component: {fileID: 9037970889961924712}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -204,8 +205,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3737377328279540851}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.90221053, y: -13.849571, z: 9.295787}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -225,9 +226,26 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   playerPrefab: {fileID: 0}
+  deathZones: []
   gameSettings: {fileID: 0}
   playerInputManager: {fileID: 0}
   PlayingLocal: 0
+--- !u!114 &9037970889961924712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d669160384f45a748bb3fe64bf51b095, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxRounds: 3
+  sceneNames:
+  - LVL_Pot
+  - LVL_MainScene
 --- !u!1 &3857527044487169854
 GameObject:
   m_ObjectHideFlags: 0
