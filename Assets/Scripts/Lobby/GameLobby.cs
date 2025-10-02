@@ -123,7 +123,7 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
 
             onlineCreationUI.HideOnCreateUI();
-            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+            NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
         }
         catch (LobbyServiceException e)
         {
@@ -251,7 +251,7 @@ public class GameLobby : MonoBehaviour
         catch
         {
             NetworkManager.Singleton.Shutdown();
-            SceneManager.LoadScene("MainMenu");
+            SceneManager.LoadScene("UI_MainMenu");
         }
     }
 
