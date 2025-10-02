@@ -57,7 +57,6 @@ public class ScoreManager : MonoBehaviour
     }
     public IEnumerator ResolveScoresCoroutine()
     {
-        Debug.Log("ResolveScores");
         if(currentActivePlayers <= 0 || currentActivePlayers > 4) yield break;
         restarText.SetActive(false);
         for (int i = 0; i < currentActivePlayers; i++)
