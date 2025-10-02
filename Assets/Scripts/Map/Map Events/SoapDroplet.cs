@@ -46,9 +46,13 @@ public class SoapDroplet : NetworkBehaviour
         else if (activeDroplet)
         {
             if (hasExploded) return;
-            GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
-            splash.GetComponent<NetworkObject>()?.Spawn();
-            splash.transform.localScale = Vector3.one * size;
+
+            if (IsServer)
+            {
+                GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
+                splash.GetComponent<NetworkObject>()?.Spawn();
+                splash.transform.localScale = Vector3.one * size;
+            }
 
             hasExploded = true;
             Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
@@ -84,9 +88,12 @@ public class SoapDroplet : NetworkBehaviour
                 }
             }
 
-            NetworkObject.Despawn();
-            //Sound Here
-            Destroy(gameObject);
+            // Sound here
+            if (IsServer)
+            {
+                NetworkObject.Despawn();
+                Destroy(gameObject);
+            }
         }
     }
 }

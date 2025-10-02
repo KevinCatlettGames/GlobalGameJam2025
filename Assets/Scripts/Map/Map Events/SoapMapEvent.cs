@@ -16,12 +16,19 @@ public class SoapMapEvent : MonoBehaviour
     void Start()
     {
         if (!isMapEventEnabled) Destroy(this);
-        //if (NetworkManager.Singleton.IsServer)
-        //{
+        if (TransportSwitcher.Instance)
+        {
+            if (!NetworkManager.Singleton.IsServer) return; 
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
             Invoke(nameof(StartSpawning), startDelay);
-        //}
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted += StartSpawning;
+            GameManager.Instance.OnGameEnded += StopSpawning;
+            Invoke(nameof(StartSpawning), startDelay);  
+        }
     }
 
    
@@ -51,10 +58,16 @@ public class SoapMapEvent : MonoBehaviour
     }
     private void OnDestroy()
     {
-        //if (NetworkManager.Singleton.IsServer)
-        //{
+        if (TransportSwitcher.Instance)
+        {
+            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return; 
             GameManager.Instance.OnGameStarted -= StartSpawning;
             GameManager.Instance.OnGameEnded -= StopSpawning;
-        //}
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted -= StartSpawning;
+            GameManager.Instance.OnGameEnded -= StopSpawning; 
+        }
     }
 }

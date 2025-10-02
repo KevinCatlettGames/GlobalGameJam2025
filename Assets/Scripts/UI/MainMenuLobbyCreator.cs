@@ -1,147 +1,89 @@
-using System;
-using System.Collections.Generic;
-using Unity.Services.Authentication;
-using Unity.Services.Core;
-using Unity.Services.Lobbies;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
-using Unity.Netcode; 
-using UnityEngine.SceneManagement; 
-using Unity.Services.Relay;
-using Unity.Services.Relay.Models;
-using System.Threading.Tasks;
-using Steamworks;
-using Unity.Netcode.Transports.UTP;
-using Unity.Networking.Transport.Relay;
-using UnityEngine.UI; 
-using System.Collections; 
+using UnityEngine.SceneManagement;
+using Unity.Netcode;
+using Unity.Services.Core;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies.Models;
+using UnityEngine.Serialization;
 
+/// <summary>
+/// Handles the creation and management of lobbies in the main menu,
+/// including initializing Unity services, starting local games,
+/// and managing relay server connections.
+/// </summary>
 public class MainMenuLobbyCreator : MonoBehaviour
 {
+    /// <summary>
+    /// Singleton instance of the MainMenuLobbyCreator for global access.
+    /// </summary>
     public static MainMenuLobbyCreator Instance;
+
+    /// <summary>
+    /// The lobby that the player has joined or created.
+    /// </summary>
     private Lobby joinedLobby;
-    private bool isStartMenuOpen = false;
-    private const string KEY_RELAY_JOIN_CODE = "RELAY_JOIN_CODE";
-    public LobbyHeartBeat lobbyHeartBeat;
-    public Button acceptButton; 
-    
+
+    /// <summary>
+    /// Reference to the relay server heartbeat component to manage lobby heartbeat.
+    /// </summary>
+    [FormerlySerializedAs("lobbyHeartBeat")] 
+    public RelayServerHeartbeat relayServerHeartbeat;
+
+    /// <summary>
+    /// Unity Awake method, ensures that this class follows the Singleton pattern.
+    /// </summary>
     private void Awake()
     {
-        if(Instance == null) 
+        if (Instance == null)
             Instance = this;
     }
 
-    void Start()
+    /// <summary>
+    /// Unity Start method, initializes Unity Authentication asynchronously.
+    /// </summary>
+    private void Start()
     {
         InitializeUnityAuth();
     }
 
+    /// <summary>
+    /// Starts a local game, switches the network transport, starts the host, 
+    /// sets the current lobby, and loads the Lobby scene.
+    /// </summary>
+    /// <param name="sceneName">The name of the scene to load (currently loads "Lobby").</param>
     public async void StartGameLocal(string sceneName)
     {
-        NetworkManager.Singleton.GetComponent<TransportSwitcher>().SwitchToUnityTransportAndDisable();
-        
-        
-         // joinedLobby = await LobbyService.Instance.CreateLobbyAsync("Empty", 4, new CreateLobbyOptions
-         //    {
-         //        IsPrivate = false,
-         //    });
+        NetworkManager.Singleton
+            .GetComponent<TransportSwitcher>()
+            .SwitchToUnityTransportAndDisable();
 
-            // Allocation allocation =  await AllocateRelay();
-            // string relayJoinCode = await GetRelayJoinCode(allocation);
-            // LobbyService.Instance.UpdateLobbyAsync(joinedLobby.Id, new UpdateLobbyOptions
-            // {
-            //     Data = new Dictionary<string, DataObject>
-            //     {
-            //         {
-            //             KEY_RELAY_JOIN_CODE, new DataObject(DataObject.VisibilityOptions.Member, relayJoinCode)
-            //         }
-            //     }
-            // });
-            //
-            // // Assume 'allocation' is the Allocation object from AllocateRelayAsync
-            // string host = allocation.RelayServer.IpV4; 
-            // ushort port = (ushort)allocation.RelayServer.Port; 
-            // byte[] joinAllocationId = allocation.AllocationIdBytes; 
-            // byte[] connectionData = allocation.ConnectionData; 
-            // byte[] hostConnectionData = allocation.ConnectionData; 
-            // byte[] key = allocation.Key;
-            // bool isSecure = false;
-            //
-            // foreach (var endpoint in allocation.ServerEndpoints)
-            // {
-            //     if (endpoint.ConnectionType == "dtls")
-            //     {
-            //         host = endpoint.Host;
-            //         port = (ushort)endpoint.Port;
-            //         isSecure = endpoint.Secure;
-            //     }
-            // }
-            //
-            // NetworkManager.Singleton.GetComponent<UnityTransport>().SetRelayServerData(
-            //     new RelayServerData(host, port, joinAllocationId, 
-            //         connectionData, hostConnectionData, key, isSecure));
-            //
-            NetworkManager.Singleton.StartHost();
-            lobbyHeartBeat.joinedLobby = joinedLobby;
-            GlobalLobby.CurrentLobby = joinedLobby; 
-            NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        NetworkManager.Singleton.StartHost();
+        relayServerHeartbeat.joinedLobby = joinedLobby;
+        GlobalLobby.CurrentLobby = joinedLobby;
+        NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
-    
+
+    /// <summary>
+    /// Opens the Lobby scene directly.
+    /// </summary>
     public void OpenLobby()
     {
         SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
     }
-    
+
+    /// <summary>
+    /// Initializes Unity Services and signs in the player anonymously.
+    /// Ensures services are initialized only once.
+    /// </summary>
     private async void InitializeUnityAuth()
     {
         if (UnityServices.State != ServicesInitializationState.Initialized)
         {
-            InitializationOptions initializationOptions = new InitializationOptions();
-            initializationOptions.SetProfile(UnityEngine.Random.Range(0,10000).ToString());
+            var initializationOptions = new InitializationOptions()
+                .SetProfile(Random.Range(0, 10000).ToString());
+
             await UnityServices.InitializeAsync(initializationOptions);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
-        }
-    }
-    
-    private async Task<JoinAllocation> JoinRelay(string joinCode)
-    {
-        try
-        { 
-            JoinAllocation joinAllocation = await RelayService.Instance.JoinAllocationAsync(joinCode);
-            return joinAllocation;
-        }
-        catch (LobbyServiceException e)
-        {
-            Debug.Log(e);
-            return default;
-        }
-    }
-    
-    private async Task<Allocation>  AllocateRelay()
-    {
-        try
-        {
-            Allocation allocation = await RelayService.Instance.CreateAllocationAsync(3);
-            return allocation;
-        }
-        catch(RelayServiceException e)
-        {
-            Debug.Log(e);
-            return default;
-        }
-    }
-
-    private async Task<string> GetRelayJoinCode(Allocation allocation)
-    {
-        try
-        {
-            string relayJoinCode = await RelayService.Instance.GetJoinCodeAsync(allocation.AllocationId);
-            return relayJoinCode;
-        }
-        catch(RelayServiceException e)
-        {
-            Debug.Log(e);
-            return default;
         }
     }
 }

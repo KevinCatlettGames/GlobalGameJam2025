@@ -4,41 +4,125 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using UnityEngine.InputSystem; 
+using System.Collections.Generic;
 
+/// <summary>
+/// Manages the lobby system, including player readiness, UI updates, 
+/// and handling local and networked players using Unity Netcode.
+/// </summary>
 public class LobbyManager : NetworkBehaviour
 {
+    /// <summary>
+    /// Singleton instance of the LobbyManager.
+    /// </summary>
     public static LobbyManager instance;
-
-    public UnityEvent<ulong> OnJoinedLobby;
-    public UnityEvent<ulong> OnLeftLobby;
+    
+    /// <summary>
+    /// Event invoked when a player's ready state changes. Provides the client ID.
+    /// </summary>
     public UnityEvent<ulong> OnReadyStateUpdated;
-    public UnityEvent OnAllPlayersReady;
-    public UnityEvent OnNoLongerAllPlayersReady;
 
+    /// <summary>
+    /// Tracks whether all players are ready.
+    /// </summary>
     public bool allPlayersReady = false;
 
     [Header("UI")]
+    
     public GameObject[] playerContainers;
+
+    /// <summary>
+    /// Button used to start the game once all players are ready.
+    /// </summary>
     public Button startButton;
 
     [Header("Local Player Settings")]
-    public int maxLocalPlayers = 4; // max couch players
-    private ulong localPlayerOffset = 1000; // starting ClientId for local players
+    
+    public int maxLocalPlayers = 4;
 
+    /// <summary>
+    /// List of players in the lobby with their network state.
+    /// </summary>
     public NetworkList<PlayerLobbyState> players = new NetworkList<PlayerLobbyState>();
 
-    public int minPlayers = 1; 
+    /// <summary>
+    /// Minimum number of players required to start the game.
+    /// </summary>
+    public int minPlayers = 1;
+
+    /// <summary>
+    /// Array of possible skins for players.
+    /// </summary>
+    public SkinSO[] possibleSkins;
+
+    /// <summary>
+    /// Event invoked when all players have loaded into the scene.
+    /// </summary>
+    public UnityEvent OnAllPlayersLoadedIn; 
     
+    /// <summary>
+    /// Unity Awake method. Initializes the singleton instance.
+    /// </summary>
     private void Awake()
     {
         if (instance == null) instance = this;
         else Destroy(gameObject);
     }
 
+    /// <summary>
+    /// Unity Start method. Activates player UI containers and subscribes to server scene load events if needed.
+    /// </summary>
+    private void Start()
+    {
+        foreach (PlayerLobbyState player in players)
+            playerContainers[player.ClientId].SetActive(true);
+        
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
+    }
+
+    /// <summary>
+    /// Callback invoked when the server finishes loading a scene. Triggers OnAllPlayersLoadedIn event.
+    /// </summary>
+    private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
+    {
+        if (scenename != "Lobby" && scenename != "MainMenu")
+        {
+            Debug.Log("loaded");
+            Invoke(nameof(InvokeEvent), 2f);
+        }
+    }
+
+    /// <summary>
+    /// Invokes the OnAllPlayersLoadedIn event after a delay.
+    /// </summary>
+    void InvokeEvent()
+    {
+        Debug.Log("Invoked");
+        OnAllPlayersLoadedIn?.Invoke();
+    }
+
+    /// <summary>
+    /// Callback for changes to the networked player list. Updates the UI accordingly.
+    /// </summary>
+    private void OnPlayersListChanged(NetworkListEvent<PlayerLobbyState> changeEvent)
+    {
+        UpdatePlayerUI();
+    }
+
+    /// <summary>
+    /// Represents the networked state of a player in the lobby.
+    /// </summary>
     public struct PlayerLobbyState : INetworkSerializable, IEquatable<PlayerLobbyState>
     {
+        /// <summary>
+        /// Network client ID of the player.
+        /// </summary>
         public ulong ClientId;
+
+        /// <summary>
+        /// Whether the player is ready.
+        /// </summary>
         public bool IsReady;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
@@ -53,195 +137,131 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
+    /// <summary>
+    /// Unity OnEnable method. Subscribes to networked player list changes if using relay transport.
+    /// </summary>
     private void OnEnable()
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnected;
-        }
-        
-        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+        if(TransportSwitcher.Instance.isUsingRelay) 
+            players.OnListChanged += OnPlayersListChanged;
     }
 
-    private void SceneManagerOnsceneLoaded(Scene arg0, LoadSceneMode arg1)
-    {
-        enabled = false; 
-    }
-
+    /// <summary>
+    /// Unity OnDestroy method. Unsubscribes from events to prevent memory leaks.
+    /// </summary>
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-        }
-        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+        if(TransportSwitcher.Instance.isUsingRelay) 
+            players.OnListChanged -= OnPlayersListChanged;
+        
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton)
+            NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
     }
     
-    private void OnDisable()
+    /// <summary>
+    /// Toggles the ready state of a local player and updates the UI.
+    /// </summary>
+    /// <param name="playerIndex">Index of the player to toggle ready state for.</param>
+    public void ToggleReady(int playerIndex)
     {
-        if (NetworkManager.Singleton != null)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnected;
-            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnected;
-        }
-        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
-    }
-
-    // private void Start()
-    // {
-    //     if (!IsServer) return;
-    //
-    //     Debug.Log("Server is fully started in lobby scene");
-    //
-    //     // Initialize local player slots
-    //     for (int i = 0; i < maxLocalPlayers; i++)
-    //     {
-    //         ulong fakeClientId = localPlayerOffset + (ulong)i;
-    //         players.Add(new PlayerLobbyState { ClientId = fakeClientId, IsReady = false });
-    //     }
-    //
-    //     // Add connected online clients
-    //     foreach (var client in NetworkManager.Singleton.ConnectedClientsList)
-    //     {
-    //         OnClientConnected(client.ClientId);
-    //     }
-    //
-    //     UpdatePlayerUI();
-    // }
-
-    private void OnClientConnected(ulong clientId)
-    {
-        if (!IsServer) return;
-
-        // Avoid duplicates
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].ClientId == clientId) return;
-        }
-
-        players.Add(new PlayerLobbyState
-        {
-            ClientId = clientId,
-            IsReady = false
-        });
-
-        OnJoinedLobby?.Invoke(clientId);
-        UpdatePlayerUI();
-    }
-
-    private void OnClientDisconnected(ulong clientId)
-    {
-        if (!IsServer) return;
-
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].ClientId == clientId)
-            {
-                players.RemoveAt(i);
-                break;
-            }
-        }
-
-        OnLeftLobby?.Invoke(clientId);
-        UpdatePlayerUI();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(ServerRpcParams rpcParams = default)
-    {
-        ulong clientId = rpcParams.Receive.SenderClientId;
-
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].ClientId == clientId)
-            {
-                var player = players[i];
-                player.IsReady = !player.IsReady;
-                players[i] = player;
-                OnReadyStateUpdated?.Invoke(clientId);
-                break;
-            }
-        }
-
-        CheckAllReady();
-        UpdatePlayerUI();
-    }
-
-    public void ToggleReadyLocal(int playerIndex)
-    {
-        ulong clientId = localPlayerOffset + (ulong)playerIndex;
-
-        // Find existing player
         int index = -1;
         for (int i = 0; i < players.Count; i++)
-            if (players[i].ClientId == clientId)
+        {
+            if (players[i].ClientId == (ulong)playerIndex)
+            {
                 index = i;
+                break;
+            }
+        }
 
         if (index == -1)
         {
-            // Add new player dynamically
-            players.Add(new PlayerLobbyState { ClientId = clientId, IsReady = false });
+            players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+            index = players.Count - 1;
+            CheckAllReady();
+            UpdatePlayerUI();
+        }
+        else
+        {
+            var player = players[index];
+            var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
+            
+            if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
+            {
+                player.IsReady = !player.IsReady;
+                players[index] = player;
+                OnReadyStateUpdated?.Invoke((ulong)playerIndex);
+                CheckAllReady();
+                UpdatePlayerUI();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Server RPC to toggle a player's ready state on the server.
+    /// </summary>
+    /// <param name="clientID">Network client ID of the player.</param>
+    [ServerRpc(RequireOwnership = false)]
+    public void ToggleReadyServerRpc(ulong clientID)
+    {
+        int index = -1;
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].ClientId == (ulong)clientID)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+        {
+            players.Add(new PlayerLobbyState { ClientId = (ulong)clientID, IsReady = false });
+            AddNewPlayerValuesClientRpc((int)clientID);
             index = players.Count - 1;
         }
         else
         {
             var player = players[index];
-            player.IsReady = !player.IsReady;
-            players[index] = player;
+            var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
+            
+            if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
+            {
+                player.IsReady = !player.IsReady;
+                players[index] = player;
+                InvokeOnReadyStateUpdatedClientRpc(clientID);
+            }
         }
-
-        OnReadyStateUpdated?.Invoke(clientId);
         CheckAllReady();
-        UpdatePlayerUI();
+    }
+
+    /// <summary>
+    /// Client RPC to add a new player's values for local UI/logic updates.
+    /// </summary>
+    /// <param name="clientID">Index of the new player.</param>
+    [ClientRpc]
+    void AddNewPlayerValuesClientRpc(int clientID)
+    {
+        LobbyPlayerHandler.Instance.playerValues.Add(
+            new LobbyPlayerHandler.PlayerValues(clientID, null, possibleSkins[clientID]));
+        LobbyPlayerHandler.Instance.SortPlayerValues();
+    }
+
+    /// <summary>
+    /// Client RPC to invoke OnReadyStateUpdated event for a specific player.
+    /// </summary>
+    /// <param name="clientID">Network client ID of the player.</param>
+    [ClientRpc]
+    void InvokeOnReadyStateUpdatedClientRpc(ulong clientID)
+    {
+        OnReadyStateUpdated?.Invoke(clientID);
     }
     
-    public void RemoveLocalPlayer(InputAction.CallbackContext context)
-    {
-        UnityEngine.InputSystem.InputDevice tempDevice = context.control.device;
-        int playerIndex = LocalPlayerInputManager.Instance.GetPlayerIndex(tempDevice);
-
-        ulong clientId = (ulong)playerIndex + 1000; // adjust if you use 1000+ offset for locals
-
-        int removeAt = -1;
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (players[i].ClientId == clientId)
-            {
-                removeAt = i;
-                break;
-            }
-        }
-
-        if (removeAt != -1)
-        {
-            players.RemoveAt(removeAt);
-            LocalPlayerInputManager.Instance.RemoveDevice(playerIndex);
-
-            // Shift devices down
-            for (int i = playerIndex + 1; i < LocalPlayerInputManager.Instance.playerDevices.Count; i++)
-            {
-                var device = LocalPlayerInputManager.Instance.GetDevice(i);
-                if (device != null)
-                {
-                    LocalPlayerInputManager.Instance.AssignDeviceToPlayer(i - 1, device);
-                }
-            }
-
-            // Refresh UI to reflect changes
-            RefreshPlayerContainers();
-
-            CheckAllReady();
-            OnLeftLobby?.Invoke(clientId);
-        }
-    }
-
-
+    /// <summary>
+    /// Checks whether all players are ready and updates the start button accordingly.
+    /// </summary>
     private void CheckAllReady()
     {
-        if (!IsServer) return;
-
         if (players.Count == 0)
         {
             allPlayersReady = false;
@@ -257,18 +277,9 @@ public class LobbyManager : NetworkBehaviour
                 {
                     allPlayersReady = false;
                     startButton.interactable = false; 
-                    OnNoLongerAllPlayersReady?.Invoke();
                 }
                 return;
             }
-        }
-
-        if (TransportSwitcher.Instance.isUsingRelay && LobbyManager.instance.players.Count <= 1)
-        {
-            allPlayersReady = false;
-            startButton.interactable = false; 
-            OnNoLongerAllPlayersReady?.Invoke();
-            return; 
         }
         
         allPlayersReady = true;
@@ -277,47 +288,29 @@ public class LobbyManager : NetworkBehaviour
         {
             allPlayersReady = true;
             startButton.interactable = true;
-            OnAllPlayersReady?.Invoke();
+        }
+
+        if (TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.ConnectedClients.Count > players.Count)
+        {
+            allPlayersReady = false;
+            startButton.interactable = false; 
         }
     }
 
-    private void UpdatePlayerUI()
+    /// <summary>
+    /// Updates the player UI containers to match the current players in the lobby.
+    /// </summary>
+    public void UpdatePlayerUI()
     {
-        // Reset all containers
         for (int i = 0; i < playerContainers.Length; i++)
             playerContainers[i].SetActive(false);
 
         foreach (var player in players)
         {
-            int containerIndex;
-            if (player.ClientId < localPlayerOffset)
-                containerIndex = (int)player.ClientId; // online clients
-            else
-                containerIndex = (int)(player.ClientId - localPlayerOffset); // local players
-
+            int containerIndex = (int)player.ClientId;
+            
             if (containerIndex >= 0 && containerIndex < playerContainers.Length)
-            {
                 playerContainers[containerIndex].SetActive(true);
-                // Here you could also update UI (e.g., ready icon)
-            }
-        }
-    }
-    
-    private void RefreshPlayerContainers()
-    {
-        // First disable all
-        for (int i = 0; i < playerContainers.Length; i++)
-        {
-            playerContainers[i].SetActive(false);
-        }
-
-        // Then enable only the ones we actually have players for
-        for (int i = 0; i < players.Count; i++)
-        {
-            if (i < playerContainers.Length)
-            {
-                playerContainers[i].SetActive(true);
-            }
         }
     }
 }

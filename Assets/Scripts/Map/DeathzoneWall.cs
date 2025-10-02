@@ -1,7 +1,8 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
-public class DeathzoneWall : MonoBehaviour
+public class DeathzoneWall : NetworkBehaviour
 {
     [SerializeField] private float cameraShakeTime = .2f;
     [SerializeField] private float cameraShakeIntensity = 1.0f;
@@ -16,14 +17,15 @@ public class DeathzoneWall : MonoBehaviour
     {
         if (!GameManager.Instance.PlayingLocal)
         {
-            if (isFloor) Invoke("StartDisable", 1f);
-            GameManager.Instance.OnGameStarted += StartDisable;
+            BoxCollider col = GetComponent<BoxCollider>();
+            col.enabled = false;
         }
         else if (isFloor)
         {
             GetComponent<BoxCollider>().enabled = true;
         }
     }
+    
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player")) 
@@ -48,22 +50,10 @@ public class DeathzoneWall : MonoBehaviour
     {
         Instantiate(blastZoneEffect, effectPosition, Quaternion.identity);
     }
-    private void StartDisable()
-    {
-        StartCoroutine(TemporarilyDisableCollider());
-    }
-    private IEnumerator TemporarilyDisableCollider()
+    
+    public void EnableCol()
     {
         BoxCollider col = GetComponent<BoxCollider>();
-        col.enabled = false;
-        yield return new WaitForSeconds(.1f);
         col.enabled = true;
-    }
-    private void OnDestroy()
-    {
-        if (!GameManager.Instance.PlayingLocal)
-        {
-            GameManager.Instance.OnGameStarted -= StartDisable;
-        }
     }
 }
