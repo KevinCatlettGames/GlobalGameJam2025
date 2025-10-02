@@ -857,7 +857,6 @@ public class PlayerController : NetworkBehaviour
     public void Die()
     {
         if (isDead) return;
-        Debug.Log(playerID + " Died");
         isDead = true;
         controller.enabled = false;
         damagedEffect.UpdateParticleSystem(-1);
