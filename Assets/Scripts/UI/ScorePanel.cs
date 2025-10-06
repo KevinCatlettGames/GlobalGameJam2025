@@ -12,7 +12,7 @@ public class ScorePanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI winsText;
     [SerializeField] private TextMeshProUGUI killsText;
     [SerializeField] private Image portrait;
-    [SerializeField] private Image background;
+    [SerializeField] private Image[] pointBubbles;
     [SerializeField] private Image frame;
     [SerializeField] private Color colorShift;
     private int kills = 0;
@@ -27,7 +27,10 @@ public class ScorePanel : MonoBehaviour
     public void SetPortrait(Sprite playerPortrait, Color playerColor)
     {
         portrait.sprite = playerPortrait;
-        background.color = playerColor;
+
+        foreach (Image image in pointBubbles)
+            image.color = playerColor;
+        
         Color frameColor = playerColor - colorShift;
         frame.color = frameColor;
     }
@@ -35,14 +38,14 @@ public class ScorePanel : MonoBehaviour
     public void AddWin()
     {
         wins++;
-        winsTypewriter.ShowText(wins.ToString());
+        // winsTypewriter.ShowText(wins.ToString());
     }
 
     public void AddKill()
     {
         kills++;
-        killsTypewriter.ShowText(kills.ToString());
-        killsTypewriter.SkipTypewriter();
+        //killsTypewriter.ShowText(kills.ToString());
+        //killsTypewriter.SkipTypewriter();
     }
 
     public void SetScores(int _wins, int _kills)
