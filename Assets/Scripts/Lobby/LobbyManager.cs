@@ -82,6 +82,8 @@ public class LobbyManager : NetworkBehaviour
         
         if(IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
+        
+        startButton.gameObject.SetActive(false);
     }
 
     /// <summary>
@@ -279,7 +281,7 @@ public class LobbyManager : NetworkBehaviour
                 if (allPlayersReady)
                 {
                     allPlayersReady = false;
-                    startButton.interactable = false; 
+                    startButton.gameObject.SetActive(false);                
                 }
                 return;
             }
@@ -290,13 +292,13 @@ public class LobbyManager : NetworkBehaviour
         if (players.Count >= minPlayers)
         {
             allPlayersReady = true;
-            startButton.interactable = true;
+            startButton.gameObject.SetActive(true);        
         }
 
         if (TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
-            startButton.interactable = false; 
+            startButton.gameObject.SetActive(false);        
         }
     }
 
