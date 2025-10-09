@@ -3,11 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
-using UnityEngine.UI;
 using FMODUnity;
-using Unity.VisualScripting;
-using UnityEngine.Animations;
-using UnityEngine.InputSystem.Users;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -36,6 +32,7 @@ public class PlayerManager : NetworkBehaviour
 
     public InputActionProperty startGameInputAction; 
     public PlayerInputManager playerInputManager;
+    public Countdown countdown;
     
     private void Awake()
     {
@@ -53,7 +50,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        Invoke(nameof(EnableJoinText), .3f);
+        countdown.onCountdownComplete.AddListener(StartPlayerJoining);
     }
 
     private void OnDisable()
@@ -62,26 +59,26 @@ public class PlayerManager : NetworkBehaviour
         startGameInputAction.action.Disable();
     }
 
-    private void EnableJoinText()
+    public void StartPlayerJoining()
     {
+      Invoke(nameof(StartPlayerJoiningMethod), .5f);
+    }
+
+    void StartPlayerJoiningMethod()
+    {
+        CameraHandler.Instance.onCinematicEnd.RemoveListener(StartPlayerJoining);
         GameManager.Instance.OnGameStarted += ResetPlayers;
         RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
             if (!TransportSwitcher.Instance)
             {
-                //Debug.Log("Enabling join text");
                 joinGameText.SetActive(true);
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
             }
 
             playerInputManager.enabled = true;
-            
-            // if (TransportSwitcher.Instance)
-            // {
-            //     playerInputManager.joinBehavior = PlayerJoinBehavior.JoinPlayersManually;
-            // }
         }
         
         if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
@@ -96,7 +93,6 @@ public class PlayerManager : NetworkBehaviour
     
     private void ActionOnPerformed(InputAction.CallbackContext context)
     {
-        //Debug.Log("Spawning");
         startGameInputAction.action.performed -= ActionOnPerformed;
         startGameInputAction.action.Disable();
         
@@ -106,36 +102,31 @@ public class PlayerManager : NetworkBehaviour
 
             foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
             {
-                if (playerDevice == null) continue; // use continue, not return
+                if (playerDevice == null) continue;
 
                 InputDevice device = playerDevice.Device;
 
                 if (device is Keyboard)
                 {
-                    // Join player manually with the correct device
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, // player index (0,1,2,3)
-                        -1, // split-screen index (optional)
-                        "Keyboard", // control scheme (optional, null = default)
-                        playerDevice.Device // assign this device
+                        playerDevice.PlayerIndex, 
+                        -1,
+                        "Keyboard", 
+                        playerDevice.Device 
                     );
-                    //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
                 }
                 else if (device is Gamepad)
                 {
-                    // Join player manually with the correct device
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, // player index (0,1,2,3)
-                        -1, // split-screen index (optional)
-                        null, // control scheme (optional, null = default)
-                        playerDevice.Device // assign this device
+                        playerDevice.PlayerIndex, 
+                        -1,
+                        null,
+                        playerDevice.Device 
                     );
 
                     if (newPlayer != null)
                     {
-                        // Optional: switch control scheme explicitly
                         newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
-                        //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
                     }
                 }
             }
@@ -150,36 +141,31 @@ public class PlayerManager : NetworkBehaviour
 
             foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
             {
-                if (playerDevice == null) continue; // use continue, not return
+                if (playerDevice == null) continue;
 
                 InputDevice device = playerDevice.Device;
 
                 if (device is Keyboard)
                 {
-                    // Join player manually with the correct device
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, // player index (0,1,2,3)
-                        -1, // split-screen index (optional)
-                        "Keyboard", // control scheme (optional, null = default)
-                        playerDevice.Device // assign this device
+                        playerDevice.PlayerIndex,
+                        -1,
+                        "Keyboard",
+                        playerDevice.Device
                     );
-                    //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
                 }
                 else if (device is Gamepad)
                 {
-                    // Join player manually with the correct device
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, // player index (0,1,2,3)
-                        -1, // split-screen index (optional)
-                        null, // control scheme (optional, null = default)
-                        playerDevice.Device // assign this device
+                        playerDevice.PlayerIndex,
+                        -1,
+                        null,
+                        playerDevice.Device
                     );
 
                     if (newPlayer != null)
                     {
-                        // Optional: switch control scheme explicitly
                         newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
-                        //Debug.Log($"Joined {newPlayer.playerIndex} with scheme {newPlayer.currentControlScheme}, devices: {string.Join(",", newPlayer.devices)}");
                     }
                 }
             }
@@ -194,13 +180,11 @@ public class PlayerManager : NetworkBehaviour
         if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
         joinGameText.SetActive(false);
-        //Debug.Log("JoinLocal");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
         SetupPlayerHUD(playerID);
 
-        // Disable character controller before moving to spawn position
         characterController.enabled = false;
 
         input.transform.position = spawnPoints[playerID].position;
@@ -209,7 +193,6 @@ public class PlayerManager : NetworkBehaviour
         var playerController = input.GetComponent<PlayerController>();
         playerController.InitializeLocal();
 
-        // Setup controller rumbler if gamepad exists
         var gamePad = input.GetDevice<Gamepad>();
         ControllerRumbler rumbler = null;
         if (gamePad != null)
@@ -232,7 +215,6 @@ public class PlayerManager : NetworkBehaviour
     {
         if(!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
-        //Debug.Log("OnPlayerJoined");
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -309,10 +291,6 @@ public class PlayerManager : NetworkBehaviour
                 {
                     ResetPlayerComponents(networkObject.gameObject);
                 }
-                else
-                {
-                    //Debug.LogWarning("Failed to resolve player reference.");
-                }
             }
         }
     }
@@ -347,7 +325,6 @@ public class PlayerManager : NetworkBehaviour
     {
         if (playerID >= playerHUDs.Length || playerID >= spawnPoints.Length)
         {
-            //Debug.LogError("Too many players for available HUDs or spawn points!");
             return false;
         }
         return true;
@@ -361,7 +338,6 @@ public class PlayerManager : NetworkBehaviour
         {
             playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite);
             ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-
         }
         else
         {
@@ -380,16 +356,11 @@ public class PlayerManager : NetworkBehaviour
                 localPlayer.transform.position = spawnPoints[playerID].position;
                 localPlayer.transform.rotation = spawnPoints[playerID].rotation;
             }
-            else
-            {
-                //Debug.LogError("Invalid playerID for ResetPlayerPosition (local).");
-            }
         }
         else
         {
             if (playerID >= players.Count)
             {
-                //Debug.LogError("Invalid playerID for ResetPlayerPosition (networked).");
                 return;
             }
 
@@ -398,10 +369,6 @@ public class PlayerManager : NetworkBehaviour
                 var playerGameObject = networkObject.gameObject;
                 playerGameObject.transform.position = spawnPoints[playerID].position;
                 playerGameObject.transform.rotation = spawnPoints[playerID].rotation;
-            }
-            else
-            {
-                //Debug.LogError("Failed to resolve NetworkObjectReference for resetting position!");
             }
         }
     }
