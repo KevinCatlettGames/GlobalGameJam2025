@@ -336,13 +336,13 @@ public class PlayerManager : NetworkBehaviour
 
         if (LobbyPlayerHandler.Instance)
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
         }
         else
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Sprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
         }
     }
 

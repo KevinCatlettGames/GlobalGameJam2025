@@ -140,7 +140,7 @@ public class PlayerHUD : NetworkBehaviour
         {
             uiElement.color = skinToUse.Color;
         }
-        portrait.sprite = skinToUse.Sprite;
+        portrait.sprite = skinToUse.GameSprite;
     }
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
