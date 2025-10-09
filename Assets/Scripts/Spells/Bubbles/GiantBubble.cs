@@ -1,42 +1,62 @@
 using FMODUnity;
-using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
 {
-    [SerializeField] private int healthPoints = 3;
-    private float healthIncrement = 0f;
-    private float currentHealth = 1f;
+    [Header("Big Version")]
+    [SerializeField] private float extraOffset = 2f;
+    [SerializeField] private int knbDecreaseAngle = 45;
+    [SerializeField] private float knbDecreaseIncrement = .25f;
+    [Header("Small Version")]
+    [SerializeField] private float dmgMod = 3;
+    [SerializeField] private float knbMod = .3f;
+    [SerializeField] private float sizMod = .25f;
+    [SerializeField] private float speedMod = 5f;
 
-    public override void InitialiseBubble(float dmg, float knb, float spd, float rng, float siz, Vector3 dir, EventReference soundEvent)
+    private bool isSmall = false;
+
+    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(dmg, knb, spd, rng, siz, dir, soundEvent);
-        healthIncrement = 1f / (float)healthPoints;
+        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        transform.position += direction * extraOffset;
     }
-
+    protected override void BubbleMovement()
+    {
+        if (!IsServer) return;
+        if (!hasInflated) return;
+        base.BubbleMovement();
+    }
     public override void BubbleCollision(GameObject other)
     {
-        if (other.CompareTag("Player"))
+        if (hasPopped) return;
+        if (!isSmall && other.CompareTag("Bubble"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.ApplyKnockback(direction, knockback * currentHealth, damage * currentHealth);
-            Pop();
-        }
-        else if (other.CompareTag("Bubble"))
-        {
-            DamageBubble();
-        }
-    }
-    private void DamageBubble()
-    {
-        currentHealth -= healthIncrement;
-        if (currentHealth <= 0f)
-        {
-            Pop();
+            isSmall = true;
+            damage *= dmgMod;
+            knockback *= knbMod;
+            size *= sizMod;
+            speed *= speedMod;
+            transform.localScale = Vector3.one * size;
             return;
         }
-        transform.localScale = size * currentHealth * Vector3.one;
+        if (!isSmall && other.CompareTag("Player"))
+        {
+            Vector3 v = other.transform.position - transform.position;
+            float angle = Vector3.Angle(v, transform.forward);
+            if (angle <= 5f)
+            {
+                knockback *= 1.2f;
+                Debug.Log("BigBubbleCrit");
+            }
+            else
+            {
+                int i = (int)angle / knbDecreaseAngle;
+                knockback *= 1 - (knbDecreaseIncrement * i);
+            }
+        }
+        base.BubbleCollision(other);
     }
 }

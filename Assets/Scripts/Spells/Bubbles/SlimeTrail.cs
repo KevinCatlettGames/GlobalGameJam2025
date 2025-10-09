@@ -1,11 +1,10 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class SlimeTrail : MonoBehaviour
 {
-    private float trailSpeed = 1.0f;
-    private bool isStopped = false;
+    private float trailSpeed = 0f;
+    public bool isStopped = false;
     [SerializeField] private float trailDuration = 10f;
 
     private void Start()

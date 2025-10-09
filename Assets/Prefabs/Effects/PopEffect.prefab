@@ -287,8 +287,8 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 3
-      scalar: 0.5
-      minScalar: 0.1
+      scalar: 0.6
+      minScalar: 0.3
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -4832,6 +4832,9 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4935,6 +4938,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waitDuration: 3
+  destroyOnRestart: 1
 --- !u!114 &1566107180514272754
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4947,5 +4951,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66e2f43d3c86e704fb3439c988421d2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  particleSystem: {fileID: 3580366476286885389}
-  sizeBurstRatio: 40
+  popParticleSystem: {fileID: 3580366476286885389}
+  sizeBurstRatio: 50

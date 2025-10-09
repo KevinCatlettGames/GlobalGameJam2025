@@ -1,50 +1,172 @@
+using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class Item : MonoBehaviour
+public class Item : NetworkBehaviour
 {
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
-    [SerializeField] private SO_Spell[] spells;
-    public SO_Spell spell;
-    private void Start()
-    {
-        int r = Random.Range(0, spells.Length);
-        spell = spells[r];
-        meshFilter.mesh = spell.GetMesh();
-        meshRenderer.material = spell.GetMaterial();
+    [SerializeField] private SpriteRenderer spriteRenderer;
+    private int spellID;
 
+    [Header("Item PickUp")]
+    [SerializeField] private GameObject pickUpEffect;
+    [SerializeField] private EventReference pickUpEvent;
+
+    [Header("Item Despawn")]
+    [SerializeField] private EventReference despawnEvent;
+    [SerializeField] private float itemDuration = 10f;
+    [SerializeField] private float itemBlinkDuration = 10f;
+    [SerializeField] private float itemBlinkIntervall = 0.4f;
+    [SerializeField] private Material itemMaterial;
+
+    private Material spellMaterial;
+
+    [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
+    [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
+    [SerializeField] private ParticleSystemRenderer waveEffect;
+
+    public override void OnNetworkSpawn()
+    {
+        if (IsServer)
+        {
+            StartCoroutine(ServerItemDespawn());
+        }
     }
 
-    public SO_Spell EquipSpell()
+    public int EquipSpell()
     {
         StartCoroutine(DelayedDestroy());
-        return spell;
+        return spellID;
+    }
+
+    [ClientRpc]
+    public void SetupSpellClientRpc(int index)
+    {
+        spellID = index;
+        SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);
+        meshFilter.mesh = spell.ItemMesh;
+
+        spellMaterial = spell.ItemMaterial;
+        meshRenderer.material = spellMaterial;
+        spriteRenderer.color = spell.ItemEffectColor;
+
+        Material[] effectMaterials = spell.GetEffectMaterials();
+        if (effectMaterials != null && effectMaterials.Length >= 3)
+        {
+            wrapParticleRenderer.material = effectMaterials[0];
+            sparkleParticleSystem.material = effectMaterials[1];
+            waveEffect.material = effectMaterials[2];
+        }
     }
 
     private IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
+
+        StopAllCoroutines();
         ItemSpawner.Instance.currentAmount--;
-        Destroy(gameObject);
+        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
+        if (IsServer)
+            GetComponent<NetworkObject>().Despawn();
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.gameObject.CompareTag("Player")) 
+        if (!IsServer)
+            return;
+        if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, true);
+            if (GameManager.Instance.PlayingLocal)
+            {
+                UpdateItemToEquipLocal(other.gameObject, this, true);
+            }
+            else
+            {
+
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), true);
+                }
+            }
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (!IsServer)
+            return;
+        if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            player.UpdateItemToEquip(this, false);
+            if (GameManager.Instance.PlayingLocal)
+            {
+                UpdateItemToEquipLocal(other.gameObject, this, false);
+            }
+            else
+            {
+                var playerNetworkObject = other.GetComponent<NetworkObject>();
+                if (playerNetworkObject != null)
+                {
+                    UpdateItemToEquipServerRpc(playerNetworkObject, GetComponent<NetworkObject>(), false);
+                }
+            }
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void UpdateItemToEquipServerRpc(NetworkObjectReference playerRef, NetworkObjectReference itemRef, bool isInRange)
+    {
+        if (playerRef.TryGet(out NetworkObject playerNetObj) &&
+            itemRef.TryGet(out NetworkObject itemNetObj))
+        {
+            var player = playerNetObj.GetComponent<PlayerController>();
+            var item = itemNetObj.GetComponent<Item>();
+
+            if (player != null && item != null)
+            {
+                player.UpdateItemToEquip(item, isInRange);
+            }
+        }
+    }
+
+    private void UpdateItemToEquipLocal(GameObject player, Item item, bool isInRange)
+    {
+        if (player != null && item != null)
+            player.GetComponent<PlayerController>().UpdateItemToEquip(item, isInRange);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void StartBlinkEffectServerRpc() => StartBlinkEffectClientRpc();
+
+    [ClientRpc]
+    private void StartBlinkEffectClientRpc()
+    {
+        StartCoroutine(ClientBlinkEffectLoop());
+    }
+    private IEnumerator ClientBlinkEffectLoop()
+    {
+        bool toggle = true;
+
+        while (true)
+        {
+            meshRenderer.material = toggle ? itemMaterial : spellMaterial;
+            toggle = !toggle;
+            yield return new WaitForSeconds(itemBlinkIntervall);
+        }
+    }
+
+    private IEnumerator ServerItemDespawn()
+    {
+        yield return new WaitForSeconds(itemDuration);
+
+        StartBlinkEffectServerRpc();
+
+        yield return new WaitForSeconds(itemBlinkDuration);
+
+        ItemSpawner.Instance.currentAmount--;
+        GetComponent<NetworkObject>().Despawn();
     }
 }
