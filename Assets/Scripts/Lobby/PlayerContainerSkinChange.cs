@@ -84,7 +84,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             containerBackground.color = Color.gray;
             containerBackgroundOutline.effectColor = Color.gray;
             avatarBackground.color = Color.gray;
-            avatar.sprite = skinToUse.Sprite;
+            avatar.sprite = skinToUse.LobbySprite;
             avatar.color = Color.gray;
         }
         else
@@ -92,7 +92,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             containerBackground.color = skinToUse.Color;
             containerBackgroundOutline.effectColor = skinToUse.Color;
             avatarBackground.color = skinToUse.Color;
-            avatar.sprite = skinToUse.Sprite;
+            avatar.sprite = skinToUse.LobbySprite;
             avatar.color = Color.white;
         }
     }
