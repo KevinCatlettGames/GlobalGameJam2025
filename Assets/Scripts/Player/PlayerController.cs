@@ -791,34 +791,40 @@ public class PlayerController : NetworkBehaviour
         {
             mainAnimator.SetTrigger("Flinch");
 
-            EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
-            RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
 
             float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
             float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
             int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-
-            myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-
-            myEvent.start();
-            myEvent.release();
-
-
+            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+            fmodEvent.start();
+            fmodEvent.release();
+            
             shaderManager.DamageEffect(damageColorEffectDuration);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold)
+            {
+                hitStunDuration += knbMagnitude * hitStunFactor;
+                mainAnimator.SetBool("HitStun", true);
+            }
         }
         else
         {
             FlinchAnimServerRpc(force, dmg);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold)
+            {
+                float stunDuration = knbMagnitude * hitStunFactor;
+                HitStunServerRpc(stunDuration);
+            }
         }
-
-        float knbMagnitude = knockbackVelocity.magnitude;
-        float duration = knbMagnitude * rumbleDurationFactor;
-        controllerRumbler?.Rumble(duration, force, dmg);
-        if (knbMagnitude >= hitStunThreshold)
-        {
-            hitStunDuration += knbMagnitude * hitStunFactor;
-            mainAnimator.SetBool("HitStun",true);
-        }        
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -831,17 +837,15 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void FlinchAnimClientRpc(float force, float dmg)
     {
-        EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
-        RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
 
         float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
         float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
         int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-
-        myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-
-        myEvent.start();
-        myEvent.release();
+        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+        fmodEvent.start();
+        fmodEvent.release();
 
         shaderManager.DamageEffect(damageColorEffectDuration);
     }
@@ -873,33 +877,53 @@ public class PlayerController : NetworkBehaviour
         {
             mainAnimator.SetTrigger("Flinch");
 
-            EventInstance myEvent = RuntimeManager.CreateInstance(knockBackEvent);
-            RuntimeManager.AttachInstanceToGameObject(myEvent, transform, GetComponent<Rigidbody>());
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
 
             float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
             float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
             int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-
-            myEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-
-            myEvent.start();
-            myEvent.release();
+            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+            fmodEvent.start();
+            fmodEvent.release();
 
             shaderManager?.DamageEffect(damageColorEffectDuration);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold)
+            {
+                hitStunDuration += knbMagnitude * hitStunFactor;
+                mainAnimator.SetBool("HitStun", true);
+            }
         }
         else
         {
             FlinchAnimServerRpc(force, dmg);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold)
+            {
+                float stunDuration = knbMagnitude * hitStunFactor;
+                HitStunServerRpc(stunDuration);
+            }
         }
+    }
 
-        float knbMagnitude = knockbackVelocity.magnitude;
-        float duration = knbMagnitude * rumbleDurationFactor;
-        controllerRumbler?.Rumble(duration, force, dmg);
-        if (knbMagnitude >= hitStunThreshold)
-        {
-            hitStunDuration += knbMagnitude * hitStunFactor;
-            mainAnimator.SetBool("HitStun", true);
-        }
+    [ServerRpc(RequireOwnership = false)]
+    void HitStunServerRpc(float duration)
+    {
+        HitStunClientRpc(duration);
+    }
+
+    [ClientRpc]
+    void HitStunClientRpc(float duration)
+    {
+        hitStunDuration = duration;
+        mainAnimator.SetBool("HitStun", true);
     }
 
     [ServerRpc(RequireOwnership = false)]
