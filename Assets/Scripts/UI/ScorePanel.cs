@@ -17,20 +17,16 @@ public class ScorePanel : MonoBehaviour
     [SerializeField] private Color colorShift;
     private int kills = 0;
     private int wins = 0;
-
-    void Start()
-    {
-        //killsTypewriter.ShowText(kills.ToString());
-        //winsTypewriter.ShowText(wins.ToString());
-    }
-
+    
     public void SetPortrait(Sprite playerPortrait, Color playerColor)
     {
         portrait.sprite = playerPortrait;
 
         foreach (Image image in pointBubbles)
+        {
             image.color = playerColor;
-        
+            image.enabled = false;
+        }
         Color frameColor = playerColor - colorShift;
         frame.color = frameColor;
     }
@@ -38,25 +34,24 @@ public class ScorePanel : MonoBehaviour
     public void AddWin()
     {
         wins++;
-        // winsTypewriter.ShowText(wins.ToString());
+
+        for (int i = 0; i < pointBubbles.Length; i++)
+            pointBubbles[i].enabled = i < wins;
     }
 
     public void AddKill()
     {
         kills++;
-        //killsTypewriter.ShowText(kills.ToString());
-        //killsTypewriter.SkipTypewriter();
+        killsTypewriter.ShowText(kills.ToString());
+        killsTypewriter.SkipTypewriter();
     }
 
     public void SetScores(int _wins, int _kills)
     {
-        //REMOVE LATER!!!!!!
-        return;
-        //REMOVE LATER!!!!!!
         wins = _wins;
-        //winsTypewriter.ShowText(kills.ToString());
-        //winsTypewriter.SkipTypewriter();
-        winsText.text = wins.ToString();
+        for (int i = 0; i < pointBubbles.Length; i++)
+            pointBubbles[i].enabled = i < wins;
+        
         kills = _kills;
         killsText.text = kills.ToString();
     }

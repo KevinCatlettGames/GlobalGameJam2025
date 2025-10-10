@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -36,6 +37,13 @@ public class ScoreManager : MonoBehaviour
         scorePanel.gameObject.SetActive(true);
         scorePanel.SetPortrait(playerPortrait, playerColor);
         playerHUDs[playerID].SetInitaialScores(scores.KillScores[playerID], scores.WinScores[playerID]);
+        
+        for (int i = 0; i < currentActivePlayers; i++)
+        {
+            int kills = scores.KillScores[i];
+            int wins = scores.WinScores[i];
+            scorePanels[i].SetScores(wins, kills);
+        }
     }
     public void AddPendingScore(int playerID, bool isWin)
     {
@@ -93,5 +101,10 @@ public class ScoreManager : MonoBehaviour
     public int[] GetKillScores()
     {
         return scores.KillScores;
+    }
+    
+    private void OnApplicationQuit()
+    {
+        ResetScores();
     }
 }
