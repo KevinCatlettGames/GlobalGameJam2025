@@ -7,6 +7,7 @@ public class WallManager : MonoBehaviour
 {
     public static WallManager Instance;
     private List<RisingWall> walls;
+    [SerializeField] private bool isMapEventActive = true;
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private int maxActiveWalls = 3;
     private float timer = 0f;
@@ -16,6 +17,11 @@ public class WallManager : MonoBehaviour
     private int[] wallIndex;
     private void Awake()
     {
+        if (!isMapEventActive)
+        {
+            Destroy(gameObject);
+            return;
+        } 
         if (Instance == null)
         {
             Instance = this;

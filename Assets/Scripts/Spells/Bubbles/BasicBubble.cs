@@ -112,7 +112,6 @@ public class BasicBubble : NetworkBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || hasPopped) return;
-
         HandleCollision(collision);
     }  
     private void HandleCollision(Collision collision)

@@ -8,9 +8,8 @@ public class RisingWall : MonoBehaviour
     {
         animator = GetComponent<Animator>();
 
-        WallManager.Instance.AddWall(this);
+        WallManager.Instance?.AddWall(this);
         gameObject.SetActive(false);
-
     }
 
     public void Rise()
@@ -18,11 +17,6 @@ public class RisingWall : MonoBehaviour
         gameObject.SetActive(true);
         animator.Play("Rise",0 ,0);
         abschieber.SetActive(true);
-    }
-
-    public void FinishRising()
-    {
-
     }
     public void Sink()
     {
@@ -32,12 +26,5 @@ public class RisingWall : MonoBehaviour
     public void FinishSinking()
     {
         gameObject.SetActive(false);
-    }
-    public void OnCollisionEnter(Collision collision)
-    {   
-        if (collision.gameObject.CompareTag("Bubble"))
-        {
-            collision.gameObject.GetComponent<BasicBubble>().BubbleCollision(gameObject);
-        }
     }
 }
