@@ -37,5 +37,9 @@ public class WallBubble : BasicBubble
                 Pop();
             }
         }
+        else if (other.CompareTag("Wall"))
+        {
+            Pop();
+        }
     }
 }
