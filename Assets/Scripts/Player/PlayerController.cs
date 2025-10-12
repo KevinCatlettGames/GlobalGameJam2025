@@ -9,6 +9,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine.Assertions.Must;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -65,6 +66,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float knockbackDecaySpeed = 5f;
     [SerializeField] private float hitStunThreshold = 100f;
     [SerializeField] private float hitStunFactor = .1f;
+    [SerializeField] private float maxHitStunDuration = .35f;
     private float damage = 0;
     private int killCreditID = -1;
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
@@ -252,7 +254,11 @@ public class PlayerController : NetworkBehaviour
             {
                 mainAnimator.SetBool("HitStun", false);
             }
-            return;
+            else
+            {
+                controller.Move(Vector3.zero);
+                return;
+            }
         }
         Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
 
@@ -806,9 +812,10 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold)
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
-                hitStunDuration += knbMagnitude * hitStunFactor;
+                hitStunDuration = knbMagnitude * hitStunFactor;
+                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
                 mainAnimator.SetBool("HitStun", true);
             }
         }
@@ -819,7 +826,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold)
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 float stunDuration = knbMagnitude * hitStunFactor;
                 HitStunServerRpc(stunDuration);
@@ -892,9 +899,10 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold)
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
-                hitStunDuration += knbMagnitude * hitStunFactor;
+                hitStunDuration = knbMagnitude * hitStunFactor;
+                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
                 mainAnimator.SetBool("HitStun", true);
             }
         }
@@ -905,7 +913,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold)
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 float stunDuration = knbMagnitude * hitStunFactor;
                 HitStunServerRpc(stunDuration);
@@ -923,6 +931,7 @@ public class PlayerController : NetworkBehaviour
     void HitStunClientRpc(float duration)
     {
         hitStunDuration = duration;
+        hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
         mainAnimator.SetBool("HitStun", true);
     }
 
