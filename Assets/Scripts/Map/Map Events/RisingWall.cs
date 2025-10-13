@@ -4,6 +4,9 @@ public class RisingWall : MonoBehaviour
 {
     private Animator animator;
     [SerializeField] private GameObject abschieber;
+    [SerializeField] private ParticleSystem riseParticle;
+    [SerializeField] private ParticleSystem idleParticle;
+    [SerializeField] private ParticleSystem sinkParticle;
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -16,11 +19,15 @@ public class RisingWall : MonoBehaviour
     {
         gameObject.SetActive(true);
         animator.Play("Rise",0 ,0);
+        riseParticle?.Play();
+        idleParticle?.Play();
         abschieber.SetActive(true);
     }
     public void Sink()
     {
-        animator.Play("Sink", 0, 0);
+        animator.SetTrigger("Sink");
+        idleParticle?.Stop();
+        sinkParticle?.Play();
         abschieber.SetActive(false);
     }
     public void FinishSinking()
