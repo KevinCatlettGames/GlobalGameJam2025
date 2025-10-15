@@ -15,7 +15,7 @@ public class Countdown : MonoBehaviour
     public UnityEvent onCountdownComplete;
 
     private Coroutine countdownCoroutine;
-
+    public string countDownEndText = "GO!";
     private void Start()
     {
         CameraHandler.Instance.onCinematicEnd.AddListener(StartCountdown);
@@ -43,7 +43,7 @@ public class Countdown : MonoBehaviour
             currentCount--;
         }
 
-        countdownText.text = "GO!";
+        countdownText.text = countDownEndText;
         onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(1f);
