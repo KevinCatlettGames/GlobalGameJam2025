@@ -10,6 +10,7 @@ public class WallManager : MonoBehaviour
     [SerializeField] private bool isMapEventActive = true;
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private int maxActiveWalls = 3;
+    [SerializeField] private float rotationSpeed = 5f;
     private float timer = 0f;
     private bool initialised = false;
     private bool wallsActive = false;
@@ -75,7 +76,10 @@ public class WallManager : MonoBehaviour
         {
             timer -= Time.deltaTime;
         }
-
+        if (!wallsActive)
+        {
+            transform.Rotate(Vector3.up * (rotationSpeed * Time.deltaTime));
+        }
 
         if (Input.GetKeyDown(KeyCode.B))
         {
