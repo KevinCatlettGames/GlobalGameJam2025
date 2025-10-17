@@ -7,7 +7,7 @@ public class ExplodingBubble : BasicBubble
 {
     private BubbleExplosion bubbleExplosion;
     [SerializeField] private float explosionRadius = 5f;
-    [SerializeField] private GameObject fizzleEffect;
+    [SerializeField] private GameObject earlyFizzleEffect;
     private bool isReadyToExpode = false;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -54,7 +54,7 @@ public class ExplodingBubble : BasicBubble
     {
         if (hasPopped) return;
         if(isReadyToExpode) bubbleExplosion.Explode(knockback, damage);
-        else popEffect = fizzleEffect;
+        else base.fizzleEffect = earlyFizzleEffect;
         base.Pop();
     }
 

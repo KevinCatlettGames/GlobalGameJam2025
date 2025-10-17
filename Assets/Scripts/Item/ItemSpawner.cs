@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Drawing;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -55,8 +56,17 @@ public class ItemSpawner : MonoBehaviour
         Vector3 spawnPosition;
         if (location == Vector3.zero)
         {
-            Vector3 randomPos = Random.insideUnitSphere * spawnRadius;
-            randomPos.y = itemPrefab.transform.position.y;
+            Vector3 randomPos;
+            int i = 0;
+            do
+            {
+                randomPos = Random.insideUnitSphere * spawnRadius;
+                randomPos.y = itemPrefab.transform.position.y;
+                Collider[] wallOverlaps = Physics.OverlapSphere(transform.position, 2.3f, LayerMask.GetMask("Wall"));
+                if (wallOverlaps.Length == 0) break;
+                i++;
+            } while (i < 10);
+            if (i == 10) return;            
             spawnPosition = new Vector3(randomPos.x, itemPrefab.transform.position.y, randomPos.z);
         }
         else

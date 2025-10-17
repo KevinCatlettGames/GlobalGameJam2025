@@ -22,7 +22,8 @@ public class BasicBubble : NetworkBehaviour
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
 
-    [SerializeField] protected GameObject popEffect;
+    [SerializeField] protected GameObject fizzleEffect;
+    [SerializeField] protected GameObject hitEffect;
     private float soapSpeedAmp = 2f;
     private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
@@ -138,6 +139,7 @@ public class BasicBubble : NetworkBehaviour
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+            fizzleEffect = hitEffect;
         }
 
         Pop();
@@ -196,7 +198,7 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
     {
-        var effect = Instantiate(popEffect, pos, Quaternion.identity);
+        var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
     private void DestroyBubble()
     {
