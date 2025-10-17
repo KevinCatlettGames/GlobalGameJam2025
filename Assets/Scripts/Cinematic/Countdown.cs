@@ -8,6 +8,7 @@ public class Countdown : MonoBehaviour
 {
     [Header("Countdown Settings")]
     public int countdownTime = 3;
+    [SerializeField] private float timeBetweenElements = .5f;
     public TextMeshProUGUI countdownText;
 
     [Header("Events")]
@@ -39,14 +40,14 @@ public class Countdown : MonoBehaviour
         while (currentCount > 0)
         {
             countdownText.text = currentCount.ToString();
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(timeBetweenElements);
             currentCount--;
         }
 
         countdownText.text = countDownEndText;
         onCountdownComplete?.Invoke();
 
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(timeBetweenElements);
         countdownText.text = "";
     }
 }
