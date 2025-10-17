@@ -1,7 +1,8 @@
 using NUnit.Framework;
-using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.Netcode;
+using UnityEngine;
 
 public class WallManager : MonoBehaviour
 {
@@ -11,11 +12,13 @@ public class WallManager : MonoBehaviour
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private int maxActiveWalls = 3;
     [SerializeField] private float rotationSpeed = 5f;
+    [SerializeField] private float startDelay = 1f;
     private float timer = 0f;
     private bool initialised = false;
     private bool wallsActive = false;
     private int totalWalls = 0;
     private int[] wallIndex;
+    private bool isMoving = true;
     private void Awake()
     {
         if (!isMapEventActive)
@@ -33,14 +36,27 @@ public class WallManager : MonoBehaviour
         }
         walls = new List<RisingWall>();
         timer = stayTime;
+        if (TransportSwitcher.Instance)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted += StartMoving;
+            GameManager.Instance.OnGameEnded += StopMoving;
+            Invoke(nameof(StartMoving), startDelay);
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted += StartMoving;
+            GameManager.Instance.OnGameEnded += StopMoving;
+            Invoke(nameof(StartMoving), startDelay);
+        }
     }
     void Start()
     {
         
     }
-
     void Update()
     {
+        if (!isMoving) return;
         if (timer <= 0)
         {
             if (!initialised)
@@ -55,20 +71,11 @@ public class WallManager : MonoBehaviour
             }
             if (!wallsActive)
             {
-                ShuffleIndexes();
-                for (int i = 0; i < maxActiveWalls; i++)
-                {
-                    walls[wallIndex[i]].Rise();
-                }
-                wallsActive = true;
+                RiseWalls();
             }
             else
             {
-                for (int i = 0; i < maxActiveWalls; i++)
-                {
-                    walls[wallIndex[i]].Sink();
-                }
-                wallsActive = false;
+                SinkWalls();
             }
             timer = stayTime;
         }
@@ -96,6 +103,33 @@ public class WallManager : MonoBehaviour
             }
         }
     }
+    private void RiseWalls()
+    {
+        ShuffleIndexes();
+        for (int i = 0; i < maxActiveWalls; i++)
+        {
+            walls[wallIndex[i]].Rise();
+        }
+        wallsActive = true;
+    }
+    private void SinkWalls()
+    {
+        for (int i = 0; i < maxActiveWalls; i++)
+        {
+            walls[wallIndex[i]].Sink();
+        }
+        wallsActive = false;
+    }
+    private void StartMoving()
+    {
+        timer = stayTime;
+        isMoving = true;
+    }
+    private void StopMoving()
+    {
+        SinkWalls();
+        isMoving = false;
+    }
     public void AddWall(RisingWall wall)
     {
         walls.Add(wall);
@@ -108,6 +142,20 @@ public class WallManager : MonoBehaviour
             int temp = wallIndex[i];
             wallIndex[i] = wallIndex[x];
             wallIndex[x] = temp;
+        }
+    }
+    private void OnDestroy()
+    {
+        if (TransportSwitcher.Instance)
+        {
+            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted -= StartMoving;
+            GameManager.Instance.OnGameEnded -= StopMoving;
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted -= StartMoving;
+            GameManager.Instance.OnGameEnded -= StopMoving;
         }
     }
 }
