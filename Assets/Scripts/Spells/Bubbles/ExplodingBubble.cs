@@ -33,6 +33,7 @@ public class ExplodingBubble : BasicBubble
         {
             bubbleExplosion.OwnerID = other.GetComponent<BasicBubble>().OwnerID;
         }
+        fizzleEffect = hitEffect;
         Pop();
     }
     protected override void InflateOverlapChack()
@@ -54,7 +55,7 @@ public class ExplodingBubble : BasicBubble
     {
         if (hasPopped) return;
         if(isReadyToExpode) bubbleExplosion.Explode(knockback, damage);
-        else base.fizzleEffect = earlyFizzleEffect;
+        else fizzleEffect = earlyFizzleEffect;
         base.Pop();
     }
 
