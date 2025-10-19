@@ -6,6 +6,7 @@ using UnityEngine;
 public class ExplodingBubble : BasicBubble
 {
     private BubbleExplosion bubbleExplosion;
+    [SerializeField] private bool indicator = true;
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private GameObject earlyFizzleEffect;
     private bool isReadyToExpode = false;
@@ -15,7 +16,8 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
-        bubbleExplosion.SetExplosionSize(explosionRadius, size);
+        if (indicator)
+            bubbleExplosion.SetExplosionSize(explosionRadius, size);
     }
     public override void BubbleCollision(GameObject other)
     {
@@ -49,6 +51,7 @@ public class ExplodingBubble : BasicBubble
             }
         }
         isReadyToExpode = true;
+        bubbleExplosion.ActivateIndicator(indicator);
         base.InflateOverlapChack();
     }
     protected override void Pop()

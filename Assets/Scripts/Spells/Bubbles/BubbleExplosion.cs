@@ -10,6 +10,10 @@ public class BubbleExplosion : NetworkBehaviour
     private float explosionRadius = 0;
     private bool hasExploded = false;
 
+    private void Start()
+    {
+        indicator.SetActive(false);
+    }
     public void Explode(float knockback, float damage)
     {
         if (hasExploded) return;
@@ -52,5 +56,9 @@ public class BubbleExplosion : NetworkBehaviour
     {
         explosionRadius = radius;
         indicator.transform.localScale *= radius / size;
+    }
+    public void ActivateIndicator(bool active)
+    {
+        indicator.SetActive(active);
     }
 }
