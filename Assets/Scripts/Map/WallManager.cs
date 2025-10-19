@@ -10,10 +10,11 @@ public class WallManager : MonoBehaviour
     private List<RisingWall> walls;
     [SerializeField] private bool isMapEventActive = true;
     [SerializeField] private float stayTime = 5f;
+    [SerializeField] private float sinkTime = 5f;
     [SerializeField] private int maxActiveWalls = 3;
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float startDelay = 1f;
-    private float timer = 0f;
+    private float timer = 90f;
     private bool initialised = false;
     private bool wallsActive = false;
     private int totalWalls = 0;
@@ -35,7 +36,6 @@ public class WallManager : MonoBehaviour
             Destroy(this);
         }
         walls = new List<RisingWall>();
-        timer = stayTime;
         if (TransportSwitcher.Instance)
         {
             if (!NetworkManager.Singleton.IsServer) return;
@@ -49,10 +49,6 @@ public class WallManager : MonoBehaviour
             GameManager.Instance.OnGameEnded += StopMoving;
             Invoke(nameof(StartMoving), startDelay);
         }
-    }
-    void Start()
-    {
-        
     }
     void Update()
     {
@@ -72,12 +68,13 @@ public class WallManager : MonoBehaviour
             if (!wallsActive)
             {
                 RiseWalls();
+                timer = stayTime;
             }
             else
             {
                 SinkWalls();
+                timer = sinkTime;
             }
-            timer = stayTime;
         }
         else
         {
@@ -118,11 +115,15 @@ public class WallManager : MonoBehaviour
         {
             walls[wallIndex[i]].Sink();
         }
+        Invoke(nameof(SetWallsInactive), 1.5f);
+    }
+    private void SetWallsInactive()
+    {
         wallsActive = false;
     }
     private void StartMoving()
     {
-        timer = stayTime;
+        timer = sinkTime;
         isMoving = true;
     }
     private void StopMoving()
