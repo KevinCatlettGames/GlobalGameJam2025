@@ -44,6 +44,9 @@ public class GameManager : NetworkBehaviour
 
         Instance = this;
 
+        if(SteamIntegration.instance) 
+            SteamIntegration.instance.UnlockAchievement(0);
+        
         for (int i = 0; i < maxPlayers; i++)
             playerStates[i] = PlayerState.missing;
 

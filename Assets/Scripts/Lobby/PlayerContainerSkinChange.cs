@@ -1,59 +1,57 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
+using FMOD.Studio;
+using FMODUnity;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
-    public Image containerBackground;
-    public Outline containerBackgroundOutline;
-    public Image avatarBackground;
-    public Image avatar;
+    [SerializeField] private Image containerBackground;
+    [SerializeField] private Outline containerBackgroundOutline;
+    [SerializeField] private Image avatarBackground;
+    [SerializeField] private Image avatar;
+    [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
     public int playerIndex = 0;
-    
     public bool currentlyOnLocked;
 
     public void SwapColorWithIncrementation(bool increment)
     {
-        if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return; 
-        
-        int totalSkins = LobbyManager.instance.possibleSkins.Length;
+        if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return;
 
+        int totalSkins = LobbyManager.instance.possibleSkins.Length;
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
 
         UpdateSkin();
+        cycleEmitter.Play();
     }
 
-    // This RPC ensures that the skin updates across all clients
     [ServerRpc(RequireOwnership = false)]
     public void UpdateSkinServerRpc()
     {
         UpdateSkin();
-        UpdateSkinClientRpc(); // Send updated skin info to all clients
+        UpdateSkinClientRpc();
     }
 
     [ClientRpc]
-    void UpdateSkinClientRpc()
+    private void UpdateSkinClientRpc()
     {
         UpdateSkin();
     }
 
-    // This function handles both the skin change and checking if the skin is locked
     public void UpdateSkin()
     {
         SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
         bool skinLocked = false;
 
-        // Check if any other player has the same skin and is ready
         for (int i = 0; i < LobbyPlayerHandler.Instance.playerValues.Count; i++)
         {
             if (i == playerIndex) continue;
 
             var otherSkin = LobbyPlayerHandler.Instance.playerValues[i].Skin;
-
             if (otherSkin != null && otherSkin == skinToUse &&
                 i < LobbyManager.instance.players.Count &&
                 LobbyManager.instance.players[i].IsReady)
@@ -63,10 +61,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             }
         }
 
-        // Update the lock status
         currentlyOnLocked = skinLocked;
 
-        if (!currentlyOnLocked && playerIndex >= 0 && playerIndex < LobbyPlayerHandler.Instance.playerValues.Count)
+        if (!currentlyOnLocked &&
+            playerIndex >= 0 &&
+            playerIndex < LobbyPlayerHandler.Instance.playerValues.Count)
         {
             LobbyPlayerHandler.Instance.playerValues[playerIndex].Skin = skinToUse;
         }
@@ -74,7 +73,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         ApplySkinVisuals();
     }
 
-    // Apply the visuals based on the lock state
     private void ApplySkinVisuals()
     {
         SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];

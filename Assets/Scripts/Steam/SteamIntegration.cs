@@ -7,20 +7,22 @@ using Unity.VisualScripting;
 public class SteamIntegration : MonoBehaviour
 {
     public static SteamIntegration instance;
-
-    public string[] achievementIds;
-    public string[] statIds;
-    bool isFullVersion = true;
-
+    
+    [Header("Steam initialization")]
+    [SerializeField] bool isFullVersion = true;
     private bool statsLoaded = false;
-
     private float retryInterval = 5f;
     private float retryTimer = 0f;
-    
-    public Friend steamFriendToJoin;
-    public string lobbyIDToJoin;
-
     private bool steamInitialized = false; 
+    
+    [Header("Achievements")]
+    [SerializeField] string[] achievementNames;
+    [SerializeField] string[] statNames;
+    
+    [Header("Matchmaking")]
+    public Friend steamFriendToJoin;
+    [ReadOnly]
+    public string lobbyIDToJoin;
     
     #region Unity Life Cycle
     private void Awake()
@@ -32,23 +34,28 @@ public class SteamIntegration : MonoBehaviour
 
     private void Start()
     {
-        DontDestroyOnLoad(gameObject);
-        TryInitializeSteam();
+        try
+        {
+            InitializeSteam();
+            DontDestroyOnLoad(this);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Error initializing Steam: {e.Message}");
+        }
     }
 
 
     private void Update()
     {
         if (steamInitialized)
-        {
             SteamClient.RunCallbacks();
-        }
         else
         {
             retryTimer -= Time.deltaTime;
             if (retryTimer <= 0f)
             {
-                TryInitializeSteam();
+                InitializeSteam();
                 retryTimer = retryInterval;
             }
         }
@@ -57,9 +64,7 @@ public class SteamIntegration : MonoBehaviour
     private void OnApplicationQuit()
     {
         if (SteamClient.IsValid)
-        {
             SteamClient.Shutdown();
-        }
     }
 
     private void OnEnable()
@@ -73,9 +78,8 @@ public class SteamIntegration : MonoBehaviour
     }
 
     #endregion
-
     
-    private void TryInitializeSteam()
+    private void InitializeSteam()
     {
         try
         {
@@ -86,10 +90,11 @@ public class SteamIntegration : MonoBehaviour
                 return;
             }
 
-            uint appId = isFullVersion ? 3670670u : 3769210u;
-            SteamClient.Init(appId, true);
-            Debug.Log("Steam initialized successfully.");
-
+            if(isFullVersion) 
+                Steamworks.SteamClient.Init(3670670);
+            else
+                Steamworks.SteamClient.Init(3769210);
+            
             bool success = SteamUserStats.RequestCurrentStats();
             if (success)
             {
@@ -97,9 +102,7 @@ public class SteamIntegration : MonoBehaviour
                 Debug.Log("Steam stats loaded.");
             }
             else
-            {
                 Debug.LogWarning("Steam initialized, but failed to load stats.");
-            }
 
             steamInitialized = true;
         }
@@ -171,140 +174,146 @@ public class SteamIntegration : MonoBehaviour
      #endregion
     
     #region Achievements
-    // [Button]
-    // public void UnlockAllAchievements()
-    // {
-    //     try
-    //     {
-    //         foreach (string id in achievementIds)
-    //         {
-    //             Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
-    //             ach.Trigger();
-    //         }
-    //         Debug.Log("All achievements unlocked");
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
-    //
-    // [Button]
-    // public void ClearAllAchievements()
-    // {
-    //     try
-    //     {
-    //         foreach (string id in achievementIds)
-    //         {
-    //             Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
-    //             ach.Clear();
-    //         }
-    //         Debug.Log("All achievements cleared");
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
-    //
-    // [Button]
-    // public void ResetAllStats()
-    // {
-    //     try
-    //     {
-    //         if (!statsLoaded)
-    //         {
-    //             Debug.LogWarning("Steam stats not loaded yet.");
-    //             return;
-    //         }
-    //
-    //         foreach (string id in statIds)
-    //             SteamUserStats.SetStat(id, 0);
-    //
-    //         SteamUserStats.StoreStats();
-    //         Debug.Log("All stats reset");
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.LogError($"ResetAllStats failed: {e}");
-    //     }
-    // }
-    //
-    //
-    // [Button]
-    // public void IsThisAchievementUnlocked(int id)
-    // {
-    //     try
-    //     {
-    //         Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
-    //         Debug.Log($"Achievement {id} status: " + ach.State);
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
-    //
-    // [Button]
-    // public void UnlockAchievement(int id)
-    // {
-    //     var ach = new Steamworks.Data.Achievement(id.ToString());
-    //     ach.Trigger();
-    //     Debug.Log("Achievement " + id + " unlocked");
-    // }
-    //
-    // [Button]
-    // public void ClearAchievement(int id)
-    // {
-    //     try
-    //     {
-    //         Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
-    //         ach.Clear();
-    //         Debug.Log($"Achievement {id} cleared");
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
-    //
-    // [Button]
-    // public void IncrementIntSteamStat(int statName, int incrementAmount, int achievementThreshold, int achievementName)
-    // {
-    //     if (!isFullVersion) return;  
-    //     
-    //     try
-    //     {
-    //         if (!statsLoaded)
-    //         {
-    //             Debug.LogWarning("Steam stats not loaded yet.");
-    //             return;
-    //         }
-    //
-    //         int currentValue = SteamUserStats.GetStatInt(statName.ToString());
-    //         //Debug.Log("Stat current value: " + currentValue);
-    //
-    //         int newValue = currentValue + incrementAmount;
-    //         //Debug.Log("Stat new value: " + newValue);
-    //
-    //         if (newValue >= achievementThreshold)
-    //         {
-    //             //Debug.Log("Value was higher then threshold, reduced it to threshold " + achievementThreshold);
-    //             newValue = achievementThreshold;
-    //         }
-    //
-    //         SteamUserStats.SetStat(statName.ToString(), newValue);
-    //
-    //         // Check if newValue reached or exceeded the achievement threshold
-    //         if (newValue >= achievementThreshold)
-    //             UnlockAchievement(achievementName);
-    //
-    //         SteamUserStats.StoreStats();
-    //     }
-    //     catch (System.Exception e)
-    //     {
-    //         Debug.Log(e);
-    //     }
-    // }
+    [Button]
+    public void UnlockAllAchievements()
+    {
+        try
+        {
+            foreach (string id in achievementNames)
+            {
+                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
+                ach.Trigger();
+            }
+            Debug.Log("All achievements unlocked");
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+    
+    [Button]
+    public void ClearAllAchievements()
+    {
+        try
+        {
+            foreach (string id in achievementNames)
+            {
+                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
+                ach.Clear();
+            }
+            Debug.Log("All achievements cleared");
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+    
+    [Button]
+    public void ResetAllStats()
+    {
+        try
+        {
+            if (!statsLoaded)
+            {
+                Debug.LogWarning("Steam stats not loaded yet.");
+                return;
+            }
+    
+            foreach (string id in statNames)
+                SteamUserStats.SetStat(id, 0);
+    
+            SteamUserStats.StoreStats();
+            Debug.Log("All stats reset");
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"ResetAllStats failed: {e}");
+        }
+    }
+    
+    
+    [Button]
+    public void IsThisAchievementUnlocked(int id)
+    {
+        try
+        {
+            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
+            Debug.Log($"Achievement {id} status: " + ach.State);
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+    
+    [Button]
+    public void UnlockAchievement(int id)
+    {
+        for (int i = 0; i < achievementNames.Length; i++)
+        {
+            if (i == id)
+            {
+                var ach = new Steamworks.Data.Achievement(achievementNames[i]);
+                ach.Trigger();
+                Debug.Log("Achievement " + id + " unlocked");
+            }
+        }
+    }
+    
+    [Button]
+    public void ClearAchievement(int id)
+    {
+        try
+        {
+            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
+            ach.Clear();
+            Debug.Log($"Achievement {id} cleared");
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
+    
+    [Button]
+    public void IncrementIntSteamStat(int statName, int incrementAmount, int achievementThreshold, int achievementName)
+    {
+        if (!isFullVersion) return;  
+        
+        try
+        {
+            if (!statsLoaded)
+            {
+                Debug.LogWarning("Steam stats not loaded yet.");
+                return;
+            }
+    
+            int currentValue = SteamUserStats.GetStatInt(statName.ToString());
+            //Debug.Log("Stat current value: " + currentValue);
+    
+            int newValue = currentValue + incrementAmount;
+            //Debug.Log("Stat new value: " + newValue);
+    
+            if (newValue >= achievementThreshold)
+            {
+                //Debug.Log("Value was higher then threshold, reduced it to threshold " + achievementThreshold);
+                newValue = achievementThreshold;
+            }
+    
+            SteamUserStats.SetStat(statName.ToString(), newValue);
+    
+            // Check if newValue reached or exceeded the achievement threshold
+            if (newValue >= achievementThreshold)
+                UnlockAchievement(achievementName);
+    
+            SteamUserStats.StoreStats();
+        }
+        catch (System.Exception e)
+        {
+            Debug.Log(e);
+        }
+    }
     #endregion Achievements
 }
