@@ -254,7 +254,7 @@ GameObject:
   - component: {fileID: 9013064460672319193}
   - component: {fileID: 8792471202513013362}
   - component: {fileID: 4097798986193652547}
-  - component: {fileID: 4153007294588947323}
+  - component: {fileID: 6323712858238676694}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -319,21 +319,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &4153007294588947323
+--- !u!114 &6323712858238676694
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2764651523322923776}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &3028472528135015565
 GameObject:
   m_ObjectHideFlags: 0
@@ -420,7 +445,7 @@ GameObject:
   - component: {fileID: 1028273154962770758}
   - component: {fileID: 8926276392082128665}
   - component: {fileID: 7649201846792941812}
-  - component: {fileID: 9207062309335375283}
+  - component: {fileID: 8787836185260230152}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -485,21 +510,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &9207062309335375283
+--- !u!114 &8787836185260230152
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3268061383039438101}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &3368722394828499145
 GameObject:
   m_ObjectHideFlags: 0
@@ -720,7 +770,7 @@ GameObject:
   - component: {fileID: 6291210745608531183}
   - component: {fileID: 9180224393930128461}
   - component: {fileID: 2814030884269426868}
-  - component: {fileID: 1452223803299176048}
+  - component: {fileID: 8091966194999787668}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -785,21 +835,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1452223803299176048
+--- !u!114 &8091966194999787668
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4535220382799887838}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &4709746617430428458
 GameObject:
   m_ObjectHideFlags: 0
@@ -811,7 +886,7 @@ GameObject:
   - component: {fileID: 3339798762180639248}
   - component: {fileID: 6620858851633583302}
   - component: {fileID: 1398710815365238804}
-  - component: {fileID: 6271298838406200462}
+  - component: {fileID: 5801762926385809738}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -876,21 +951,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6271298838406200462
+--- !u!114 &5801762926385809738
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4709746617430428458}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &4812307363297503470
 GameObject:
   m_ObjectHideFlags: 0
@@ -901,6 +1001,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6864814776959513479}
   - component: {fileID: 665435133517630125}
+  - component: {fileID: 5778081420865462156}
   m_Layer: 5
   m_Name: ScorePanel
   m_TagString: Untagged
@@ -950,9 +1051,47 @@ MonoBehaviour:
   winsText: {fileID: 7493778175651272761}
   killsText: {fileID: 7010396323890996511}
   portrait: {fileID: 7261947184317575199}
-  pointBubbles: []
+  pointBubbles:
+  - {fileID: 2320519044605284270}
+  - {fileID: 2814030884269426868}
+  - {fileID: 1398710815365238804}
+  - {fileID: 4097798986193652547}
+  - {fileID: 976267770487388941}
+  - {fileID: 7649201846792941812}
+  - {fileID: 7631059464552840318}
   frame: {fileID: 877943703361480620}
   colorShift: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 0}
+--- !u!114 &5778081420865462156
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4812307363297503470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 2092590178
+      Data2: 1280068357
+      Data3: 360641718
+      Data4: -232876620
+    Path: event:/ui/ui_score_killcount
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 2
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &5581422706773670773
 GameObject:
   m_ObjectHideFlags: 0
@@ -1081,7 +1220,7 @@ GameObject:
   - component: {fileID: 7040330096348382413}
   - component: {fileID: 9073740413433340529}
   - component: {fileID: 976267770487388941}
-  - component: {fileID: 7566660015992298899}
+  - component: {fileID: 6794923596320213973}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -1146,21 +1285,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &7566660015992298899
+--- !u!114 &6794923596320213973
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6259643886634997760}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &6425588485132794252
 GameObject:
   m_ObjectHideFlags: 0
@@ -1247,7 +1411,7 @@ GameObject:
   - component: {fileID: 4870061587714515628}
   - component: {fileID: 3546990635929340201}
   - component: {fileID: 2320519044605284270}
-  - component: {fileID: 1788697074714192500}
+  - component: {fileID: 860141232014590187}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -1312,21 +1476,46 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &1788697074714192500
+--- !u!114 &860141232014590187
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6547765592165031584}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
 --- !u!1 &6584278436009875561
 GameObject:
   m_ObjectHideFlags: 0
@@ -1584,7 +1773,7 @@ GameObject:
   - component: {fileID: 4103548692523038603}
   - component: {fileID: 471174741209071506}
   - component: {fileID: 7631059464552840318}
-  - component: {fileID: 6647673403993832035}
+  - component: {fileID: 6175778579858284008}
   m_Layer: 5
   m_Name: PointBubble
   m_TagString: Untagged
@@ -1649,18 +1838,43 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!114 &6647673403993832035
+--- !u!114 &6175778579858284008
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9175005816726655452}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e19747de3f5aca642ab2be37e372fb86, type: 3}
+  m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_EffectColor: {r: 1, g: 1, b: 1, a: 0.25490198}
-  m_EffectDistance: {x: 2, y: 2}
-  m_UseGraphicAlpha: 1
+  appearDuration: 0.2
+  overshootScale: 1.2
+  beginEffectWaitTime: 0.5
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  emitter: {fileID: 5778081420865462156}
