@@ -60,7 +60,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
         NetworkManager.Singleton.StartHost();
         relayServerHeartbeat.joinedLobby = joinedLobby;
         GlobalLobby.CurrentLobby = joinedLobby;
-        NetworkManager.Singleton.SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
     }
 
     /// <summary>

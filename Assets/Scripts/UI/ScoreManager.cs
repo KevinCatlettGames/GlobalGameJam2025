@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,6 +8,7 @@ public class ScoreManager : MonoBehaviour
     public static ScoreManager Instance;
 
     [SerializeField] private ScorePanel[] scorePanels;
+    [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject restarText;
 
@@ -27,12 +29,6 @@ public class ScoreManager : MonoBehaviour
         {
             Destroy(this);
         }
-
-        if (scores)
-        {
-            scores.ResetWins();
-            scores.ResetKills();
-        }
     }
     public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
     {
@@ -40,6 +36,14 @@ public class ScoreManager : MonoBehaviour
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
         scorePanel.SetPortrait(playerPortrait, playerColor);
+        playerHUDs[playerID].SetInitaialScores(scores.KillScores[playerID], scores.WinScores[playerID]);
+        
+        for (int i = 0; i < currentActivePlayers; i++)
+        {
+            int kills = scores.KillScores[i];
+            int wins = scores.WinScores[i];
+            scorePanels[i].SetScores(wins, kills);
+        }
     }
     public void AddPendingScore(int playerID, bool isWin)
     {
@@ -61,7 +65,6 @@ public class ScoreManager : MonoBehaviour
     }
     public IEnumerator ResolveScoresCoroutine()
     {
-        Debug.Log("ResolveScores");
         if(currentActivePlayers <= 0 || currentActivePlayers > 4) yield break;
         restarText.SetActive(false);
         for (int i = 0; i < currentActivePlayers; i++)
@@ -98,5 +101,10 @@ public class ScoreManager : MonoBehaviour
     public int[] GetKillScores()
     {
         return scores.KillScores;
+    }
+    
+    private void OnApplicationQuit()
+    {
+        ResetScores();
     }
 }

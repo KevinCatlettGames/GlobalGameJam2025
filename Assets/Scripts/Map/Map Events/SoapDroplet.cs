@@ -29,6 +29,7 @@ public class SoapDroplet : NetworkBehaviour
         size = Random.Range(minSize, maxSize);
         transform.localScale = Vector3.one * size;
         Invoke(nameof(ActivateDroplet), startDelay);
+        GameManager.Instance.OnGameStarted += DestroyOnRestart;
     }
 
     private void ActivateDroplet()
@@ -95,5 +96,14 @@ public class SoapDroplet : NetworkBehaviour
                 Destroy(gameObject);
             }
         }
+    }
+    private void DestroyOnRestart()
+    {
+        Destroy(gameObject);
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnGameStarted -= DestroyOnRestart;
     }
 }

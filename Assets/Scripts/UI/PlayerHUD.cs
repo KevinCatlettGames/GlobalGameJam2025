@@ -140,7 +140,7 @@ public class PlayerHUD : NetworkBehaviour
         {
             uiElement.color = skinToUse.Color;
         }
-        portrait.sprite = skinToUse.Sprite;
+        portrait.sprite = skinToUse.GameSprite;
     }
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
@@ -283,6 +283,14 @@ public class PlayerHUD : NetworkBehaviour
         portrait.color = Color.white;
         UICover.SetActive(false);
         UpdateDamageText(0);
+    }
+
+    public void SetInitaialScores(int _kills, int _wins)
+    {
+        kills = _kills;
+        wins = _wins;
+        killsTypewriter.ShowText(kills.ToString());
+        winsTypewriter.ShowText(wins.ToString());
     }
 
     private void OnDestroy()

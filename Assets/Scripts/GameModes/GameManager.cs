@@ -18,6 +18,7 @@ public class GameManager : NetworkBehaviour
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
+    protected int finishedRoundCount = 0;
 
     public Action OnGameEnded;
     public Action OnGameStarted;
@@ -30,7 +31,9 @@ public class GameManager : NetworkBehaviour
 
     public PlayerInputManager playerInputManager;
     public bool PlayingLocal = false;
-
+    public Countdown countdown; 
+    
+    
     private void Awake()
     {
         if (Instance != null)
@@ -41,6 +44,9 @@ public class GameManager : NetworkBehaviour
 
         Instance = this;
 
+        if(SteamIntegration.instance) 
+            SteamIntegration.instance.UnlockAchievement(0);
+        
         for (int i = 0; i < maxPlayers; i++)
             playerStates[i] = PlayerState.missing;
 
@@ -48,20 +54,9 @@ public class GameManager : NetworkBehaviour
         IsGamePaused = false;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-        {
-            Debug.Log("Playing online"); 
-            LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
-        }
+            countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
         else
-        {
-            Debug.Log("Playing local");
             PlayingLocal = true;
-        }
-        // else
-        // {
-        //     if (IsServer)
-        //         LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartGameAfterDelay);
-        // }
     }
 
     private IEnumerator DelayedStartGame()
@@ -73,7 +68,7 @@ public class GameManager : NetworkBehaviour
     private void OnDisable()
     {
         if(LobbyManager.instance) 
-            LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(StartGameAfterDelay);
+            countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);    
     }
 
     private void StartGameAfterDelay()
@@ -136,6 +131,7 @@ public class GameManager : NetworkBehaviour
         OnGameEnded?.Invoke();
         UIManager.Instance.SetScoreScreenActive(true);
         ScoreManager.Instance.ResolveScores();
+        finishedRoundCount++;
         isReadyToRestart = true;
     }
 

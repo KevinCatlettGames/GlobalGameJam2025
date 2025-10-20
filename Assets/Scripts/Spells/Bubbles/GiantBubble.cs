@@ -15,6 +15,7 @@ public class GiantBubble : BasicBubble
     [SerializeField] private float knbMod = .3f;
     [SerializeField] private float sizMod = .25f;
     [SerializeField] private float speedMod = 5f;
+    [SerializeField] private GameObject smallHitEffect;
 
     private bool isSmall = false;
 
@@ -40,6 +41,7 @@ public class GiantBubble : BasicBubble
             size *= sizMod;
             speed *= speedMod;
             transform.localScale = Vector3.one * size;
+            hitEffect = smallHitEffect;
             return;
         }
         if (!isSmall && other.CompareTag("Player"))
@@ -49,7 +51,6 @@ public class GiantBubble : BasicBubble
             if (angle <= 5f)
             {
                 knockback *= 1.2f;
-                Debug.Log("BigBubbleCrit");
             }
             else
             {

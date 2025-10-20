@@ -1,3 +1,4 @@
+using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
 using UnityEngine.Events;
@@ -6,7 +7,9 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
+using UnityEngine.Assertions.Must;
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -15,6 +18,8 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Sound Events")] 
     [SerializeField] private EventReference knockBackEvent;
+    [SerializeField] string knockBackEventIntensityParam;
+    [SerializeField] int knockBackEventMaxIntensity = 100; 
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference dashEvent;
 
@@ -59,10 +64,14 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
     [SerializeField] private float knockbackDecaySpeed = 5f;
+    [SerializeField] private float hitStunThreshold = 100f;
+    [SerializeField] private float hitStunFactor = .1f;
+    [SerializeField] private float maxHitStunDuration = .35f;
     private float damage = 0;
     private int killCreditID = -1;
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
     private bool isDead = false;
+    private float hitStunDuration = 0;
 
     #endregion
 
@@ -238,6 +247,19 @@ public class PlayerController : NetworkBehaviour
 
     private void ApplyMovement()
     {
+        if (hitStunDuration > 0)
+        {
+            hitStunDuration -= Time.deltaTime;
+            if (hitStunDuration <= 0)
+            {
+                mainAnimator.SetBool("HitStun", false);
+            }
+            else
+            {
+                controller.Move(Vector3.zero);
+                return;
+            }
+        }
         Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
 
         if (knockbackVelocity.magnitude > 0.1f)
@@ -322,7 +344,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -335,7 +357,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -515,7 +537,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
 
         if (!canSprint)
         {
@@ -614,11 +636,12 @@ public class PlayerController : NetworkBehaviour
     {
         switch (value.x, value.y)
         {
-            case (0, 1): mainAnimator.SetTrigger("EmoteUp"); break;
-            case (0, -1): break; // EmoteDown
-            case (-1, 0): break; // EmoteLeft
-            case (1, 0): break; // EmoteRight
+            case (0, 1): mainAnimator.SetInteger("EmoteID", 1); break;   // EmoteUp
+            case (1, 0): mainAnimator.SetInteger("EmoteID", 2); break;  // EmoteRight
+            case (0, -1): mainAnimator.SetInteger("EmoteID", 3); break; // EmoteDown
+            case (-1, 0): mainAnimator.SetInteger("EmoteID", 4); break; // EmoteLeft
         }
+        mainAnimator.SetTrigger("Emote");
     }
 
     #endregion
@@ -773,16 +796,42 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
-            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+            fmodEvent.start();
+            fmodEvent.release();
+            
             shaderManager.DamageEffect(damageColorEffectDuration);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
+            {
+                hitStunDuration = knbMagnitude * hitStunFactor;
+                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+                mainAnimator.SetBool("HitStun", true);
+            }
         }
         else
         {
             FlinchAnimServerRpc(force, dmg);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
+            {
+                float stunDuration = knbMagnitude * hitStunFactor;
+                HitStunServerRpc(stunDuration);
+            }
         }
-
-        float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
-        controllerRumbler?.Rumble(duration, force, dmg);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -795,7 +844,16 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void FlinchAnimClientRpc(float force, float dmg)
     {
-        RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
+        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+        fmodEvent.start();
+        fmodEvent.release();
+
         shaderManager.DamageEffect(damageColorEffectDuration);
     }
 
@@ -825,16 +883,56 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("Flinch");
-            RuntimeManager.PlayOneShotAttached(knockBackEvent, gameObject);
-            shaderManager.DamageEffect(damageColorEffectDuration);
+
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+            fmodEvent.start();
+            fmodEvent.release();
+
+            shaderManager?.DamageEffect(damageColorEffectDuration);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
+            {
+                hitStunDuration = knbMagnitude * hitStunFactor;
+                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+                mainAnimator.SetBool("HitStun", true);
+            }
         }
         else
         {
             FlinchAnimServerRpc(force, dmg);
+            
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+            if (knbMagnitude >= hitStunThreshold && ID != -2)
+            {
+                float stunDuration = knbMagnitude * hitStunFactor;
+                HitStunServerRpc(stunDuration);
+            }
         }
+    }
 
-        float duration = knockbackVelocity.magnitude * rumbleDurationFactor;
-        controllerRumbler?.Rumble(duration, force, dmg);
+    [ServerRpc(RequireOwnership = false)]
+    void HitStunServerRpc(float duration)
+    {
+        HitStunClientRpc(duration);
+    }
+
+    [ClientRpc]
+    void HitStunClientRpc(float duration)
+    {
+        hitStunDuration = duration;
+        hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+        mainAnimator.SetBool("HitStun", true);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -856,7 +954,6 @@ public class PlayerController : NetworkBehaviour
     public void Die()
     {
         if (isDead) return;
-        Debug.Log(playerID + " Died");
         isDead = true;
         controller.enabled = false;
         damagedEffect.UpdateParticleSystem(-1);
@@ -930,7 +1027,6 @@ public class PlayerController : NetworkBehaviour
 
         shaderManager?.WetEffect(isSlippery);
     }
-
     #endregion
 
     #region PlayerManager
@@ -955,6 +1051,7 @@ public class PlayerController : NetworkBehaviour
         damagedEffect.UpdateParticleSystem(-1);
         isSlippery = false;
         killCreditID = -1;
+        hitStunDuration = 0;
 
         shaderManager?.ResetShader();
 
@@ -962,6 +1059,7 @@ public class PlayerController : NetworkBehaviour
         {
             mainAnimator.SetBool("IsDead", false);
             mainAnimator.SetBool("Victory", false);
+            mainAnimator.SetBool("HitStun", false);
             playerHUD.ResetHUD();
         }
         else
