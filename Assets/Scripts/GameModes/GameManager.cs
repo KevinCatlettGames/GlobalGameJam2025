@@ -9,6 +9,8 @@ using Object = System.Object;
 
 public class GameManager : NetworkBehaviour
 {
+    public enum GameModeType {SingleElimination, Timed}
+    
     public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;

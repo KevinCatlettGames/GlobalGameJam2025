@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-[CreateAssetMenu(fileName = "New SkinSO", menuName = "SkinSO")]
+[CreateAssetMenu(fileName = "New SkinSO", menuName = "Scriptable Objects/SO_Skin")]
 public class SkinSO : ScriptableObject
 {
     [FormerlySerializedAs("sprite")] [SerializeField] private Sprite gameSprite;

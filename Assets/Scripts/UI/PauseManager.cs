@@ -195,7 +195,7 @@ public class PauseManager : MonoBehaviour
             Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
-        SceneManager.LoadScene("MainMenu");
+        SceneManager.LoadScene("UI_MainMenu");
     }
     
     private bool IsHost()
