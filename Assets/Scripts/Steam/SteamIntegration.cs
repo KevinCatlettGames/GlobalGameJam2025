@@ -251,6 +251,8 @@ public class SteamIntegration : MonoBehaviour
     [Button]
     public void UnlockAchievement(int id)
     {
+        if (!steamInitialized) return; 
+        
         for (int i = 0; i < achievementNames.Length; i++)
         {
             if (i == id)

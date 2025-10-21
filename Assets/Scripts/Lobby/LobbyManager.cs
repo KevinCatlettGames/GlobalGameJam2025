@@ -7,32 +7,61 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
+using TMPro;
 
 public class LobbyManager : NetworkBehaviour
 {
-    [SerializeField] private SO_Scores scores;
-
     public static LobbyManager instance;
-    public UnityEvent<ulong> OnReadyStateUpdated;
-    public bool allPlayersReady = false;
+    
+    [Header("Game Mode Settings")]
+    [SerializeField] private SO_Scores scores;
+    [SerializeField] string levelToLoad = "Lvl_MainScene";
+    
+    [SerializeField] GameModeSO[] possibleGameModes;
+    public GameModeSO[]  PossibleGameModes { get => possibleGameModes; set => possibleGameModes = value; }
+    
+    [SerializeField] GameManager.GameModeType selectedGameMode = GameManager.GameModeType.SingleElimination;
+    public GameManager.GameModeType SelectedGameMode
+    {
+        get => selectedGameMode;
+        set
+        {
+            ChangeSelectedGameModeClientRpc(value);
+        }
+    }
 
-    [Header("UI")]
-    public GameObject[] playerContainers;
-    public Button startButton;
+    public TextMeshProUGUI gameModeTypeText;
+    
+    [SerializeField] GameObject gameModeSelection;
+    public GameObject GameModeSelection { get => gameModeSelection; set => gameModeSelection = value; }
 
-    [Header("Local Player Settings")]
-    public int maxLocalPlayers = 4;
+    [SerializeField] GameObject matchSettingsSelection; 
+    public GameObject MatchSettingsSelection  { get => matchSettingsSelection; set => matchSettingsSelection = value; }
+    
+    [Header("Player Settings")]
+    [SerializeField] int maxLocalPlayers = 4;
+    [SerializeField] int minPlayers = 1;
+    
+    [SerializeField] SkinSO[] possibleSkins;
+    public SkinSO[] PossibleSkins  { get => possibleSkins; set => possibleSkins = value; }
+    
+    [Header("Network Players")]
     public NetworkList<PlayerLobbyState> players = new NetworkList<PlayerLobbyState>();
-    public int minPlayers = 1;
-    public SkinSO[] possibleSkins;
+    public bool allPlayersReady = false;
+    public UnityEvent<ulong> OnReadyStateUpdated;
     public UnityEvent OnAllPlayersLoadedIn;
-
-    public StudioEventEmitter joinEmitter;
-    public StudioEventEmitter selectEmitter;
-    public StudioEventEmitter unselectEmitter;
-    public StudioEventEmitter playerStartEmitter;
-
-    public string levelToLoad = "Lvl_MainScene";
+    
+    [Header("UI Elements")]
+    public GameObject[] playerContainers;
+    [SerializeField] Button startButton;
+    [SerializeField] Image startButtonImage;
+    [SerializeField] Color startButtonColorWhenEnabled;
+    
+    [Header("Audio Emitters")]
+    [SerializeField] StudioEventEmitter joinEmitter;
+    [SerializeField] StudioEventEmitter selectEmitter;
+    [SerializeField] StudioEventEmitter unselectEmitter;
+    [SerializeField] StudioEventEmitter playerStartEmitter;
 
     private void Awake()
     {
@@ -51,7 +80,10 @@ public class LobbyManager : NetworkBehaviour
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
 
-        startButton.gameObject.SetActive(false);
+        ChangeStartButtonState(false);
+
+        if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
+            UpdateSelectedGameModeForNewClientServerRpc();
     }
 
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
@@ -148,6 +180,29 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
+    void EmitSoundServerRpc(int emitterIndex)
+    {
+        EmitSoundClientRpc(emitterIndex);
+    }
+
+    [ClientRpc]
+    void EmitSoundClientRpc(int emitterIndex)
+    {
+        switch  (emitterIndex)
+        {
+            case 0:
+                joinEmitter.Play();
+                break;
+            case 1:
+                selectEmitter.Play();
+                break;
+            case 2:
+                unselectEmitter.Play();
+                break;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
     public void ToggleReadyServerRpc(ulong clientID)
     {
         int index = -1;
@@ -165,6 +220,7 @@ public class LobbyManager : NetworkBehaviour
             players.Add(new PlayerLobbyState { ClientId = (ulong)clientID, IsReady = false });
             AddNewPlayerValuesClientRpc((int)clientID);
             index = players.Count - 1;
+            EmitSoundServerRpc(0);
         }
         else
         {
@@ -178,6 +234,11 @@ public class LobbyManager : NetworkBehaviour
                 InvokeOnReadyStateUpdatedClientRpc(clientID);
             }
         }
+        
+        if (players[index].IsReady)
+            EmitSoundServerRpc(1);
+        else
+            EmitSoundServerRpc(2);
 
         CheckAllReady();
     }
@@ -201,7 +262,7 @@ public class LobbyManager : NetworkBehaviour
         if (players.Count == 0)
         {
             allPlayersReady = false;
-            startButton.gameObject.SetActive(false);
+            ChangeStartButtonState(false);
             return;
         }
 
@@ -212,7 +273,7 @@ public class LobbyManager : NetworkBehaviour
                 if (allPlayersReady)
                 {
                     allPlayersReady = false;
-                    startButton.gameObject.SetActive(false);
+                    ChangeStartButtonState(false);
                 }
                 return;
             }
@@ -223,14 +284,14 @@ public class LobbyManager : NetworkBehaviour
         if (players.Count >= minPlayers)
         {
             allPlayersReady = true;
-            startButton.gameObject.SetActive(true);
+            ChangeStartButtonState(true);
         }
 
         if (TransportSwitcher.Instance.isUsingRelay &&
             NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
-            startButton.gameObject.SetActive(false);
+            ChangeStartButtonState(false);
         }
     }
 
@@ -249,8 +310,52 @@ public class LobbyManager : NetworkBehaviour
 
     public IEnumerator LoadGameScene()
     {
-        playerStartEmitter.Play();
+        PlayStartSFXClientRpc();
         yield return new WaitForSeconds(1f);
         NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
+    }
+
+    void ChangeStartButtonState(bool enable)
+    {
+        if (enable)
+        {
+            startButton.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
+            startButtonImage.color = startButtonColorWhenEnabled;
+            startButton.interactable = true;
+        }
+        else
+        {
+            startButton.GetComponentInChildren<TextMeshProUGUI>().color = Color.gray;
+            startButtonImage.color = Color.gray;
+            startButton.interactable = false;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void UpdateSelectedGameModeForNewClientServerRpc()
+    {
+        ChangeSelectedGameModeClientRpc(selectedGameMode);
+    }
+
+    [ClientRpc]
+    void ChangeSelectedGameModeClientRpc(GameManager.GameModeType gameModeType)
+    {
+        GameModeSO gameModeSoToUse = possibleGameModes[0];
+        foreach (GameModeSO gameModeSo in possibleGameModes)
+        {
+            if (gameModeType == gameModeSo.GameModeType)
+            {
+                gameModeSoToUse = gameModeSo;
+                break;
+            }
+        }
+        selectedGameMode = gameModeType;
+        gameModeTypeText.text = gameModeSoToUse.GamemodeTypeName; 
+    }
+
+    [ClientRpc]
+    void PlayStartSFXClientRpc()
+    {
+        playerStartEmitter.Play();
     }
 }

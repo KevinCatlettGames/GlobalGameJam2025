@@ -16,9 +16,6 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Spell[] startingSpells;
     [SerializeField] private Transform[] spawnPoints;
-
-    [Header("UI")]
-    public GameObject joinGameText;
     
     private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
     private NetworkVariable<int> syncedSecondSpellIndex = new NetworkVariable<int>();
@@ -73,7 +70,6 @@ public class PlayerManager : NetworkBehaviour
         {
             if (!TransportSwitcher.Instance)
             {
-                joinGameText.SetActive(true);
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
             }
@@ -179,7 +175,6 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
-        joinGameText.SetActive(false);
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 

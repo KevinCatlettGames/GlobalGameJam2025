@@ -4,7 +4,7 @@ using UnityEngine;
 using FMODUnity;
 using Unity.Netcode; 
 
-[CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
+[CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
     [SerializeField] private int spellIndex;

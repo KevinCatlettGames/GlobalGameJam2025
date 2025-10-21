@@ -89,8 +89,8 @@ public class LobbyPlayerHandler : NetworkBehaviour
 
         playerValues.Clear();
 
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[0];
-        foreach (SkinSO skin in LobbyManager.instance.possibleSkins)
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[0];
+        foreach (SkinSO skin in LobbyManager.instance.PossibleSkins)
         {
             if(skin.Index == skinIndex)
                 skinToUse = skin;
@@ -154,7 +154,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
         }
         else
         {
-            playerValues.Add(new PlayerValues(playerIndex, device, LobbyManager.instance.possibleSkins[0]));
+            playerValues.Add(new PlayerValues(playerIndex, device, LobbyManager.instance.PossibleSkins[0]));
             SortPlayerValues();
         }
     }

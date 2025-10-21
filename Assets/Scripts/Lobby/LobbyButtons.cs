@@ -2,7 +2,6 @@ using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -15,9 +14,7 @@ public class LobbyButtons : MonoBehaviour
     public InputActionProperty toggleMatchSettingsInputAction;
     public InputActionProperty goToMainMenuInputAction;
     public InputActionProperty startGameInputAction;
-
-    public GameObject gameModePanel;
-    public GameObject matchSettingsPanel;
+        
     public Image radialFillImage;
 
     [SerializeField] private float startGameHoldDuration = 1f;
@@ -28,13 +25,14 @@ public class LobbyButtons : MonoBehaviour
     private bool emitting;
 
     public StudioEventEmitter progressEmitter;
-
-    // ---------------------------------------------------------
-    // Unity Lifecycle
-    // ---------------------------------------------------------
-
+    public StudioEventEmitter buttonOnClickEmitter;
+    
+    LobbyManager lobbyManager;
+    
     private void OnEnable()
     {
+        lobbyManager = LobbyManager.instance;
+        
         toggleGameModeInputAction.action.performed += OnToggleGameModeSelection;
         toggleMatchSettingsInputAction.action.performed += OnToggleMatchSettingsSelection;
         goToMainMenuInputAction.action.performed += OnGoToMainMenu;
@@ -89,7 +87,7 @@ public class LobbyButtons : MonoBehaviour
         if (heldTime >= startGameHoldDuration)
         {
             gameStarting = true;
-            StartCoroutine(LobbyManager.instance.LoadGameScene());
+            StartCoroutine(lobbyManager.LoadGameScene());
         }
     }
 
@@ -97,11 +95,7 @@ public class LobbyButtons : MonoBehaviour
     {
         await CleanupLobby();
     }
-
-    // ---------------------------------------------------------
-    // Input Handlers
-    // ---------------------------------------------------------
-
+    
     private void OnToggleGameModeSelection(InputAction.CallbackContext context)
     {
         if (IsHost())
@@ -153,6 +147,11 @@ public class LobbyButtons : MonoBehaviour
 
     private void LeaveToMainMenu()
     {
+        if (lobbyManager.GameModeSelection.activeSelf || lobbyManager.MatchSettingsSelection.activeSelf)
+            return;
+        
+        buttonOnClickEmitter.Play();
+            
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
 
@@ -228,23 +227,27 @@ public class LobbyButtons : MonoBehaviour
 
     private bool IsHost() => NetworkManager.Singleton.IsHost;
 
-    private void ToggleGameMode()
+    public void ToggleGameMode()
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
-        gameModePanel.SetActive(!gameModePanel.activeSelf);
-        if (gameModePanel.activeSelf)
-            matchSettingsPanel.SetActive(false);
+        lobbyManager.GameModeSelection.SetActive(!lobbyManager.GameModeSelection.activeSelf);
+        if (lobbyManager.GameModeSelection.activeSelf)
+            lobbyManager.MatchSettingsSelection.SetActive(false);
+        
+        buttonOnClickEmitter.Play();
     }
 
-    private void ToggleMatchSettings()
+    public void ToggleMatchSettings()
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
-        matchSettingsPanel.SetActive(!matchSettingsPanel.activeSelf);
-        if (matchSettingsPanel.activeSelf)
-            gameModePanel.SetActive(false);
+        lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
+        if (lobbyManager.MatchSettingsSelection.activeSelf)
+            lobbyManager.GameModeSelection.SetActive(false);
+        
+        buttonOnClickEmitter.Play();
     }
 }

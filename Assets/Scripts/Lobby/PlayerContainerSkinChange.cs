@@ -20,7 +20,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return;
 
-        int totalSkins = LobbyManager.instance.possibleSkins.Length;
+        int totalSkins = LobbyManager.instance.PossibleSkins.Length;
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
@@ -44,7 +44,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void UpdateSkin()
     {
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         bool skinLocked = false;
 
         for (int i = 0; i < LobbyPlayerHandler.Instance.playerValues.Count; i++)
@@ -75,7 +75,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     private void ApplySkinVisuals()
     {
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
 
         if (currentlyOnLocked)
         {
