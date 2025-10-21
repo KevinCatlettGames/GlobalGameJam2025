@@ -16,6 +16,7 @@ public class RisingWall : MonoBehaviour
         animator = GetComponent<Animator>();
 
         WallManager.Instance?.AddWall(this);
+        animator.Play("Sink", 0, 1);
         //gameObject.SetActive(false);
     }
 
