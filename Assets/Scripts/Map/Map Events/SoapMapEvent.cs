@@ -21,17 +21,13 @@ public class SoapMapEvent : MonoBehaviour
             if (!NetworkManager.Singleton.IsServer) return; 
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
-            Invoke(nameof(StartSpawning), startDelay);
         }
         else
         {
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
-            Invoke(nameof(StartSpawning), startDelay);  
         }
-    }
-
-   
+    } 
     private void SpawnDroplet()
     {
         if (!isSpawning) return;
@@ -48,7 +44,7 @@ public class SoapMapEvent : MonoBehaviour
     {
         currentIntervall = startInvterval;
         isSpawning = true;
-        Invoke(nameof(SpawnDroplet), currentIntervall);
+        Invoke(nameof(SpawnDroplet), currentIntervall + startDelay);
     }
 
     private void StopSpawning()

@@ -41,13 +41,13 @@ public class WallManager : MonoBehaviour
             if (!NetworkManager.Singleton.IsServer) return;
             GameManager.Instance.OnGameStarted += StartMoving;
             GameManager.Instance.OnGameEnded += StopMoving;
-            Invoke(nameof(StartMoving), startDelay);
+            StartMoving();
         }
         else
         {
             GameManager.Instance.OnGameStarted += StartMoving;
             GameManager.Instance.OnGameEnded += StopMoving;
-            Invoke(nameof(StartMoving), startDelay);
+            StartMoving();
         }
     }
     void Update()
@@ -123,7 +123,7 @@ public class WallManager : MonoBehaviour
     }
     private void StartMoving()
     {
-        timer = sinkTime;
+        timer = sinkTime + startDelay;
         isMoving = true;
     }
     private void StopMoving()

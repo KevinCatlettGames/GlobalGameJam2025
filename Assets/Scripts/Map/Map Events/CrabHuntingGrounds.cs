@@ -4,14 +4,13 @@ using System.Collections.Generic;
 public class CrabHuntingGrounds : MonoBehaviour
 {
     [SerializeField] private bool isMapEventEnabled = true;
-    [SerializeField] private float minRadius = 3.0f;
+    [SerializeField] private float maxRange = 20f;
 
     private List<Transform> playersInRange = new List<Transform>();
     void Start()
     {
         if (!isMapEventEnabled)
-            Destroy(gameObject);    
-        Debug.DrawRay(transform.position, transform.forward * minRadius, Color.red, 100f);
+            Destroy(gameObject);
     }
 
     public Vector3 GetClosestTargetPosition(Vector3 clawPosition)
@@ -21,12 +20,11 @@ public class CrabHuntingGrounds : MonoBehaviour
         {
             return targetPosition;
         }
-        float lowestDistance = 100f;
+        float lowestDistance = 1000f;
+        Vector3 pos;
         for (int i = 0; i < playersInRange.Count; i++)
         {
-            Vector3 pos = playersInRange[i].position;
-            if (pos.magnitude < minRadius)
-                continue;
+            pos = playersInRange[i].position;
             float distance = Vector3.Distance(clawPosition, pos);
             if (distance < lowestDistance)
             {
@@ -34,6 +32,12 @@ public class CrabHuntingGrounds : MonoBehaviour
                 targetPosition = pos;
             }
         }
+        float magnitude = targetPosition.magnitude;
+        if (magnitude > maxRange)
+        {
+            targetPosition *= maxRange / magnitude;
+        }
+        targetPosition.y = 0;
         return targetPosition;
     }
     private void OnTriggerEnter(Collider other)
