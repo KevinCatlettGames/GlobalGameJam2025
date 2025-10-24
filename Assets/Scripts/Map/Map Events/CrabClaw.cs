@@ -83,8 +83,8 @@ public class CrabClaw : MonoBehaviour
                 yield return null;
             }
             //Change to anim event
+            animator.Play("Snap", 0, 0);
             Snap();
-            shadow.LerpShadow(0, .4f);
             yield return new WaitForSeconds(restetTime);
         }
 
@@ -92,7 +92,7 @@ public class CrabClaw : MonoBehaviour
 
     public void Snap()
     {
-        animator.Play("Snap", 0, 0);
+        shadow.LerpShadow(0, .4f);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
         Vector3 origin;
         Vector3 direction;
