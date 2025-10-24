@@ -83,6 +83,7 @@ public class CrabClaw : MonoBehaviour
                 yield return null;
             }
             //Change to anim event
+            transform.LookAt(Vector3.zero);
             animator.Play("Snap", 0, 0);
             Snap();
             yield return new WaitForSeconds(restetTime);
