@@ -15,7 +15,6 @@ public class LurkingShadow : MonoBehaviour
     }
     public void LerpShadow(float targetValue, float time)
     {
-        Debug.Log("Lerp");
         StopAllCoroutines();
         if (time <= 0f)
         {
