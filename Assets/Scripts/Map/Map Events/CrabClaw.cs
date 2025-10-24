@@ -40,6 +40,7 @@ public class CrabClaw : MonoBehaviour
             GameManager.Instance.OnGameStarted += StartHunting;
             GameManager.Instance.OnGameEnded += StopHunting;
         }
+        animator.Play("Snap", 0, 1);
     }
     private void StartHunting()
     {
@@ -81,6 +82,7 @@ public class CrabClaw : MonoBehaviour
                 timer -= Time.deltaTime;
                 yield return null;
             }
+            //Change to anim event
             Snap();
             shadow.LerpShadow(0, .4f);
             yield return new WaitForSeconds(restetTime);
@@ -90,7 +92,7 @@ public class CrabClaw : MonoBehaviour
 
     public void Snap()
     {
-        Debug.Log("SNAP!!");
+        animator.Play("Snap", 0, 0);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
         Vector3 origin;
         Vector3 direction;
