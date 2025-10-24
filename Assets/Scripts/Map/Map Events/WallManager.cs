@@ -41,13 +41,13 @@ public class WallManager : MonoBehaviour
             if (!NetworkManager.Singleton.IsServer) return;
             GameManager.Instance.OnGameStarted += StartMoving;
             GameManager.Instance.OnGameEnded += StopMoving;
-            StartMoving();
+            Invoke(nameof(StartMoving), 7);
         }
         else
         {
             GameManager.Instance.OnGameStarted += StartMoving;
             GameManager.Instance.OnGameEnded += StopMoving;
-            StartMoving();
+            Invoke(nameof(StartMoving), 7);
         }
     }
     void Update()

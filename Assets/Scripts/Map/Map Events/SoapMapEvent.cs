@@ -21,11 +21,13 @@ public class SoapMapEvent : MonoBehaviour
             if (!NetworkManager.Singleton.IsServer) return; 
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
+            StartSpawning();
         }
         else
         {
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
+            StartSpawning();
         }
     } 
     private void SpawnDroplet()

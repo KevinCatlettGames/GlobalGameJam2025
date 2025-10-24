@@ -1,72 +1,138 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public class CrabClaw : MonoBehaviour
 {
     [SerializeField] private bool isMapEventEnabled = true;
     [SerializeField] private CrabHuntingGrounds huntingGrounds;
-    [Header("Time")]
+    [SerializeField] private LurkingShadow shadow;
+    [SerializeField] private Animator animator;
+    [Header("Logic")]
     [SerializeField] private float startDelay = 8f;
     [SerializeField] private float restetTime = 5f;
     [SerializeField] private float huntingTime = 5f;
+    [SerializeField] private Vector3[] resetPoints;
     [Header("Stats")]
     [SerializeField] private float damage = 35f;
     [SerializeField] private float knockback = 10f;
     [SerializeField] private float speed = 5f;
-
+    [SerializeField] private float radius = 5f;
+    [SerializeField] private float yLaunchStrength;
+    private bool isHunting = false;
+    
 
     private void Start()
     {
         if (isMapEventEnabled)
-            StartHunting();
+            Invoke(nameof(StartHunting),7);
         else
             Destroy(gameObject);
+
+        if (TransportSwitcher.Instance)
+        {
+            if (!NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted += StartHunting;
+            GameManager.Instance.OnGameEnded += StopHunting;
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted += StartHunting;
+            GameManager.Instance.OnGameEnded += StopHunting;
+        }
     }
     private void StartHunting()
     {
-        //StartCoroutine(HuntingCoroutine());
+        isHunting = true;
+        StartCoroutine(HuntingCoroutine(startDelay));
+
     }
     private void StopHunting()
     {
+        shadow.LerpShadow(0, .2f);
+        isHunting = false;
+        StopAllCoroutines();
+        CancelInvoke();
+    }
+    private IEnumerator HuntingCoroutine(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        while (isHunting)
+        {
+            ResetClaw();
+            float timer = huntingTime;
+            Vector3 target;
+            Vector3 moveVector = Vector3.zero;
+            shadow.LerpShadow(1, huntingTime);
+            while (timer > 0)
+            {
+                target = huntingGrounds.GetClosestTargetPosition(transform.position);
+                if (target != Vector3.zero)
+                {
+                    moveVector = (target - transform.position);
+                    moveVector = Vector3.ClampMagnitude(moveVector, speed);
+                    moveVector *= speed * Time.deltaTime;
+                }
+                else
+                {
+                    moveVector = Vector3.zero;
+                }
+                transform.position = transform.position + moveVector;
+                timer -= Time.deltaTime;
+                yield return null;
+            }
+            Snap();
+            shadow.LerpShadow(0, .4f);
+            yield return new WaitForSeconds(restetTime);
+        }
 
     }
-    private IEnumerator HuntingCoroutine()
+
+    public void Snap()
     {
-        float timer = huntingTime;
-        Vector3 target;
-        Vector3 moveVector = Vector3.zero;
-        while (timer > 0)
+        Debug.Log("SNAP!!");
+        Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
+        Vector3 origin;
+        Vector3 direction;
+        foreach (Collider col in snapOverlaps)
         {
-            target = huntingGrounds.GetClosestTargetPosition(transform.position);
-            Debug.Log("Huntin " + target);
-            if (target != Vector3.zero)
+            if (col == null) continue;
+            origin = transform.position;
+            direction = col.transform.position - transform.position;
+            if (direction.sqrMagnitude < .3f)
+                direction = Vector3.forward;
+            direction.y = yLaunchStrength;
+            if (col.CompareTag("Player"))
             {
-                moveVector = (target - transform.position) * speed * Time.deltaTime;
-            }
-            else
-            {
-                moveVector = Vector3.zero;
-            }
-            transform.position = transform.position + moveVector;
-            yield return null;
+                PlayerController player = col.GetComponent<PlayerController>();
+                if (player != null)
+                {
+                    if (GameManager.Instance.PlayingLocal)
+                        //ID = -3 to enable knockback with y component
+                        player.ApplyKnockbackLocal(-3, direction, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(-3, direction, knockback, damage);
+                }
+            }          
         }
     }
-    
-    private void Update()
+    private void ResetClaw()
     {
-        Vector3 target;
-        Vector3 moveVector = Vector3.zero;
-        target = huntingGrounds.GetClosestTargetPosition(transform.position);
-        //Debug.Log("Huntin " + target);
-        if (target != Vector3.zero)
+        int r = Random.Range(0, resetPoints.Length);
+        transform.position = resetPoints[r];
+    }
+    private void OnDestroy()
+    {
+        if (TransportSwitcher.Instance)
         {
-            moveVector = (target - transform.position) * speed * Time.deltaTime;
+            if (!NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted -= StartHunting;
+            GameManager.Instance.OnGameEnded -= StopHunting;
         }
         else
         {
-            moveVector = Vector3.zero;
+            GameManager.Instance.OnGameStarted -= StartHunting;
+            GameManager.Instance.OnGameEnded -= StopHunting;
         }
-        transform.position = transform.position + moveVector;
-        //transform.position = Vector3.Lerp(transform.position, target, speed * Time.deltaTime);
     }
 }

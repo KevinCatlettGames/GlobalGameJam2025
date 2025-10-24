@@ -867,7 +867,8 @@ public class PlayerController : NetworkBehaviour
             splashEffect.Play();
         }
 
-        direction.y = 0;
+        // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
+        if(ID != -3)direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
@@ -899,6 +900,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
+            // Use ID -2 to avoid hitstun for specific kockback events 
             if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 hitStunDuration = knbMagnitude * hitStunFactor;

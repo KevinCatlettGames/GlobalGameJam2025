@@ -3093,12 +3093,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   isMapEventEnabled: 1
   huntingGrounds: {fileID: 2008684016}
-  startDelay: 8
+  shadow: {fileID: 1804791630}
+  animator: {fileID: 0}
+  startDelay: 4
   restetTime: 5
   huntingTime: 20
+  resetPoints:
+  - {x: 15, y: 0, z: 0}
+  - {x: -15, y: 0, z: 0}
+  - {x: 0, y: 0, z: 15}
+  - {x: 0, y: 0, z: -15}
   damage: 35
   knockback: 10
-  speed: 5
+  speed: 3
+  radius: 2.7
+  yLaunchStrength: 1
 --- !u!114 &1248164015 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1644636251588708742, guid: ef310da78073cd04982db8f49e852300,
@@ -3788,6 +3797,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1804791628}
   - component: {fileID: 1804791629}
+  - component: {fileID: 1804791630}
   m_Layer: 0
   m_Name: Shadow
   m_TagString: Untagged
@@ -3853,7 +3863,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: a1446ac4e88d8564f9864513cc404630, type: 3}
   m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_FlipX: 0
@@ -3865,6 +3875,18 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &1804791630
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1804791627}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b91a0e1b057e7564a88d1ef432ab8ce8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &1861111657 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3258381205629498486, guid: 911b24a023c9b7b4d9082940e063c280,
