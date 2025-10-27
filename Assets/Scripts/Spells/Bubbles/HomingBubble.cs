@@ -12,6 +12,7 @@ public class HomingBubble : BasicBubble
     [SerializeField] private float dmgMod = 1.5f;
     [SerializeField] private float knbMod = 2f;
     [SerializeField] private float speedMod = 2f;
+    [SerializeField] private float rotMod = 1.5f;
     [SerializeField] private float stabRange = 10f;
     [SerializeField] private float stopDuration = .1f;
     [SerializeField] private Mesh stabMesh;
@@ -22,7 +23,6 @@ public class HomingBubble : BasicBubble
     {
         homingDuration = rng / spd;
         rng += stabRange;
-        stabSpeed = spd * speedMod;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
 
         homingTargeting = GetComponentInChildren<HomingTargeting>();
@@ -62,14 +62,15 @@ public class HomingBubble : BasicBubble
     private IEnumerator StageSwitchCoroutine()
     {
         yield return new WaitForSeconds(homingDuration);
+        stabSpeed = speed * speedMod;
         speed = 0;
+        rotationSpeed *= rotMod;
+        GetComponent<MeshFilter>().mesh = stabMesh;
         yield return new WaitForSeconds(stopDuration);
         EnterStabStage();
     }
     private void EnterStabStage()
     {
-        Debug.Log("StabTime");
-        GetComponent<MeshFilter>().mesh = stabMesh;
         stabStage = true;
         damage *= dmgMod;
         speed = stabSpeed;
