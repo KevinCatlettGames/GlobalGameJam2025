@@ -8,7 +8,7 @@ public class Item : NetworkBehaviour
     [SerializeField] private MeshFilter meshFilter;
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private SpriteRenderer spriteRenderer;
-    private int spellID;
+    [SerializeField] private int spellID = -1;
 
     [Header("Item PickUp")]
     [SerializeField] private GameObject pickUpEffect;
@@ -33,8 +33,9 @@ public class Item : NetworkBehaviour
         {
             StartCoroutine(ServerItemDespawn());
         }
+        if (spellID != -1)
+            SetupSpellClientRpc(spellID);
     }
-
     public int EquipSpell()
     {
         StartCoroutine(DelayedDestroy());
