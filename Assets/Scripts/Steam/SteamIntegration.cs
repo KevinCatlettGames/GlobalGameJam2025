@@ -85,8 +85,17 @@ public class SteamIntegration : MonoBehaviour
         {
             if (SteamClient.IsValid)
             {
+                bool loaded = SteamUserStats.RequestCurrentStats();
                 steamInitialized = true;
-                Debug.Log("Steam already initialized.");
+                
+                if (loaded)
+                {
+                    statsLoaded = true;
+                    //Debug.Log("Steam stats loaded.");
+                }
+                else
+                   // Debug.LogWarning("Steam initialized, but failed to load stats.");
+
                 return;
             }
 
@@ -99,24 +108,24 @@ public class SteamIntegration : MonoBehaviour
             if (success)
             {
                 statsLoaded = true;
-                Debug.Log("Steam stats loaded.");
+                //Debug.Log("Steam stats loaded.");
             }
             else
-                Debug.LogWarning("Steam initialized, but failed to load stats.");
+               // Debug.LogWarning("Steam initialized, but failed to load stats.");
 
             steamInitialized = true;
         }
         catch (Exception e)
         {
             steamInitialized = false;
-            Debug.LogWarning($"Steam initialization failed: {e.Message}");
+            //Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     
     #region Matchmaking
     private void RichPresenceJoinRequested(Friend steamFriend, string lobbyID)
     {
-        Debug.Log("Trying to join a lobby through steam friend list stuff...");
+        //Debug.Log("Trying to join a lobby through steam friend list stuff...");
         steamFriendToJoin = steamFriend;
         lobbyIDToJoin = lobbyID;
         if (MainMenuLobbyCreator.Instance != null)
@@ -249,17 +258,16 @@ public class SteamIntegration : MonoBehaviour
     }
     
     [Button]
-    public void UnlockAchievement(int id)
+    public void UnlockAchievement(int achievementNameID)
     {
         if (!steamInitialized) return; 
         
         for (int i = 0; i < achievementNames.Length; i++)
         {
-            if (i == id)
+            if (i == achievementNameID)
             {
                 var ach = new Steamworks.Data.Achievement(achievementNames[i]);
                 ach.Trigger();
-                Debug.Log("Achievement " + id + " unlocked");
             }
         }
     }
@@ -280,7 +288,7 @@ public class SteamIntegration : MonoBehaviour
     }
     
     [Button]
-    public void IncrementIntSteamStat(int statName, int incrementAmount, int achievementThreshold, int achievementName)
+    public void IncrementIntSteamStat(int statNameID, int incrementAmount, int achievementThreshold, int achievementNameID)
     {
         if (!isFullVersion) return;  
         
@@ -288,11 +296,11 @@ public class SteamIntegration : MonoBehaviour
         {
             if (!statsLoaded)
             {
-                Debug.LogWarning("Steam stats not loaded yet.");
+                //Debug.LogWarning("Steam stats not loaded yet.");
                 return;
             }
     
-            int currentValue = SteamUserStats.GetStatInt(statName.ToString());
+            int currentValue = SteamUserStats.GetStatInt(statNames[statNameID]);
             //Debug.Log("Stat current value: " + currentValue);
     
             int newValue = currentValue + incrementAmount;
@@ -304,11 +312,10 @@ public class SteamIntegration : MonoBehaviour
                 newValue = achievementThreshold;
             }
     
-            SteamUserStats.SetStat(statName.ToString(), newValue);
+            SteamUserStats.SetStat(statNames[statNameID], newValue);
     
-            // Check if newValue reached or exceeded the achievement threshold
             if (newValue >= achievementThreshold)
-                UnlockAchievement(achievementName);
+                UnlockAchievement(achievementNameID);
     
             SteamUserStats.StoreStats();
         }

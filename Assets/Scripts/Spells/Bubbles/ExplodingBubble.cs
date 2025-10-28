@@ -25,11 +25,16 @@ public class ExplodingBubble : BasicBubble
         if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            
-            if (GameManager.Instance.PlayingLocal)
+            GameManager gameManager = GameManager.Instance;
+
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+            gameManager.hitReferences[OwnerID].spellType = spellType;
+            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
+            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
         }
         else if (other.CompareTag("Bubble"))
         {

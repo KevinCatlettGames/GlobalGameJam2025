@@ -225,11 +225,34 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  playerPrefab: {fileID: 0}
-  deathZones: []
-  gameSettings: {fileID: 0}
-  playerInputManager: {fileID: 0}
+  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
+    type: 3}
+  deathZones:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
+  hitReferences:
+  - spellType: 0
+    playerHitID: -1
+  - spellType: 0
+    playerHitID: -1
+  - spellType: 0
+    playerHitID: -1
+  - spellType: 0
+    playerHitID: -1
+  playerInputManager: {fileID: 8605951647801297494}
   PlayingLocal: 0
+  countdown: {fileID: 0}
+  zeroDamageAchievementID: 0
+  damagedAchievementID: 1
+  damageAmountForAchievement: 300
 --- !u!114 &9037970889961924712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -454,7 +477,6 @@ MonoBehaviour:
   - {fileID: 1647630035624308313}
   - {fileID: 3164768564512664138}
   - {fileID: 8757892686786655870}
-  joinGameText: {fileID: 0}
   startGameInputAction:
     m_UseReference: 1
     m_Action:
@@ -469,6 +491,7 @@ MonoBehaviour:
     m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
       type: 3}
   playerInputManager: {fileID: 8605951647801297494}
+  countdown: {fileID: 0}
 --- !u!1 &4712817074558644018
 GameObject:
   m_ObjectHideFlags: 0

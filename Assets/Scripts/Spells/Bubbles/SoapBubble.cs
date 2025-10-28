@@ -1,6 +1,7 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
+using Unity.VisualScripting;
 
 public class SoapBubble : BasicBubble
 {
@@ -31,13 +32,9 @@ public class SoapBubble : BasicBubble
             {
                 GameObject puddle;
                 if (hitPlayer) 
-                {
                     puddle = Instantiate(soapSplatObject, hitInfo.point, transform.rotation);
-                }
                 else
-                {
                     puddle = Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
-                }
                 puddle.GetComponent<NetworkObject>()?.Spawn();
             }
         }
@@ -50,11 +47,16 @@ public class SoapBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-
-            if (GameManager.Instance.PlayingLocal)
+            GameManager gameManager = GameManager.Instance;
+            
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+            gameManager.hitReferences[OwnerID].spellType = spellType;
+            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
+            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
 
             DropSoapPuddle(true);
         }
