@@ -66,13 +66,15 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float hitStunThreshold = 100f;
     [SerializeField] private float hitStunFactor = .1f;
     [SerializeField] private float maxHitStunDuration = .35f;
+    [SerializeField] private float vulnerableFactor = 1.5f;
     private float damage = 0;
     public float Damage { get { return damage; } }
     
     private int killCreditID = -1;
     
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
-    
+    private bool isVulnerable = false;
+    private Coroutine vulnerableRoutine = null;
     private bool isDead = false;
     private float hitStunDuration = 0;
 
@@ -838,24 +840,34 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead) return;
+        if (isDead && !IsOwner) return;
 
-        damage += dmg;
-        playerHUD.UpdateDamageText((int)damage);
-        damagedEffect.UpdateParticleSystem(damage);
-        damageParticleSystem.Play();
+        if (isVulnerable)
+        {
+            dmg *= vulnerableFactor;
+            force *= vulnerableFactor;
+            StopVulnerable();
+        }
 
-        if (!IsOwner) return;
+        if (isSlippery)
+        {
+            force *= slipperyModifier;
+            splashEffect.Play();
+        }
 
-        if (isSlippery) force *= slipperyModifier;
-
-        direction.y = 0;
+        // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
+        if (ID != -3) direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
 
         knockbackVelocity += knockback;
+        damage += dmg;
+
+        playerHUD.UpdateDamageText((int)damage);
+        damagedEffect.UpdateParticleSystem(damage);
+        damageParticleSystem.Play();
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -876,6 +888,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
+            // Use ID -2 to avoid hitstun for specific kockback events 
             if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 hitStunDuration = knbMagnitude * hitStunFactor;
@@ -897,33 +910,17 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-
-    [ServerRpc(RequireOwnership = false)]
-    void FlinchAnimServerRpc(float force, float dmg)
-    {
-        mainAnimator.SetTrigger("Flinch");
-        FlinchAnimClientRpc(force, dmg);
-    }
-
-    [ClientRpc]
-    void FlinchAnimClientRpc(float force, float dmg)
-    {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-
-        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
-        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-        fmodEvent.start();
-        fmodEvent.release();
-
-        shaderManager.DamageEffect(damageColorEffectDuration);
-    }
-
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
         if (isDead) return;
+
+        if (isVulnerable)
+        {
+            Debug.Log("VulCrit");
+            dmg *= vulnerableFactor;
+            force *= vulnerableFactor;
+            StopVulnerable();
+        }
 
         if (isSlippery)
         {
@@ -986,6 +983,30 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
+
+    [ServerRpc(RequireOwnership = false)]
+    void FlinchAnimServerRpc(float force, float dmg)
+    {
+        mainAnimator.SetTrigger("Flinch");
+        FlinchAnimClientRpc(force, dmg);
+    }
+
+    [ClientRpc]
+    void FlinchAnimClientRpc(float force, float dmg)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
+        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+        fmodEvent.start();
+        fmodEvent.release();
+
+        shaderManager.DamageEffect(damageColorEffectDuration);
+    }
+
 
     [ServerRpc(RequireOwnership = false)]
     void HitStunServerRpc(float duration)
@@ -1093,6 +1114,27 @@ public class PlayerController : NetworkBehaviour
 
         shaderManager?.WetEffect(isSlippery);
     }
+
+    public void StartVulnerable(float time)
+    {
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time)); 
+    }
+    private IEnumerator VulnerableCoroutine(float duration)
+    {
+        isVulnerable = true;
+        //StartShaderEfffect
+        yield return new WaitForSeconds(duration);
+        StopVulnerable();
+    }
+    private void StopVulnerable()
+    {
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        isVulnerable = false;
+        //EndShaderEffect
+    }
     #endregion
 
     #region PlayerManager
@@ -1118,6 +1160,9 @@ public class PlayerController : NetworkBehaviour
         isSlippery = false;
         killCreditID = -1;
         hitStunDuration = 0;
+        isVulnerable = false;
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
 
         shaderManager?.ResetShader();
 
