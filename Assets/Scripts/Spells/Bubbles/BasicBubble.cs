@@ -5,6 +5,21 @@ using Unity.Netcode;
 
 public class BasicBubble : NetworkBehaviour
 {
+    public enum SpellType
+    {
+        Null,
+        Basic,
+        Exploding,
+        Giant,
+        SmallerGiant,
+        Homing,
+        Revolver,
+        Snipe,
+        Soap,
+        Wall
+    };
+
+    public SpellType spellType;
     public int OwnerID = -1;
     protected Vector3 direction;
     protected bool hasPopped;
@@ -134,11 +149,16 @@ public class BasicBubble : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
+            GameManager gameManager = GameManager.Instance;
 
-            if (GameManager.Instance.PlayingLocal)
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+            gameManager.hitReferences[OwnerID].spellType = spellType;
+            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
+            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
             fizzleEffect = hitEffect;
         }
 

@@ -18,7 +18,6 @@ public class SO_Spell : ScriptableObject
     public Sprite UsedSpellIcon { get { return usedSpellIcon;} }
     public Color IndicatorColor {  get { return indicatorColor; } }
     
-
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
     [SerializeField] protected float bubbleDamage = 1.0f;

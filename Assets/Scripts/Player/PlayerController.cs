@@ -7,9 +7,6 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using UnityEngine.Assertions.Must;
-using UnityEngine.Rendering;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -54,7 +51,9 @@ public class PlayerController : NetworkBehaviour
     private bool isSecondSpellReady = true;
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
-
+    private int pickedUpSpellsAmount = 0;
+    private List<SO_Spell> usedSpell = new List<SO_Spell>();
+    
     #endregion
 
     #region Damage
@@ -68,8 +67,12 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float hitStunFactor = .1f;
     [SerializeField] private float maxHitStunDuration = .35f;
     private float damage = 0;
+    public float Damage { get { return damage; } }
+    
     private int killCreditID = -1;
+    
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
+    
     private bool isDead = false;
     private float hitStunDuration = 0;
 
@@ -100,6 +103,8 @@ public class PlayerController : NetworkBehaviour
 
     private CharacterController controller;
     private bool groundedPlayer = false;
+    
+    [Header("Movement")]
     private Vector3 playerVelocity;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
@@ -129,11 +134,26 @@ public class PlayerController : NetworkBehaviour
     public bool initialized = false;
     private List<Item> itemsToEquip = new List<Item>();
     private int slipperyCounter = 0;
-    private bool isSlippery = false;
+    private bool isSlippery = false; 
+    public bool IsSlippery { get { return isSlippery; } }
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     private PlayerStateHandler playerStateHandler;
 
+    #endregion
+    
+    #region Achievements
+    
+    [Header("Regain Ground Achievement")]
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private int regainGroundThreshold = 10;
+    [SerializeField] private int regainGroundStatID = 0;
+    [SerializeField] private int regainGroundAchievementID = 4;
+    private float groundCheckDistance = .2f;
+    private bool isFirstGroundDetection = true;
+    private bool groundRaycastWasDetected;
+    private bool groundRaycastIsDetected;
+    
     #endregion
 
     #region Initialization
@@ -191,9 +211,11 @@ public class PlayerController : NetworkBehaviour
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
+      
         HandleGravity();
         HandleMovementAndRotation();
         HandleAnimations();
+        HandleGroundRaycast();
         ApplyMovement();
 
         HandleDesyncAndSync();
@@ -301,7 +323,7 @@ public class PlayerController : NetworkBehaviour
 
         wasMovingLastFrame = isMoving;
     }
-
+    
     private void HandleDesyncAndSync()
     {
         if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
@@ -404,6 +426,15 @@ public class PlayerController : NetworkBehaviour
         {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
+
+        if (!usedSpell.Contains(spell))
+            usedSpell.Add(spell);
+
+        if (SteamIntegration.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                SteamIntegration.instance.UnlockAchievement(3);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -424,6 +455,18 @@ public class PlayerController : NetworkBehaviour
         else
         {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
+
+        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            if (!usedSpell.Contains(spell))
+                usedSpell.Add(spell);
+
+            if (SteamIntegration.instance)
+            {
+                if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                    SteamIntegration.instance.UnlockAchievement(3);
+            }
         }
     }
 
@@ -496,6 +539,18 @@ public class PlayerController : NetworkBehaviour
         }
 
         UpdateEquippedSpell(spellSlotID, equippedSpell);
+
+        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            pickedUpSpellsAmount++;
+            if (pickedUpSpellsAmount >= 20)
+            {
+                if (SteamIntegration.instance)
+                {
+                    SteamIntegration.instance.UnlockAchievement(2);
+                }
+            }
+        }
     }
 
     private void EquipSpellLocal(int spellSlotID)
@@ -511,6 +566,15 @@ public class PlayerController : NetworkBehaviour
         SO_Spell spell = FindSpellByIndex(itemsToEquip[0].EquipSpell());
         UpdateEquippedSpell(spellSlotID, spell);
         itemsToEquip.RemoveAt(0);
+        
+        pickedUpSpellsAmount++;
+        if (pickedUpSpellsAmount >= 20)
+        {
+            if (SteamIntegration.instance)
+            {
+                SteamIntegration.instance.UnlockAchievement(2);
+            }
+        }
     }
 
     private void UpdateEquippedSpell(int spellSlotID, SO_Spell spell)
@@ -1077,6 +1141,10 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
 
+        pickedUpSpellsAmount = 0; 
+        usedSpell.Clear();
+        isFirstGroundDetection = true;
+        
         playerStateHandler.ResetPlayer();
         isDead = false;
     }
@@ -1152,6 +1220,43 @@ public class PlayerController : NetworkBehaviour
         {
             image.color = LobbyPlayerHandler.Instance.playerValues[index].Skin
                 .Color; 
+        }
+    }
+    #endregion
+    
+    #region Achievements
+    private void HandleGroundRaycast()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        
+        groundRaycastIsDetected = Physics.Raycast(rayOrigin, Vector3.down,
+            out RaycastHit hit,
+            controller.height / 2f + groundCheckDistance,
+            groundMask);
+
+        if (!groundRaycastWasDetected && groundRaycastIsDetected)
+            OnRegainedGround(hit);
+        
+        groundRaycastWasDetected = groundRaycastIsDetected;
+    }
+    
+    void OnRegainedGround(RaycastHit hit)
+    {
+        if (isFirstGroundDetection)
+        {
+            isFirstGroundDetection = false;
+            return;
+        }
+        
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && (ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            if (SteamIntegration.instance)
+                SteamIntegration.instance.IncrementIntSteamStat(regainGroundStatID,1, regainGroundThreshold, regainGroundAchievementID);
+        }
+        else
+        {
+            if (SteamIntegration.instance)
+                SteamIntegration.instance.IncrementIntSteamStat(regainGroundStatID,1, regainGroundThreshold, regainGroundAchievementID);
         }
     }
     #endregion

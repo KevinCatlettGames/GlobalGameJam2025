@@ -11,6 +11,10 @@ public class SnipeBubble : BasicBubble
     private float maxDamage = 0f;
     private float currentDamage = 0f;
 
+    [SerializeField] private int maxSniperDamageAchievementID = 6;
+    [SerializeField] private int maxSniperDamageStatID = 2; 
+    [SerializeField] private int maxSniperDamageAchievementThreshold = 10000;
+    
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
@@ -53,12 +57,20 @@ public class SnipeBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
+            GameManager gameManager = GameManager.Instance;
             
-            if (GameManager.Instance.PlayingLocal)
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, currentDamage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, currentDamage);
+            
+            gameManager.hitReferences[OwnerID].spellType = spellType;
+            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
+            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
 
+            if (currentDamage >= maxDamage)
+                CheckMaxSniperDamageAchievement();
+            
             Pop();
         }
         else if (other.CompareTag("Bubble"))
@@ -72,6 +84,23 @@ public class SnipeBubble : BasicBubble
         else
         {
             Pop();
+        }
+    }
+
+    void CheckMaxSniperDamageAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (NetworkManager.LocalClientId == (ulong)OwnerID)
+            {
+                if (SteamIntegration.instance)
+                    SteamIntegration.instance.IncrementIntSteamStat(maxSniperDamageStatID, (int)maxDamage, maxSniperDamageAchievementThreshold, maxSniperDamageAchievementID);
+            }
+        }
+        else
+        {
+            if (SteamIntegration.instance)
+                SteamIntegration.instance.IncrementIntSteamStat(maxSniperDamageStatID, (int)maxDamage, maxSniperDamageAchievementThreshold, maxSniperDamageAchievementID);
         }
     }
 }

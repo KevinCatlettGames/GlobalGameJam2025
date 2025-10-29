@@ -14,7 +14,8 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] float maxSpawnInterval = 7;
     [SerializeField] float spawnRadius = 15;
     [SerializeField] SO_Spell[] spawnableItems;
-
+    public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
+    
     public int maxAmount = 2;
     public int currentAmount;
 
