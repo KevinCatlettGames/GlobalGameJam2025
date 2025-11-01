@@ -6,11 +6,6 @@ using Unity.Netcode;
 public class SlipTrigger : MonoBehaviour
 {
     private List<PlayerController> slipperyPlayers = new List<PlayerController>();
-
-    [SerializeField] private int makeBubbleSlipperyStatID = 5;
-    [SerializeField] private int makeBubbleSlipperyThreshold = 100;
-    [SerializeField] private int makeBubbleSlipperyAchievementID = 11;
-    
     
     private void OnTriggerEnter(Collider other)
     {
@@ -52,18 +47,13 @@ public class SlipTrigger : MonoBehaviour
 
     private void CheckMakeBubbleSlipperyAchievement(BasicBubble spedUpBubble)
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (NetworkManager.Singleton.LocalClientId == (ulong)spedUpBubble.OwnerID)
-            {
-                if (SteamIntegration.instance)
-                    SteamIntegration.instance.IncrementIntSteamStat(makeBubbleSlipperyStatID, 1, makeBubbleSlipperyThreshold, makeBubbleSlipperyAchievementID);
-            }
-        }
-        else
-        {
-            if (SteamIntegration.instance)
-                SteamIntegration.instance.IncrementIntSteamStat(makeBubbleSlipperyStatID, 1, makeBubbleSlipperyThreshold, makeBubbleSlipperyAchievementID);
-        }
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.makeBubbleSlipperyStatID, 
+            1, 
+            steamIntegration.StatThresholds[steamIntegration.makeBubbleSlipperyStatID], 
+            steamIntegration.makeBubbleSlipperyAchievementID);
     }
 }

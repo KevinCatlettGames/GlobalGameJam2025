@@ -15552,12 +15552,19 @@ MonoBehaviour:
   moveSmoothTime: 0.1
   initialized: 0
   mainAnimator: {fileID: 0}
+  regainGroundStatID: 0
+  regainGroundAchievementID: 4
+  bubbleDodgeStatID: 8
+  bubbleDodgeAchievementID: 14
   groundMask:
     serializedVersion: 2
     m_Bits: 512
-  regainGroundThreshold: 10
-  regainGroundStatID: 0
-  regainGroundAchievementID: 4
+  boxCenterOffset: {x: 0, y: 0, z: 0}
+  boxHalfExtents: {x: 6, y: 6, z: 6}
+  bubbleLayer:
+    serializedVersion: 2
+    m_Bits: 128
+  checkInterval: 0.2
 --- !u!114 &8578798486101265600
 MonoBehaviour:
   m_ObjectHideFlags: 0

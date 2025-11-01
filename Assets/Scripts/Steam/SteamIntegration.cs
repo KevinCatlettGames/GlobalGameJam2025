@@ -13,13 +13,46 @@ public class SteamIntegration : MonoBehaviour
     private bool statsLoaded = false;
     private float retryInterval = 5f;
     private float retryTimer = 0f;
-    private bool steamInitialized = false; 
+    
+    [ReadOnly]
+    [SerializeField] private bool steamInitialized = false; 
     
     [Header("Achievements")]
     [SerializeField] string[] achievementNames;
     [SerializeField] string[] statNames;
+    [SerializeField] private int[] statThresholds; 
     
-    [Header("Matchmaking")]
+    [Header("Achievement References")]
+    public int zeroDamageAchievementID = 0;
+    public int damagedAchievementID = 1;
+    public int weaponsPickedUpAchievementID = 2;
+    public int allWeaponsUsedAchievementID = 3;
+    public int regainGroundAchievementID = 4;
+    public int smallerGiantKillsAchievementID = 5;
+    public int maxRangeSniperDamageAchievementID = 6;
+    public int allRevolverShotsHitAchievementID = 7;
+    public int doubleKillAchievementID = 8;
+    public int tripleKillAchievementID = 9;
+    public int slipperyKillAchievementID = 10;
+    public int makeBubbleSlipperyAchievementID = 11;
+    public int missedShotAchievementID = 12;
+    public int reflectedKillAchievementID = 13;
+    public int bubbleDodgeAchievementID = 14;
+    public int shotsHitInARowAchievementID = 15;
+
+    [Header("Stat References")]
+    public int regainGroundStatID = 0;
+    public int smallerGiantKillsStatID = 1;
+    public int maxSniperDamageStatID = 2;
+    public int allShotsHitStatID = 3;
+    public int slipperyKillStatID = 4;
+    public int makeBubbleSlipperyStatID = 5;
+    public int missedShotStatID = 6;
+    public int reflectedKillStatID = 7;
+    public int bubbleDodgeStatID = 8;
+
+    public int[] StatThresholds => statThresholds;
+
     public Friend steamFriendToJoin;
     [ReadOnly]
     public string lobbyIDToJoin;
@@ -91,10 +124,10 @@ public class SteamIntegration : MonoBehaviour
                 if (loaded)
                 {
                     statsLoaded = true;
-                    //Debug.Log("Steam stats loaded.");
+                    Debug.Log("Steam stats loaded.");
                 }
                 else
-                   // Debug.LogWarning("Steam initialized, but failed to load stats.");
+                    Debug.LogWarning("Steam initialized, but failed to load stats.");
 
                 return;
             }
@@ -108,17 +141,17 @@ public class SteamIntegration : MonoBehaviour
             if (success)
             {
                 statsLoaded = true;
-                //Debug.Log("Steam stats loaded.");
+                Debug.Log("Steam stats loaded.");
             }
             else
-               // Debug.LogWarning("Steam initialized, but failed to load stats.");
+                Debug.LogWarning("Steam initialized, but failed to load stats.");
 
             steamInitialized = true;
         }
         catch (Exception e)
         {
             steamInitialized = false;
-            //Debug.LogWarning($"Steam initialization failed: {e.Message}");
+            Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     
@@ -267,6 +300,7 @@ public class SteamIntegration : MonoBehaviour
             if (i == achievementNameID)
             {
                 var ach = new Steamworks.Data.Achievement(achievementNames[i]);
+                //Debug.Log("Achievement Unlocked");
                 ach.Trigger();
             }
         }

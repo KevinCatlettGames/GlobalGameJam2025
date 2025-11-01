@@ -12,6 +12,7 @@ public class GrenadeBubble : BasicBubble
     {
         dir.y = height;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        canMiss = false;
     }
     protected override void BubbleMovement()
     {
@@ -47,13 +48,17 @@ public class GrenadeBubble : BasicBubble
             {
                 if (col.CompareTag("Player"))
                 {
+                    GameManager gameManager = GameManager.Instance;
+                    
                     PlayerController player = col.GetComponent<PlayerController>();
                     if (player != null)
                     {
-                        if (GameManager.Instance.PlayingLocal)
+                        if (gameManager.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                        
+                        gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                     }
                 }
                 else

@@ -11,10 +11,6 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private GameObject bubblePrefab;
    
     private int hitCount = 0;
-    [SerializeField] private int allShotsHitStatID = 3;
-    [SerializeField] private int allShotsHitThreshold = 25;
-    [SerializeField] private int allShotsHitAchievementId = 7;
-    
     private EventReference soundEvent;
     
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -74,24 +70,14 @@ public class RevolverBubble : BasicBubble
         {
             CheckAllShotsHitAchievement();
         }
-        
-        Debug.Log(hitCount);
     }
 
     private void CheckAllShotsHitAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (NetworkManager.Singleton.LocalClientId == (ulong)OwnerID)
-            {
-                if (SteamIntegration.instance)
-                    SteamIntegration.instance.IncrementIntSteamStat(allShotsHitStatID, 1, allShotsHitThreshold, allShotsHitAchievementId);
-            }
-        }
-        else
-        {
-            if (SteamIntegration.instance)
-                SteamIntegration.instance.IncrementIntSteamStat(allShotsHitStatID, 1, allShotsHitThreshold, allShotsHitAchievementId);
-        }
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        steamIntegration.IncrementIntSteamStat(steamIntegration.allShotsHitStatID, 1, steamIntegration.StatThresholds[steamIntegration.allShotsHitStatID], steamIntegration.allRevolverShotsHitAchievementID);
     }
 }

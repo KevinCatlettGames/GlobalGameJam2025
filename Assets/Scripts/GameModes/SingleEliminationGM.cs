@@ -74,8 +74,8 @@ public class SingleEliminationGM : GameManager
                 winnerID = i;
                 players[winnerID].Victory();
                 ScoreManager.Instance.AddPendingScore(winnerID, true);
-                CheckForZeroDamageAchievement(winnerID);
-                CheckForRoundEndWithDamageAchievement(winnerID);
+                UnlockRoundEndWithZeroDamageAchievement(winnerID);
+                UnlockRoundEndWithXDamageAchievement(winnerID);
                 break;
             }
         }
