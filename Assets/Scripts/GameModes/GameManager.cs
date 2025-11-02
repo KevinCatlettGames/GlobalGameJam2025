@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Steamworks.Data;
 using UnityEngine;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
@@ -10,7 +11,8 @@ using Object = System.Object;
 public class GameManager : NetworkBehaviour
 {
     public enum GameModeType {SingleElimination, Timed}
-    
+
+    [SerializeField] protected GameModeType gameModeType;
     public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
@@ -29,17 +31,6 @@ public class GameManager : NetworkBehaviour
     protected PlayerController[] players = new PlayerController[maxPlayers];
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
-
-    public HitReference[] hitReferences;
-   
-    [Serializable]
-    public class HitReference
-    {
-        public BasicBubble.SpellType spellType;
-        public int playerHitID;
-        public bool wasSlippery;
-        public bool wasReflected;
-    }
     
     public PlayerInputManager playerInputManager;
     public bool PlayingLocal = false;
@@ -48,18 +39,34 @@ public class GameManager : NetworkBehaviour
     public DeathzoneWall[] deathZones; 
 
     [Header("Achievement Values")]
+    public HitReference[] hitReferences;
+    [Serializable]
+    public class HitReference
+    {
+        public BasicBubble.SpellType spellType;
+        public int playerHitID = -1;
+        public bool wasSlippery;
+        public bool wasReflected;
+    }
+    
     [SerializeField] private float multiKillTimeWindow = 3f;
     private Dictionary<int, List<float>> playerKillTimestamps  = new Dictionary<int, List<float>>();
     [SerializeField] private int damageAmountForAchievement = 300;
     
     private void Awake()
     {
-        if (Instance != null)
+        if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
+            || !LobbyManager.instance && gameModeType != GameModeType.SingleElimination)
         {
             Destroy(this);
             return;
         }
 
+        if (Instance != null)
+        {
+            Destroy(this);
+            return;
+        }
         Instance = this;
         
         for (int i = 0; i < maxPlayers; i++)
@@ -72,6 +79,13 @@ public class GameManager : NetworkBehaviour
             countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
         else
             PlayingLocal = true;
+
+        hitReferences = new HitReference[4];
+        for (int i = 0; i < hitReferences.Length; i++)
+        {
+            hitReferences[i] = new HitReference(); 
+            hitReferences[i].playerHitID = -1;
+        }
     }
 
     private IEnumerator DelayedStartGame()
@@ -82,7 +96,7 @@ public class GameManager : NetworkBehaviour
 
     private void OnDisable()
     {
-        if(LobbyManager.instance) 
+        if(LobbyManager.instance && countdown) 
             countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);    
     }
 

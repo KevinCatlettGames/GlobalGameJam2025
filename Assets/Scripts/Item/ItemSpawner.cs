@@ -44,7 +44,7 @@ public class ItemSpawner : MonoBehaviour
 
     private void SpawnLoop()
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
 
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);

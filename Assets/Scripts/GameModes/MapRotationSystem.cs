@@ -5,6 +5,8 @@ using UnityEngine.SceneManagement;
 public class MapRotationSystem : MonoBehaviour
 {
     [SerializeField] private int maxRounds = 3;
+    public int MaxRounds {get => maxRounds;}
+    
     [SerializeField] private string[] sceneNames;
 
     public static MapRotationSystem Instance;

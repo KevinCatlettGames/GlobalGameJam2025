@@ -124,10 +124,10 @@ public class SteamIntegration : MonoBehaviour
                 if (loaded)
                 {
                     statsLoaded = true;
-                    Debug.Log("Steam stats loaded.");
+                   // Debug.Log("Steam stats loaded.");
                 }
                 else
-                    Debug.LogWarning("Steam initialized, but failed to load stats.");
+                   // Debug.LogWarning("Steam initialized, but failed to load stats.");
 
                 return;
             }
@@ -141,17 +141,17 @@ public class SteamIntegration : MonoBehaviour
             if (success)
             {
                 statsLoaded = true;
-                Debug.Log("Steam stats loaded.");
+               // Debug.Log("Steam stats loaded.");
             }
             else
-                Debug.LogWarning("Steam initialized, but failed to load stats.");
+               // Debug.LogWarning("Steam initialized, but failed to load stats.");
 
             steamInitialized = true;
         }
         catch (Exception e)
         {
             steamInitialized = false;
-            Debug.LogWarning($"Steam initialization failed: {e.Message}");
+           // Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     

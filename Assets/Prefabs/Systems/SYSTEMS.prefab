@@ -189,6 +189,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5395857063166275379}
   - component: {fileID: 2318929943055816316}
+  - component: {fileID: 985847803460137825}
   - component: {fileID: 9037970889961924712}
   m_Layer: 0
   m_Name: GameManager
@@ -225,8 +226,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  gameModeType: 0
   playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
     type: 3}
+  gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
+  playerInputManager: {fileID: 8605951647801297494}
+  PlayingLocal: 0
+  countdown: {fileID: 0}
   deathZones:
   - {fileID: 0}
   - {fileID: 0}
@@ -237,21 +243,41 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
-  hitReferences:
-  - spellType: 0
-    playerHitID: -1
-  - spellType: 0
-    playerHitID: -1
-  - spellType: 0
-    playerHitID: -1
-  - spellType: 0
-    playerHitID: -1
+  hitReferences: []
+  multiKillTimeWindow: 3
+  damageAmountForAchievement: 300
+--- !u!114 &985847803460137825
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3737377328279540851}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e872b0aaa8c4cae4e9d807967af8933c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  gameModeType: 1
+  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
+    type: 3}
+  gameSettings: {fileID: 11400000, guid: 1a4a200bef0232a4295fc0a159e333cd, type: 2}
   playerInputManager: {fileID: 8605951647801297494}
   PlayingLocal: 0
   countdown: {fileID: 0}
-  zeroDamageAchievementID: 0
-  damagedAchievementID: 1
+  deathZones:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  hitReferences: []
+  multiKillTimeWindow: 3
   damageAmountForAchievement: 300
 --- !u!114 &9037970889961924712
 MonoBehaviour:
