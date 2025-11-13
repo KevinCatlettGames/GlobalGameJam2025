@@ -124,7 +124,7 @@ public class BasicBubble : NetworkBehaviour
             lastPosition = transform.position;
         }
     }
-    protected IEnumerator BubbleRangeLimit()
+    protected virtual IEnumerator BubbleRangeLimit()
     {
         float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
