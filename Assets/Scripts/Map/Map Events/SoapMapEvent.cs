@@ -15,6 +15,9 @@ public class SoapMapEvent : MonoBehaviour
     private bool isSpawning = false;
     void Start()
     {
+        if (LobbyManager.instance)
+            isMapEventEnabled = LobbyManager.instance.playWithMapEvents;
+        
         if (!isMapEventEnabled) Destroy(this);
         if (TransportSwitcher.Instance)
         {

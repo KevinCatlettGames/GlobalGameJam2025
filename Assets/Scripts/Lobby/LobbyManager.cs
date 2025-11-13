@@ -14,9 +14,12 @@ public class LobbyManager : NetworkBehaviour
     public static LobbyManager instance;
     
     [Header("Game Mode Settings")]
+    public bool playWithMapEvents = true;
+    [SerializeField] private bool loadRandomLevel = false;
+    public int pointsForGameEnd = 7;
+    public float matchTime = 5;
     [SerializeField] private SO_Scores scores;
-    [SerializeField] string levelToLoad = "Lvl_MainScene";
-    
+    [SerializeField] string plateLevel = "Lvl_MainScene";
     [SerializeField] GameModeSO[] possibleGameModes;
     public GameModeSO[]  PossibleGameModes { get => possibleGameModes; set => possibleGameModes = value; }
     
@@ -29,7 +32,7 @@ public class LobbyManager : NetworkBehaviour
             ChangeSelectedGameModeClientRpc(value);
         }
     }
-
+    
     public TextMeshProUGUI gameModeTypeText;
     
     [SerializeField] GameObject gameModeSelection;
@@ -62,7 +65,8 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] StudioEventEmitter selectEmitter;
     [SerializeField] StudioEventEmitter unselectEmitter;
     [SerializeField] StudioEventEmitter playerStartEmitter;
-
+    [SerializeField] StudioEventEmitter buttonOnClickEmitter;
+    
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -312,7 +316,11 @@ public class LobbyManager : NetworkBehaviour
     {
         PlayStartSFXClientRpc();
         yield return new WaitForSeconds(1f);
-        NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
+            
+        if(loadRandomLevel) 
+            MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+        else
+            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
     }
 
     void ChangeStartButtonState(bool enable)
@@ -357,5 +365,17 @@ public class LobbyManager : NetworkBehaviour
     void PlayStartSFXClientRpc()
     {
         playerStartEmitter.Play();
+    }
+
+    public void TogglePlayWithMapEvents(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        playWithMapEvents = toggle;
+    }
+    
+    public void ToggleRandomFirstMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        loadRandomLevel = toggle;
     }
 }

@@ -9,6 +9,9 @@ public class CrabHuntingGrounds : MonoBehaviour
     private List<Transform> playersInRange = new List<Transform>();
     void Start()
     {
+        if (LobbyManager.instance)
+            isMapEventEnabled = LobbyManager.instance.playWithMapEvents;
+        
         if (!isMapEventEnabled)
             Destroy(gameObject);
     }

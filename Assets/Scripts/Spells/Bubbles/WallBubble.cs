@@ -18,6 +18,8 @@ public class WallBubble : BasicBubble
         {
             Debug.LogWarning("Reflector component missing on WallBubble.");
         }
+
+        canMiss = false;
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(dmg));
     }
     public override void BubbleCollision(GameObject other)

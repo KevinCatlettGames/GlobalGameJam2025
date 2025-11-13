@@ -22,6 +22,9 @@ public class WallManager : MonoBehaviour
     private bool isMoving = true;
     private void Awake()
     {
+        if (LobbyManager.instance)
+            isMapEventActive = LobbyManager.instance.playWithMapEvents;
+        
         if (!isMapEventActive)
         {
             Destroy(gameObject);

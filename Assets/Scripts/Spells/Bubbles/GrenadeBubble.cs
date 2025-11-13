@@ -7,12 +7,12 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float height = 20f;
     [SerializeField] private float gravity = 10f;
-    [SerializeField] private float vulnerableTime = 4f;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         dir.y = height;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        canMiss = false;
     }
     protected override void BubbleMovement()
     {
@@ -48,14 +48,17 @@ public class GrenadeBubble : BasicBubble
             {
                 if (col.CompareTag("Player"))
                 {
+                    GameManager gameManager = GameManager.Instance;
+                    
                     PlayerController player = col.GetComponent<PlayerController>();
                     if (player != null)
                     {
-                        if (GameManager.Instance.PlayingLocal)
+                        if (gameManager.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                        player.StartVulnerable(vulnerableTime);
+                        
+                        gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                     }
                 }
                 else

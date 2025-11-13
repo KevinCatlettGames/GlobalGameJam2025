@@ -1,3 +1,4 @@
+using System;
 using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
@@ -7,6 +8,7 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq; 
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -39,7 +41,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private PlayerDamagedEffect damagedEffect;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private float damageColorEffectDuration = 0.1f;
-
     #endregion
 
     #region Spells
@@ -146,15 +147,20 @@ public class PlayerController : NetworkBehaviour
     
     #region Achievements
     
-    [Header("Regain Ground Achievement")]
+    [Header("Achievement Values")]
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private int regainGroundThreshold = 10;
-    [SerializeField] private int regainGroundStatID = 0;
-    [SerializeField] private int regainGroundAchievementID = 4;
-    private float groundCheckDistance = .2f;
+    private float groundCheckDistance = 20f;
     private bool isFirstGroundDetection = true;
     private bool groundRaycastWasDetected;
     private bool groundRaycastIsDetected;
+    
+    [SerializeField] private Vector3 boxCenterOffset = Vector3.zero;
+    [SerializeField] private Vector3 boxHalfExtents = Vector3.one;
+    [SerializeField] private LayerMask bubbleLayer;
+    private HashSet<Collider> bubblesInside = new HashSet<Collider>();
+    [SerializeField] private int shotsHitInARowAmountNeeded = 10;
+    private int shotsHitInARowAmount = 0;
+    [SerializeField] private int pickedUpSpellsNeeded = 20;
     
     #endregion
 
@@ -217,10 +223,10 @@ public class PlayerController : NetworkBehaviour
         HandleGravity();
         HandleMovementAndRotation();
         HandleAnimations();
-        HandleGroundRaycast();
         ApplyMovement();
-
         HandleDesyncAndSync();
+        HandleGroundRaycast();
+        IncrementDodgeBubbleAchievement();
     }
 
     #endregion
@@ -435,7 +441,7 @@ public class PlayerController : NetworkBehaviour
         if (SteamIntegration.instance)
         {
             if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                SteamIntegration.instance.UnlockAchievement(3);
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
         }
     }
 
@@ -467,7 +473,7 @@ public class PlayerController : NetworkBehaviour
             if (SteamIntegration.instance)
             {
                 if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                    SteamIntegration.instance.UnlockAchievement(3);
+                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
             }
         }
     }
@@ -545,12 +551,10 @@ public class PlayerController : NetworkBehaviour
         if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
         {
             pickedUpSpellsAmount++;
-            if (pickedUpSpellsAmount >= 20)
+            if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
             {
                 if (SteamIntegration.instance)
-                {
-                    SteamIntegration.instance.UnlockAchievement(2);
-                }
+                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
             }
         }
     }
@@ -570,12 +574,10 @@ public class PlayerController : NetworkBehaviour
         itemsToEquip.RemoveAt(0);
         
         pickedUpSpellsAmount++;
-        if (pickedUpSpellsAmount >= 20)
+        if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
         {
             if (SteamIntegration.instance)
-            {
-                SteamIntegration.instance.UnlockAchievement(2);
-            }
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
         }
     }
 
@@ -1189,6 +1191,7 @@ public class PlayerController : NetworkBehaviour
         pickedUpSpellsAmount = 0; 
         usedSpell.Clear();
         isFirstGroundDetection = true;
+        shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
         isDead = false;
@@ -1276,16 +1279,16 @@ public class PlayerController : NetworkBehaviour
         
         groundRaycastIsDetected = Physics.Raycast(rayOrigin, Vector3.down,
             out RaycastHit hit,
-            controller.height / 2f + groundCheckDistance,
+            groundCheckDistance,
             groundMask);
 
         if (!groundRaycastWasDetected && groundRaycastIsDetected)
-            OnRegainedGround(hit);
+            IncrementRegainGroundAchievement(hit);
         
         groundRaycastWasDetected = groundRaycastIsDetected;
     }
     
-    void OnRegainedGround(RaycastHit hit)
+    void IncrementRegainGroundAchievement(RaycastHit hit)
     {
         if (isFirstGroundDetection)
         {
@@ -1293,15 +1296,71 @@ public class PlayerController : NetworkBehaviour
             return;
         }
         
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && (ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.regainGroundStatID,
+            1, 
+            SteamIntegration.instance.StatThresholds[steamIntegration.regainGroundStatID], 
+            steamIntegration.regainGroundAchievementID);
+    }
+
+    void IncrementDodgeBubbleAchievement()
+    {
+        Vector3 boxCenter = transform.position + boxCenterOffset;
+        Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, Quaternion.identity, bubbleLayer);
+
+        foreach (var hit in hits)
         {
-            if (SteamIntegration.instance)
-                SteamIntegration.instance.IncrementIntSteamStat(regainGroundStatID,1, regainGroundThreshold, regainGroundAchievementID);
+            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID == playerID) continue;
+            
+            if (!bubblesInside.Contains(hit))
+                bubblesInside.Add(hit);
+        }
+
+        var exiting = bubblesInside.Where(b => !hits.Contains(b)).ToList();
+        foreach (var b in exiting)
+        {
+            bubblesInside.Remove(b);
+            if (b == null || !b.GetComponent<BasicBubble>()) return; 
+            
+            BasicBubble bubble = b.GetComponent<BasicBubble>();
+            
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+                || bubble.HasPopped
+                || bubble.OwnerID == playerID
+                || !isSprinting
+                || !SteamIntegration.instance) return;
+                
+                SteamIntegration steamIntegration = SteamIntegration.instance;
+                SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.bubbleDodgeStatID, 
+                    1, 
+                    steamIntegration.StatThresholds[steamIntegration.bubbleDodgeStatID], 
+                    steamIntegration.bubbleDodgeAchievementID);
+        }
+    }
+
+    public void UnlockShotsHitInARowAchievement(bool hitAPlayer)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+            || !SteamIntegration.instance) return;
+        
+        if (hitAPlayer)
+        {
+            // hit a player
+            shotsHitInARowAmount++;
+            if (shotsHitInARowAmount >= shotsHitInARowAmountNeeded)
+            {
+                SteamIntegration steamIntegration = SteamIntegration.instance;
+                SteamIntegration.instance.UnlockAchievement(steamIntegration.shotsHitInARowAchievementID);
+            }
         }
         else
         {
-            if (SteamIntegration.instance)
-                SteamIntegration.instance.IncrementIntSteamStat(regainGroundStatID,1, regainGroundThreshold, regainGroundAchievementID);
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+                NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
+            shotsHitInARowAmount = 0; 
         }
     }
     #endregion

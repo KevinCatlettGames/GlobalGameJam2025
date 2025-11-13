@@ -30,7 +30,7 @@ public class DeathzoneWall : NetworkBehaviour
     {
         if (other.CompareTag("Player")) 
         {
-            Debug.Log("Death by Wall");
+            //Debug.Log("Death by Wall");
             effectPosition = other.transform.position;
             if (isFloor)
             {

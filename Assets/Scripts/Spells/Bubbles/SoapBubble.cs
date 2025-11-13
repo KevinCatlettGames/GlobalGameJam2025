@@ -12,7 +12,7 @@ public class SoapBubble : BasicBubble
     private const float raycastDistance = 5f;
 
     private float timer = 0;
-
+    
     private void Update()
     {
         if (soapPuddleObject == null) return;
@@ -54,10 +54,8 @@ public class SoapBubble : BasicBubble
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
-            gameManager.hitReferences[OwnerID].spellType = spellType;
-            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
-            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
-
+            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            
             DropSoapPuddle(true);
         }
         Pop();

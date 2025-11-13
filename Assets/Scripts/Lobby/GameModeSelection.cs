@@ -94,6 +94,7 @@ public class GameModeSelection : NetworkBehaviour
     
     private void ExitGameModeSelectionPerformed(InputAction.CallbackContext obj)
     {
+        buttonOnClickEmitter.Play();
         lobbyButtons.ToggleGameMode();
     }
 }

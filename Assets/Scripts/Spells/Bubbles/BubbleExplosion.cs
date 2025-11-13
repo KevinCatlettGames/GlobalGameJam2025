@@ -9,7 +9,7 @@ public class BubbleExplosion : NetworkBehaviour
     [HideInInspector] public int OwnerID;
     private float explosionRadius = 0;
     private bool hasExploded = false;
-
+    
     private void Start()
     {
         indicator.SetActive(false);

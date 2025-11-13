@@ -16,6 +16,7 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         bubbleExplosion = GetComponentInChildren<BubbleExplosion>();
         bubbleExplosion.OwnerID = ID;
+        canMiss = false;
         if (indicator)
             bubbleExplosion.SetExplosionSize(explosionRadius, size);
     }
@@ -32,9 +33,7 @@ public class ExplodingBubble : BasicBubble
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
-            gameManager.hitReferences[OwnerID].spellType = spellType;
-            gameManager.hitReferences[OwnerID].playerHitID = player.PlayerID;
-            gameManager.hitReferences[OwnerID].wasSlippery = player.IsSlippery;
+            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
         }
         else if (other.CompareTag("Bubble"))
         {
