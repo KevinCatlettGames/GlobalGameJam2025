@@ -87,7 +87,7 @@ public class WallManager : MonoBehaviour
         {
             transform.Rotate(Vector3.up * (rotationSpeed * Time.deltaTime));
         }
-
+        // Remove in final build!
         if (Input.GetKeyDown(KeyCode.B))
         {
             foreach (var Wall in walls)
@@ -99,7 +99,7 @@ public class WallManager : MonoBehaviour
         {
             foreach (var Wall in walls)
             {
-                Wall.Sink();
+                Wall.Sink(false);
             }
         }
     }
@@ -116,7 +116,7 @@ public class WallManager : MonoBehaviour
     {
         for (int i = 0; i < maxActiveWalls; i++)
         {
-            walls[wallIndex[i]].Sink();
+            walls[wallIndex[i]].Sink(false);
         }
         Invoke(nameof(SetWallsInactive), 1.5f);
     }

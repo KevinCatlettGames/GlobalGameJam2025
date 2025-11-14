@@ -17,7 +17,8 @@ public class BasicBubble : NetworkBehaviour
         Snipe,
         Soap,
         Wall,
-        Grenade
+        Grenade,
+        Demolish
     };
 
     public SpellType spellType;
