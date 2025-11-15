@@ -191,10 +191,6 @@ MonoBehaviour:
     type: 3}
   hitEffect: {fileID: 7883030796252567183, guid: c57bb1cf234226b4c81589f69b31857e,
     type: 3}
-  missedShotAchievementID: 12
-  missedShotStatThreshold: 1000
-  missedShotStatID: 6
-  canMiss: 1
   indicator: 0
   explosionRadius: 8
   earlyFizzleEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
@@ -15282,7 +15278,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2552587483693626036}
-  - component: {fileID: 1042693302185370076}
   - component: {fileID: 3004557593096339771}
   m_Layer: 0
   m_Name: BubbleExplosion
@@ -15307,27 +15302,6 @@ Transform:
   - {fileID: 3317397010494863786}
   m_Father: {fileID: 3019594990852850736}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!135 &1042693302185370076
-SphereCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8834206163252826279}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Radius: 1
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &3004557593096339771
 MonoBehaviour:
   m_ObjectHideFlags: 0
