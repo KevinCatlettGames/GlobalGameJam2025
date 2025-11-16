@@ -109,7 +109,7 @@ public class PlayerHUD : NetworkBehaviour
             {
                 int skinIndex = 0; 
                     
-                foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+                foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
                 {
                     if (playerValues.Skin.Color == playerColor)
                     {
@@ -127,7 +127,7 @@ public class PlayerHUD : NetworkBehaviour
     {
         SkinSO skinToUse = null; 
         
-        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
         {
             if (playerValues.Skin.Index == skinIndex)
             {

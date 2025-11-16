@@ -27,11 +27,11 @@ public class PlayerController : NetworkBehaviour
     #region Visuals & Effects
 
     [Header("Visuals")] 
-    [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     [SerializeField] private GameObject canvas;
     [SerializeField] private PlayerSpellIndicator spellIndicator1;
     [SerializeField] private PlayerSpellIndicator spellIndicator2;
+    [SerializeField] private Transform meshParent;
 
     [Header("Effects")] 
     [SerializeField] private GameObject dashStartEffect;
@@ -169,8 +169,6 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void InitializeClientRpc()
     {
-        DeactivateCharacters();
-
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
@@ -186,20 +184,12 @@ public class PlayerController : NetworkBehaviour
 
     public void InitializeLocal()
     {
-        DeactivateCharacters();
-
         PlayerManager.Instance.AddPlayerLocal(GetComponent<PlayerInput>());
         EnableInput();
 
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
-    }
-
-    private void DeactivateCharacters()
-    {
-        foreach (GameObject character in characters)
-            character.SetActive(false);
     }
 
     private void EnableInput()
@@ -1203,42 +1193,28 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void ResetHudClientRpc() => playerHUD.ResetHUD();
 
-    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
+    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
     {
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 
-        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+        GameObject skin = Instantiate(skinObject.SkinPrefab, meshParent);
+        
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            if (playerValues.PlayerIndex == playerID)
-            {
-                if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
-                    ActivateCorrectColorClientRpc(playerID);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
-                }
-                else if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
-                }
-                else
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>(); 
-                }
-            }
+            foreach (var element in coloredElements)
+                element.color = skinObject.Color;
+            //ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
+            //ActivateCorrectColorClientRpc(playerID);
+            mainAnimator = skin.GetComponent<Animator>();
+            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>();
+        }
+        else
+        {
+            foreach (var element in coloredElements)
+                element.color = skinObject.Color;
+            mainAnimator = skin.GetComponent<Animator>();
+            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>(); 
         }
         
         playerHUD.UpdateDamageText((int)damage);
@@ -1255,10 +1231,10 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void ActivateCorrectSkinClientRpc(int index)
     {
-        foreach (GameObject character in characters)
-            character.SetActive(false);
+        //foreach (GameObject character in characters)
+        //    character.SetActive(false);
 
-        characters[index].SetActive(true);
+        //characters[index].SetActive(true);
     }
 
     [ClientRpc]
@@ -1266,8 +1242,7 @@ public class PlayerController : NetworkBehaviour
     {
         foreach (Image image in coloredElements)
         {
-            image.color = LobbyPlayerHandler.Instance.playerValues[index].Skin
-                .Color; 
+            image.color = LobbyPlayerHandler.Instance.playerValuesList[index].Skin.Color; 
         }
     }
     #endregion

@@ -65,7 +65,6 @@ public class ExplodingBubble : BasicBubble
             if (col == null || col.gameObject == this) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
-            Debug.Log(col.name);
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
                 if (col.CompareTag("Player"))
