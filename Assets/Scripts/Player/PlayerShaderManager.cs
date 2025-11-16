@@ -1,11 +1,22 @@
 using System.Collections;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
+public enum ShaderState
+{
+    sober,
+    wet,
+    sauced,
+    inked,
+    buffed
+}
 public class PlayerShaderManager : MonoBehaviour
 {
     [SerializeField] private int materialElementID = 0;
     private Material material;
     private bool damageEffectActice = false;
+    private ShaderState currentShaderState = ShaderState.sober;
+    private string[] enumKeys = { "_STATUS_SOBER", "_STATUS_WET", "_STATUS_SAUCED", "_STATUS_INKED", "_STATUS_BUFFED" };
     void Start()
     {
         material = GetComponent<SkinnedMeshRenderer>().materials[materialElementID];
@@ -15,10 +26,9 @@ public class PlayerShaderManager : MonoBehaviour
     {
         StopAllCoroutines();
         damageEffectActice = false;
-        if (!material) return; 
-        
+        if (!material) return;
+
         material.SetFloat("_isDamaged", 0);
-        material.SetFloat("_isWet", 0);
     }
 
     public void DamageEffect(float effectDuration)
@@ -34,12 +44,12 @@ public class PlayerShaderManager : MonoBehaviour
         material.SetFloat("_isDamaged", 0);
         damageEffectActice = false;
     }
-    public void WetEffect(bool isWet)
+    public void SetShaderState(ShaderState newState)
     {
-        float w = (isWet) ? 1f : 0f;
-        material.SetFloat("_isWet", w);   
+        material.DisableKeyword(enumKeys[(int)currentShaderState]);
+        currentShaderState = newState;
+        material.EnableKeyword(enumKeys[(int)currentShaderState]);
     }
-
     private void OnDestroy()
     {
         ResetShader();
