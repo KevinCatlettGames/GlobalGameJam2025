@@ -1104,7 +1104,9 @@ public class PlayerController : NetworkBehaviour
         else
             wetEffect.Stop();
 
-        shaderManager?.WetEffect(isSlippery);
+        ShaderState state = (isSlippery) ? ShaderState.wet : ShaderState.sober;        
+        shaderManager.SetShaderState(state);
+ 
     }
 
     public void StartVulnerable(float time)
@@ -1115,8 +1117,9 @@ public class PlayerController : NetworkBehaviour
     }
     private IEnumerator VulnerableCoroutine(float duration)
     {
+        Debug.Log("Vulnerable");
         isVulnerable = true;
-        //StartShaderEfffect
+        shaderManager.SetShaderState(ShaderState.sauced);
         yield return new WaitForSeconds(duration);
         StopVulnerable();
     }
@@ -1125,7 +1128,7 @@ public class PlayerController : NetworkBehaviour
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
         isVulnerable = false;
-        //EndShaderEffect
+        shaderManager.SetShaderState(ShaderState.sober);
     }
     #endregion
 
