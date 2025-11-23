@@ -124,11 +124,8 @@ public class SteamIntegration : MonoBehaviour
                 if (loaded)
                 {
                     statsLoaded = true;
-                   // Debug.Log("Steam stats loaded.");
+                    SetLocaleBasedOnSteamLanguage();
                 }
-                else
-                   // Debug.LogWarning("Steam initialized, but failed to load stats.");
-
                 return;
             }
 
@@ -139,26 +136,19 @@ public class SteamIntegration : MonoBehaviour
             
             bool success = SteamUserStats.RequestCurrentStats();
             if (success)
-            {
                 statsLoaded = true;
-               // Debug.Log("Steam stats loaded.");
-            }
-            else
-               // Debug.LogWarning("Steam initialized, but failed to load stats.");
-
+            
             steamInitialized = true;
         }
         catch (Exception e)
         {
             steamInitialized = false;
-           // Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     
     #region Matchmaking
     private void RichPresenceJoinRequested(Friend steamFriend, string lobbyID)
     {
-        //Debug.Log("Trying to join a lobby through steam friend list stuff...");
         steamFriendToJoin = steamFriend;
         lobbyIDToJoin = lobbyID;
         if (MainMenuLobbyCreator.Instance != null)
@@ -167,52 +157,52 @@ public class SteamIntegration : MonoBehaviour
     #endregion 
     
     #region Localization
-    // private void SetLocaleBasedOnSteamLanguage()
-    // {
-    //     try
-    //     {
-    //         Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
-    //         
-    //         if (LocaleSelector.Instance)
-    //         {
-    //             switch (SteamApps.GameLanguage)
-    //             {
-    //                 case "german":
-    //                     LocaleSelector.Instance.ChangeLocale(1);
-    //                     Debug.Log("Locale set to german");
-    //                     break;
-    //                 case "chinese":
-    //                     LocaleSelector.Instance.ChangeLocale(2);
-    //                     Debug.Log("Locale set to chinese");
-    //                     break;
-    //                 case "japanese":
-    //                     LocaleSelector.Instance.ChangeLocale(3);
-    //                     Debug.Log("Locale set to japanese");
-    //                     break;
-    //                 case "portuguese":
-    //                     LocaleSelector.Instance.ChangeLocale(4);
-    //                     Debug.Log("Locale set to portuguese");
-    //                     break;
-    //                 case "russian":
-    //                     LocaleSelector.Instance.ChangeLocale(5);
-    //                     Debug.Log("Locale set to russian");
-    //                     break;
-    //                 case "spanish":
-    //                     LocaleSelector.Instance.ChangeLocale(6);
-    //                     Debug.Log("Locale set to spanish");
-    //                     break;
-    //                 default:
-    //                     LocaleSelector.Instance.ChangeLocale(0);
-    //                     Debug.Log("Locale set to english");
-    //                     break;
-    //             }
-    //         }
-    //     }
-    //     catch
-    //     {
-    //         Debug.LogError("No steam locale settable");
-    //     }
-    // }
+    private void SetLocaleBasedOnSteamLanguage()
+    {
+        try
+        {
+            Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
+            
+            if (LocaleSelector.Instance)
+            {
+                switch (SteamApps.GameLanguage)
+                {
+                    case "german":
+                        LocaleSelector.Instance.ChangeLocale(1);
+                        Debug.Log("Locale set to german");
+                        break;
+                    // case "chinese":
+                    //     LocaleSelector.Instance.ChangeLocale(2);
+                    //     Debug.Log("Locale set to chinese");
+                    //     break;
+                    // case "japanese":
+                    //     LocaleSelector.Instance.ChangeLocale(3);
+                    //     Debug.Log("Locale set to japanese");
+                    //     break;
+                    case "portuguese":
+                        LocaleSelector.Instance.ChangeLocale(2);
+                        Debug.Log("Locale set to portuguese");
+                        break;
+                    // case "russian":
+                    //     LocaleSelector.Instance.ChangeLocale(5);
+                    //     Debug.Log("Locale set to russian");
+                    //     break;
+                    case "spanish":
+                        LocaleSelector.Instance.ChangeLocale(3);
+                        Debug.Log("Locale set to spanish");
+                        break;
+                    default:
+                        LocaleSelector.Instance.ChangeLocale(0);
+                        Debug.Log("Locale set to english");
+                        break;
+                }
+            }
+        }
+        catch
+        {
+            //Debug.LogError("No steam locale settable");
+        }
+    }
      #endregion
     
     #region Achievements
