@@ -9,6 +9,7 @@ public class CrabClaw : MonoBehaviour
     [SerializeField] private LurkingShadow shadow;
     [SerializeField] private Animator animator;
     [SerializeField] private Transform clawTransform;
+    [SerializeField] private ParticleSystem snapVFX;
     [Header("Logic")]
     [SerializeField] private float startDelay = 8f;
     [SerializeField] private float restetTime = 5f;
@@ -85,7 +86,6 @@ public class CrabClaw : MonoBehaviour
             }
             //Change to anim event
             clawTransform.LookAt(Vector3.zero);
-            animator.Play("Snap", 0, 0);
             Snap();
             yield return new WaitForSeconds(restetTime);
         }
@@ -94,6 +94,8 @@ public class CrabClaw : MonoBehaviour
 
     public void Snap()
     {
+        animator.Play("Snap", 0, 0);
+        snapVFX.Play();
         shadow.LerpShadow(0, .4f);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
         Vector3 origin;
