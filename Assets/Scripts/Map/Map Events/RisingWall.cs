@@ -11,6 +11,7 @@ public class RisingWall : MonoBehaviour
     [SerializeField] private ParticleSystem riseParticle;
     [SerializeField] private ParticleSystem idleParticle;
     [SerializeField] private ParticleSystem sinkParticle;
+    private bool isActive = false;
     void Start()
     {
         animator = GetComponent<Animator>();
@@ -23,13 +24,17 @@ public class RisingWall : MonoBehaviour
     public void Rise()
     {
         //gameObject.SetActive(true);
+        if (isActive) return;
+        isActive = true;
         StopAllCoroutines();
         StartCoroutine(RiseCoroutine());
     }
-    public void Sink()
+    public void Sink(bool instant)
     {
+        if (!isActive) return;
+        isActive = false; 
         StopAllCoroutines();
-        StartCoroutine(SinkCoroutine());
+        StartCoroutine(SinkCoroutine(instant));
     }
     private IEnumerator RiseCoroutine() 
     {
@@ -43,10 +48,13 @@ public class RisingWall : MonoBehaviour
         abschieber.SetActive(true);
         bubblingParticle?.Stop();
     }
-    private IEnumerator SinkCoroutine()
+    private IEnumerator SinkCoroutine(bool instant)
     {
-        float r = Random.Range(0, randomDelay);
-        yield return new WaitForSeconds(r);
+        if (!instant)
+        {
+            float r = Random.Range(0, randomDelay);
+            yield return new WaitForSeconds(r);
+        }
         animator.SetTrigger("Sink");
         idleParticle?.Stop();
         sinkParticle?.Play();

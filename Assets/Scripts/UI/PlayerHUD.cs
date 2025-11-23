@@ -19,6 +19,8 @@ public class PlayerHUD : NetworkBehaviour
     private float secondCoverFill = 0f;
     private float secondCDRate = 1f;
     private Sprite[] spellSprites = new Sprite[4];
+    private Sprite[] portraitSprites;
+    private int currentPortraitIndex = -1;
 
     [Header("Animation")]
     [SerializeField] private AnimationCurve shakeCurve;
@@ -95,52 +97,38 @@ public class PlayerHUD : NetworkBehaviour
             secondCoverImage.fillAmount = secondCoverFill;
         }
     }
-    public void InitialisePlayerHUD(Color playerColor, Sprite playerPortrait)
+    public void InitialisePlayerHUD(int playerID)
     {
-        foreach (var uiElement in coloredUI)
-        {
-            uiElement.color = playerColor;
-        }
-        portrait.sprite = playerPortrait;
-
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
             if (IsServer)
             {
-                int skinIndex = 0; 
-                    
-                foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
-                {
-                    if (playerValues.Skin.Color == playerColor)
-                    {
-                        skinIndex = playerValues.Skin.Index;
-                        break;
-                    }
-                }
-                InitializePlayerHudClientRpc(skinIndex);
+                InitializePlayerHudClientRpc(playerID);
             }
+        }
+        else
+        {
+            SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
+            foreach (var uiElement in coloredUI)
+            {
+                uiElement.color = skin.Color;
+            }
+            portraitSprites = skin.GameSprites;
+            SetPortrait(0);
         }
     }
 
     [ClientRpc]
-    void InitializePlayerHudClientRpc(int skinIndex)
+    void InitializePlayerHudClientRpc(int playerID)
     {
-        SkinSO skinToUse = null; 
-        
-        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
-        {
-            if (playerValues.Skin.Index == skinIndex)
-            {
-                skinToUse = playerValues.Skin;
-                break;
-            }
-        }
+        SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
 
         foreach (var uiElement in coloredUI)
         {
-            uiElement.color = skinToUse.Color;
+            uiElement.color = skin.Color;
         }
-        portrait.sprite = skinToUse.GameSprite;
+        portraitSprites = skin.GameSprites;
+        SetPortrait(0);
     }
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
@@ -245,6 +233,10 @@ public class PlayerHUD : NetworkBehaviour
             float colorValue = damage * gradientEvaluateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
         }
+        if (damage >= 100 && currentPortraitIndex != 2)
+        {
+            SetPortrait(1);
+        }
     }
 
 
@@ -262,7 +254,7 @@ public class PlayerHUD : NetworkBehaviour
 
     public void DisplayDeath()
     {
-        portrait.color = deathColor;
+        SetPortrait(2);
         UICover.SetActive(true);
         if (maxLifes != -1 && maxLifes > 1)
         {
@@ -283,6 +275,7 @@ public class PlayerHUD : NetworkBehaviour
         portrait.color = Color.white;
         UICover.SetActive(false);
         UpdateDamageText(0);
+        SetPortrait(0);
     }
 
     public void SetInitaialScores(int _kills, int _wins)
@@ -291,6 +284,13 @@ public class PlayerHUD : NetworkBehaviour
         wins = _wins;
         killsTypewriter.ShowText(kills.ToString());
         winsTypewriter.ShowText(wins.ToString());
+    }
+
+    private void SetPortrait(int portaritIndex)
+    {
+        if (portaritIndex == currentPortraitIndex || portaritIndex < 0 || portaritIndex >= portraitSprites.Length) return;
+        currentPortraitIndex = portaritIndex;
+        portrait.sprite = portraitSprites[currentPortraitIndex];
     }
 
     private void OnDestroy()

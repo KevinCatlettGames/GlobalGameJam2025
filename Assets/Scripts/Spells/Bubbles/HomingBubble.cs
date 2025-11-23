@@ -8,21 +8,18 @@ public class HomingBubble : BasicBubble
     [Header("Homing")]
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float homingRadius = 5f;
-    [Header("Stab")]
+    [Header("Trap")]
     [SerializeField] private float dmgMod = 1.5f;
     [SerializeField] private float knbMod = 2f;
-    [SerializeField] private float speedMod = 2f;
-    [SerializeField] private float rotMod = 1.5f;
+    [SerializeField] private float spdMod = 2f;
+    [SerializeField] private float sizMod = 1f;
     [SerializeField] private float stabRange = 10f;
-    [SerializeField] private float stopDuration = .1f;
+    [SerializeField] private float stopDuration = 4f;
     [SerializeField] private Mesh stabMesh;
-    private float homingDuration = 0f;
-    private float stabSpeed = 0f;
-    private bool stabStage = false;
+    private bool waitStage = false;
+    private bool huntStage = false;
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        homingDuration = rng / spd;
-        rng += stabRange;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
 
         homingTargeting = GetComponentInChildren<HomingTargeting>();
@@ -34,9 +31,20 @@ public class HomingBubble : BasicBubble
         {
             Debug.LogWarning("HomingTargeting component not found on HomingBubble.");
         }
-        StartCoroutine(StageSwitchCoroutine());
+        
     }
+    protected override IEnumerator BubbleRangeLimit()
+    {
+        float lifetime = range / speed;
+        yield return new WaitForSeconds(lifetime);
+        waitStage = true;
+        yield return new WaitForSeconds(stopDuration);
 
+        if (canMiss)
+            IncrementMissedShotAchievement();
+
+        Pop();
+    }
     protected override void BubbleMovement()
     {
         if (!hasInflated)
@@ -45,35 +53,55 @@ public class HomingBubble : BasicBubble
             return;
         }
 
-        if (homingTargeting != null && !stabStage)
+        if (homingTargeting != null && waitStage)
         {
             Vector3 targetVector = homingTargeting.GetTargetVector();
 
             if (targetVector != Vector3.zero)
             {
+                EnterHuntStage(targetVector);
                 Quaternion targetRotation = Quaternion.LookRotation(targetVector);
                 transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+                direction = transform.forward;
+            }
+            else
+            {
+                if (huntStage)
+                {
+                    base.BubbleMovement();
+                }
+                else
+                {
+                    IncreseStrength();
+                    return;
+                }
             }
         }
-        
-        direction = transform.forward;
         base.BubbleMovement();
     }
     private IEnumerator StageSwitchCoroutine()
     {
-        yield return new WaitForSeconds(homingDuration);
-        stabSpeed = speed * speedMod;
-        speed = 0;
-        rotationSpeed *= rotMod;
+        float lifetime = stabRange / speed;
         GetComponent<MeshFilter>().mesh = stabMesh;
-        yield return new WaitForSeconds(stopDuration);
-        EnterStabStage();
+        yield return new WaitForSeconds(lifetime);
+        if (canMiss)
+            IncrementMissedShotAchievement();
+        Pop();
     }
-    private void EnterStabStage()
+    private void EnterHuntStage(Vector3 target)
     {
-        stabStage = true;
-        damage *= dmgMod;
-        speed = stabSpeed;
-        knockback *= knbMod;
+        if (huntStage) return;
+        huntStage = true;
+        transform.rotation = Quaternion.LookRotation(target);
+        StopCoroutine(rangeCoroutine);
+        StartCoroutine(StageSwitchCoroutine());
+    }
+    private void IncreseStrength()
+    {
+        damage += dmgMod * Time.fixedDeltaTime;
+        speed += spdMod * Time.fixedDeltaTime;
+        knockback += knbMod * Time.fixedDeltaTime;
+        size += sizMod * Time.fixedDeltaTime;
+        transform.localScale = Vector3.one * size;
     }
 }

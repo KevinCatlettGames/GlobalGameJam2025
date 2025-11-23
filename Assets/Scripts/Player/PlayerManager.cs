@@ -96,7 +96,7 @@ public class PlayerManager : NetworkBehaviour
         {
             LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -135,7 +135,7 @@ public class PlayerManager : NetworkBehaviour
         {
             LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -196,7 +196,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;
@@ -230,7 +230,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
         playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
 
         characterController.enabled = true;
@@ -331,13 +331,15 @@ public class PlayerManager : NetworkBehaviour
 
         if (LobbyPlayerHandler.Instance)
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
         else
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            //Cant work without lobby manager anyways
+            //playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            //ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
     }
 

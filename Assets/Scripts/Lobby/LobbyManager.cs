@@ -255,7 +255,7 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     private void AddNewPlayerValuesClientRpc(int clientID)
     {
-        LobbyPlayerHandler.Instance.playerValues.Add(
+        LobbyPlayerHandler.Instance.playerValuesList.Add(
             new LobbyPlayerHandler.PlayerValues(clientID, null, possibleSkins[clientID]));
         LobbyPlayerHandler.Instance.SortPlayerValues();
     }
