@@ -20,15 +20,13 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private Button mapsTabButton;
     [SerializeField] private Button howToPlayButton;
 
-    [SerializeField] private InputActionProperty leftTabInputAction;
-    [SerializeField] private InputActionProperty rightTabInputAction;
-
     [SerializeField] private VideoPlayer videoPlayer;
-    [SerializeField] private RawImage videoRawImage;
-
-    [SerializeField] private Image headerImage;
-    [SerializeField] private TextMeshProUGUI headerText;
-    [SerializeField] private TextMeshProUGUI descriptionText;
+    [SerializeField] private RawImage itemRawImage;
+    
+    [SerializeField] private Image itemMainImage;
+    [SerializeField] private Image itemSpriteImage;
+    [SerializeField] private TextMeshProUGUI itemHeaderText;
+    [SerializeField] private TextMeshProUGUI itemDescriptionText;
 
     [SerializeField] private HowToPlayItemSO[] generalItems;
     [SerializeField] private HowToPlayItemSO[] weaponItems;
@@ -40,39 +38,33 @@ public class HowToPlayMenu : MonoBehaviour
     private int currentIndex;
     private bool indexTogglingEnabled = false;
 
+    [SerializeField] private GameObject[] pageDots;
+    [SerializeField] private Sprite activePageDotSprite;
+    [SerializeField] private Sprite inactivePageDotSprite;
+    
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
         if (videoPlayer.targetTexture != null)
-            videoRawImage.texture = videoPlayer.targetTexture;
+            itemRawImage.texture = videoPlayer.targetTexture;
     }
 
     private void OnEnable()
     {
         SetTab(Tab.General);
-        leftTabInputAction.action.Enable();
-        leftTabInputAction.action.performed += OnLeftTab;
-        rightTabInputAction.action.Enable();
-        rightTabInputAction.action.performed += OnRightTab;
     }
 
     private void OnDisable()
     {
         DisableIndexToggling();
-        leftTabInputAction.action.performed -= OnLeftTab;
-        rightTabInputAction.action.performed -= OnRightTab;
-        leftTabInputAction.action.Disable();
-        rightTabInputAction.action.Disable();
-
         mainMenuButtons.SetActive(true);
         eventSystem.SetSelectedGameObject(howToPlayButton.gameObject);
-
-        videoRawImage.enabled = false;
-        headerImage.enabled = false;
-        headerText.enabled = false;
-        descriptionText.enabled = false;
+        itemRawImage.enabled = false;
+        itemSpriteImage.enabled = false;
+        itemHeaderText.enabled = false;
+        itemDescriptionText.enabled = false;
     }
 
     private void OnLeftTab(InputAction.CallbackContext ctx)
@@ -108,6 +100,17 @@ public class HowToPlayMenu : MonoBehaviour
 
         currentIndex = 0;
         Display(currentIndex);
+        
+        HowToPlayItemSO[] items = GetActiveItems();
+        if (items == null || items.Length == 0) return;
+        
+        foreach(GameObject go in pageDots)
+            go.SetActive(false);
+        
+        for (int i = 0; i < items.Length; i++)
+            pageDots[i].SetActive(true);
+        
+        UpdatePageDotSprites();
     }
 
     private void EnableIndexToggling()
@@ -140,6 +143,13 @@ public class HowToPlayMenu : MonoBehaviour
             ? (currentIndex + 1) % items.Length
             : (currentIndex - 1 + items.Length) % items.Length;
 
+        foreach(GameObject go in pageDots)
+            go.SetActive(false);
+        
+        for (int i = 0; i < items.Length; i++)
+            pageDots[i].SetActive(true);
+        
+        UpdatePageDotSprites();
         Display(currentIndex);
     }
 
@@ -163,7 +173,7 @@ public class HowToPlayMenu : MonoBehaviour
 
         // VIDEO
         bool hasVideo = item.ItemClip != null;
-        videoRawImage.enabled = hasVideo;
+        itemRawImage.enabled = hasVideo;
 
         videoPlayer.Stop();
         videoPlayer.clip = item.ItemClip;
@@ -174,20 +184,46 @@ public class HowToPlayMenu : MonoBehaviour
             videoPlayer.prepareCompleted += _ => videoPlayer.Play();
         }
 
-        // IMAGE
+        // MAIN IMAGE
+        bool hasMainImage = item.ItemMainImage != null;
+        itemMainImage.enabled = hasMainImage;
+        itemMainImage.sprite = hasMainImage ? item.ItemMainImage : null;
+        
+        // SPRITE IMAGE
         bool hasSprite = item.ItemSprite != null;
-        headerImage.enabled = hasSprite;
-        headerImage.sprite = hasSprite ? item.ItemSprite : null;
+        itemSpriteImage.enabled = hasSprite;
+        itemSpriteImage.sprite = hasSprite ? item.ItemSprite : null;
 
         // HEADER
         bool hasTitle = !string.IsNullOrWhiteSpace(item.ItemName);
-        headerText.enabled = hasTitle;
-        headerText.text = hasTitle ? item.ItemName : string.Empty;
+        itemHeaderText.enabled = hasTitle;
+        itemHeaderText.text = hasTitle ? item.ItemName : string.Empty;
 
         // DESCRIPTION
         bool hasDescription = !string.IsNullOrWhiteSpace(item.ItemDescription);
-        descriptionText.enabled = hasDescription;
-        descriptionText.text = hasDescription ? item.ItemDescription : string.Empty;
+        itemDescriptionText.enabled = hasDescription;
+        itemDescriptionText.text = hasDescription ? item.ItemDescription : string.Empty;
+    }
+    
+    private void UpdatePageDotSprites()
+    {
+        HowToPlayItemSO[] items = GetActiveItems();
+        if (items == null || items.Length == 0) return;
+
+        // Set all dots to inactive first
+        for (int i = 0; i < pageDots.Length; i++)
+        {
+            var img = pageDots[i].GetComponent<Image>();
+            if (img != null)
+                img.sprite = inactivePageDotSprite;
+        }
+        
+        if (currentIndex >= 0 && currentIndex < pageDots.Length)
+        {
+            var img = pageDots[currentIndex].GetComponent<Image>();
+            if (img != null)
+                img.sprite = activePageDotSprite;
+        }
     }
 
     public void OpenGeneralTab() => SetTab(Tab.General);

@@ -10,8 +10,15 @@ public class HowToPlayItemSO : ScriptableObject
         get => itemClip;
         set => itemClip = value;
     }
-    
-    [SerializeField] private string itemName;
+
+    [SerializeField] Sprite itemMainImage;
+    public Sprite ItemMainImage
+    {
+        get => itemMainImage;
+        set => itemMainImage = value;
+    }
+
+    private string itemName;
     public string ItemName
     {
         get => itemName;
