@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
 using TMPro;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class LobbyManager : NetworkBehaviour
 {
@@ -58,7 +59,9 @@ public class LobbyManager : NetworkBehaviour
     public GameObject[] playerContainers;
     [SerializeField] Button startButton;
     [SerializeField] Image startButtonImage;
+    [SerializeField] private TextMeshProUGUI[] startButtonTexts;
     [SerializeField] Color startButtonColorWhenEnabled;
+    
     
     [Header("Audio Emitters")]
     [SerializeField] StudioEventEmitter joinEmitter;
@@ -77,6 +80,8 @@ public class LobbyManager : NetworkBehaviour
     {
         scores.ResetKills();
         scores.ResetWins();
+        
+        gameModeTypeText.text = possibleGameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
@@ -93,15 +98,11 @@ public class LobbyManager : NetworkBehaviour
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
         if (scenename != "UI_Lobby" && scenename != "UI_MainMenu")
-        {
-            Debug.Log("loaded");
             Invoke(nameof(InvokeEvent), 2f);
-        }
     }
 
     private void InvokeEvent()
     {
-        Debug.Log("Invoked");
         OnAllPlayersLoadedIn?.Invoke();
     }
 
@@ -327,13 +328,15 @@ public class LobbyManager : NetworkBehaviour
     {
         if (enable)
         {
-            startButton.GetComponentInChildren<TextMeshProUGUI>().color = Color.white;
+            foreach (TextMeshProUGUI text in startButtonTexts)
+                text.color = Color.white; 
             startButtonImage.color = startButtonColorWhenEnabled;
             startButton.interactable = true;
         }
         else
         {
-            startButton.GetComponentInChildren<TextMeshProUGUI>().color = Color.gray;
+            foreach (TextMeshProUGUI text in startButtonTexts)
+                text.color = Color.gray; 
             startButtonImage.color = Color.gray;
             startButton.interactable = false;
         }
@@ -358,7 +361,7 @@ public class LobbyManager : NetworkBehaviour
             }
         }
         selectedGameMode = gameModeType;
-        gameModeTypeText.text = gameModeSoToUse.GamemodeTypeName; 
+        gameModeTypeText.text = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
     }
 
     [ClientRpc]

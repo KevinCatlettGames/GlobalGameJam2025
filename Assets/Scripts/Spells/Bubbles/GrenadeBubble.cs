@@ -7,6 +7,7 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float height = 20f;
     [SerializeField] private float gravity = 10f;
+    [SerializeField] private float vulnerableDuration = 4f;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
@@ -59,6 +60,7 @@ public class GrenadeBubble : BasicBubble
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
                         
                         gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                        player.StartVulnerable(vulnerableDuration);
                     }
                 }
                 else

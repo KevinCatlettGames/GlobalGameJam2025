@@ -1104,7 +1104,9 @@ public class PlayerController : NetworkBehaviour
         else
             wetEffect.Stop();
 
-        shaderManager?.WetEffect(isSlippery);
+        ShaderState state = (isSlippery) ? ShaderState.wet : ShaderState.sober;        
+        shaderManager.SetShaderState(state);
+ 
     }
 
     public void StartVulnerable(float time)
@@ -1115,8 +1117,9 @@ public class PlayerController : NetworkBehaviour
     }
     private IEnumerator VulnerableCoroutine(float duration)
     {
+        Debug.Log("Vulnerable");
         isVulnerable = true;
-        //StartShaderEfffect
+        shaderManager.SetShaderState(ShaderState.sauced);
         yield return new WaitForSeconds(duration);
         StopVulnerable();
     }
@@ -1125,7 +1128,7 @@ public class PlayerController : NetworkBehaviour
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
         isVulnerable = false;
-        //EndShaderEffect
+        shaderManager.SetShaderState(ShaderState.sober);
     }
     #endregion
 
@@ -1204,8 +1207,8 @@ public class PlayerController : NetworkBehaviour
         {
             foreach (var element in coloredElements)
                 element.color = skinObject.Color;
-            //ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
-            //ActivateCorrectColorClientRpc(playerID);
+
+            ActivateCorrectColorServerRpc(skinObject.Index);
             mainAnimator = skin.GetComponent<Animator>();
             shaderManager = skin.GetComponentInChildren<PlayerShaderManager>();
         }
@@ -1228,22 +1231,30 @@ public class PlayerController : NetworkBehaviour
         playerStateHandler.EnableDeath();
     }
 
-    [ClientRpc]
-    void ActivateCorrectSkinClientRpc(int index)
+    [ServerRpc(RequireOwnership = false)]
+    void ActivateCorrectColorServerRpc(int index)
     {
-        //foreach (GameObject character in characters)
-        //    character.SetActive(false);
-
-        //characters[index].SetActive(true);
+        ActivateCorrectColorClientRpc(index);
     }
-
+    
     [ClientRpc]
     void ActivateCorrectColorClientRpc(int index)
     {
-        foreach (Image image in coloredElements)
+        SkinSO skinSOToUse = null; 
+        
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
         {
-            image.color = LobbyPlayerHandler.Instance.playerValuesList[index].Skin.Color; 
+            if (playerValues.Skin.Index == index)
+            {
+                skinSOToUse = playerValues.Skin;
+                break;
+            }
         }
+
+        if (skinSOToUse == null) return;
+        
+        foreach (Image image in coloredElements)
+            image.color = skinSOToUse.Color;
     }
     #endregion
     

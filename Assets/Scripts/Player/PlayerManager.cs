@@ -331,13 +331,15 @@ public class PlayerManager : NetworkBehaviour
 
         if (LobbyPlayerHandler.Instance)
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
+            playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
         else
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
+            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            //Cant work without lobby manager anyways
+            //playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            //ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
     }
 
