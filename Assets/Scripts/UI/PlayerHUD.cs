@@ -99,30 +99,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void InitialisePlayerHUD(int playerID)
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (IsServer)
-            {
-                InitializePlayerHudClientRpc(playerID);
-            }
-        }
-        else
-        {
-            SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
-            foreach (var uiElement in coloredUI)
-            {
-                uiElement.color = skin.Color;
-            }
-            portraitSprites = skin.GameSprites;
-            SetPortrait(0);
-        }
-    }
-
-    [ClientRpc]
-    void InitializePlayerHudClientRpc(int playerID)
-    {
         SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
-
         foreach (var uiElement in coloredUI)
         {
             uiElement.color = skin.Color;

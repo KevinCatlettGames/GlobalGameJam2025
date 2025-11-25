@@ -98,15 +98,11 @@ public class LobbyManager : NetworkBehaviour
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
         if (scenename != "UI_Lobby" && scenename != "UI_MainMenu")
-        {
-            Debug.Log("loaded");
             Invoke(nameof(InvokeEvent), 2f);
-        }
     }
 
     private void InvokeEvent()
     {
-        Debug.Log("Invoked");
         OnAllPlayersLoadedIn?.Invoke();
     }
 

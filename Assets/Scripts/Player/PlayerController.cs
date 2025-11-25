@@ -1207,8 +1207,8 @@ public class PlayerController : NetworkBehaviour
         {
             foreach (var element in coloredElements)
                 element.color = skinObject.Color;
-            //ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
-            //ActivateCorrectColorClientRpc(playerID);
+
+            ActivateCorrectColorServerRpc(skinObject.Index);
             mainAnimator = skin.GetComponent<Animator>();
             shaderManager = skin.GetComponentInChildren<PlayerShaderManager>();
         }
@@ -1231,22 +1231,30 @@ public class PlayerController : NetworkBehaviour
         playerStateHandler.EnableDeath();
     }
 
-    [ClientRpc]
-    void ActivateCorrectSkinClientRpc(int index)
+    [ServerRpc(RequireOwnership = false)]
+    void ActivateCorrectColorServerRpc(int index)
     {
-        //foreach (GameObject character in characters)
-        //    character.SetActive(false);
-
-        //characters[index].SetActive(true);
+        ActivateCorrectColorClientRpc(index);
     }
-
+    
     [ClientRpc]
     void ActivateCorrectColorClientRpc(int index)
     {
-        foreach (Image image in coloredElements)
+        SkinSO skinSOToUse = null; 
+        
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
         {
-            image.color = LobbyPlayerHandler.Instance.playerValuesList[index].Skin.Color; 
+            if (playerValues.Skin.Index == index)
+            {
+                skinSOToUse = playerValues.Skin;
+                break;
+            }
         }
+
+        if (skinSOToUse == null) return;
+        
+        foreach (Image image in coloredElements)
+            image.color = skinSOToUse.Color;
     }
     #endregion
     
