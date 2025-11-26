@@ -63,6 +63,18 @@ public class MainMenuLobbyCreator : MonoBehaviour
         NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
     }
 
+    public async void StartSceneLocal(string sceneName)
+    {
+        NetworkManager.Singleton
+            .GetComponent<TransportSwitcher>()
+            .SwitchToUnityTransportAndDisable();
+
+        NetworkManager.Singleton.StartHost();
+        relayServerHeartbeat.joinedLobby = joinedLobby;
+        GlobalLobby.CurrentLobby = joinedLobby;
+        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+    }
+
     /// <summary>
     /// Opens the Lobby scene directly.
     /// </summary>
