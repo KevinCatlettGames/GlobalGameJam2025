@@ -12,36 +12,42 @@ public class HowToPlayMenu : MonoBehaviour
     public enum Tab { General, Weapons, Maps }
     public Tab currentTab = Tab.General;
 
+    [Header("System References")]
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private GameObject mainMenuButtons;
 
+    [Header("Tab Buttons")]
     [SerializeField] private Button generalTabButton;
     [SerializeField] private Button weaponsTabButton;
     [SerializeField] private Button mapsTabButton;
     [SerializeField] private Button howToPlayButton;
 
+    [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage itemRawImage;
-    
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
     [SerializeField] private TextMeshProUGUI itemHeaderText;
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
-
+    [SerializeField] private Button itemButton;
+    
+    [Header("Item Data Sets")]
     [SerializeField] private HowToPlayItemSO[] generalItems;
     [SerializeField] private HowToPlayItemSO[] weaponItems;
     [SerializeField] private HowToPlayItemSO[] mapItems;
 
+    [Header("Input Actions")]
     [SerializeField] private InputActionProperty leftSwitchAction;
     [SerializeField] private InputActionProperty rightSwitchAction;
+
+    [Header("Page Dots")]
+    [SerializeField] private GameObject[] pageDots;
+    [SerializeField] private Sprite activePageDotSprite;
+    [SerializeField] private Sprite inactivePageDotSprite;
 
     private int currentIndex;
     private bool indexTogglingEnabled = false;
 
-    [SerializeField] private GameObject[] pageDots;
-    [SerializeField] private Sprite activePageDotSprite;
-    [SerializeField] private Sprite inactivePageDotSprite;
-    
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -81,37 +87,8 @@ public class HowToPlayMenu : MonoBehaviour
         else SetTab(Tab.General);
     }
 
-    public void SetTab(Tab tab)
-    {
-        currentTab = tab;
-
-        eventSystem.SetSelectedGameObject(tab switch
-        {
-            Tab.General => generalTabButton.gameObject,
-            Tab.Weapons => weaponsTabButton.gameObject,
-            Tab.Maps => mapsTabButton.gameObject,
-            _ => generalTabButton.gameObject
-        });
-        
-        mainMenuButtons.SetActive(false);
-
-        if (!indexTogglingEnabled)
-            EnableIndexToggling();
-
-        currentIndex = 0;
-        Display(currentIndex);
-        
-        HowToPlayItemSO[] items = GetActiveItems();
-        if (items == null || items.Length == 0) return;
-        
-        foreach(GameObject go in pageDots)
-            go.SetActive(false);
-        
-        for (int i = 0; i < items.Length; i++)
-            pageDots[i].SetActive(true);
-        
-        UpdatePageDotSprites();
-    }
+    private void OnLeftSwitch(InputAction.CallbackContext ctx) => ChangeIndex(false);
+    private void OnRightSwitch(InputAction.CallbackContext ctx) => ChangeIndex(true);
 
     private void EnableIndexToggling()
     {
@@ -131,8 +108,37 @@ public class HowToPlayMenu : MonoBehaviour
         rightSwitchAction.action.performed -= OnRightSwitch;
     }
 
-    private void OnLeftSwitch(InputAction.CallbackContext ctx) => ChangeIndex(false);
-    private void OnRightSwitch(InputAction.CallbackContext ctx) => ChangeIndex(true);
+    public void SetTab(Tab tab)
+    {
+        currentTab = tab;
+
+        eventSystem.SetSelectedGameObject(tab switch
+        {
+            Tab.General => generalTabButton.gameObject,
+            Tab.Weapons => weaponsTabButton.gameObject,
+            Tab.Maps => mapsTabButton.gameObject,
+            _ => generalTabButton.gameObject
+        });
+
+        mainMenuButtons.SetActive(false);
+
+        if (!indexTogglingEnabled)
+            EnableIndexToggling();
+
+        currentIndex = 0;
+        Display(currentIndex);
+
+        HowToPlayItemSO[] items = GetActiveItems();
+        if (items == null || items.Length == 0) return;
+
+        foreach (GameObject go in pageDots)
+            go.SetActive(false);
+
+        for (int i = 0; i < items.Length; i++)
+            pageDots[i].SetActive(true);
+
+        UpdatePageDotSprites();
+    }
 
     private void ChangeIndex(bool forward)
     {
@@ -143,12 +149,12 @@ public class HowToPlayMenu : MonoBehaviour
             ? (currentIndex + 1) % items.Length
             : (currentIndex - 1 + items.Length) % items.Length;
 
-        foreach(GameObject go in pageDots)
+        foreach (GameObject go in pageDots)
             go.SetActive(false);
-        
+
         for (int i = 0; i < items.Length; i++)
             pageDots[i].SetActive(true);
-        
+
         UpdatePageDotSprites();
         Display(currentIndex);
     }
@@ -171,7 +177,6 @@ public class HowToPlayMenu : MonoBehaviour
 
         var item = items[index];
 
-        // VIDEO
         bool hasVideo = item.ItemClip != null;
         itemRawImage.enabled = hasVideo;
 
@@ -184,40 +189,49 @@ public class HowToPlayMenu : MonoBehaviour
             videoPlayer.prepareCompleted += _ => videoPlayer.Play();
         }
 
-        // MAIN IMAGE
         bool hasMainImage = item.ItemMainImage != null;
         itemMainImage.enabled = hasMainImage;
         itemMainImage.sprite = hasMainImage ? item.ItemMainImage : null;
-        
-        // SPRITE IMAGE
+
         bool hasSprite = item.ItemSprite != null;
         itemSpriteImage.enabled = hasSprite;
         itemSpriteImage.sprite = hasSprite ? item.ItemSprite : null;
 
-        // HEADER
         bool hasTitle = !string.IsNullOrWhiteSpace(item.ItemName);
         itemHeaderText.enabled = hasTitle;
         itemHeaderText.text = hasTitle ? item.ItemName : string.Empty;
 
-        // DESCRIPTION
         bool hasDescription = !string.IsNullOrWhiteSpace(item.ItemDescription);
         itemDescriptionText.enabled = hasDescription;
         itemDescriptionText.text = hasDescription ? item.ItemDescription : string.Empty;
+
+        bool useButton = item.UseButton;
+        if (useButton)
+        {
+            itemButton.gameObject.SetActive(true);
+            itemButton.GetComponentInChildren<TextMeshProUGUI>().text = item.ButtonText;
+            if(!string.IsNullOrWhiteSpace(item.LevelToLoad)) 
+                item.SetUpButtonWithLevelLoading(itemButton);
+        }
+        else
+        {
+            itemButton.onClick.RemoveAllListeners();
+            itemButton.gameObject.SetActive(false);
+        }
     }
-    
+
     private void UpdatePageDotSprites()
     {
         HowToPlayItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
 
-        // Set all dots to inactive first
         for (int i = 0; i < pageDots.Length; i++)
         {
             var img = pageDots[i].GetComponent<Image>();
             if (img != null)
                 img.sprite = inactivePageDotSprite;
         }
-        
+
         if (currentIndex >= 0 && currentIndex < pageDots.Length)
         {
             var img = pageDots[currentIndex].GetComponent<Image>();
