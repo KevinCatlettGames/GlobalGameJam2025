@@ -1,7 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
 
@@ -13,7 +12,6 @@ public class HowToPlayMenu : MonoBehaviour
     public Tab currentTab = Tab.General;
 
     [Header("System References")]
-    [SerializeField] private EventSystem eventSystem;
     [SerializeField] private GameObject mainMenuButtons;
 
     [Header("Tab Buttons")]
@@ -21,7 +19,9 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private Button weaponsTabButton;
     [SerializeField] private Button mapsTabButton;
     [SerializeField] private Button howToPlayButton;
-
+    [SerializeField] private Color normalColor;
+    [SerializeField] private Color highlightColor;
+    
     [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage itemRawImage;
@@ -30,15 +30,16 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemHeaderText;
     [SerializeField] private TextMeshProUGUI itemDescriptionText;
     [SerializeField] private Button itemButton;
-    
+
     [Header("Item Data Sets")]
     [SerializeField] private HowToPlayItemSO[] generalItems;
     [SerializeField] private HowToPlayItemSO[] weaponItems;
     [SerializeField] private HowToPlayItemSO[] mapItems;
 
     [Header("Input Actions")]
-    [SerializeField] private InputActionProperty leftSwitchAction;
-    [SerializeField] private InputActionProperty rightSwitchAction;
+    [SerializeField] private InputActionProperty leftTabSwitchAction;
+    [SerializeField] private InputActionProperty rightTabSwitchAction;
+    [SerializeField] private InputActionProperty leftPageSwitchAction;
 
     [Header("Page Dots")]
     [SerializeField] private GameObject[] pageDots;
@@ -46,7 +47,18 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private Sprite inactivePageDotSprite;
 
     private int currentIndex;
-    private bool indexTogglingEnabled = false;
+
+    private bool pageTogglingEnabled = false;
+    private bool tabTogglingEnabled = false;
+
+    [Header("Smooth Page Switch")]
+    [SerializeField] private float stickThreshold = 0.5f;      // Minimum stick tilt
+    [SerializeField] private float pageInitialDelay = 0.35f;   // Delay before repeating
+    [SerializeField] private float pageRepeatRate = 0.12f;     // Repeat speed when held
+
+    private bool stickInUse = false;
+    private float pageHoldTimer = 0f;
+    private int pageDirection = 0;
 
     private void Awake()
     {
@@ -64,83 +76,123 @@ public class HowToPlayMenu : MonoBehaviour
 
     private void OnDisable()
     {
-        DisableIndexToggling();
+        DisablePageToggling();
+        DisableTabToggling();
+
         mainMenuButtons.SetActive(true);
-        eventSystem.SetSelectedGameObject(howToPlayButton.gameObject);
         itemRawImage.enabled = false;
         itemSpriteImage.enabled = false;
         itemHeaderText.enabled = false;
         itemDescriptionText.enabled = false;
     }
 
-    private void OnLeftTab(InputAction.CallbackContext ctx)
+    private void OnCloseHowToPlay(InputAction.CallbackContext ctx)
     {
-        if (currentTab == Tab.General) SetTab(Tab.Maps);
-        else if (currentTab == Tab.Weapons) SetTab(Tab.General);
-        else SetTab(Tab.Weapons);
+        gameObject.SetActive(false);
+    }
+    
+    #region Tab Switching
+    private void OnLeftTabSwitch(InputAction.CallbackContext ctx)
+    {
+        if (ctx.canceled) return;
+        ChangeTab(false);
     }
 
-    private void OnRightTab(InputAction.CallbackContext ctx)
+    private void OnRightTabSwitch(InputAction.CallbackContext ctx)
     {
-        if (currentTab == Tab.General) SetTab(Tab.Weapons);
-        else if (currentTab == Tab.Weapons) SetTab(Tab.Maps);
-        else SetTab(Tab.General);
+        if (ctx.canceled) return;
+        ChangeTab(true);
     }
 
-    private void OnLeftSwitch(InputAction.CallbackContext ctx) => ChangeIndex(false);
-    private void OnRightSwitch(InputAction.CallbackContext ctx) => ChangeIndex(true);
-
-    private void EnableIndexToggling()
+    private void EnableTabToggling()
     {
-        indexTogglingEnabled = true;
-        leftSwitchAction.action.Enable();
-        rightSwitchAction.action.Enable();
-        leftSwitchAction.action.performed += OnLeftSwitch;
-        rightSwitchAction.action.performed += OnRightSwitch;
+        tabTogglingEnabled = true;
+
+        leftTabSwitchAction.action.Enable();
+        rightTabSwitchAction.action.Enable();
+        
+        leftTabSwitchAction.action.performed += OnLeftTabSwitch;
+        rightTabSwitchAction.action.performed += OnRightTabSwitch;
     }
 
-    private void DisableIndexToggling()
+    private void DisableTabToggling()
     {
-        indexTogglingEnabled = false;
-        leftSwitchAction.action.Disable();
-        rightSwitchAction.action.Disable();
-        leftSwitchAction.action.performed -= OnLeftSwitch;
-        rightSwitchAction.action.performed -= OnRightSwitch;
+        tabTogglingEnabled = false;
+
+        leftTabSwitchAction.action.Disable();
+        rightTabSwitchAction.action.Disable();
+        
+        leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
+        rightTabSwitchAction.action.performed -= OnRightTabSwitch;
+
     }
 
-    public void SetTab(Tab tab)
+    private void ChangeTab(bool forward)
     {
-        currentTab = tab;
+        if (!tabTogglingEnabled) return;
 
-        eventSystem.SetSelectedGameObject(tab switch
+        Tab nextTab = forward
+            ? (currentTab == Tab.General ? Tab.Weapons :
+               currentTab == Tab.Weapons ? Tab.Maps : Tab.General)
+            : (currentTab == Tab.General ? Tab.Maps :
+               currentTab == Tab.Maps ? Tab.Weapons : Tab.General);
+
+        SetTab(nextTab);
+    }
+    #endregion
+
+    #region Page Switching
+    private void EnablePageToggling()
+    {
+        pageTogglingEnabled = true;
+        leftPageSwitchAction.action.Enable();
+    }
+
+    private void DisablePageToggling()
+    {
+        pageTogglingEnabled = false;
+        leftPageSwitchAction.action.Disable();
+    }
+
+    private void Update()
+    {
+        if (!pageTogglingEnabled) return;
+
+        Vector2 stick = leftPageSwitchAction.action.ReadValue<Vector2>();
+        int direction = 0;
+
+        if (stick.x < -stickThreshold) direction = -1;
+        else if (stick.x > stickThreshold) direction = 1;
+
+        if (direction != 0)
         {
-            Tab.General => generalTabButton.gameObject,
-            Tab.Weapons => weaponsTabButton.gameObject,
-            Tab.Maps => mapsTabButton.gameObject,
-            _ => generalTabButton.gameObject
-        });
-
-        mainMenuButtons.SetActive(false);
-
-        if (!indexTogglingEnabled)
-            EnableIndexToggling();
-
-        currentIndex = 0;
-        Display(currentIndex);
-
-        HowToPlayItemSO[] items = GetActiveItems();
-        if (items == null || items.Length == 0) return;
-
-        foreach (GameObject go in pageDots)
-            go.SetActive(false);
-
-        for (int i = 0; i < items.Length; i++)
-            pageDots[i].SetActive(true);
-
-        UpdatePageDotSprites();
+            if (!stickInUse)
+            {
+                // First trigger
+                ChangePage(direction > 0);
+                pageHoldTimer = 0f;
+                stickInUse = true;
+            }
+            else
+            {
+                // Holding stick: repeat after initial delay
+                pageHoldTimer += Time.deltaTime;
+                if (pageHoldTimer >= pageInitialDelay)
+                {
+                    ChangePage(direction > 0);
+                    pageHoldTimer = pageInitialDelay - pageRepeatRate; // maintain repeat interval
+                }
+            }
+        }
+        else
+        {
+            // Stick released
+            stickInUse = false;
+            pageHoldTimer = 0f;
+        }
     }
 
-    private void ChangeIndex(bool forward)
+    private void ChangePage(bool forward)
     {
         HowToPlayItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
@@ -149,16 +201,12 @@ public class HowToPlayMenu : MonoBehaviour
             ? (currentIndex + 1) % items.Length
             : (currentIndex - 1 + items.Length) % items.Length;
 
-        foreach (GameObject go in pageDots)
-            go.SetActive(false);
-
-        for (int i = 0; i < items.Length; i++)
-            pageDots[i].SetActive(true);
-
-        UpdatePageDotSprites();
+        UpdatePageDots();
         Display(currentIndex);
     }
+    #endregion
 
+    #region Display / Dots
     private HowToPlayItemSO[] GetActiveItems()
     {
         return currentTab switch
@@ -210,8 +258,6 @@ public class HowToPlayMenu : MonoBehaviour
         {
             itemButton.gameObject.SetActive(true);
             itemButton.GetComponentInChildren<TextMeshProUGUI>().text = item.ButtonText;
-            if(!string.IsNullOrWhiteSpace(item.LevelToLoad)) 
-                item.SetUpButtonWithLevelLoading(itemButton);
         }
         else
         {
@@ -220,7 +266,7 @@ public class HowToPlayMenu : MonoBehaviour
         }
     }
 
-    private void UpdatePageDotSprites()
+    private void UpdatePageDots()
     {
         HowToPlayItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
@@ -238,6 +284,37 @@ public class HowToPlayMenu : MonoBehaviour
             if (img != null)
                 img.sprite = activePageDotSprite;
         }
+    }
+    #endregion
+
+    public void SetTab(Tab tab)
+    {
+        currentTab = tab;
+        mainMenuButtons.SetActive(false);
+
+        if (!pageTogglingEnabled)
+            EnablePageToggling();
+
+        if (!tabTogglingEnabled)
+            EnableTabToggling();
+
+        currentIndex = 0;
+        Display(currentIndex);
+
+        HowToPlayItemSO[] items = GetActiveItems();
+        if (items == null || items.Length == 0) return;
+
+        foreach (GameObject go in pageDots)
+            go.SetActive(false);
+
+        for (int i = 0; i < items.Length; i++)
+            pageDots[i].SetActive(true);
+
+        UpdatePageDots();
+        generalTabButton.image.color = (currentTab == Tab.General) ? highlightColor : normalColor;
+        weaponsTabButton.image.color = (currentTab == Tab.Weapons) ? highlightColor : normalColor;
+        mapsTabButton.image.color = (currentTab == Tab.Maps) ? highlightColor : normalColor;
+
     }
 
     public void OpenGeneralTab() => SetTab(Tab.General);

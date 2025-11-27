@@ -53,22 +53,10 @@ public class HowToPlayItemSO : ScriptableObject
         set => useButton = value;
     }
     
-    [SerializeField] private string levelToLoad;
-    public string LevelToLoad
-    {
-        get => levelToLoad;
-        set => levelToLoad = value;
-    }
-    
     [SerializeField] private string buttonText;
     public string ButtonText
     {
         get => buttonText;
         set => buttonText = value;
-    }
-
-    public void SetUpButtonWithLevelLoading(Button button)
-    {
-        button.onClick.AddListener(() => MainMenuLobbyCreator.Instance.StartSceneLocal(levelToLoad));
     }
 }
