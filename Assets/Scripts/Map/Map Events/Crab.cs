@@ -26,16 +26,18 @@ public class Crab : MonoBehaviour
         {
             default:
                 RotateCrab(-1);
+                RotateEye(0, -1);
+                RotateEye(1, -1);
                 break;
             case 1:
                 RotateCrab(activeClawIndex);
-                //RotateEye(0, activeClawIndex);
-                //RotateEye(1, activeClawIndex);
+                RotateEye(0, activeClawIndex);
+                RotateEye(1, activeClawIndex);
                 break;
             case 2:
                 RotateCrab();
-                //RotateEye(0, 0);
-                //RotateEye(1, 1);
+                RotateEye(0, 0);
+                RotateEye(1, 1);
                 break;
         }
     }
@@ -65,9 +67,13 @@ public class Crab : MonoBehaviour
     }
     private void RotateEye(int eyeIndex, int clawIndex)
     {
-        Vector3 lookVector = claws[clawIndex].transform.position - eyes[eyeIndex].position;
-        lookVector.y = 0;
-        Quaternion targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
+        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(0, 0, -1), Vector3.up);
+        if (clawIndex != -1)
+        {
+            Vector3 lookVector = claws[clawIndex].transform.position - eyes[eyeIndex].position;
+            lookVector.y = 0;
+            targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
+        }
         eyes[eyeIndex].rotation = Quaternion.Lerp(eyes[eyeIndex].rotation, targetRotation, Time.fixedDeltaTime * eyeRotationSpeed);
     }
 }
