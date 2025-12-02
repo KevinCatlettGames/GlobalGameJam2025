@@ -44,8 +44,10 @@ public class HowToPlayMenu : MonoBehaviour
     [Header("Page Dots")]
     [SerializeField] private GameObject[] pageDots;
     [SerializeField] private Sprite activePageDotSprite;
+    [SerializeField] private Color activePageDotColor; 
     [SerializeField] private Sprite inactivePageDotSprite;
-
+    [SerializeField] private Color inactivePageDotColor;
+    
     private int currentIndex;
 
     private bool pageTogglingEnabled = false;
@@ -275,14 +277,20 @@ public class HowToPlayMenu : MonoBehaviour
         {
             var img = pageDots[i].GetComponent<Image>();
             if (img != null)
+            {
                 img.sprite = inactivePageDotSprite;
+                img.color = inactivePageDotColor;
+            }
         }
 
         if (currentIndex >= 0 && currentIndex < pageDots.Length)
         {
             var img = pageDots[currentIndex].GetComponent<Image>();
             if (img != null)
+            {
                 img.sprite = activePageDotSprite;
+                img.color = activePageDotColor; 
+            }
         }
     }
     #endregion
