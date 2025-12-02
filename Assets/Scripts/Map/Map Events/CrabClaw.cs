@@ -2,6 +2,12 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 
+public enum CrabClawStatus
+{
+    hunting,
+    resting,
+    inactive
+}
 public class CrabClaw : MonoBehaviour
 {
     [SerializeField] private bool isMapEventEnabled = true;
@@ -22,7 +28,7 @@ public class CrabClaw : MonoBehaviour
     [SerializeField] private float radius = 5f;
     [SerializeField] private float yLaunchStrength;
     private bool isHunting = false;
-    
+    public CrabClawStatus Status = CrabClawStatus.inactive;
 
     private void Start()
     {
@@ -54,6 +60,7 @@ public class CrabClaw : MonoBehaviour
     {
         shadow.LerpShadow(0, .2f);
         isHunting = false;
+        Status = CrabClawStatus.inactive;
         StopAllCoroutines();
         CancelInvoke();
     }
@@ -62,6 +69,7 @@ public class CrabClaw : MonoBehaviour
         yield return new WaitForSeconds(delay);
         while (isHunting)
         {
+            Status = CrabClawStatus.hunting;
             ResetClaw();
             float timer = huntingTime;
             Vector3 target;
@@ -121,6 +129,7 @@ public class CrabClaw : MonoBehaviour
                 }
             }          
         }
+        Status = CrabClawStatus.resting;
     }
     private void ResetClaw()
     {
