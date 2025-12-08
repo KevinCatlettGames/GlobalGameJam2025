@@ -61,24 +61,33 @@ public class PlayerController : NetworkBehaviour
 
     [Header("Damage")] 
     [SerializeField] private float damageModifier = 0.05f;
-    [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
     [SerializeField] private float knockbackDecaySpeed = 5f;
     [SerializeField] private float hitStunThreshold = 100f;
     [SerializeField] private float hitStunFactor = .1f;
     [SerializeField] private float maxHitStunDuration = .35f;
-    [SerializeField] private float vulnerableFactor = 1.5f;
     private float damage = 0;
     public float Damage { get { return damage; } }
     
     private int killCreditID = -1;
     
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
-    private bool isVulnerable = false;
-    private Coroutine vulnerableRoutine = null;
     private bool isDead = false;
     private float hitStunDuration = 0;
 
+    #endregion
+
+    #region Status
+    [SerializeField] private float vulnerableFactor = 1.5f;
+    [SerializeField] private float slipperyModifier = 1.5f;
+    [SerializeField] private float slowFactor = .4f;
+    [SerializeField] private GameObject dashDisabledUI;
+    private bool isVulnerable = false;
+    private int slowCounter = 0;
+    private bool isSlowed = false;
+    private int slipperyCounter = 0;
+    private bool isSlippery = false; 
+    private Coroutine vulnerableRoutine = null;
     #endregion
 
     #region Sprint
@@ -99,10 +108,11 @@ public class PlayerController : NetworkBehaviour
     #region Movement & Physics
 
     [Header("Player Stats")] 
-    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float playerBaseSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
+    private float currentPlayerSpeed = 1;
 
     private CharacterController controller;
     private bool groundedPlayer = false;
@@ -136,8 +146,6 @@ public class PlayerController : NetworkBehaviour
     public int PlayerID => playerID;
     public bool initialized = false;
     private List<Item> itemsToEquip = new List<Item>();
-    private int slipperyCounter = 0;
-    private bool isSlippery = false; 
     public bool IsSlippery { get { return isSlippery; } }
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
@@ -202,7 +210,10 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Update Loop
-
+    private void Start()
+    {
+        currentPlayerSpeed = playerBaseSpeed;
+    }
     private void Update()
     {
         if (!initialized || isDead) return;
@@ -280,7 +291,7 @@ public class PlayerController : NetworkBehaviour
                 return;
             }
         }
-        Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
+        Vector3 move = smoothMoveDirection * (currentPlayerSpeed * Time.deltaTime);
 
         if (knockbackVelocity.magnitude > 0.1f)
         {
@@ -597,7 +608,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
 
-        if (!canSprint)
+        if (!canSprint || isSlowed)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             return;
@@ -620,10 +631,9 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator SprintCoroutine()
     {
         canSprint = false;
-        float originalSpeed = playerSpeed;
         float originalSmooth = moveSmoothTime;
 
-        playerSpeed = playerSprintSpeed;
+        currentPlayerSpeed = playerSprintSpeed;
         moveSmoothTime = 0f;
         isSprinting = true;
 
@@ -632,9 +642,16 @@ public class PlayerController : NetworkBehaviour
         else
             BeginSprintServerRpc();
 
-        yield return new WaitForSeconds(playerSprintDuration);
+        float duration = 0;
+        do
+        {
+            duration += Time.deltaTime;
+            if (isSlowed) break;
+            yield return null;
+        } while (duration <= playerSprintDuration);
 
-        playerSpeed = originalSpeed;
+        if (!isSlowed)
+            currentPlayerSpeed = playerBaseSpeed;
         moveSmoothTime = originalSmooth;
         isSprinting = false;
 
@@ -752,12 +769,12 @@ public class PlayerController : NetworkBehaviour
 
     #region Spells
 
-    public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
+    public void SetSpells(int firstSpellIndex, int secondSpellIndex)
     {
-        ApplySpells(firstSpell, secondSpell);
+        ApplySpells(FindSpellByIndex(firstSpellIndex), FindSpellByIndex(secondSpellIndex));
 
         if (IsServer)
-            SetSpellsClientRpc(firstSpell.SpellIndex, secondSpell.SpellIndex);
+            SetSpellsClientRpc(firstSpellIndex, secondSpellIndex);
     }
 
     [ClientRpc]
@@ -908,7 +925,6 @@ public class PlayerController : NetworkBehaviour
 
         if (isVulnerable)
         {
-            Debug.Log("VulCrit");
             dmg *= vulnerableFactor;
             force *= vulnerableFactor;
             StopVulnerable();
@@ -1080,6 +1096,9 @@ public class PlayerController : NetworkBehaviour
         canvas.SetActive(false);
     }
 
+    #endregion
+
+    #region StatusConditions
     public void SetSlippy(bool slippy)
     {
         if (slippy)
@@ -1108,7 +1127,37 @@ public class PlayerController : NetworkBehaviour
         shaderManager.SetShaderState(state);
  
     }
+    public void SetSlowed(bool slow)
+    {
+        Debug.Log("Slow: " + slow);
+        if (slow)
+        {
+            //Effect on hit
+            slowCounter++;
+        }
+        else
+        {
+            slowCounter = Mathf.Max(0, slipperyCounter - 1);
+        }
 
+        isSlowed = slowCounter > 0;
+
+        //Effect continuos
+        if (isSlowed)
+        {
+            currentPlayerSpeed = playerBaseSpeed * slowFactor;
+            //Effect.Play();
+        }
+        else
+        {
+            currentPlayerSpeed = playerBaseSpeed;
+            //Effect.Stop();
+        }
+
+        ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
+        shaderManager.SetShaderState(state);
+        dashDisabledUI.SetActive(isSlowed);
+    }
     public void StartVulnerable(float time)
     {
         if (vulnerableRoutine != null)
@@ -1149,12 +1198,16 @@ public class PlayerController : NetworkBehaviour
 
     public void ResetPlayerController()
     {
-        slipperyCounter = 0;
         damage = 0;
         damagedEffect.UpdateParticleSystem(-1);
-        isSlippery = false;
         killCreditID = -1;
         hitStunDuration = 0;
+
+        slipperyCounter = 0;
+        isSlippery = false;
+        slowCounter = 0;
+        isSlowed = false;
+        dashDisabledUI.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);

@@ -7,9 +7,6 @@ using Unity.Netcode;
 [CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
-    [SerializeField] private int spellIndex;
-    public int SpellIndex { get { return spellIndex; } }
-
     [Header("UI")]
     [SerializeField] private Sprite spellIcon;
     [SerializeField] private Sprite usedSpellIcon;

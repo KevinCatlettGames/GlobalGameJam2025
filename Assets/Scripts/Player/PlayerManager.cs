@@ -14,7 +14,7 @@ public class PlayerManager : NetworkBehaviour
 
     [Header("Player Setup")]
     [SerializeField] private PlayerHUD[] playerHUDs;
-    [SerializeField] private SO_Spell[] startingSpells;
+    [SerializeField] private int startingSpellCount;
     [SerializeField] private Transform[] spawnPoints;
     
     private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
@@ -197,7 +197,7 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
-        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -231,7 +231,7 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
-        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -297,7 +297,7 @@ public class PlayerManager : NetworkBehaviour
 
         stateHandler.ResetPlayer();
 
-        controller.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        controller.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         var animator = controller.mainAnimator;
         animator.SetBool("IsDead", false);
@@ -308,8 +308,8 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
 
-        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
-        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
+        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
+        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
     }
 
     #endregion
