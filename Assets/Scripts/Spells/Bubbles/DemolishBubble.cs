@@ -1,8 +1,8 @@
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class DemolishBubble : BasicBubble
 {
-    [SerializeField] private int health = 1;
     [SerializeField] private float acceleration = .1f;
 
     public override void BubbleCollision(GameObject other)
@@ -21,15 +21,8 @@ public class DemolishBubble : BasicBubble
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
 
-            if (health > 0)
-            {
-                health--;
-                return;
-            }
-            else
-            {
-                fizzleEffect = hitEffect;
-            }
+            var effect = Instantiate(hitEffect, transform.position, Quaternion.identity);
+
         }
         else if (other.CompareTag("Wall"))
         {
@@ -39,14 +32,13 @@ public class DemolishBubble : BasicBubble
                 //Effect/Archievenemt can go here
             }
         }
-        Pop();
     }
 
     protected override void BubbleMovement()
     {
         if (hasInflated)
         {
-            speed += acceleration * Time.fixedDeltaTime;
+            speed *= 1 + (acceleration * Time.fixedDeltaTime);
         }
         base.BubbleMovement();
     }

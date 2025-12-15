@@ -78,6 +78,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Status
+    [Header("Status")]
     [SerializeField] private float vulnerableFactor = 1.5f;
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float slowFactor = .4f;
@@ -1129,7 +1130,6 @@ public class PlayerController : NetworkBehaviour
     }
     public void SetSlowed(bool slow)
     {
-        Debug.Log("Slow: " + slow);
         if (slow)
         {
             //Effect on hit

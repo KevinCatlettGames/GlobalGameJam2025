@@ -13,6 +13,7 @@ public class HomingBubble : BasicBubble
     [SerializeField] private float knbMod = 2f;
     [SerializeField] private float spdMod = 2f;
     [SerializeField] private float sizMod = 1f;
+    [SerializeField] private float growthRate = 2f;
     [SerializeField] private float stabRange = 10f;
     [SerializeField] private float stopDuration = 4f;
     [SerializeField] private Mesh stabMesh;
@@ -38,6 +39,8 @@ public class HomingBubble : BasicBubble
         float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
         waitStage = true;
+        yield return new WaitForSeconds(stopDuration);
+        StartCoroutine(StageSwitchCoroutine());
         yield return new WaitForSeconds(stopDuration);
 
         if (canMiss)
@@ -72,17 +75,15 @@ public class HomingBubble : BasicBubble
                 }
                 else
                 {
-                    IncreseStrength();
                     return;
                 }
             }
         }
         base.BubbleMovement();
     }
-    private IEnumerator StageSwitchCoroutine()
+    private IEnumerator HuntSwitchCoroutine()
     {
         float lifetime = stabRange / speed;
-        GetComponent<MeshFilter>().mesh = stabMesh;
         yield return new WaitForSeconds(lifetime);
         if (canMiss)
             IncrementMissedShotAchievement();
@@ -92,16 +93,26 @@ public class HomingBubble : BasicBubble
     {
         if (huntStage) return;
         huntStage = true;
+        GetComponent<MeshFilter>().mesh = stabMesh;
         transform.rotation = Quaternion.LookRotation(target);
         StopCoroutine(rangeCoroutine);
-        StartCoroutine(StageSwitchCoroutine());
+        StartCoroutine(HuntSwitchCoroutine());
     }
-    private void IncreseStrength()
+    private IEnumerator StageSwitchCoroutine()
     {
-        damage += dmgMod * Time.fixedDeltaTime;
-        speed += spdMod * Time.fixedDeltaTime;
-        knockback += knbMod * Time.fixedDeltaTime;
-        size += sizMod * Time.fixedDeltaTime;
-        transform.localScale = Vector3.one * size;
+        damage *= dmgMod;
+        speed *= spdMod;
+        knockback *= knbMod;
+        float currentSize = size;
+        size *= sizMod;
+        do
+        {
+            currentSize += growthRate * Time.deltaTime;
+            if (currentSize > size) 
+                currentSize = size;
+            transform.localScale = Vector3.one * currentSize;
+            yield return null;
+        } 
+        while (currentSize < size);
     }
 }

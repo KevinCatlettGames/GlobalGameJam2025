@@ -120,4 +120,8 @@ public class ItemSpawner : MonoBehaviour
         if (index < 0 || index >= spawnableItems.Length) return null;
         return spawnableItems[index];
     }
+    public int GetSpellCount()
+    {
+        return spawnableItems.Length;
+    }
 }

@@ -40,7 +40,7 @@ public class BoomerangBubble : BasicBubble
     {
         //Effect Maybe
         knockback *= knbMod;
-        damage *= knbMod;
+        damage *= dmgMod;
         direction = playerCollider.transform.position - transform.position;
         direction.Normalize();
         Quaternion rotation = Quaternion.LookRotation(direction);

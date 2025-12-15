@@ -180,7 +180,7 @@ public class BasicBubble : NetworkBehaviour
 
         StopAllCoroutines();
         
-        SpawnPopEffectClientRpc(transform.position, size);
+        SpawnPopEffectClientRpc(transform.position);
 
         if (IsServer)
         {
@@ -225,7 +225,7 @@ public class BasicBubble : NetworkBehaviour
         speed *= inceaseFactor;
     }
     [ClientRpc]
-    private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
+    private void SpawnPopEffectClientRpc(Vector3 pos)
     {
         var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
     }

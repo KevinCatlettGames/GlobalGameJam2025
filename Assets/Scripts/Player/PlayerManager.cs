@@ -48,6 +48,7 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         countdown.onCountdownComplete.AddListener(StartPlayerJoining);
+        startingSpellCount = ItemSpawner.Instance.GetSpellCount();
     }
 
     private void OnDisable()
