@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 2776495268992456798}
   - component: {fileID: 976542331781092153}
-  - component: {fileID: 4486435045801014587}
   m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
@@ -88,23 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!111 &4486435045801014587
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5069415546406309118}
-  m_Enabled: 0
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: f7b51f6dc37673f4d99d6b7140f3abc8, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: f7b51f6dc37673f4d99d6b7140f3abc8, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_UpdateMode: 0
-  m_CullingType: 0
 --- !u!1 &5835028745261568127
 GameObject:
   m_ObjectHideFlags: 0
@@ -119,6 +101,7 @@ GameObject:
   - component: {fileID: 5581147797748263621}
   - component: {fileID: 7942119247223717270}
   - component: {fileID: 2286400830745346704}
+  - component: {fileID: 4326400507565594377}
   m_Layer: 7
   m_Name: SoapSplat
   m_TagString: Untagged
@@ -264,6 +247,23 @@ CapsuleCollider:
   m_Height: 9
   m_Direction: 2
   m_Center: {x: 0, y: 1.4, z: 3.9}
+--- !u!111 &4326400507565594377
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

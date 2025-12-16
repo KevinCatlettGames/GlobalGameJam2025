@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 2776495268992456798}
   - component: {fileID: 976542331781092153}
   - component: {fileID: 374165785312721266}
-  - component: {fileID: 4486435045801014587}
   m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
@@ -29,7 +28,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.05, z: 0}
-  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
+  m_LocalScale: {x: 0.4, y: 0.4, z: 0.4}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 7788634883322622023}
@@ -78,7 +77,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Sprite: {fileID: 21300000, guid: dc5a42cef3d637547bd1721d695c8f35, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a27771291e0f44042a5e1ce3b9207de9, type: 3}
   m_Color: {r: 0.12169219, g: 0.12738626, b: 0.13207549, a: 0.64705884}
   m_FlipX: 0
   m_FlipY: 0
@@ -103,23 +102,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sprites:
   - {fileID: 21300000, guid: dc5a42cef3d637547bd1721d695c8f35, type: 3}
---- !u!111 &4486435045801014587
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5069415546406309118}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_UpdateMode: 0
-  m_CullingType: 0
 --- !u!1 &5835028745261568127
 GameObject:
   m_ObjectHideFlags: 0
@@ -134,6 +116,7 @@ GameObject:
   - component: {fileID: 5581147797748263621}
   - component: {fileID: 7942119247223717270}
   - component: {fileID: 2920990628748248145}
+  - component: {fileID: 666883388521705025}
   m_Layer: 7
   m_Name: InkPuddle
   m_TagString: Untagged
@@ -177,7 +160,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 8, y: 10, z: 8}
+  m_Size: {x: 6.5, y: 10, z: 6.5}
   m_Center: {x: 0, y: 5, z: 0}
 --- !u!114 &-1287617038941500806
 MonoBehaviour:
@@ -277,6 +260,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc71c8a5aea8cbd4aabaa2192e8cff8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!111 &666883388521705025
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

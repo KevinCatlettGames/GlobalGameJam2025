@@ -8,6 +8,7 @@ public class BoomerangBubble : BasicBubble
     [SerializeField] private float knbMod = 1.5f;
     [SerializeField] private float spdMod = 1.5f;
     [SerializeField] private float dmgMod = 1.5f;
+    [SerializeField] private float aimAhead = 5f;
 
     protected override IEnumerator BubbleRangeLimit()
     {
@@ -41,7 +42,9 @@ public class BoomerangBubble : BasicBubble
         //Effect Maybe
         knockback *= knbMod;
         damage *= dmgMod;
-        direction = playerCollider.transform.position - transform.position;
+        Vector3 targetDirection = playerCollider.transform.position - transform.position;
+        targetDirection += playerCollider.GetComponent<CharacterController>().velocity * aimAhead;
+        direction = targetDirection;
         direction.Normalize();
         Quaternion rotation = Quaternion.LookRotation(direction);
         transform.rotation = rotation;
