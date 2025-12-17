@@ -59,4 +59,11 @@ public class HowToPlayItemSO : ScriptableObject
         get => buttonText;
         set => buttonText = value;
     }
+    
+    [SerializeField] private bool incorporateMainElementBackground = true;
+    public bool IncorporateMainElementBackground
+    {
+        get => incorporateMainElementBackground;
+        set => incorporateMainElementBackground = value;
+    }
 }

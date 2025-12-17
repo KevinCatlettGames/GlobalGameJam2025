@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
+using FMODUnity;
 
 public class HowToPlayMenu : MonoBehaviour
 {
@@ -13,14 +14,20 @@ public class HowToPlayMenu : MonoBehaviour
 
     [Header("System References")]
     [SerializeField] private GameObject mainMenuButtons;
-
+    [SerializeField] private Image mainMenuBackground;
+    [SerializeField] private Color mainMenuBackgroundColor;
+    [SerializeField] private Color mainMenuBackgroundDarkColor;
+    
     [Header("Tab Buttons")]
-    [SerializeField] private Button generalTabButton;
-    [SerializeField] private Button weaponsTabButton;
-    [SerializeField] private Button mapsTabButton;
     [SerializeField] private Button howToPlayButton;
-    [SerializeField] private Color normalColor;
-    [SerializeField] private Color highlightColor;
+    [SerializeField] private Color activeColor;
+    [SerializeField] private Color inactiveColor;
+    [SerializeField] private GameObject generalTabFrame;
+    [SerializeField] private GameObject weaponsTabFrame;
+    [SerializeField] private GameObject mapsTabFrame;
+    [SerializeField] private GameObject lbFrame;
+    [SerializeField] private GameObject rbFrame;
+    [SerializeField] private Image mainElementBackground;
     
     [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
@@ -44,8 +51,10 @@ public class HowToPlayMenu : MonoBehaviour
     [Header("Page Dots")]
     [SerializeField] private GameObject[] pageDots;
     [SerializeField] private Sprite activePageDotSprite;
+    [SerializeField] private Color activePageDotColor; 
     [SerializeField] private Sprite inactivePageDotSprite;
-
+    [SerializeField] private Color inactivePageDotColor;
+    
     private int currentIndex;
 
     private bool pageTogglingEnabled = false;
@@ -56,10 +65,14 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private float pageInitialDelay = 0.35f;   // Delay before repeating
     [SerializeField] private float pageRepeatRate = 0.12f;     // Repeat speed when held
 
+    [Header("FMOD events")]
+    [SerializeField] StudioEventEmitter tabSwitchEmitter;
+    [SerializeField] private StudioEventEmitter pageSwitchEmitter;
+    
     private bool stickInUse = false;
     private float pageHoldTimer = 0f;
     private int pageDirection = 0;
-
+    
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -72,6 +85,7 @@ public class HowToPlayMenu : MonoBehaviour
     private void OnEnable()
     {
         SetTab(Tab.General);
+        mainMenuBackground.color = mainMenuBackgroundDarkColor;
     }
 
     private void OnDisable()
@@ -84,6 +98,7 @@ public class HowToPlayMenu : MonoBehaviour
         itemSpriteImage.enabled = false;
         itemHeaderText.enabled = false;
         itemDescriptionText.enabled = false;
+        mainMenuBackground.color = mainMenuBackgroundColor;
     }
 
     private void OnCloseHowToPlay(InputAction.CallbackContext ctx)
@@ -203,6 +218,7 @@ public class HowToPlayMenu : MonoBehaviour
 
         UpdatePageDots();
         Display(currentIndex);
+        pageSwitchEmitter.Play();
     }
     #endregion
 
@@ -264,6 +280,8 @@ public class HowToPlayMenu : MonoBehaviour
             itemButton.onClick.RemoveAllListeners();
             itemButton.gameObject.SetActive(false);
         }
+
+        mainElementBackground.enabled = item.IncorporateMainElementBackground;
     }
 
     private void UpdatePageDots()
@@ -275,14 +293,20 @@ public class HowToPlayMenu : MonoBehaviour
         {
             var img = pageDots[i].GetComponent<Image>();
             if (img != null)
+            {
                 img.sprite = inactivePageDotSprite;
+                img.color = inactivePageDotColor;
+            }
         }
 
         if (currentIndex >= 0 && currentIndex < pageDots.Length)
         {
             var img = pageDots[currentIndex].GetComponent<Image>();
             if (img != null)
+            {
                 img.sprite = activePageDotSprite;
+                img.color = activePageDotColor; 
+            }
         }
     }
     #endregion
@@ -311,10 +335,27 @@ public class HowToPlayMenu : MonoBehaviour
             pageDots[i].SetActive(true);
 
         UpdatePageDots();
-        generalTabButton.image.color = (currentTab == Tab.General) ? highlightColor : normalColor;
-        weaponsTabButton.image.color = (currentTab == Tab.Weapons) ? highlightColor : normalColor;
-        mapsTabButton.image.color = (currentTab == Tab.Maps) ? highlightColor : normalColor;
+        generalTabFrame.GetComponent<Image>().color = (currentTab == Tab.General) ? inactiveColor : activeColor;
+        weaponsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Weapons) ? inactiveColor : activeColor;
+        mapsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Maps) ? inactiveColor : activeColor;
+        generalTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.General;
+        weaponsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Weapons;
+        mapsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Maps;
+        
+        switch(tab)
+        {
+            case Tab.General:
+                generalTabFrame.transform.SetAsLastSibling();
+                break;
+            case Tab.Weapons:
+                weaponsTabFrame.transform.SetAsLastSibling();
+                break;
+            case  Tab.Maps:
+                mapsTabFrame.transform.SetAsLastSibling();
+                break;
+        }
 
+        tabSwitchEmitter.Play();
     }
 
     public void OpenGeneralTab() => SetTab(Tab.General);

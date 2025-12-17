@@ -10,6 +10,7 @@ public class SkinSO : ScriptableObject
     [SerializeField] private Color color;
     [SerializeField] private int index; 
     [SerializeField] private GameObject skinPrefab;
+
     public Sprite[] GameSprites => gameSprites;
     
     public Sprite LobbySprite => lobbySprite;
