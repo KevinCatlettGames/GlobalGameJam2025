@@ -157,6 +157,8 @@ public class GameManager : NetworkBehaviour
 
     public void ChangeHitReference(int index, BasicBubble.SpellType spellType, int playerHitID, bool wasSlippery, bool wasReflected)
     {
+        if (index < 0 || index >= hitReferences.Length) 
+            return;
         hitReferences[index].spellType = spellType;
         hitReferences[index].playerHitID = playerHitID;
         hitReferences[index].wasSlippery = wasSlippery;

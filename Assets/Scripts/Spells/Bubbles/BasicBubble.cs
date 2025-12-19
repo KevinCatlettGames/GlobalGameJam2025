@@ -18,7 +18,9 @@ public class BasicBubble : NetworkBehaviour
         Soap,
         Wall,
         Grenade,
-        Demolish
+        Demolish,
+        Ink,
+        Boomerang
     };
 
     public SpellType spellType;
@@ -138,6 +140,8 @@ public class BasicBubble : NetworkBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || hasPopped) return;
+        Vector3 reflectNormal = collision.GetContact(0).normal;
+        Debug.Log(transform.name + "BubbleNormal: " + reflectNormal);
         HandleCollision(collision);
     }  
     private void HandleCollision(Collision collision)
@@ -145,7 +149,7 @@ public class BasicBubble : NetworkBehaviour
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             OwnerID = reflector.OwnerID;
-            Vector3 reflectNormal = collision.contacts[0].normal;
+            Vector3 reflectNormal = collision.GetContact(0).normal;
             Reflect(reflectNormal);
             return;
         }

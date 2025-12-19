@@ -8,7 +8,8 @@ using UnityEngine.UI;
 using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -991,6 +992,25 @@ public class PlayerController : NetworkBehaviour
                 HitStunServerRpc(stunDuration);
             }
         }
+    }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("BoneFish"))
+        {
+            ReflectKnockback(hit.normal);
+            Debug.Log(hit.collider.name + ": " + hit.normal);
+        }
+        
+    }
+    public void ReflectKnockback(Vector3 reflectNormal)
+    {
+        if (knockbackVelocity.sqrMagnitude < 1)
+            return;
+        //Effects and Animation go here
+        Debug.Log("Pre-Reflected: " + knockbackVelocity);
+        knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
+        knockbackVelocity.y = 0;
+        Debug.Log("Reflected: " + knockbackVelocity);
     }
 
     [ServerRpc(RequireOwnership = false)]
