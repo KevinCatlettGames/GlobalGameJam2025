@@ -1,4 +1,5 @@
 using System.Collections;
+using Steamworks.Data;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -74,6 +75,8 @@ public class SingleEliminationGM : GameManager
                 winnerID = i;
                 players[winnerID].Victory();
                 ScoreManager.Instance.AddPendingScore(winnerID, true);
+                UnlockRoundEndWithZeroDamageAchievement(winnerID);
+                UnlockRoundEndWithXDamageAchievement(winnerID);
                 break;
             }
         }

@@ -1,6 +1,7 @@
 using FMODUnity;
 using System.Collections;
 using UnityEngine;
+using Unity.Netcode; 
 
 public class SnipeBubble : BasicBubble
 {
@@ -10,7 +11,7 @@ public class SnipeBubble : BasicBubble
     private float damageScaling = 0f;
     private float maxDamage = 0f;
     private float currentDamage = 0f;
-
+    
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
@@ -53,12 +54,18 @@ public class SnipeBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
+            GameManager gameManager = GameManager.Instance;
             
-            if (GameManager.Instance.PlayingLocal)
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, currentDamage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, currentDamage);
-
+            
+            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            
+            if (currentDamage >= maxDamage)
+                CheckMaxSniperDamageAchievement();
+            
             Pop();
         }
         else if (other.CompareTag("Bubble"))
@@ -73,5 +80,17 @@ public class SnipeBubble : BasicBubble
         {
             Pop();
         }
+    }
+
+    void CheckMaxSniperDamageAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        steamIntegration.IncrementIntSteamStat(steamIntegration.maxSniperDamageStatID, 
+            (int)maxDamage,
+            steamIntegration.StatThresholds[steamIntegration.maxSniperDamageStatID], 
+            steamIntegration.maxRangeSniperDamageAchievementID);
     }
 }

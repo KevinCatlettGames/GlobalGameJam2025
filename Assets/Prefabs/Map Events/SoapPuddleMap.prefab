@@ -9823,7 +9823,6 @@ GameObject:
   - component: {fileID: 2776495268992456798}
   - component: {fileID: 976542331781092153}
   - component: {fileID: 374165785312721266}
-  - component: {fileID: 4486435045801014587}
   m_Layer: 7
   m_Name: Sprite
   m_TagString: Untagged
@@ -9841,7 +9840,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.05, z: 0}
-  m_LocalScale: {x: 0.10000001, y: 0.10000001, z: 0.10000001}
+  m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 7788634883322622023}
@@ -9916,23 +9915,6 @@ MonoBehaviour:
   sprites:
   - {fileID: 21300000, guid: 8d212210a7e734749b603e0b21f00f30, type: 3}
   - {fileID: 21300000, guid: 87e723ddf68829e488b4172b0d281bc9, type: 3}
---- !u!111 &4486435045801014587
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5069415546406309118}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_UpdateMode: 0
-  m_CullingType: 0
 --- !u!1 &5835028745261568127
 GameObject:
   m_ObjectHideFlags: 0
@@ -9947,6 +9929,7 @@ GameObject:
   - component: {fileID: -1287617038941500806}
   - component: {fileID: 5581147797748263621}
   - component: {fileID: 7942119247223717270}
+  - component: {fileID: 8558185043554715447}
   m_Layer: 7
   m_Name: SoapPuddleMap
   m_TagString: Untagged
@@ -10093,6 +10076,23 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   waitDuration: 5
   destroyOnRestart: 1
+--- !u!111 &8558185043554715447
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 533b7b6e572a75e4194c233ad8fa3c37, type: 3}
+  m_Name: GrenadeSpell
+  m_EditorClassIdentifier: 
+  spellIndex: 9
+  spellIcon: {fileID: 21300000, guid: 625ea132e57be524584a29f4236c4ec9, type: 3}
+  usedSpellIcon: {fileID: 21300000, guid: f79fa828514d8594484b26c3f6de7c49, type: 3}
+  indicatorColor: {r: 1, g: 0, b: 0.9000077, a: 1}
+  bubble: {fileID: 449082112856618060, guid: 231483f60588710479d4039ea1c5b26c, type: 3}
+  bubbleDamage: 20
+  bubbleKnockback: 5
+  bubbleSpeed: 10
+  bubbleRange: 20
+  bubbleSize: 2
+  inflationSpeed: 2
+  spellCooldown: 1
+  itemMesh: {fileID: -1503308910308505396, guid: f4999be33bbdec940970b2638a1f2f84,
+    type: 3}
+  itemMaterial: {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  effectMaterials:
+  - {fileID: 2100000, guid: f66fae2849793d54eb8f5471c4b8090b, type: 2}
+  - {fileID: 2100000, guid: db3a6a234d691594e8d2eedf109ff792, type: 2}
+  - {fileID: 2100000, guid: db3a6a234d691594e8d2eedf109ff792, type: 2}
+  itemEffectColor: {r: 0.8490566, g: 0, b: 0.82156444, a: 1}
+  castEventStruct:
+    Guid:
+      Data1: -2040333143
+      Data2: 1208168029
+      Data3: 60858797
+      Data4: 572528128
+    Path: event:/sfx/spells/slow_spell
+  spellEventStruct:
+    Guid:
+      Data1: 1053319559
+      Data2: 1125182830
+      Data3: 962237357
+      Data4: 2112813363
+    Path: event:/voice/explosion_voice

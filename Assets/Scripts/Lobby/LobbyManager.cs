@@ -7,33 +7,69 @@ using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
+using TMPro;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class LobbyManager : NetworkBehaviour
 {
-    [SerializeField] private SO_Scores scores;
-
     public static LobbyManager instance;
-    public UnityEvent<ulong> OnReadyStateUpdated;
-    public bool allPlayersReady = false;
+    
+    [Header("Game Mode Settings")]
+    public bool playWithMapEvents = true;
+    [SerializeField] private bool loadRandomLevel = false;
+    public int pointsForGameEnd = 7;
+    public float matchTime = 5;
+    [SerializeField] private SO_Scores scores;
+    [SerializeField] string plateLevel = "Lvl_MainScene";
+    [SerializeField] GameModeSO[] possibleGameModes;
+    public GameModeSO[]  PossibleGameModes { get => possibleGameModes; set => possibleGameModes = value; }
+    
+    [SerializeField] GameManager.GameModeType selectedGameMode = GameManager.GameModeType.SingleElimination;
+    public GameManager.GameModeType SelectedGameMode
+    {
+        get => selectedGameMode;
+        set
+        {
+            ChangeSelectedGameModeClientRpc(value);
+        }
+    }
+    
+    public TextMeshProUGUI gameModeTypeText;
+    
+    [SerializeField] GameObject gameModeSelection;
+    public GameObject GameModeSelection { get => gameModeSelection; set => gameModeSelection = value; }
 
-    [Header("UI")]
-    public GameObject[] playerContainers;
-    public Button startButton;
-
-    [Header("Local Player Settings")]
-    public int maxLocalPlayers = 4;
+    [SerializeField] GameObject matchSettingsSelection; 
+    public GameObject MatchSettingsSelection  { get => matchSettingsSelection; set => matchSettingsSelection = value; }
+    
+    [Header("Player Settings")]
+    [SerializeField] int maxLocalPlayers = 4;
+    [SerializeField] int minPlayers = 1;
+    
+    [SerializeField] SkinSO[] possibleSkins;
+    public SkinSO[] PossibleSkins  { get => possibleSkins; set => possibleSkins = value; }
+    
+    [Header("Network Players")]
     public NetworkList<PlayerLobbyState> players = new NetworkList<PlayerLobbyState>();
-    public int minPlayers = 1;
-    public SkinSO[] possibleSkins;
+    public bool allPlayersReady = false;
+    public UnityEvent<ulong> OnReadyStateUpdated;
     public UnityEvent OnAllPlayersLoadedIn;
-
-    public StudioEventEmitter joinEmitter;
-    public StudioEventEmitter selectEmitter;
-    public StudioEventEmitter unselectEmitter;
-    public StudioEventEmitter playerStartEmitter;
-
-    public string levelToLoad = "Lvl_MainScene";
-
+    
+    [Header("UI Elements")]
+    public GameObject[] playerContainers;
+    [SerializeField] Button startButton;
+    [SerializeField] Image startButtonImage;
+    [SerializeField] private TextMeshProUGUI[] startButtonTexts;
+    [SerializeField] Color startButtonColorWhenEnabled;
+    
+    
+    [Header("Audio Emitters")]
+    [SerializeField] StudioEventEmitter joinEmitter;
+    [SerializeField] StudioEventEmitter selectEmitter;
+    [SerializeField] StudioEventEmitter unselectEmitter;
+    [SerializeField] StudioEventEmitter playerStartEmitter;
+    [SerializeField] StudioEventEmitter buttonOnClickEmitter;
+    
     private void Awake()
     {
         if (instance == null) instance = this;
@@ -44,6 +80,8 @@ public class LobbyManager : NetworkBehaviour
     {
         scores.ResetKills();
         scores.ResetWins();
+        
+        gameModeTypeText.text = possibleGameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
@@ -51,21 +89,20 @@ public class LobbyManager : NetworkBehaviour
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
 
-        startButton.gameObject.SetActive(false);
+        ChangeStartButtonState(false);
+
+        if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
+            UpdateSelectedGameModeForNewClientServerRpc();
     }
 
     private void OnLoadEventCompleted(string scenename, LoadSceneMode loadscenemode, List<ulong> clientscompleted, List<ulong> clientstimedout)
     {
         if (scenename != "UI_Lobby" && scenename != "UI_MainMenu")
-        {
-            Debug.Log("loaded");
             Invoke(nameof(InvokeEvent), 2f);
-        }
     }
 
     private void InvokeEvent()
     {
-        Debug.Log("Invoked");
         OnAllPlayersLoadedIn?.Invoke();
     }
 
@@ -148,6 +185,29 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
+    void EmitSoundServerRpc(int emitterIndex)
+    {
+        EmitSoundClientRpc(emitterIndex);
+    }
+
+    [ClientRpc]
+    void EmitSoundClientRpc(int emitterIndex)
+    {
+        switch  (emitterIndex)
+        {
+            case 0:
+                joinEmitter.Play();
+                break;
+            case 1:
+                selectEmitter.Play();
+                break;
+            case 2:
+                unselectEmitter.Play();
+                break;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
     public void ToggleReadyServerRpc(ulong clientID)
     {
         int index = -1;
@@ -165,6 +225,7 @@ public class LobbyManager : NetworkBehaviour
             players.Add(new PlayerLobbyState { ClientId = (ulong)clientID, IsReady = false });
             AddNewPlayerValuesClientRpc((int)clientID);
             index = players.Count - 1;
+            EmitSoundServerRpc(0);
         }
         else
         {
@@ -178,6 +239,11 @@ public class LobbyManager : NetworkBehaviour
                 InvokeOnReadyStateUpdatedClientRpc(clientID);
             }
         }
+        
+        if (players[index].IsReady)
+            EmitSoundServerRpc(1);
+        else
+            EmitSoundServerRpc(2);
 
         CheckAllReady();
     }
@@ -185,7 +251,7 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     private void AddNewPlayerValuesClientRpc(int clientID)
     {
-        LobbyPlayerHandler.Instance.playerValues.Add(
+        LobbyPlayerHandler.Instance.playerValuesList.Add(
             new LobbyPlayerHandler.PlayerValues(clientID, null, possibleSkins[clientID]));
         LobbyPlayerHandler.Instance.SortPlayerValues();
     }
@@ -201,7 +267,7 @@ public class LobbyManager : NetworkBehaviour
         if (players.Count == 0)
         {
             allPlayersReady = false;
-            startButton.gameObject.SetActive(false);
+            ChangeStartButtonState(false);
             return;
         }
 
@@ -212,7 +278,7 @@ public class LobbyManager : NetworkBehaviour
                 if (allPlayersReady)
                 {
                     allPlayersReady = false;
-                    startButton.gameObject.SetActive(false);
+                    ChangeStartButtonState(false);
                 }
                 return;
             }
@@ -223,14 +289,14 @@ public class LobbyManager : NetworkBehaviour
         if (players.Count >= minPlayers)
         {
             allPlayersReady = true;
-            startButton.gameObject.SetActive(true);
+            ChangeStartButtonState(true);
         }
 
         if (TransportSwitcher.Instance.isUsingRelay &&
             NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
-            startButton.gameObject.SetActive(false);
+            ChangeStartButtonState(false);
         }
     }
 
@@ -249,8 +315,70 @@ public class LobbyManager : NetworkBehaviour
 
     public IEnumerator LoadGameScene()
     {
-        playerStartEmitter.Play();
+        PlayStartSFXClientRpc();
         yield return new WaitForSeconds(1f);
-        NetworkManager.Singleton.SceneManager.LoadScene(levelToLoad, LoadSceneMode.Single);
+            
+        if(loadRandomLevel) 
+            MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+        else
+            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+    }
+
+    void ChangeStartButtonState(bool enable)
+    {
+        if (enable)
+        {
+            foreach (TextMeshProUGUI text in startButtonTexts)
+                text.color = Color.white; 
+            startButtonImage.color = startButtonColorWhenEnabled;
+            startButton.interactable = true;
+        }
+        else
+        {
+            foreach (TextMeshProUGUI text in startButtonTexts)
+                text.color = Color.gray; 
+            startButtonImage.color = Color.gray;
+            startButton.interactable = false;
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void UpdateSelectedGameModeForNewClientServerRpc()
+    {
+        ChangeSelectedGameModeClientRpc(selectedGameMode);
+    }
+
+    [ClientRpc]
+    void ChangeSelectedGameModeClientRpc(GameManager.GameModeType gameModeType)
+    {
+        GameModeSO gameModeSoToUse = possibleGameModes[0];
+        foreach (GameModeSO gameModeSo in possibleGameModes)
+        {
+            if (gameModeType == gameModeSo.GameModeType)
+            {
+                gameModeSoToUse = gameModeSo;
+                break;
+            }
+        }
+        selectedGameMode = gameModeType;
+        gameModeTypeText.text = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
+    }
+
+    [ClientRpc]
+    void PlayStartSFXClientRpc()
+    {
+        playerStartEmitter.Play();
+    }
+
+    public void TogglePlayWithMapEvents(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        playWithMapEvents = toggle;
+    }
+    
+    public void ToggleRandomFirstMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        loadRandomLevel = toggle;
     }
 }

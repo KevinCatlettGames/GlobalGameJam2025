@@ -8,6 +8,5 @@ namespace EditorAttributesSamples
 	{
 		[Header("PropertyDropdown Attribute:")]
 		[SerializeField, PropertyDropdown] private BoxCollider boxCollider;
-		[SerializeField, PropertyDropdown] private ExampleScriptableObject scriptableObject;
 	}
 }

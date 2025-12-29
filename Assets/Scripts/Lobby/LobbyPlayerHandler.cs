@@ -15,8 +15,6 @@ public class LobbyPlayerHandler : NetworkBehaviour
     /// </summary>
     public static LobbyPlayerHandler Instance;
 
-    private bool set; 
-
     /// <summary>
     /// Stores data for each player including player index, assigned input device, and selected skin.
     /// </summary>
@@ -41,7 +39,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
     }
 
     /// <summary>List of all connected players and their values.</summary>
-    public List<PlayerValues> playerValues = new List<PlayerValues>();
+    public List<PlayerValues> playerValuesList = new List<PlayerValues>();
 
     /// <summary>Maximum number of players supported locally.</summary>
     public int maxPlayers = 4;
@@ -68,7 +66,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
 
     void SharePlayerValues()
     {
-        foreach (PlayerValues pv in playerValues)
+        foreach (PlayerValues pv in playerValuesList)
         {
             bool isReady = LobbyManager.instance.playerContainers[pv.PlayerIndex]
                 .GetComponent<PlayerContainerManager>().isReady;
@@ -87,16 +85,16 @@ public class LobbyPlayerHandler : NetworkBehaviour
     {
         if (IsServer) return;
 
-        playerValues.Clear();
+        playerValuesList.Clear();
 
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[0];
-        foreach (SkinSO skin in LobbyManager.instance.possibleSkins)
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[0];
+        foreach (SkinSO skin in LobbyManager.instance.PossibleSkins)
         {
             if(skin.Index == skinIndex)
                 skinToUse = skin;
         }
 
-        playerValues.Add(new PlayerValues(playerIndex, null, skinToUse));
+        playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse));
         SortPlayerValues();
         LobbyManager.instance.UpdatePlayerUI();
 
@@ -133,7 +131,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
     /// </summary>
     public void SortPlayerValues()
     {
-        playerValues.Sort((a, b) => a.PlayerIndex.CompareTo(b.PlayerIndex));
+        playerValuesList.Sort((a, b) => a.PlayerIndex.CompareTo(b.PlayerIndex));
     }
 
     /// <summary>
@@ -144,17 +142,17 @@ public class LobbyPlayerHandler : NetworkBehaviour
         if (playerIndex < 0 || playerIndex >= maxPlayers) return;
         if (device == null) return;
         
-        var existingDevice = playerValues.Find(pd => pd.Device == device);
+        var existingDevice = playerValuesList.Find(pd => pd.Device == device);
         if (existingDevice != null) return;
 
-        var existingPlayer = playerValues.Find(pd => pd.PlayerIndex == playerIndex);
+        var existingPlayer = playerValuesList.Find(pd => pd.PlayerIndex == playerIndex);
         if (existingPlayer != null)
         {
             existingPlayer.Device = device;
         }
         else
         {
-            playerValues.Add(new PlayerValues(playerIndex, device, LobbyManager.instance.possibleSkins[0]));
+            playerValuesList.Add(new PlayerValues(playerIndex, device, LobbyManager.instance.PossibleSkins[0]));
             SortPlayerValues();
         }
     }
@@ -164,7 +162,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
     /// </summary>
     public int GetPlayerIndex(InputDevice device)
     {
-        var pd = playerValues.Find(p => p.Device == device);
+        var pd = playerValuesList.Find(p => p.Device == device);
         return pd != null ? pd.PlayerIndex : -1;
     }
 
@@ -180,7 +178,7 @@ public class LobbyPlayerHandler : NetworkBehaviour
 
         for (int i = 0; i < maxPlayers; i++)
         {
-            if (!playerValues.Exists(pd => pd.PlayerIndex == i))
+            if (!playerValuesList.Exists(pd => pd.PlayerIndex == i))
             {
                 AssignDeviceToPlayer(i, device);
                 return i;
@@ -195,10 +193,10 @@ public class LobbyPlayerHandler : NetworkBehaviour
     /// </summary>
     public InputDevice GetDevice(int playerIndex)
     {
-        for (int i = 0; i < playerValues.Count; i++)
+        for (int i = 0; i < playerValuesList.Count; i++)
         {
-            if (playerValues[i].PlayerIndex == playerIndex)
-                return playerValues[i].Device;
+            if (playerValuesList[i].PlayerIndex == playerIndex)
+                return playerValuesList[i].Device;
         }
         return null;
     }
@@ -208,11 +206,11 @@ public class LobbyPlayerHandler : NetworkBehaviour
     /// </summary>
     public void RemoveDevice(int playerIndex)
     {
-        for (int i = 0; i < playerValues.Count; i++)
+        for (int i = 0; i < playerValuesList.Count; i++)
         {
-            if (playerValues[i].PlayerIndex == playerIndex)
+            if (playerValuesList[i].PlayerIndex == playerIndex)
             {
-                playerValues.RemoveAt(i);
+                playerValuesList.RemoveAt(i);
                 SortPlayerValues();
                 break;
             }

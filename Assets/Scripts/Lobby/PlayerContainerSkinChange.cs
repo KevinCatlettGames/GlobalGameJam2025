@@ -20,7 +20,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return;
 
-        int totalSkins = LobbyManager.instance.possibleSkins.Length;
+        int totalSkins = LobbyManager.instance.PossibleSkins.Length;
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
@@ -44,14 +44,14 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void UpdateSkin()
     {
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         bool skinLocked = false;
 
-        for (int i = 0; i < LobbyPlayerHandler.Instance.playerValues.Count; i++)
+        for (int i = 0; i < LobbyPlayerHandler.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;
 
-            var otherSkin = LobbyPlayerHandler.Instance.playerValues[i].Skin;
+            var otherSkin = LobbyPlayerHandler.Instance.playerValuesList[i].Skin;
             if (otherSkin != null && otherSkin == skinToUse &&
                 i < LobbyManager.instance.players.Count &&
                 LobbyManager.instance.players[i].IsReady)
@@ -65,9 +65,9 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (!currentlyOnLocked &&
             playerIndex >= 0 &&
-            playerIndex < LobbyPlayerHandler.Instance.playerValues.Count)
+            playerIndex < LobbyPlayerHandler.Instance.playerValuesList.Count)
         {
-            LobbyPlayerHandler.Instance.playerValues[playerIndex].Skin = skinToUse;
+            LobbyPlayerHandler.Instance.playerValuesList[playerIndex].Skin = skinToUse;
         }
 
         ApplySkinVisuals();
@@ -75,7 +75,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     private void ApplySkinVisuals()
     {
-        SkinSO skinToUse = LobbyManager.instance.possibleSkins[currentColorIndex];
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
 
         if (currentlyOnLocked)
         {

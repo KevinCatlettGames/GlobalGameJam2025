@@ -14,7 +14,8 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] float maxSpawnInterval = 7;
     [SerializeField] float spawnRadius = 15;
     [SerializeField] SO_Spell[] spawnableItems;
-
+    public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
+    
     public int maxAmount = 2;
     public int currentAmount;
 
@@ -43,7 +44,7 @@ public class ItemSpawner : MonoBehaviour
 
     private void SpawnLoop()
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
 
         if (currentAmount < maxAmount)
             SpawnItem(Vector3.zero);
@@ -118,5 +119,9 @@ public class ItemSpawner : MonoBehaviour
     {
         if (index < 0 || index >= spawnableItems.Length) return null;
         return spawnableItems[index];
+    }
+    public int GetSpellCount()
+    {
+        return spawnableItems.Length;
     }
 }

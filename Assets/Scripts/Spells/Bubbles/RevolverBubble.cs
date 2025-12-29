@@ -9,9 +9,10 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private float delayBetweenShots = 0.02f;
     [SerializeField] private float spread = 2f;
     [SerializeField] private GameObject bubblePrefab;
-
+   
+    private int hitCount = 0;
     private EventReference soundEvent;
-
+    
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
@@ -45,7 +46,8 @@ public class RevolverBubble : BasicBubble
                 Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
     
                 GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
-    
+                bubbleObj.GetComponent<RevolverBulletBubble>().RevolverBubble = this; 
+                
                 NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
                 if (netObj != null)
                     netObj.Spawn();
@@ -57,7 +59,25 @@ public class RevolverBubble : BasicBubble
                 rotation++;
             
         }
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(5f);
         Destroy(gameObject);
+    }
+
+    public void AddToHitCount()
+    {
+        hitCount++;
+        if (hitCount >= 6)
+        {
+            CheckAllShotsHitAchievement();
+        }
+    }
+
+    private void CheckAllShotsHitAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        steamIntegration.IncrementIntSteamStat(steamIntegration.allShotsHitStatID, 1, steamIntegration.StatThresholds[steamIntegration.allShotsHitStatID], steamIntegration.allRevolverShotsHitAchievementID);
     }
 }

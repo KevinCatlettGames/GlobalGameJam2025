@@ -1,3 +1,4 @@
+using System;
 using FMOD.Studio;
 using FMODUnity;
 using UnityEngine;
@@ -8,8 +9,7 @@ using Unity.Netcode;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine.Assertions.Must;
-using UnityEngine.Rendering;
+using Unity.VisualScripting;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -28,11 +28,11 @@ public class PlayerController : NetworkBehaviour
     #region Visuals & Effects
 
     [Header("Visuals")] 
-    [SerializeField] private GameObject[] characters;
     [SerializeField] private Image[] coloredElements;
     [SerializeField] private GameObject canvas;
     [SerializeField] private PlayerSpellIndicator spellIndicator1;
     [SerializeField] private PlayerSpellIndicator spellIndicator2;
+    [SerializeField] private Transform meshParent;
 
     [Header("Effects")] 
     [SerializeField] private GameObject dashStartEffect;
@@ -42,7 +42,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private PlayerDamagedEffect damagedEffect;
     [SerializeField] private GameObject spellSpawnEffect;
     [SerializeField] private float damageColorEffectDuration = 0.1f;
-
     #endregion
 
     #region Spells
@@ -54,25 +53,43 @@ public class PlayerController : NetworkBehaviour
     private bool isSecondSpellReady = true;
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
-
+    private int pickedUpSpellsAmount = 0;
+    private List<SO_Spell> usedSpell = new List<SO_Spell>();
+    
     #endregion
 
     #region Damage
 
     [Header("Damage")] 
     [SerializeField] private float damageModifier = 0.05f;
-    [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
     [SerializeField] private float knockbackDecaySpeed = 5f;
     [SerializeField] private float hitStunThreshold = 100f;
     [SerializeField] private float hitStunFactor = .1f;
     [SerializeField] private float maxHitStunDuration = .35f;
     private float damage = 0;
+    public float Damage { get { return damage; } }
+    
     private int killCreditID = -1;
+    
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
     private bool isDead = false;
     private float hitStunDuration = 0;
 
+    #endregion
+
+    #region Status
+    [Header("Status")]
+    [SerializeField] private float vulnerableFactor = 1.5f;
+    [SerializeField] private float slipperyModifier = 1.5f;
+    [SerializeField] private float slowFactor = .4f;
+    [SerializeField] private GameObject dashDisabledUI;
+    private bool isVulnerable = false;
+    private int slowCounter = 0;
+    private bool isSlowed = false;
+    private int slipperyCounter = 0;
+    private bool isSlippery = false; 
+    private Coroutine vulnerableRoutine = null;
     #endregion
 
     #region Sprint
@@ -93,13 +110,16 @@ public class PlayerController : NetworkBehaviour
     #region Movement & Physics
 
     [Header("Player Stats")] 
-    [SerializeField] private float playerSpeed = 2.0f;
+    [SerializeField] private float playerBaseSpeed = 2.0f;
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
+    private float currentPlayerSpeed = 1;
 
     private CharacterController controller;
     private bool groundedPlayer = false;
+    
+    [Header("Movement")]
     private Vector3 playerVelocity;
     private Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
@@ -128,12 +148,30 @@ public class PlayerController : NetworkBehaviour
     public int PlayerID => playerID;
     public bool initialized = false;
     private List<Item> itemsToEquip = new List<Item>();
-    private int slipperyCounter = 0;
-    private bool isSlippery = false;
+    public bool IsSlippery { get { return isSlippery; } }
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     private PlayerStateHandler playerStateHandler;
 
+    #endregion
+    
+    #region Achievements
+    
+    [Header("Achievement Values")]
+    [SerializeField] private LayerMask groundMask;
+    private float groundCheckDistance = 20f;
+    private bool isFirstGroundDetection = true;
+    private bool groundRaycastWasDetected;
+    private bool groundRaycastIsDetected;
+    
+    [SerializeField] private Vector3 boxCenterOffset = Vector3.zero;
+    [SerializeField] private Vector3 boxHalfExtents = Vector3.one;
+    [SerializeField] private LayerMask bubbleLayer;
+    private HashSet<Collider> bubblesInside = new HashSet<Collider>();
+    [SerializeField] private int shotsHitInARowAmountNeeded = 10;
+    private int shotsHitInARowAmount = 0;
+    [SerializeField] private int pickedUpSpellsNeeded = 20;
+    
     #endregion
 
     #region Initialization
@@ -141,8 +179,6 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void InitializeClientRpc()
     {
-        DeactivateCharacters();
-
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
@@ -158,20 +194,12 @@ public class PlayerController : NetworkBehaviour
 
     public void InitializeLocal()
     {
-        DeactivateCharacters();
-
         PlayerManager.Instance.AddPlayerLocal(GetComponent<PlayerInput>());
         EnableInput();
 
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
-    }
-
-    private void DeactivateCharacters()
-    {
-        foreach (GameObject character in characters)
-            character.SetActive(false);
     }
 
     private void EnableInput()
@@ -184,19 +212,24 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Update Loop
-
+    private void Start()
+    {
+        currentPlayerSpeed = playerBaseSpeed;
+    }
     private void Update()
     {
         if (!initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
+      
         HandleGravity();
         HandleMovementAndRotation();
         HandleAnimations();
         ApplyMovement();
-
         HandleDesyncAndSync();
+        HandleGroundRaycast();
+        IncrementDodgeBubbleAchievement();
     }
 
     #endregion
@@ -260,7 +293,7 @@ public class PlayerController : NetworkBehaviour
                 return;
             }
         }
-        Vector3 move = smoothMoveDirection * (playerSpeed * Time.deltaTime);
+        Vector3 move = smoothMoveDirection * (currentPlayerSpeed * Time.deltaTime);
 
         if (knockbackVelocity.magnitude > 0.1f)
         {
@@ -301,7 +334,7 @@ public class PlayerController : NetworkBehaviour
 
         wasMovingLastFrame = isMoving;
     }
-
+    
     private void HandleDesyncAndSync()
     {
         if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
@@ -404,6 +437,15 @@ public class PlayerController : NetworkBehaviour
         {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
+
+        if (!usedSpell.Contains(spell))
+            usedSpell.Add(spell);
+
+        if (SteamIntegration.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -424,6 +466,18 @@ public class PlayerController : NetworkBehaviour
         else
         {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
+
+        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            if (!usedSpell.Contains(spell))
+                usedSpell.Add(spell);
+
+            if (SteamIntegration.instance)
+            {
+                if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+            }
         }
     }
 
@@ -496,6 +550,16 @@ public class PlayerController : NetworkBehaviour
         }
 
         UpdateEquippedSpell(spellSlotID, equippedSpell);
+
+        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            pickedUpSpellsAmount++;
+            if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
+            {
+                if (SteamIntegration.instance)
+                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
+            }
+        }
     }
 
     private void EquipSpellLocal(int spellSlotID)
@@ -511,6 +575,13 @@ public class PlayerController : NetworkBehaviour
         SO_Spell spell = FindSpellByIndex(itemsToEquip[0].EquipSpell());
         UpdateEquippedSpell(spellSlotID, spell);
         itemsToEquip.RemoveAt(0);
+        
+        pickedUpSpellsAmount++;
+        if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
+        {
+            if (SteamIntegration.instance)
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
+        }
     }
 
     private void UpdateEquippedSpell(int spellSlotID, SO_Spell spell)
@@ -539,7 +610,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
 
-        if (!canSprint)
+        if (!canSprint || isSlowed)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             return;
@@ -562,10 +633,9 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator SprintCoroutine()
     {
         canSprint = false;
-        float originalSpeed = playerSpeed;
         float originalSmooth = moveSmoothTime;
 
-        playerSpeed = playerSprintSpeed;
+        currentPlayerSpeed = playerSprintSpeed;
         moveSmoothTime = 0f;
         isSprinting = true;
 
@@ -574,9 +644,16 @@ public class PlayerController : NetworkBehaviour
         else
             BeginSprintServerRpc();
 
-        yield return new WaitForSeconds(playerSprintDuration);
+        float duration = 0;
+        do
+        {
+            duration += Time.deltaTime;
+            if (isSlowed) break;
+            yield return null;
+        } while (duration <= playerSprintDuration);
 
-        playerSpeed = originalSpeed;
+        if (!isSlowed)
+            currentPlayerSpeed = playerBaseSpeed;
         moveSmoothTime = originalSmooth;
         isSprinting = false;
 
@@ -694,12 +771,12 @@ public class PlayerController : NetworkBehaviour
 
     #region Spells
 
-    public void SetSpells(SO_Spell firstSpell, SO_Spell secondSpell)
+    public void SetSpells(int firstSpellIndex, int secondSpellIndex)
     {
-        ApplySpells(firstSpell, secondSpell);
+        ApplySpells(FindSpellByIndex(firstSpellIndex), FindSpellByIndex(secondSpellIndex));
 
         if (IsServer)
-            SetSpellsClientRpc(firstSpell.SpellIndex, secondSpell.SpellIndex);
+            SetSpellsClientRpc(firstSpellIndex, secondSpellIndex);
     }
 
     [ClientRpc]
@@ -774,24 +851,34 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        if (isDead) return;
+        if (isDead && !IsOwner) return;
 
-        damage += dmg;
-        playerHUD.UpdateDamageText((int)damage);
-        damagedEffect.UpdateParticleSystem(damage);
-        damageParticleSystem.Play();
+        if (isVulnerable)
+        {
+            dmg *= vulnerableFactor;
+            force *= vulnerableFactor;
+            StopVulnerable();
+        }
 
-        if (!IsOwner) return;
+        if (isSlippery)
+        {
+            force *= slipperyModifier;
+            splashEffect.Play();
+        }
 
-        if (isSlippery) force *= slipperyModifier;
-
-        direction.y = 0;
+        // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
+        if (ID != -3) direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
 
         knockbackVelocity += knockback;
+        damage += dmg;
+
+        playerHUD.UpdateDamageText((int)damage);
+        damagedEffect.UpdateParticleSystem(damage);
+        damageParticleSystem.Play();
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -812,6 +899,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
+            // Use ID -2 to avoid hitstun for specific kockback events 
             if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 hitStunDuration = knbMagnitude * hitStunFactor;
@@ -833,33 +921,16 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-
-    [ServerRpc(RequireOwnership = false)]
-    void FlinchAnimServerRpc(float force, float dmg)
-    {
-        mainAnimator.SetTrigger("Flinch");
-        FlinchAnimClientRpc(force, dmg);
-    }
-
-    [ClientRpc]
-    void FlinchAnimClientRpc(float force, float dmg)
-    {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-
-        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
-        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-        fmodEvent.start();
-        fmodEvent.release();
-
-        shaderManager.DamageEffect(damageColorEffectDuration);
-    }
-
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
         if (isDead) return;
+
+        if (isVulnerable)
+        {
+            dmg *= vulnerableFactor;
+            force *= vulnerableFactor;
+            StopVulnerable();
+        }
 
         if (isSlippery)
         {
@@ -867,7 +938,8 @@ public class PlayerController : NetworkBehaviour
             splashEffect.Play();
         }
 
-        direction.y = 0;
+        // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
+        if(ID != -3)direction.y = 0;
         Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
@@ -899,6 +971,7 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
+            // Use ID -2 to avoid hitstun for specific kockback events 
             if (knbMagnitude >= hitStunThreshold && ID != -2)
             {
                 hitStunDuration = knbMagnitude * hitStunFactor;
@@ -920,6 +993,49 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("BoneFish"))
+        {
+            ReflectKnockback(hit.normal);
+            Debug.Log(hit.collider.name + ": " + hit.normal);
+        }
+        
+    }
+    public void ReflectKnockback(Vector3 reflectNormal)
+    {
+        if (knockbackVelocity.sqrMagnitude < 1)
+            return;
+        //Effects and Animation go here
+        Debug.Log("Pre-Reflected: " + knockbackVelocity);
+        knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
+        knockbackVelocity.y = 0;
+        Debug.Log("Reflected: " + knockbackVelocity);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void FlinchAnimServerRpc(float force, float dmg)
+    {
+        mainAnimator.SetTrigger("Flinch");
+        FlinchAnimClientRpc(force, dmg);
+    }
+
+    [ClientRpc]
+    void FlinchAnimClientRpc(float force, float dmg)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
+        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+        fmodEvent.start();
+        fmodEvent.release();
+
+        shaderManager.DamageEffect(damageColorEffectDuration);
+    }
+
 
     [ServerRpc(RequireOwnership = false)]
     void HitStunServerRpc(float duration)
@@ -1001,6 +1117,9 @@ public class PlayerController : NetworkBehaviour
         canvas.SetActive(false);
     }
 
+    #endregion
+
+    #region StatusConditions
     public void SetSlippy(bool slippy)
     {
         if (slippy)
@@ -1025,7 +1144,60 @@ public class PlayerController : NetworkBehaviour
         else
             wetEffect.Stop();
 
-        shaderManager?.WetEffect(isSlippery);
+        ShaderState state = (isSlippery) ? ShaderState.wet : ShaderState.sober;        
+        shaderManager.SetShaderState(state);
+ 
+    }
+    public void SetSlowed(bool slow)
+    {
+        if (slow)
+        {
+            //Effect on hit
+            slowCounter++;
+        }
+        else
+        {
+            slowCounter = Mathf.Max(0, slipperyCounter - 1);
+        }
+
+        isSlowed = slowCounter > 0;
+
+        //Effect continuos
+        if (isSlowed)
+        {
+            currentPlayerSpeed = playerBaseSpeed * slowFactor;
+            //Effect.Play();
+        }
+        else
+        {
+            currentPlayerSpeed = playerBaseSpeed;
+            //Effect.Stop();
+        }
+
+        ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
+        shaderManager.SetShaderState(state);
+        dashDisabledUI.SetActive(isSlowed);
+    }
+    public void StartVulnerable(float time)
+    {
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time)); 
+    }
+    private IEnumerator VulnerableCoroutine(float duration)
+    {
+        Debug.Log("Vulnerable");
+        isVulnerable = true;
+        shaderManager.SetShaderState(ShaderState.sauced);
+        yield return new WaitForSeconds(duration);
+        StopVulnerable();
+    }
+    private void StopVulnerable()
+    {
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        isVulnerable = false;
+        shaderManager.SetShaderState(ShaderState.sober);
     }
     #endregion
 
@@ -1046,12 +1218,19 @@ public class PlayerController : NetworkBehaviour
 
     public void ResetPlayerController()
     {
-        slipperyCounter = 0;
         damage = 0;
         damagedEffect.UpdateParticleSystem(-1);
-        isSlippery = false;
         killCreditID = -1;
         hitStunDuration = 0;
+
+        slipperyCounter = 0;
+        isSlippery = false;
+        slowCounter = 0;
+        isSlowed = false;
+        dashDisabledUI.SetActive(false);
+        isVulnerable = false;
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
 
         shaderManager?.ResetShader();
 
@@ -1075,6 +1254,11 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
 
+        pickedUpSpellsAmount = 0; 
+        usedSpell.Clear();
+        isFirstGroundDetection = true;
+        shotsHitInARowAmount = 0; 
+        
         playerStateHandler.ResetPlayer();
         isDead = false;
     }
@@ -1085,42 +1269,28 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     void ResetHudClientRpc() => playerHUD.ResetHUD();
 
-    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, Color color)
+    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
     {
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 
-        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValues)
+        GameObject skin = Instantiate(skinObject.SkinPrefab, meshParent);
+        
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            if (playerValues.PlayerIndex == playerID)
-            {
-                if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    ActivateCorrectSkinClientRpc(playerValues.Skin.Index);
-                    ActivateCorrectColorClientRpc(playerID);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
-                }
-                else if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>();
-                }
-                else
-                {
-                    foreach (var element in coloredElements)
-                        element.color = color;
-                    characters[playerValues.Skin.Index].SetActive(true);
-                    mainAnimator = characters[playerValues.Skin.Index].GetComponent<Animator>();
-                    shaderManager = characters[playerValues.Skin.Index].GetComponentInChildren<PlayerShaderManager>(); 
-                }
-            }
+            foreach (var element in coloredElements)
+                element.color = skinObject.Color;
+
+            ActivateCorrectColorServerRpc(skinObject.Index);
+            mainAnimator = skin.GetComponent<Animator>();
+            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>();
+        }
+        else
+        {
+            foreach (var element in coloredElements)
+                element.color = skinObject.Color;
+            mainAnimator = skin.GetComponent<Animator>();
+            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>(); 
         }
         
         playerHUD.UpdateDamageText((int)damage);
@@ -1134,22 +1304,122 @@ public class PlayerController : NetworkBehaviour
         playerStateHandler.EnableDeath();
     }
 
-    [ClientRpc]
-    void ActivateCorrectSkinClientRpc(int index)
+    [ServerRpc(RequireOwnership = false)]
+    void ActivateCorrectColorServerRpc(int index)
     {
-        foreach (GameObject character in characters)
-            character.SetActive(false);
-
-        characters[index].SetActive(true);
+        ActivateCorrectColorClientRpc(index);
     }
-
+    
     [ClientRpc]
     void ActivateCorrectColorClientRpc(int index)
     {
-        foreach (Image image in coloredElements)
+        SkinSO skinSOToUse = null; 
+        
+        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
         {
-            image.color = LobbyPlayerHandler.Instance.playerValues[index].Skin
-                .Color; 
+            if (playerValues.Skin.Index == index)
+            {
+                skinSOToUse = playerValues.Skin;
+                break;
+            }
+        }
+
+        if (skinSOToUse == null) return;
+        
+        foreach (Image image in coloredElements)
+            image.color = skinSOToUse.Color;
+    }
+    #endregion
+    
+    #region Achievements
+    private void HandleGroundRaycast()
+    {
+        Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
+        
+        groundRaycastIsDetected = Physics.Raycast(rayOrigin, Vector3.down,
+            out RaycastHit hit,
+            groundCheckDistance,
+            groundMask);
+
+        if (!groundRaycastWasDetected && groundRaycastIsDetected)
+            IncrementRegainGroundAchievement(hit);
+        
+        groundRaycastWasDetected = groundRaycastIsDetected;
+    }
+    
+    void IncrementRegainGroundAchievement(RaycastHit hit)
+    {
+        if (isFirstGroundDetection)
+        {
+            isFirstGroundDetection = false;
+            return;
+        }
+        
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.regainGroundStatID,
+            1, 
+            SteamIntegration.instance.StatThresholds[steamIntegration.regainGroundStatID], 
+            steamIntegration.regainGroundAchievementID);
+    }
+
+    void IncrementDodgeBubbleAchievement()
+    {
+        Vector3 boxCenter = transform.position + boxCenterOffset;
+        Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, Quaternion.identity, bubbleLayer);
+
+        foreach (var hit in hits)
+        {
+            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID == playerID) continue;
+            
+            if (!bubblesInside.Contains(hit))
+                bubblesInside.Add(hit);
+        }
+
+        var exiting = bubblesInside.Where(b => !hits.Contains(b)).ToList();
+        foreach (var b in exiting)
+        {
+            bubblesInside.Remove(b);
+            if (b == null || !b.GetComponent<BasicBubble>()) return; 
+            
+            BasicBubble bubble = b.GetComponent<BasicBubble>();
+            
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+                || bubble.HasPopped
+                || bubble.OwnerID == playerID
+                || !isSprinting
+                || !SteamIntegration.instance) return;
+                
+                SteamIntegration steamIntegration = SteamIntegration.instance;
+                SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.bubbleDodgeStatID, 
+                    1, 
+                    steamIntegration.StatThresholds[steamIntegration.bubbleDodgeStatID], 
+                    steamIntegration.bubbleDodgeAchievementID);
+        }
+    }
+
+    public void UnlockShotsHitInARowAchievement(bool hitAPlayer)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+            || !SteamIntegration.instance) return;
+        
+        if (hitAPlayer)
+        {
+            // hit a player
+            shotsHitInARowAmount++;
+            if (shotsHitInARowAmount >= shotsHitInARowAmountNeeded)
+            {
+                SteamIntegration steamIntegration = SteamIntegration.instance;
+                SteamIntegration.instance.UnlockAchievement(steamIntegration.shotsHitInARowAchievementID);
+            }
+        }
+        else
+        {
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+                NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
+            shotsHitInARowAmount = 0; 
         }
     }
     #endregion

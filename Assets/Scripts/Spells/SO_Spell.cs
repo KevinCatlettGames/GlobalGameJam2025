@@ -4,12 +4,9 @@ using UnityEngine;
 using FMODUnity;
 using Unity.Netcode; 
 
-[CreateAssetMenu(fileName = "new Spell", menuName = "ScriptableObject/Spell/Simple")]
+[CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Simple")]
 public class SO_Spell : ScriptableObject
 {
-    [SerializeField] private int spellIndex;
-    public int SpellIndex { get { return spellIndex; } }
-
     [Header("UI")]
     [SerializeField] private Sprite spellIcon;
     [SerializeField] private Sprite usedSpellIcon;
@@ -18,7 +15,6 @@ public class SO_Spell : ScriptableObject
     public Sprite UsedSpellIcon { get { return usedSpellIcon;} }
     public Color IndicatorColor {  get { return indicatorColor; } }
     
-
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
     [SerializeField] protected float bubbleDamage = 1.0f;

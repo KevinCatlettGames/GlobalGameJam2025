@@ -15,23 +15,24 @@ public class SoapMapEvent : MonoBehaviour
     private bool isSpawning = false;
     void Start()
     {
+        if (LobbyManager.instance)
+            isMapEventEnabled = LobbyManager.instance.playWithMapEvents;
+        
         if (!isMapEventEnabled) Destroy(this);
         if (TransportSwitcher.Instance)
         {
             if (!NetworkManager.Singleton.IsServer) return; 
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
-            Invoke(nameof(StartSpawning), startDelay);
+            StartSpawning();
         }
         else
         {
             GameManager.Instance.OnGameStarted += StartSpawning;
             GameManager.Instance.OnGameEnded += StopSpawning;
-            Invoke(nameof(StartSpawning), startDelay);  
+            StartSpawning();
         }
-    }
-
-   
+    } 
     private void SpawnDroplet()
     {
         if (!isSpawning) return;
@@ -48,7 +49,7 @@ public class SoapMapEvent : MonoBehaviour
     {
         currentIntervall = startInvterval;
         isSpawning = true;
-        Invoke(nameof(SpawnDroplet), currentIntervall);
+        Invoke(nameof(SpawnDroplet), currentIntervall + startDelay);
     }
 
     private void StopSpawning()

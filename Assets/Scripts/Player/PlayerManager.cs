@@ -14,11 +14,8 @@ public class PlayerManager : NetworkBehaviour
 
     [Header("Player Setup")]
     [SerializeField] private PlayerHUD[] playerHUDs;
-    [SerializeField] private SO_Spell[] startingSpells;
+    [SerializeField] private int startingSpellCount;
     [SerializeField] private Transform[] spawnPoints;
-
-    [Header("UI")]
-    public GameObject joinGameText;
     
     private NetworkVariable<int> syncedFirstSpellIndex = new NetworkVariable<int>();
     private NetworkVariable<int> syncedSecondSpellIndex = new NetworkVariable<int>();
@@ -51,6 +48,7 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         countdown.onCountdownComplete.AddListener(StartPlayerJoining);
+        startingSpellCount = ItemSpawner.Instance.GetSpellCount();
     }
 
     private void OnDisable()
@@ -73,7 +71,6 @@ public class PlayerManager : NetworkBehaviour
         {
             if (!TransportSwitcher.Instance)
             {
-                joinGameText.SetActive(true);
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
             }
@@ -100,7 +97,7 @@ public class PlayerManager : NetworkBehaviour
         {
             LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -139,7 +136,7 @@ public class PlayerManager : NetworkBehaviour
         {
             LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValues)
+            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -179,7 +176,6 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!input.TryGetComponent<CharacterController>(out var characterController)) return;
 
-        joinGameText.SetActive(false);
         int playerID = playersInitializedCount++;
         if (!ValidatePlayerID(playerID)) return;
 
@@ -201,8 +197,8 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
+        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -235,8 +231,8 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
-        playerController.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
+        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -302,7 +298,7 @@ public class PlayerManager : NetworkBehaviour
 
         stateHandler.ResetPlayer();
 
-        controller.SetSpells(startingSpells[syncedFirstSpellIndex.Value], startingSpells[syncedSecondSpellIndex.Value]);
+        controller.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         var animator = controller.mainAnimator;
         animator.SetBool("IsDead", false);
@@ -313,8 +309,8 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
 
-        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
-        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpells.Length);
+        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
+        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
     }
 
     #endregion
@@ -336,13 +332,15 @@ public class PlayerManager : NetworkBehaviour
 
         if (LobbyPlayerHandler.Instance)
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
         else
         {
-            playerHUDs[playerID].InitialisePlayerHUD(LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.GameSprite, LobbyPlayerHandler.Instance.playerValues[playerID].Skin.Color);
+            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            //Cant work without lobby manager anyways
+            //playerHUDs[playerID].InitialisePlayerHUD(playerID);
+            //ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
     }
 

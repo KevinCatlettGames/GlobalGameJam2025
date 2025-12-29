@@ -50,7 +50,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449082112856618060}
-  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: -5495902117074765545, guid: b46e05bfccb070b4b81440e053cb0ccd, type: 3}
 --- !u!23 &363169325850266822
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -291,11 +291,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
+  spellType: 3
   OwnerID: -1
   fizzleEffect: {fileID: 7883030796252567183, guid: 52ced142d15fa5a49840c5a4e2643b9a,
     type: 3}
   hitEffect: {fileID: 7883030796252567183, guid: 20088733713399748aacaf58554ec583,
     type: 3}
+  missedShotAchievementID: 12
+  missedShotStatThreshold: 1000
+  missedShotStatID: 6
+  canMiss: 1
   extraOffset: 4.5
   knbDecreaseAngle: 45
   knbDecreaseIncrement: 0.25
@@ -5311,7 +5316,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &4973662836625871419
 Transform:
   m_ObjectHideFlags: 0
@@ -5581,7 +5586,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 7
+      scalar: 6
       minScalar: 0.5
       maxCurve:
         serializedVersion: 2
@@ -6611,7 +6616,7 @@ ParticleSystem:
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
-        ctime1: 39321
+        ctime1: 27949
         ctime2: 65535
         ctime3: 0
         ctime4: 0
@@ -6619,7 +6624,7 @@ ParticleSystem:
         ctime6: 0
         ctime7: 0
         atime0: 0
-        atime1: 39321
+        atime1: 27563
         atime2: 65535
         atime3: 0
         atime4: 0
@@ -6781,7 +6786,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 98ce177124fb72046abbadc54e9a8d31, type: 3}
+    - sprite: {fileID: 21300000, guid: 43498c9088fd42746a39627a82dc6143, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:

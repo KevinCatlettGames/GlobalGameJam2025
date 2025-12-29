@@ -13,13 +13,46 @@ public class SteamIntegration : MonoBehaviour
     private bool statsLoaded = false;
     private float retryInterval = 5f;
     private float retryTimer = 0f;
-    private bool steamInitialized = false; 
+    
+    [ReadOnly]
+    [SerializeField] private bool steamInitialized = false; 
     
     [Header("Achievements")]
     [SerializeField] string[] achievementNames;
     [SerializeField] string[] statNames;
+    [SerializeField] private int[] statThresholds; 
     
-    [Header("Matchmaking")]
+    [Header("Achievement References")]
+    public int zeroDamageAchievementID = 0;
+    public int damagedAchievementID = 1;
+    public int weaponsPickedUpAchievementID = 2;
+    public int allWeaponsUsedAchievementID = 3;
+    public int regainGroundAchievementID = 4;
+    public int smallerGiantKillsAchievementID = 5;
+    public int maxRangeSniperDamageAchievementID = 6;
+    public int allRevolverShotsHitAchievementID = 7;
+    public int doubleKillAchievementID = 8;
+    public int tripleKillAchievementID = 9;
+    public int slipperyKillAchievementID = 10;
+    public int makeBubbleSlipperyAchievementID = 11;
+    public int missedShotAchievementID = 12;
+    public int reflectedKillAchievementID = 13;
+    public int bubbleDodgeAchievementID = 14;
+    public int shotsHitInARowAchievementID = 15;
+
+    [Header("Stat References")]
+    public int regainGroundStatID = 0;
+    public int smallerGiantKillsStatID = 1;
+    public int maxSniperDamageStatID = 2;
+    public int allShotsHitStatID = 3;
+    public int slipperyKillStatID = 4;
+    public int makeBubbleSlipperyStatID = 5;
+    public int missedShotStatID = 6;
+    public int reflectedKillStatID = 7;
+    public int bubbleDodgeStatID = 8;
+
+    public int[] StatThresholds => statThresholds;
+
     public Friend steamFriendToJoin;
     [ReadOnly]
     public string lobbyIDToJoin;
@@ -85,8 +118,14 @@ public class SteamIntegration : MonoBehaviour
         {
             if (SteamClient.IsValid)
             {
+                bool loaded = SteamUserStats.RequestCurrentStats();
                 steamInitialized = true;
-                Debug.Log("Steam already initialized.");
+                
+                if (loaded)
+                {
+                    statsLoaded = true;
+                    SetLocaleBasedOnSteamLanguage();
+                }
                 return;
             }
 
@@ -97,26 +136,19 @@ public class SteamIntegration : MonoBehaviour
             
             bool success = SteamUserStats.RequestCurrentStats();
             if (success)
-            {
                 statsLoaded = true;
-                Debug.Log("Steam stats loaded.");
-            }
-            else
-                Debug.LogWarning("Steam initialized, but failed to load stats.");
-
+            
             steamInitialized = true;
         }
         catch (Exception e)
         {
             steamInitialized = false;
-            Debug.LogWarning($"Steam initialization failed: {e.Message}");
         }
     }
     
     #region Matchmaking
     private void RichPresenceJoinRequested(Friend steamFriend, string lobbyID)
     {
-        Debug.Log("Trying to join a lobby through steam friend list stuff...");
         steamFriendToJoin = steamFriend;
         lobbyIDToJoin = lobbyID;
         if (MainMenuLobbyCreator.Instance != null)
@@ -125,52 +157,52 @@ public class SteamIntegration : MonoBehaviour
     #endregion 
     
     #region Localization
-    // private void SetLocaleBasedOnSteamLanguage()
-    // {
-    //     try
-    //     {
-    //         Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
-    //         
-    //         if (LocaleSelector.Instance)
-    //         {
-    //             switch (SteamApps.GameLanguage)
-    //             {
-    //                 case "german":
-    //                     LocaleSelector.Instance.ChangeLocale(1);
-    //                     Debug.Log("Locale set to german");
-    //                     break;
-    //                 case "chinese":
-    //                     LocaleSelector.Instance.ChangeLocale(2);
-    //                     Debug.Log("Locale set to chinese");
-    //                     break;
-    //                 case "japanese":
-    //                     LocaleSelector.Instance.ChangeLocale(3);
-    //                     Debug.Log("Locale set to japanese");
-    //                     break;
-    //                 case "portuguese":
-    //                     LocaleSelector.Instance.ChangeLocale(4);
-    //                     Debug.Log("Locale set to portuguese");
-    //                     break;
-    //                 case "russian":
-    //                     LocaleSelector.Instance.ChangeLocale(5);
-    //                     Debug.Log("Locale set to russian");
-    //                     break;
-    //                 case "spanish":
-    //                     LocaleSelector.Instance.ChangeLocale(6);
-    //                     Debug.Log("Locale set to spanish");
-    //                     break;
-    //                 default:
-    //                     LocaleSelector.Instance.ChangeLocale(0);
-    //                     Debug.Log("Locale set to english");
-    //                     break;
-    //             }
-    //         }
-    //     }
-    //     catch
-    //     {
-    //         Debug.LogError("No steam locale settable");
-    //     }
-    // }
+    private void SetLocaleBasedOnSteamLanguage()
+    {
+        try
+        {
+            Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
+            
+            if (LocaleSelector.Instance)
+            {
+                switch (SteamApps.GameLanguage)
+                {
+                    case "german":
+                        LocaleSelector.Instance.ChangeLocale(1);
+                        Debug.Log("Locale set to german");
+                        break;
+                    // case "chinese":
+                    //     LocaleSelector.Instance.ChangeLocale(2);
+                    //     Debug.Log("Locale set to chinese");
+                    //     break;
+                    // case "japanese":
+                    //     LocaleSelector.Instance.ChangeLocale(3);
+                    //     Debug.Log("Locale set to japanese");
+                    //     break;
+                    case "portuguese":
+                        LocaleSelector.Instance.ChangeLocale(2);
+                        Debug.Log("Locale set to portuguese");
+                        break;
+                    // case "russian":
+                    //     LocaleSelector.Instance.ChangeLocale(5);
+                    //     Debug.Log("Locale set to russian");
+                    //     break;
+                    case "spanish":
+                        LocaleSelector.Instance.ChangeLocale(3);
+                        Debug.Log("Locale set to spanish");
+                        break;
+                    default:
+                        LocaleSelector.Instance.ChangeLocale(0);
+                        Debug.Log("Locale set to english");
+                        break;
+                }
+            }
+        }
+        catch
+        {
+            //Debug.LogError("No steam locale settable");
+        }
+    }
      #endregion
     
     #region Achievements
@@ -249,15 +281,17 @@ public class SteamIntegration : MonoBehaviour
     }
     
     [Button]
-    public void UnlockAchievement(int id)
+    public void UnlockAchievement(int achievementNameID)
     {
+        if (!steamInitialized) return; 
+        
         for (int i = 0; i < achievementNames.Length; i++)
         {
-            if (i == id)
+            if (i == achievementNameID)
             {
                 var ach = new Steamworks.Data.Achievement(achievementNames[i]);
+                //Debug.Log("Achievement Unlocked");
                 ach.Trigger();
-                Debug.Log("Achievement " + id + " unlocked");
             }
         }
     }
@@ -278,7 +312,7 @@ public class SteamIntegration : MonoBehaviour
     }
     
     [Button]
-    public void IncrementIntSteamStat(int statName, int incrementAmount, int achievementThreshold, int achievementName)
+    public void IncrementIntSteamStat(int statNameID, int incrementAmount, int achievementThreshold, int achievementNameID)
     {
         if (!isFullVersion) return;  
         
@@ -286,11 +320,11 @@ public class SteamIntegration : MonoBehaviour
         {
             if (!statsLoaded)
             {
-                Debug.LogWarning("Steam stats not loaded yet.");
+                //Debug.LogWarning("Steam stats not loaded yet.");
                 return;
             }
     
-            int currentValue = SteamUserStats.GetStatInt(statName.ToString());
+            int currentValue = SteamUserStats.GetStatInt(statNames[statNameID]);
             //Debug.Log("Stat current value: " + currentValue);
     
             int newValue = currentValue + incrementAmount;
@@ -302,11 +336,10 @@ public class SteamIntegration : MonoBehaviour
                 newValue = achievementThreshold;
             }
     
-            SteamUserStats.SetStat(statName.ToString(), newValue);
+            SteamUserStats.SetStat(statNames[statNameID], newValue);
     
-            // Check if newValue reached or exceeded the achievement threshold
             if (newValue >= achievementThreshold)
-                UnlockAchievement(achievementName);
+                UnlockAchievement(achievementNameID);
     
             SteamUserStats.StoreStats();
         }

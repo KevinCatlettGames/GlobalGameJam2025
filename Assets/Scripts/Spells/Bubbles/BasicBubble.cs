@@ -5,9 +5,29 @@ using Unity.Netcode;
 
 public class BasicBubble : NetworkBehaviour
 {
+    public enum SpellType
+    {
+        Null,
+        Basic,
+        Exploding,
+        Giant,
+        SmallerGiant,
+        Homing,
+        Revolver,
+        Snipe,
+        Soap,
+        Wall,
+        Grenade,
+        Demolish,
+        Ink,
+        Boomerang
+    };
+
+    public SpellType spellType;
     public int OwnerID = -1;
     protected Vector3 direction;
     protected bool hasPopped;
+    public bool HasPopped {  get { return hasPopped; } }
     protected float size;
     
     protected float damage = 1.0f;
@@ -19,6 +39,7 @@ public class BasicBubble : NetworkBehaviour
     protected float currentSize = 0.01f;
     protected Collider playerCollider;
     protected bool isSoaped = false;
+    protected bool isReflected = false;
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
 
@@ -30,6 +51,8 @@ public class BasicBubble : NetworkBehaviour
 
     protected Vector3 lastPosition;
     protected float desyncThreshold = 0.05f;
+    
+    protected bool canMiss = true;
     
     private void Start()
     {
@@ -104,15 +127,21 @@ public class BasicBubble : NetworkBehaviour
             lastPosition = transform.position;
         }
     }
-    protected IEnumerator BubbleRangeLimit()
+    protected virtual IEnumerator BubbleRangeLimit()
     {
         float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
+        
+        if(canMiss) 
+            IncrementMissedShotAchievement();
+        
         Pop();
     }  
     private void OnCollisionEnter(Collision collision)
     {
         if (!IsServer || hasPopped) return;
+        Vector3 reflectNormal = collision.GetContact(0).normal;
+        Debug.Log(transform.name + "BubbleNormal: " + reflectNormal);
         HandleCollision(collision);
     }  
     private void HandleCollision(Collision collision)
@@ -120,7 +149,7 @@ public class BasicBubble : NetworkBehaviour
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             OwnerID = reflector.OwnerID;
-            Vector3 reflectNormal = collision.contacts[0].normal;
+            Vector3 reflectNormal = collision.GetContact(0).normal;
             Reflect(reflectNormal);
             return;
         }
@@ -134,11 +163,14 @@ public class BasicBubble : NetworkBehaviour
         if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
+            GameManager gameManager = GameManager.Instance;
 
-            if (GameManager.Instance.PlayingLocal)
+            if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             fizzleEffect = hitEffect;
         }
 
@@ -152,7 +184,7 @@ public class BasicBubble : NetworkBehaviour
 
         StopAllCoroutines();
         
-        SpawnPopEffectClientRpc(transform.position, size);
+        SpawnPopEffectClientRpc(transform.position);
 
         if (IsServer)
         {
@@ -172,8 +204,9 @@ public class BasicBubble : NetworkBehaviour
 
         if (rangeCoroutine != null)
             StopCoroutine(rangeCoroutine);
-
+        
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+        isReflected = true;
     }    
     public virtual void SetSlippy()
     {
@@ -196,7 +229,7 @@ public class BasicBubble : NetworkBehaviour
         speed *= inceaseFactor;
     }
     [ClientRpc]
-    private void SpawnPopEffectClientRpc(Vector3 pos, float scale)
+    private void SpawnPopEffectClientRpc(Vector3 pos)
     {
         var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
@@ -213,4 +246,16 @@ public class BasicBubble : NetworkBehaviour
             GameManager.Instance.OnGameStarted -= DestroyBubble;
     }
 
+    protected void IncrementMissedShotAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
+            || !SteamIntegration.instance) return;
+        
+        SteamIntegration steamIntegration = SteamIntegration.instance;
+        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID, 
+            1, 
+            steamIntegration.StatThresholds[steamIntegration.missedShotStatID], 
+            steamIntegration.missedShotAchievementID);
+    }
 }

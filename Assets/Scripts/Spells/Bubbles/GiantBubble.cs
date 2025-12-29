@@ -58,6 +58,9 @@ public class GiantBubble : BasicBubble
                 knockback *= 1 - (knbDecreaseIncrement * i);
             }
         }
+        else if (isSmall && other.CompareTag("Player"))
+            spellType = SpellType.SmallerGiant;
+        
         base.BubbleCollision(other);
     }
 }
