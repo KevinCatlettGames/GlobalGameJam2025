@@ -141,7 +141,6 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer || hasPopped) return;
         Vector3 reflectNormal = collision.GetContact(0).normal;
-        Debug.Log(transform.name + "BubbleNormal: " + reflectNormal);
         HandleCollision(collision);
     }  
     private void HandleCollision(Collision collision)

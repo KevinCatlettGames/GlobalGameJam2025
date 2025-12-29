@@ -75,6 +75,7 @@ public class PlayerController : NetworkBehaviour
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
     private bool isDead = false;
     private float hitStunDuration = 0;
+    private bool canBeBoneFished = true;
 
     #endregion
 
@@ -993,25 +994,6 @@ public class PlayerController : NetworkBehaviour
             }
         }
     }
-    private void OnControllerColliderHit(ControllerColliderHit hit)
-    {
-        if (hit.collider.CompareTag("BoneFish"))
-        {
-            ReflectKnockback(hit.normal);
-            Debug.Log(hit.collider.name + ": " + hit.normal);
-        }
-        
-    }
-    public void ReflectKnockback(Vector3 reflectNormal)
-    {
-        if (knockbackVelocity.sqrMagnitude < 1)
-            return;
-        //Effects and Animation go here
-        Debug.Log("Pre-Reflected: " + knockbackVelocity);
-        knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
-        knockbackVelocity.y = 0;
-        Debug.Log("Reflected: " + knockbackVelocity);
-    }
 
     [ServerRpc(RequireOwnership = false)]
     void FlinchAnimServerRpc(float force, float dmg)
@@ -1035,7 +1017,6 @@ public class PlayerController : NetworkBehaviour
 
         shaderManager.DamageEffect(damageColorEffectDuration);
     }
-
 
     [ServerRpc(RequireOwnership = false)]
     void HitStunServerRpc(float duration)
@@ -1117,6 +1098,55 @@ public class PlayerController : NetworkBehaviour
         canvas.SetActive(false);
     }
 
+    #endregion
+
+    #region BoneFish
+    private void OnControllerColliderHit(ControllerColliderHit hit)
+    {
+        if (hit.collider.CompareTag("BoneFish") && canBeBoneFished)
+        {
+            canBeBoneFished = false;
+            if (knockbackVelocity.sqrMagnitude < 1)
+            {
+                Vector3 v = transform.position - hit.collider.transform.position;
+                if (GameManager.Instance.PlayingLocal)
+                {
+                    ApplyKnockbackLocal(-1, v, 5f, 5f);
+                }
+                else
+                {
+                    ApplyKnockbackServerRpc(-1, v, 5f, 5f);
+                }
+            }
+            else
+            {
+                ReflectKnockback(hit.normal);
+                if (GameManager.Instance.PlayingLocal)
+                {
+                    ApplyKnockbackLocal(-1, knockbackVelocity, 5f, 5f);
+                }
+                else
+                {
+                    ApplyKnockbackServerRpc(-1, knockbackVelocity, 5f, 5f);
+                }
+            }
+            StartCoroutine(BoneFishCoroutine());
+        }
+        
+    }
+    private IEnumerator BoneFishCoroutine()
+    {
+        yield return new WaitForSeconds(.2f);
+        canBeBoneFished = true;
+    }
+    public void ReflectKnockback(Vector3 reflectNormal)
+    {
+        //Effects and Animation go here
+        Debug.Log("Pre-Reflected: " + knockbackVelocity);
+        knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
+        knockbackVelocity.y = 0;
+        Debug.Log("Reflected: " + knockbackVelocity);
+    }
     #endregion
 
     #region StatusConditions
@@ -1231,6 +1261,7 @@ public class PlayerController : NetworkBehaviour
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
+        canBeBoneFished = true;
 
         shaderManager?.ResetShader();
 
