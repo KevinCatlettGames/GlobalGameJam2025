@@ -1,79 +1,151 @@
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
-
+public enum CrabState
+{
+    Searching,
+    Hunting,
+    Resting
+}
 public class Crab : MonoBehaviour
 {
     [SerializeField] private Transform[] eyes = new Transform[2];
-    [SerializeField] private CrabClaw[] claws = new CrabClaw[2];
+    [SerializeField] private CrabClaw claw;
+    [SerializeField] private CrabHuntingGrounds huntingGrounds;
     [SerializeField] private Transform crabBody;
+    [SerializeField] private float startDelay = 5f;
     [SerializeField] private float eyeRotationSpeed = 2;
     [SerializeField] private float crabRotationSpeed = 1;
-    private int activeClawIndex = -1;
+    [SerializeField] private float restingTime = 3f;
+    private CrabState state = CrabState.Resting;
+    private float rotationDirection = 1;
+    private float timer = 100;
+    private bool eventActive = false;
 
-    private void FixedUpdate()
+    private void Awake()
     {
-        int activeClaws = 0;
-        activeClawIndex = -1;
-        for (int q = 0; q < 2; q++)
+        bool isMapEventActive = true;
+        if (LobbyManager.instance)
+            isMapEventActive = LobbyManager.instance.playWithMapEvents;
+
+        if (!isMapEventActive)
         {
-            if (claws[q].Status == CrabClawStatus.hunting)
-            {
-                activeClaws++;
-                activeClawIndex = q;
-            }
+            Destroy(gameObject);
+            return;
         }
 
-        switch (activeClaws)
+        if (TransportSwitcher.Instance)
         {
-            default:
-                RotateCrab(-1);
-                RotateEye(0, -1);
-                RotateEye(1, -1);
+            if (!NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameEnded += StopEvent;
+            Invoke(nameof(StartEvent), 7);
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameEnded += StopEvent;
+            Invoke(nameof(StartEvent), 7);
+        }
+    }
+    private void FixedUpdate()
+    {
+        switch(state)
+        {
+            case CrabState.Searching:
+                Search();
                 break;
-            case 1:
-                RotateCrab(activeClawIndex);
-                RotateEye(0, activeClawIndex);
-                RotateEye(1, activeClawIndex);
+            case CrabState.Hunting:
+                Hunt();
                 break;
-            case 2:
-                RotateCrab();
-                RotateEye(0, 0);
-                RotateEye(1, 1);
+            case CrabState.Resting:
+                Rest();
                 break;
         }
     }
-
-    private void RotateCrab(int clawIndex)
+    private void StartEvent()
     {
-        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(0, 0, -1), Vector3.up);
-        if (clawIndex != -1)
+        timer = startDelay;
+        eventActive = true;
+    }
+    private void StopEvent()
+    {
+        eventActive = false;
+        timer = 100f;
+    }
+    private void Search()
+    {
+        crabBody.Rotate(Vector3.up, rotationDirection * crabRotationSpeed * Time.fixedDeltaTime);
+        if (Physics.Raycast(new Vector3(0, 1, 0), crabBody.forward, out RaycastHit hit, 20f, LayerMask.GetMask("Player")))
         {
-            Vector3 lookVector = claws[clawIndex].transform.position - crabBody.position;
-            lookVector.y = 0;
-            targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
+            Vector3 v = hit.point;
+            v.y = 0;
+            claw.transform.position = v;
+            claw.Target = huntingGrounds.GetClosestTargetPosition(v);
+            claw.StartHunting();
+            state = CrabState.Hunting;
         }
-        crabBody.rotation = Quaternion.Lerp(crabBody.rotation, targetRotation, Time.fixedDeltaTime * crabRotationSpeed);
+    }
+    private void Hunt()
+    {
+        if (claw.Status != CrabClawStatus.hunting)
+        {
+            timer = restingTime;
+            state = CrabState.Resting;
+            ResetEyes();
+        }
+        else
+        {
+            RotateCrab();
+        }
+    }
+    private void Rest()
+    {
+        if (!eventActive)
+            return;
+        if (timer > 0)
+        {
+            timer -= Time.fixedDeltaTime;
+        }
+        else
+        {
+            //Wake up
+            state = CrabState.Searching;
+            rotationDirection *= -1f;
+        }
     }
     private void RotateCrab()
     {
-        Vector3 lookVector = claws[0].transform.position - claws[1].transform.position;
+        Vector3 t = claw.Target;
+        Vector3 lookVector = t - transform.position;
         lookVector.y = 0;
-        lookVector *= 0.5f;
-        lookVector += claws[1].transform.position;
-        lookVector -= crabBody.position;
-        lookVector.y = 0;
-        Debug.DrawRay(transform.position, lookVector, Color.blue);
         Quaternion targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
         crabBody.rotation = Quaternion.Lerp(crabBody.rotation, targetRotation, Time.fixedDeltaTime * crabRotationSpeed);
-    }
-    private void RotateEye(int eyeIndex, int clawIndex)
-    {
-        Quaternion targetRotation = Quaternion.LookRotation(new Vector3(0, 0, -1), Vector3.up);
-        if (clawIndex != -1)
+        for (int i = 0; i < eyes.Length; i++)
         {
-            Vector3 lookVector = claws[clawIndex].transform.position - eyes[eyeIndex].position;
-            lookVector.y = 0;
-            targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
+            eyes[i].LookAt(new Vector3(t.x, eyes[i].position.y, t.z));
         }
-        eyes[eyeIndex].rotation = Quaternion.Lerp(eyes[eyeIndex].rotation, targetRotation, Time.fixedDeltaTime * eyeRotationSpeed);
+    }
+    private void ResetEyes()
+    {
+        //Quaternion targetRotation = Quaternion.LookRotation(new Vector3(0, 0, -1), Vector3.up);
+        for (int i = 0; i < eyes.Length; i++)
+        {
+            eyes[i].rotation = crabBody.rotation;
+        }
+    }
+    private void OnDestroy()
+    {
+        if (TransportSwitcher.Instance)
+        {
+            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameEnded -= StopEvent;
+        }
+        else
+        {
+            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameEnded -= StopEvent;
+        }
     }
 }
