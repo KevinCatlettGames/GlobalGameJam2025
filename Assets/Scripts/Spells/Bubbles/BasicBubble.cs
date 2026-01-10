@@ -42,6 +42,8 @@ public class BasicBubble : NetworkBehaviour
     protected bool isReflected = false;
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
+    protected bool popOnPlayerHit = true;
+    protected bool popOnBubbleHit = true;
 
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
@@ -171,9 +173,18 @@ public class BasicBubble : NetworkBehaviour
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             fizzleEffect = hitEffect;
+            if (popOnPlayerHit)
+                Pop();
         }
-
-        Pop();
+        else if (other.CompareTag("Bubble"))
+        {
+            if(popOnBubbleHit)
+                Pop();
+        }
+        else
+        {
+            Pop();
+        }
     }
     protected virtual void Pop()
     {

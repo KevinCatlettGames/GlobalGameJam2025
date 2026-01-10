@@ -22,7 +22,6 @@ public class DemolishBubble : BasicBubble
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
 
             var effect = Instantiate(hitEffect, transform.position, Quaternion.identity);
-
         }
         else if (other.CompareTag("Wall"))
         {
