@@ -25,7 +25,8 @@ public class DemolishBubble : BasicBubble
         }
         else if (other.CompareTag("Wall"))
         {
-            if (other.TryGetComponent<RisingWall>(out RisingWall risingWall))
+            RisingWall risingWall = other.GetComponentInParent<RisingWall>();
+            if (risingWall != null)
             {
                 risingWall.Sink(true);
                 //Effect/Archievenemt can go here
