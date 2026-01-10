@@ -41,7 +41,7 @@ public class RisingWall : MonoBehaviour
         yield return new WaitForSeconds(riseDelay);
         float r = Random.Range(0, randomDelay);
         yield return new WaitForSeconds(r);
-        animator.Play("Rise", 0, 0);
+        animator.SetTrigger("Rise");
         riseParticle?.Play();
         idleParticle?.Play();
         abschieber.SetActive(true);
@@ -59,9 +59,9 @@ public class RisingWall : MonoBehaviour
         sinkParticle?.Play();
         abschieber.SetActive(false);
         yield return null;
-        AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        float animationLengh = animatorStateInfo.length * .1f;
-        yield return new WaitForSeconds(animationLengh);
+        //AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        //float animationLengh = animatorStateInfo.length;
+        yield return new WaitForSeconds(2f);
         gameObject.SetActive(false);
     }
 }
