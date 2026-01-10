@@ -65,7 +65,6 @@ public class ItemSpawner : MonoBehaviour
                 randomPos.y = itemPrefab.transform.position.y;
                 Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
                 if (wallOverlaps.Length == 0) break;
-                Debug.Log("Wall detected at: " + randomPos);
                 i++;
             } while (i < 10);
             if (i == 10) return;
