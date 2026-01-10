@@ -6,22 +6,17 @@ using UnityEngine;
 
 public class WallManager : MonoBehaviour
 {
-    public static WallManager Instance;
-    private List<RisingWall> walls;
-    [SerializeField] private bool isMapEventActive = true;
+    [SerializeField] private List<WallFormation> wallFormations;
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private float sinkTime = 5f;
-    [SerializeField] private int maxActiveWalls = 3;
-    [SerializeField] private float rotationSpeed = 5f;
-    [SerializeField] private float startDelay = 1f;
-    private float timer = 90f;
-    private bool initialised = false;
+    [SerializeField] private float startDelay = 3f;
+    private int currentFormation = -1;
     private bool wallsActive = false;
-    private int totalWalls = 0;
-    private int[] wallIndex;
-    private bool isMoving = true;
+
+
     private void Awake()
     {
+        bool isMapEventActive = true;
         if (LobbyManager.instance)
             isMapEventActive = LobbyManager.instance.playWithMapEvents;
         
@@ -29,137 +24,96 @@ public class WallManager : MonoBehaviour
         {
             Destroy(gameObject);
             return;
-        } 
-        if (Instance == null)
-        {
-            Instance = this;
         }
-        else
-        {
-            Destroy(this);
-        }
-        walls = new List<RisingWall>();
+
         if (TransportSwitcher.Instance)
         {
             if (!NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted += StartMoving;
-            GameManager.Instance.OnGameEnded += StopMoving;
-            Invoke(nameof(StartMoving), 7);
+            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameEnded += StopEvent;
+            Invoke(nameof(StartEvent), 7);
         }
         else
         {
-            GameManager.Instance.OnGameStarted += StartMoving;
-            GameManager.Instance.OnGameEnded += StopMoving;
-            Invoke(nameof(StartMoving), 7);
+            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameEnded += StopEvent;
+            Invoke(nameof(StartEvent), 7);
         }
     }
     void Update()
     {
-        if (!isMoving) return;
-        if (timer <= 0)
-        {
-            if (!initialised)
-            {
-                totalWalls = walls.Count;
-                wallIndex = new int[totalWalls];
-                for (int i = 0; i < wallIndex.Length; i++)
-                {
-                    wallIndex[i] = i;   
-                }
-                initialised = true;
-            }
-            if (!wallsActive)
-            {
-                RiseWalls();
-                timer = stayTime;
-            }
-            else
-            {
-                SinkWalls();
-                timer = sinkTime;
-            }
-        }
-        else
-        {
-            timer -= Time.deltaTime;
-        }
-        if (!wallsActive)
-        {
-            transform.Rotate(Vector3.up * (rotationSpeed * Time.deltaTime));
-        }
         // Remove in final build!
         if (Input.GetKeyDown(KeyCode.B))
         {
-            foreach (var Wall in walls)
+            if (wallsActive)
             {
-                Wall.Rise();
+                SinkWalls();
             }
+            CancelInvoke();
+            RiseWalls();
         }
         else if (Input.GetKeyDown(KeyCode.N))
         {
-            foreach (var Wall in walls)
-            {
-                Wall.Sink(false);
-            }
+            CancelInvoke();
+            SinkWalls();
         }
     }
     private void RiseWalls()
     {
-        ShuffleIndexes();
-        for (int i = 0; i < maxActiveWalls; i++)
+        if (wallsActive)
+            return;
+
+        int r = Random.Range(0, wallFormations.Count);
+        if (r == currentFormation)
         {
-            walls[wallIndex[i]].Rise();
+            r++;
+            if(r >= wallFormations.Count) 
+                r = 0;
         }
+        wallFormations[r].RiseFormation();
+        currentFormation = r;
         wallsActive = true;
+        Invoke(nameof(SinkWalls), stayTime);
     }
     private void SinkWalls()
     {
-        for (int i = 0; i < maxActiveWalls; i++)
-        {
-            walls[wallIndex[i]].Sink(false);
-        }
-        Invoke(nameof(SetWallsInactive), 1.5f);
-    }
-    private void SetWallsInactive()
-    {
+        if (!wallsActive)
+            return;
+
+        wallFormations[currentFormation].SinkFormation();
         wallsActive = false;
+
+        Invoke(nameof(RiseWalls), sinkTime);
     }
-    private void StartMoving()
+
+    private void StartEvent()
     {
-        timer = sinkTime + startDelay;
-        isMoving = true;
+        Invoke(nameof(RiseWalls), startDelay);
     }
-    private void StopMoving()
+    private void StopEvent()
     {
-        SinkWalls();
-        isMoving = false;
-    }
-    public void AddWall(RisingWall wall)
-    {
-        walls.Add(wall);
-    }
-    private void ShuffleIndexes()
-    {
-        for (int i = wallIndex.Length -1; i > 0; i--)
+        if (wallsActive)
         {
-            int x = Random.Range(0, i + 1);
-            int temp = wallIndex[i];
-            wallIndex[i] = wallIndex[x];
-            wallIndex[x] = temp;
+            wallFormations[currentFormation].SinkFormation();
+            wallsActive = false;
         }
+
+        CancelInvoke();
+        currentFormation = -1;
     }
+
     private void OnDestroy()
     {
         if (TransportSwitcher.Instance)
         {
             if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted -= StartMoving;
-            GameManager.Instance.OnGameEnded -= StopMoving;
+            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameEnded -= StopEvent;
         }
         else
         {
-            GameManager.Instance.OnGameStarted -= StartMoving;
-            GameManager.Instance.OnGameEnded -= StopMoving;
+            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameEnded -= StopEvent;
         }
     }
 }

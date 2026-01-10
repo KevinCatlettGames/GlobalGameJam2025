@@ -12,18 +12,17 @@ public class RisingWall : MonoBehaviour
     [SerializeField] private ParticleSystem idleParticle;
     [SerializeField] private ParticleSystem sinkParticle;
     private bool isActive = false;
+    public bool IsActive { get { return isActive; } }
     void Start()
     {
         animator = GetComponent<Animator>();
 
-        WallManager.Instance?.AddWall(this);
-        animator.Play("Sink", 0, 1);
-        //gameObject.SetActive(false);
+        //animator.Play("Sink", 0, 1);
+        gameObject.SetActive(false);
     }
 
     public void Rise()
     {
-        //gameObject.SetActive(true);
         if (isActive) return;
         isActive = true;
         StopAllCoroutines();
@@ -60,9 +59,9 @@ public class RisingWall : MonoBehaviour
         sinkParticle?.Play();
         abschieber.SetActive(false);
         yield return null;
-        //AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        //float animationLengh = animatorStateInfo.length;
-        //yield return new WaitForSeconds(animationLengh);
-        //gameObject.SetActive(false);
+        AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
+        float animationLengh = animatorStateInfo.length * .1f;
+        yield return new WaitForSeconds(animationLengh);
+        gameObject.SetActive(false);
     }
 }
