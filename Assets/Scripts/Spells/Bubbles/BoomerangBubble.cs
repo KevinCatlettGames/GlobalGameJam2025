@@ -1,3 +1,4 @@
+using Febucci.UI.Core;
 using System.Collections;
 using UnityEngine;
 
@@ -8,7 +9,8 @@ public class BoomerangBubble : BasicBubble
     [SerializeField] private float knbMod = 1.5f;
     [SerializeField] private float spdMod = 1.5f;
     [SerializeField] private float dmgMod = 1.5f;
-    [SerializeField] private float aimAhead = 5f;
+    [SerializeField] private float startAngle = 5f;
+    [SerializeField] private float turnRate = .1f;
 
     protected override IEnumerator BubbleRangeLimit()
     {
@@ -16,6 +18,7 @@ public class BoomerangBubble : BasicBubble
         float f = 1f / lifetime;
         float progress = 0;
         float baseSpeed = speed;
+        direction = direction.RotateAround(new Vector2(0,0),startAngle);
         do
         {
             progress += f * Time.deltaTime;
@@ -43,7 +46,7 @@ public class BoomerangBubble : BasicBubble
         knockback *= knbMod;
         damage *= dmgMod;
         Vector3 targetDirection = playerCollider.transform.position - transform.position;
-        targetDirection += playerCollider.GetComponent<CharacterController>().velocity * aimAhead;
+        targetDirection += playerCollider.GetComponent<CharacterController>().velocity * startAngle;
         direction = targetDirection;
         direction.Normalize();
         Quaternion rotation = Quaternion.LookRotation(direction);

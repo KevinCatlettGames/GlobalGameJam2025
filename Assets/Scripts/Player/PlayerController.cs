@@ -1142,10 +1142,8 @@ public class PlayerController : NetworkBehaviour
     public void ReflectKnockback(Vector3 reflectNormal)
     {
         //Effects and Animation go here
-        Debug.Log("Pre-Reflected: " + knockbackVelocity);
         knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
         knockbackVelocity.y = 0;
-        Debug.Log("Reflected: " + knockbackVelocity);
     }
     #endregion
 
