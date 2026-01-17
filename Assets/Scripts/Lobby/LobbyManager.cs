@@ -15,14 +15,15 @@ public class LobbyManager : NetworkBehaviour
     public static LobbyManager instance;
     
     [Header("Game Mode Settings")]
-    public bool playWithMapEvents = true;
-    [SerializeField] private bool loadRandomLevel = false;
-    public int pointsForGameEnd = 7;
-    public float matchTime = 5;
-    [SerializeField] private SO_Scores scores;
+    bool loadRandomLevel = true;
+    [SerializeField] SO_Scores scores;
     [SerializeField] string plateLevel = "Lvl_MainScene";
-    [SerializeField] GameModeSO[] possibleGameModes;
-    public GameModeSO[]  PossibleGameModes { get => possibleGameModes; set => possibleGameModes = value; }
+    
+    [SerializeField] GameModeSO[] gameModes;
+    public GameModeSO[]  GameModes { get => gameModes; set => gameModes = value; }
+    
+    [SerializeField] MapSettingsSO[] mapSettings;
+    public  MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
     
     [SerializeField] GameManager.GameModeType selectedGameMode = GameManager.GameModeType.SingleElimination;
     public GameManager.GameModeType SelectedGameMode
@@ -33,6 +34,8 @@ public class LobbyManager : NetworkBehaviour
             ChangeSelectedGameModeClientRpc(value);
         }
     }
+
+    public Toggle[] mapUsageToggles;
     
     public TextMeshProUGUI gameModeTypeText;
     
@@ -81,7 +84,7 @@ public class LobbyManager : NetworkBehaviour
         scores.ResetKills();
         scores.ResetWins();
         
-        gameModeTypeText.text = possibleGameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
+        gameModeTypeText.text = gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
@@ -132,6 +135,12 @@ public class LobbyManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged += OnPlayersListChanged;
+
+        foreach (MapSettingsSO mapSetting in MapSettings)
+        {
+            mapSetting.PlayMap = true;
+            mapSetting.PlayWithMapEvent = true;
+        }
     }
 
     private void OnDestroy()
@@ -351,8 +360,8 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     void ChangeSelectedGameModeClientRpc(GameManager.GameModeType gameModeType)
     {
-        GameModeSO gameModeSoToUse = possibleGameModes[0];
-        foreach (GameModeSO gameModeSo in possibleGameModes)
+        GameModeSO gameModeSoToUse = gameModes[0];
+        foreach (GameModeSO gameModeSo in gameModes)
         {
             if (gameModeType == gameModeSo.GameModeType)
             {
@@ -370,15 +379,104 @@ public class LobbyManager : NetworkBehaviour
         playerStartEmitter.Play();
     }
 
-    public void TogglePlayWithMapEvents(bool toggle)
+    public void TogglePlateMapEvent(bool toggle)
     {
         buttonOnClickEmitter.Play();
-        playWithMapEvents = toggle;
+        mapSettings[0].PlayWithMapEvent = toggle;
+
+        int unactiveToggles = 0;
+        foreach (MapSettingsSO mapSetting in mapSettings)
+        {
+            if(mapSetting.PlayWithMapEvent == false)
+                unactiveToggles++;
+        }
+
+        if (unactiveToggles > 2)
+        {
+            foreach (Toggle tog in mapUsageToggles)
+            {
+                if(tog.isOn) 
+                    tog.interactable = false;
+            }
+        }
+        else
+        {
+            foreach(Toggle tog in mapUsageToggles)
+                tog.interactable = true;
+        }
+    }
+
+    public void ToggleUsageOfPlateMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[0].PlayMap = toggle;
+        HandleMapUsageToggleActiveState();
     }
     
-    public void ToggleRandomFirstMap(bool toggle)
+    public void TogglePotMapEvent(bool toggle)
     {
         buttonOnClickEmitter.Play();
-        loadRandomLevel = toggle;
+        mapSettings[1].PlayWithMapEvent = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void ToggleUsageOfPotMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[1].PlayMap = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void ToggleBucketMapEvent(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[2].PlayWithMapEvent = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void ToggleUsageOfBucketMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[2].PlayMap = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void ToggleTunaMapEvent(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[3].PlayWithMapEvent = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void ToggleUsageOfTunaMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[3].PlayMap = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+
+    void HandleMapUsageToggleActiveState()
+    {
+        int unactiveToggles = 0;
+        foreach (MapSettingsSO mapSetting in mapSettings)
+        {
+            if(!mapSetting.PlayMap)
+                unactiveToggles++;
+        }
+
+        if (unactiveToggles > 2)
+        {
+            foreach (Toggle tog in mapUsageToggles)
+            {
+                if(tog.isOn) 
+                    tog.interactable = false;
+            }
+        }
+        else
+        {
+            foreach(Toggle tog in mapUsageToggles)
+                tog.interactable = true;
+        }
+        Debug.Log(unactiveToggles);
     }
 }

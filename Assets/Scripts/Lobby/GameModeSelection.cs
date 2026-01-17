@@ -4,7 +4,9 @@ using UnityEngine.UI;
 using TMPro; 
 using FMODUnity;
 using Unity.Netcode;
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class GameModeSelection : NetworkBehaviour
 {
@@ -21,6 +23,10 @@ public class GameModeSelection : NetworkBehaviour
     [SerializeField] LobbyButtons lobbyButtons;
     LobbyManager lobbyManager;
 
+    [SerializeField] private TextMeshProUGUI backButtonText;
+    [SerializeField] LocalizedStringProperty normalBackButtonStringProperty;
+    [SerializeField] LocalizedStringProperty activeBackButtonStringProperty;
+    
     private void OnEnable()
     {
         lobbyManager = LobbyManager.instance;
@@ -29,7 +35,7 @@ public class GameModeSelection : NetworkBehaviour
         decrementInputAction.action.performed += DecrementActionPerformed;
         exitGameModeSelectionInputAction.action.performed += ExitGameModeSelectionPerformed;
         exitGameModeSelectionInputAction.action.Enable();
-        
+        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = activeBackButtonStringProperty.LocalizedString; 
         UpdateGameModeSelectionUI();
     }
 
@@ -39,6 +45,7 @@ public class GameModeSelection : NetworkBehaviour
         decrementInputAction.action.performed -= DecrementActionPerformed;
         exitGameModeSelectionInputAction.action.performed -= ExitGameModeSelectionPerformed;
         exitGameModeSelectionInputAction.action.Disable();
+        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = normalBackButtonStringProperty.LocalizedString; 
     }
 
     public void UpdateSelectedGameManagerType(bool increment)
@@ -59,8 +66,8 @@ public class GameModeSelection : NetworkBehaviour
 
     void UpdateGameModeSelectionUI()
     {
-        GameModeSO gameModeSoToUse = lobbyManager.PossibleGameModes[0];
-        foreach (GameModeSO gameModeSo in lobbyManager.PossibleGameModes)
+        GameModeSO gameModeSoToUse = lobbyManager.GameModes[0];
+        foreach (GameModeSO gameModeSo in lobbyManager.GameModes)
         {
             if (lobbyManager.SelectedGameMode == gameModeSo.GameModeType)
             {
@@ -72,9 +79,9 @@ public class GameModeSelection : NetworkBehaviour
         gameModeTypeImage.sprite = gameModeSoToUse.GameModeTypeImage; 
         
         int indexOfUsedGameMode = 0;
-        for (int i = 0; i < LobbyManager.instance.PossibleGameModes.Length; i++)
+        for (int i = 0; i < LobbyManager.instance.GameModes.Length; i++)
         {
-            if (gameModeSoToUse == LobbyManager.instance.PossibleGameModes[i])
+            if (gameModeSoToUse == LobbyManager.instance.GameModes[i])
             {
                 indexOfUsedGameMode = i;
                 break;

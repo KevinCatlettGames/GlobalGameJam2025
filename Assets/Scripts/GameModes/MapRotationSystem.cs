@@ -1,13 +1,13 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-
+using System.Collections.Generic;
 public class MapRotationSystem : MonoBehaviour
 {
     [SerializeField] private int maxRounds = 3;
     public int MaxRounds {get => maxRounds;}
     
-    [SerializeField] private string[] sceneNames;
+    [SerializeField] private MapSettingsSO[] mapSettings;
 
     public static MapRotationSystem Instance;
     void Start()
@@ -24,13 +24,20 @@ public class MapRotationSystem : MonoBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        if (roundCount < maxRounds || sceneNames.Length <= 1)
+        List<string> sceneNames  = new List<string>();
+        foreach (MapSettingsSO mapSetting in mapSettings)
+        {
+            if(mapSetting.PlayMap)
+                sceneNames.Add(mapSetting.SceneName);
+        }
+
+        if (roundCount < maxRounds || sceneNames.Count <= 1)
             return false; 
-        
+
         string i;
         do
         {
-            int r = Random.Range(0, sceneNames.Length);
+            int r = Random.Range(0, sceneNames.Count);
             i = sceneNames[r];
         }
         while (i == SceneManager.GetActiveScene().name);

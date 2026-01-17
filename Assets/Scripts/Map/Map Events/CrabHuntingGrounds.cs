@@ -10,7 +10,7 @@ public class CrabHuntingGrounds : MonoBehaviour
     void Start()
     {
         if (LobbyManager.instance)
-            isMapEventEnabled = LobbyManager.instance.playWithMapEvents;
+            isMapEventEnabled = LobbyManager.instance.MapSettings[2].PlayWithMapEvent;
         
         if (!isMapEventEnabled)
             Destroy(gameObject);

@@ -18,7 +18,7 @@ public class WallManager : MonoBehaviour
     {
         bool isMapEventActive = true;
         if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.playWithMapEvents;
+            isMapEventActive = LobbyManager.instance.MapSettings[1].PlayWithMapEvent;
         
         if (!isMapEventActive)
         {

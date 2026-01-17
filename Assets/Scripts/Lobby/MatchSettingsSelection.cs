@@ -1,10 +1,10 @@
-using System.Globalization;
 using UnityEngine;
 using FMODUnity;
 using TMPro;
 using Unity.Netcode;
 using UnityEngine.InputSystem; 
-using UnityEngine.UI; 
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class MatchSettingsSelection : NetworkBehaviour
 {
@@ -13,53 +13,32 @@ public class MatchSettingsSelection : NetworkBehaviour
     
     [Header("Input")]
     public InputActionProperty exitMatchSettingsInputAction;
-    // public InputActionProperty mapEventsToggle;
-
-    [SerializeField] private Toggle mapEventToggle;
     
     [Header("Lobby Connection")] 
     [SerializeField] LobbyButtons lobbyButtons;
 
-    [SerializeField] private TextMeshProUGUI pointsForGameEndValueText;
-    [SerializeField] private TextMeshProUGUI matchTimeValueText;
-
+    [SerializeField] private TextMeshProUGUI backButtonText;
+    [SerializeField] LocalizedStringProperty normalBackButtonStringProperty;
+    [SerializeField] LocalizedStringProperty activeBackButtonStringProperty;
+    
     private void OnEnable()
     {
-        // mapEventsToggle.action.performed += ToggleMapEvents;
-        // mapEventsToggle.action.Enable();
         exitMatchSettingsInputAction.action.performed += ExitMatchSettingsSelectionPerformed;
         exitMatchSettingsInputAction.action.Enable();
+        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = activeBackButtonStringProperty.LocalizedString; 
+
     }
 
     private void OnDisable()
     {
-        // mapEventsToggle.action.performed -= ToggleMapEvents;
-        // mapEventsToggle.action.Disable();
         exitMatchSettingsInputAction.action.performed -= ExitMatchSettingsSelectionPerformed;
         exitMatchSettingsInputAction.action.Disable();
-    }
+        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = normalBackButtonStringProperty.LocalizedString; 
 
-    void ToggleMapEvents(InputAction.CallbackContext context)
-    {
-        mapEventToggle.isOn = !mapEventToggle.isOn;
     }
     
     private void ExitMatchSettingsSelectionPerformed(InputAction.CallbackContext obj)
     {
         lobbyButtons.ToggleMatchSettings();
-    }
-
-    public void ChangePointsForGameEnd(float newValue)
-    {
-        int value = (int)newValue;
-        LobbyManager.instance.pointsForGameEnd = value;
-        pointsForGameEndValueText.text = value.ToString();
-    }
-
-    public void ChangeMatchTime(float newValue)
-    {
-        int value = (int)newValue;
-        LobbyManager.instance.matchTime = value;
-        matchTimeValueText.text = value.ToString() + "min.";
     }
 }

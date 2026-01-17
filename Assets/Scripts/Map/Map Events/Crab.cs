@@ -26,7 +26,7 @@ public class Crab : MonoBehaviour
     {
         bool isMapEventActive = true;
         if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.playWithMapEvents;
+            isMapEventActive = LobbyManager.instance.MapSettings[2].PlayWithMapEvent;
 
         if (!isMapEventActive)
         {
