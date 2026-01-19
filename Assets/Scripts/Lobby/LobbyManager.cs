@@ -36,7 +36,8 @@ public class LobbyManager : NetworkBehaviour
     }
 
     public Toggle[] mapUsageToggles;
-    
+    public Toggle[] mapEventToggles;
+    public Slider[] mapRoundsSliders;
     public TextMeshProUGUI gameModeTypeText;
     
     [SerializeField] GameObject gameModeSelection;
@@ -140,6 +141,8 @@ public class LobbyManager : NetworkBehaviour
         {
             mapSetting.PlayMap = true;
             mapSetting.PlayWithMapEvent = true;
+            mapSetting.MapRounds = 3;
+            mapSetting.PlayedThisLoop = false;
         }
     }
 
@@ -379,37 +382,33 @@ public class LobbyManager : NetworkBehaviour
         playerStartEmitter.Play();
     }
 
-    public void TogglePlateMapEvent(bool toggle)
-    {
-        buttonOnClickEmitter.Play();
-        mapSettings[0].PlayWithMapEvent = toggle;
-
-        int unactiveToggles = 0;
-        foreach (MapSettingsSO mapSetting in mapSettings)
-        {
-            if(mapSetting.PlayWithMapEvent == false)
-                unactiveToggles++;
-        }
-
-        if (unactiveToggles > 2)
-        {
-            foreach (Toggle tog in mapUsageToggles)
-            {
-                if(tog.isOn) 
-                    tog.interactable = false;
-            }
-        }
-        else
-        {
-            foreach(Toggle tog in mapUsageToggles)
-                tog.interactable = true;
-        }
-    }
-
     public void ToggleUsageOfPlateMap(bool toggle)
     {
         buttonOnClickEmitter.Play();
         mapSettings[0].PlayMap = toggle;
+        mapEventToggles[0].interactable = toggle;
+        mapRoundsSliders[0].interactable = toggle;
+        HandleMapUsageToggleActiveState();
+    }
+    
+    public void TogglePlateMapEvent(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[0].PlayWithMapEvent = toggle;
+    }
+
+    public void SetPlateMapRounds()
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[0].MapRounds = (int)mapRoundsSliders[0].value;
+    }
+    
+    public void ToggleUsageOfPotMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[1].PlayMap = toggle;
+        mapEventToggles[1].interactable = toggle;
+        mapRoundsSliders[1].interactable = toggle;
         HandleMapUsageToggleActiveState();
     }
     
@@ -420,10 +419,18 @@ public class LobbyManager : NetworkBehaviour
         HandleMapUsageToggleActiveState();
     }
     
-    public void ToggleUsageOfPotMap(bool toggle)
+    public void SetPotMapRounds()
     {
         buttonOnClickEmitter.Play();
-        mapSettings[1].PlayMap = toggle;
+        mapSettings[1].MapRounds = (int)mapRoundsSliders[1].value;
+    }
+    
+    public void ToggleUsageOfBucketMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[2].PlayMap = toggle;
+        mapEventToggles[2].interactable = toggle;
+        mapRoundsSliders[2].interactable = toggle;
         HandleMapUsageToggleActiveState();
     }
     
@@ -434,10 +441,18 @@ public class LobbyManager : NetworkBehaviour
         HandleMapUsageToggleActiveState();
     }
     
-    public void ToggleUsageOfBucketMap(bool toggle)
+    public void SetBucketMapRounds()
     {
         buttonOnClickEmitter.Play();
-        mapSettings[2].PlayMap = toggle;
+        mapSettings[2].MapRounds = (int)mapRoundsSliders[2].value;
+    }
+    
+    public void ToggleUsageOfTunaMap(bool toggle)
+    {
+        buttonOnClickEmitter.Play();
+        mapSettings[3].PlayMap = toggle;
+        mapEventToggles[3].interactable = toggle;
+        mapRoundsSliders[3].interactable = toggle;
         HandleMapUsageToggleActiveState();
     }
     
@@ -448,11 +463,10 @@ public class LobbyManager : NetworkBehaviour
         HandleMapUsageToggleActiveState();
     }
     
-    public void ToggleUsageOfTunaMap(bool toggle)
+    public void SetTunaMapRounds()
     {
         buttonOnClickEmitter.Play();
-        mapSettings[3].PlayMap = toggle;
-        HandleMapUsageToggleActiveState();
+        mapSettings[3].MapRounds = (int)mapRoundsSliders[3].value;
     }
 
     void HandleMapUsageToggleActiveState()
@@ -474,9 +488,11 @@ public class LobbyManager : NetworkBehaviour
         }
         else
         {
-            foreach(Toggle tog in mapUsageToggles)
-                tog.interactable = true;
+            foreach (Toggle tog in mapUsageToggles)
+            {
+                if(!tog.isOn) 
+                    tog.interactable = true;
+            }
         }
-        Debug.Log(unactiveToggles);
     }
 }

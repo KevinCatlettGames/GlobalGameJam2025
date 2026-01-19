@@ -22,6 +22,18 @@ public class MapSettingsSO : ScriptableObject
     public bool PlayWithMapEvent { get => playWithMapEvent; set => playWithMapEvent = value; }
     
     /// <summary>
+    /// Should the specific map event be featured?
+    /// </summary>
+    [SerializeField] private int mapRounds = 3;
+    public int MapRounds { get => mapRounds; set => mapRounds = value; }
+
+    /// <summary>
+    /// Should the specific map event be featured?
+    /// </summary>
+    private bool playedThisLoop = false;
+    public bool PlayedThisLoop { get => playedThisLoop; set => playedThisLoop = value; }
+    
+    /// <summary>
     /// The name of the scene file, used for loading the correct scene.
     /// </summary>
     [SerializeField] private string sceneName;

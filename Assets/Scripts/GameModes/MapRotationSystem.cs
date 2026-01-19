@@ -2,8 +2,11 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using System.Linq; 
+
 public class MapRotationSystem : MonoBehaviour
 {
+    [SerializeField] private MapSettingsSO mapSetting;
     [SerializeField] private int maxRounds = 3;
     public int MaxRounds {get => maxRounds;}
     
@@ -20,28 +23,43 @@ public class MapRotationSystem : MonoBehaviour
         {
             Destroy(gameObject);
         }
+
+        if(mapSetting) 
+            maxRounds = mapSetting.MapRounds;
     }
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        List<string> sceneNames  = new List<string>();
-        foreach (MapSettingsSO mapSetting in mapSettings)
+        if (roundCount < maxRounds)
+            return false;
+
+        string currentScene = SceneManager.GetActiveScene().name;
+        
+        List<MapSettingsSO> availableMaps = mapSettings
+            .Where(m => m.PlayMap && !m.PlayedThisLoop && m.SceneName != currentScene)
+            .ToList();
+        
+        if (availableMaps.Count == 0)
         {
-            if(mapSetting.PlayMap)
-                sceneNames.Add(mapSetting.SceneName);
+            foreach (var map in mapSettings)
+                map.PlayedThisLoop = false;
+
+            availableMaps = mapSettings
+                .Where(m => m.PlayMap && m.SceneName != currentScene)
+                .ToList();
         }
 
-        if (roundCount < maxRounds || sceneNames.Count <= 1)
-            return false; 
+        if (availableMaps.Count == 0)
+            return false;
 
-        string i;
-        do
-        {
-            int r = Random.Range(0, sceneNames.Count);
-            i = sceneNames[r];
-        }
-        while (i == SceneManager.GetActiveScene().name);
-        NetworkManager.Singleton.SceneManager.LoadScene(i, LoadSceneMode.Single);
+        MapSettingsSO chosenMap = availableMaps[Random.Range(0, availableMaps.Count)];
+        chosenMap.PlayedThisLoop = true;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+            chosenMap.SceneName,
+            LoadSceneMode.Single
+        );
+
         return true;
     }
 }

@@ -134,7 +134,7 @@ public class OnlineCreationUI : MonoBehaviour
     /// <param name="codeInput">Current input from the code field.</param>
     private void ValidateJoinButtonActivation(string codeInput)
     {
-        joinCodeButton.interactable = codeInput.Length == 6;
+        joinCodeButton.gameObject.SetActive(codeInput.Length == 6);
     }
 
     /// <summary>
@@ -149,6 +149,6 @@ public class OnlineCreationUI : MonoBehaviour
             serverNameInputField.text = "";
         }
 
-        createPublicButton.interactable = serverName.Length > 0;
+        createPublicButton.gameObject.SetActive(serverName.Length > 0);
     }
 }
