@@ -416,7 +416,6 @@ public class LobbyManager : NetworkBehaviour
     {
         buttonOnClickEmitter.Play();
         mapSettings[1].PlayWithMapEvent = toggle;
-        HandleMapUsageToggleActiveState();
     }
     
     public void SetPotMapRounds()
@@ -438,7 +437,6 @@ public class LobbyManager : NetworkBehaviour
     {
         buttonOnClickEmitter.Play();
         mapSettings[2].PlayWithMapEvent = toggle;
-        HandleMapUsageToggleActiveState();
     }
     
     public void SetBucketMapRounds()
@@ -460,7 +458,6 @@ public class LobbyManager : NetworkBehaviour
     {
         buttonOnClickEmitter.Play();
         mapSettings[3].PlayWithMapEvent = toggle;
-        HandleMapUsageToggleActiveState();
     }
     
     public void SetTunaMapRounds()
@@ -490,8 +487,7 @@ public class LobbyManager : NetworkBehaviour
         {
             foreach (Toggle tog in mapUsageToggles)
             {
-                if(!tog.isOn) 
-                    tog.interactable = true;
+                tog.interactable = true;
             }
         }
     }
