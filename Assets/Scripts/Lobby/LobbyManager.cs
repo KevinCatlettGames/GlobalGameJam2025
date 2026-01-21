@@ -25,6 +25,9 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] MapSettingsSO[] mapSettings;
     public  MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
     
+    [SerializeField] SO_Spell[] spells;
+    public  SO_Spell[] Spells { get => spells; set => spells = value; }
+    
     [SerializeField] GameManager.GameModeType selectedGameMode = GameManager.GameModeType.SingleElimination;
     public GameManager.GameModeType SelectedGameMode
     {
@@ -35,6 +38,7 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
+    public Toggle[] weaponToggles;
     public Toggle[] mapUsageToggles;
     public Toggle[] mapEventToggles;
     public Slider[] mapRoundsSliders;
@@ -144,6 +148,9 @@ public class LobbyManager : NetworkBehaviour
             mapSetting.MapRounds = 3;
             mapSetting.PlayedThisLoop = false;
         }
+
+        foreach (SO_Spell spell in spells)
+            spell.CanUse = true;
     }
 
     private void OnDestroy()
@@ -489,6 +496,34 @@ public class LobbyManager : NetworkBehaviour
             {
                 tog.interactable = true;
             }
+        }
+    }
+
+    public void ToggleSpellUsage(int spellID)
+    {
+        spells[spellID].CanUse = !spells[spellID].CanUse;
+        
+        int activeAmount = 0; 
+        foreach (Toggle toggle in weaponToggles)
+        {
+            if (toggle.isOn)
+            {
+                activeAmount++;
+            }
+        }
+
+        if (activeAmount < 2)
+        {
+            foreach (Toggle toggle in weaponToggles)
+            {
+                if (toggle.isOn)
+                    toggle.interactable = false;
+            }
+        }
+        else
+        {
+            foreach (Toggle toggle in weaponToggles)
+                toggle.interactable = true;
         }
     }
 }

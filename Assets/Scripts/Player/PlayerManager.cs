@@ -309,9 +309,38 @@ public class PlayerManager : NetworkBehaviour
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
 
-        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
-        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, startingSpellCount);
+        int maxAttempts = 50;
+        int attempts = 0;
+        int r = -1;
+
+        while ((r == -1 || !ItemSpawner.Instance.SpawnableItems[r].CanUse) 
+               && attempts < maxAttempts)
+        {
+            r = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
+            attempts++;
+        }
+
+        if (attempts >= maxAttempts)
+            r = 0;
+
+        syncedFirstSpellIndex.Value = r;
+        
+        r = -1;
+        attempts = 0;
+
+        while ((r == -1 || !ItemSpawner.Instance.SpawnableItems[r].CanUse) 
+               && attempts < maxAttempts)
+        {
+            r = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
+            attempts++;
+        }
+
+        if (attempts >= maxAttempts)
+            r = 0;
+
+        syncedSecondSpellIndex.Value = r;
     }
+
 
     #endregion
 

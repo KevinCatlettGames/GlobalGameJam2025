@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using Unity.Netcode;
@@ -63,28 +64,45 @@ public class ItemSpawner : MonoBehaviour
             {
                 randomPos = Random.insideUnitSphere * spawnRadius;
                 randomPos.y = itemPrefab.transform.position.y;
-                Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
+                Collider[] wallOverlaps = Physics.OverlapSphere(
+                    randomPos, 2.3f, LayerMask.GetMask("Wall"));
+
                 if (wallOverlaps.Length == 0) break;
                 i++;
             } while (i < 10);
+
             if (i == 10) return;
             spawnPosition = randomPos;
         }
         else
         {
-            spawnPosition = new Vector3(location.x, itemPrefab.transform.position.y, location.z);
+            spawnPosition = new Vector3(
+                location.x, itemPrefab.transform.position.y, location.z);
         }
 
-        GameObject itemInstance = Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
-        int r = Random.Range(0, spawnableItems.Length);
+        GameObject itemInstance =
+            Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
         
-        // Important: the prefab must have a NetworkObject component
+        int maxAttempts = 50;
+        int attempts = 0;
+        int r = -1;
+
+        while ((r == -1 || !spawnableItems[r].CanUse) && attempts < maxAttempts)
+        {
+            r = Random.Range(0, spawnableItems.Length);
+            attempts++;
+        }
+
+        if (attempts >= maxAttempts)
+            r = 0;
+
         itemInstance.GetComponent<NetworkObject>().Spawn(true);
         itemInstance.GetComponent<Item>().SetupSpellClientRpc(r);
 
         spawnedItems.Add(itemInstance);
         currentAmount++;
     }
+
 
     public void ChangeMaxItemAmount(bool increase)
     {
@@ -123,5 +141,13 @@ public class ItemSpawner : MonoBehaviour
     public int GetSpellCount()
     {
         return spawnableItems.Length;
+    }
+
+    private void OnApplicationQuit()
+    {
+        foreach (SO_Spell spell in spawnableItems)
+        {
+            spell.CanUse = true;
+        }
     }
 }
