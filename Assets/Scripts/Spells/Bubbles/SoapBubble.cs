@@ -1,7 +1,6 @@
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
-using Unity.VisualScripting;
 
 public class SoapBubble : BasicBubble
 {
@@ -46,19 +45,9 @@ public class SoapBubble : BasicBubble
 
         if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            GameManager gameManager = GameManager.Instance;
-            
-            if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-            else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-            
             DropSoapPuddle(true);
         }
-        Pop();
+        base.BubbleCollision(other);
     }
 
     public override void SetSlippy()

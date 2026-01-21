@@ -10,7 +10,7 @@ public class InkBubble : BasicBubble
     private bool spawnInk = true;
     public override void BubbleCollision(GameObject other)
     {
-        if (other.CompareTag("Bubble")) spawnInk = false;
+        if (other.CompareTag("Bubble") && popOnBubbleHit) spawnInk = false;
         base.BubbleCollision(other);
     }
     private void SpawnInk()

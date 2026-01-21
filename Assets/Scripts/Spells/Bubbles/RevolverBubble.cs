@@ -43,20 +43,20 @@ public class RevolverBubble : BasicBubble
         for (int i = 0; i < maxAmmo; i++) 
         {
             
-                Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
+            Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
     
-                GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
-                bubbleObj.GetComponent<RevolverBulletBubble>().RevolverBubble = this; 
-                
-                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-                if (netObj != null)
-                    netObj.Spawn();
+            GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
+            bubbleObj.GetComponent<RevolverBulletBubble>().RevolverBubble = this; 
+            
+            NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+            if (netObj != null)
+                netObj.Spawn();
 
-                BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-                bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
+            BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
+            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
 
-                yield return new WaitForSeconds(delayBetweenShots);
-                rotation++;
+            yield return new WaitForSeconds(delayBetweenShots);
+            rotation++;
             
         }
         yield return new WaitForSeconds(5f);
@@ -66,7 +66,7 @@ public class RevolverBubble : BasicBubble
     public void AddToHitCount()
     {
         hitCount++;
-        if (hitCount >= 6)
+        if (hitCount >= maxAmmo)
         {
             CheckAllShotsHitAchievement();
         }

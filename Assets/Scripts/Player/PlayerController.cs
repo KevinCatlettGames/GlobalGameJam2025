@@ -901,12 +901,12 @@ public class PlayerController : NetworkBehaviour
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
             // Use ID -2 to avoid hitstun for specific kockback events 
-            if (knbMagnitude >= hitStunThreshold && ID != -2)
-            {
-                hitStunDuration = knbMagnitude * hitStunFactor;
-                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
-                mainAnimator.SetBool("HitStun", true);
-            }
+            //if (knbMagnitude >= hitStunThreshold && ID != -2)
+            //{
+            //    hitStunDuration = knbMagnitude * hitStunFactor;
+            //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+            //    mainAnimator.SetBool("HitStun", true);
+            //}
         }
         else
         {
@@ -915,11 +915,11 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold && ID != -2)
-            {
-                float stunDuration = knbMagnitude * hitStunFactor;
-                HitStunServerRpc(stunDuration);
-            }
+            //if (knbMagnitude >= hitStunThreshold && ID != -2)
+            //{
+            //    float stunDuration = knbMagnitude * hitStunFactor;
+            //    HitStunServerRpc(stunDuration);
+            //}
         }
     }
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -973,12 +973,12 @@ public class PlayerController : NetworkBehaviour
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
             // Use ID -2 to avoid hitstun for specific kockback events 
-            if (knbMagnitude >= hitStunThreshold && ID != -2)
-            {
-                hitStunDuration = knbMagnitude * hitStunFactor;
-                hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
-                mainAnimator.SetBool("HitStun", true);
-            }
+            //if (knbMagnitude >= hitStunThreshold && ID != -2)
+            //{
+            //    hitStunDuration = knbMagnitude * hitStunFactor;
+            //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+            //    mainAnimator.SetBool("HitStun", true);
+            //}
         }
         else
         {
@@ -987,11 +987,11 @@ public class PlayerController : NetworkBehaviour
             float knbMagnitude = knockbackVelocity.magnitude;
             float duration = knbMagnitude * rumbleDurationFactor;
             controllerRumbler?.Rumble(duration, force, dmg);
-            if (knbMagnitude >= hitStunThreshold && ID != -2)
-            {
-                float stunDuration = knbMagnitude * hitStunFactor;
-                HitStunServerRpc(stunDuration);
-            }
+            //if (knbMagnitude >= hitStunThreshold && ID != -2)
+            //{
+            //    float stunDuration = knbMagnitude * hitStunFactor;
+            //    HitStunServerRpc(stunDuration);
+            //}
         }
     }
 
@@ -1018,19 +1018,19 @@ public class PlayerController : NetworkBehaviour
         shaderManager.DamageEffect(damageColorEffectDuration);
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    void HitStunServerRpc(float duration)
-    {
-        HitStunClientRpc(duration);
-    }
-
-    [ClientRpc]
-    void HitStunClientRpc(float duration)
-    {
-        hitStunDuration = duration;
-        hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
-        mainAnimator.SetBool("HitStun", true);
-    }
+    //[ServerRpc(RequireOwnership = false)]
+    //void HitStunServerRpc(float duration)
+    //{
+    //    HitStunClientRpc(duration);
+    //}
+    //
+    //[ClientRpc]
+    //void HitStunClientRpc(float duration)
+    //{
+    //    hitStunDuration = duration;
+    //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+    //    mainAnimator.SetBool("HitStun", true);
+    //}
 
     [ServerRpc(RequireOwnership = false)]
     void DeadAnimServerRpc(bool activationState)
@@ -1142,10 +1142,8 @@ public class PlayerController : NetworkBehaviour
     public void ReflectKnockback(Vector3 reflectNormal)
     {
         //Effects and Animation go here
-        Debug.Log("Pre-Reflected: " + knockbackVelocity);
         knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
         knockbackVelocity.y = 0;
-        Debug.Log("Reflected: " + knockbackVelocity);
     }
     #endregion
 
@@ -1216,7 +1214,6 @@ public class PlayerController : NetworkBehaviour
     }
     private IEnumerator VulnerableCoroutine(float duration)
     {
-        Debug.Log("Vulnerable");
         isVulnerable = true;
         shaderManager.SetShaderState(ShaderState.sauced);
         yield return new WaitForSeconds(duration);

@@ -42,6 +42,8 @@ public class BasicBubble : NetworkBehaviour
     protected bool isReflected = false;
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
+    protected bool popOnPlayerHit = true;
+    protected bool popOnBubbleHit = true;
 
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
@@ -56,7 +58,7 @@ public class BasicBubble : NetworkBehaviour
     
     private void Start()
     {
-        GameManager.Instance.OnGameStarted += DestroyBubble;
+        GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
     public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -171,9 +173,18 @@ public class BasicBubble : NetworkBehaviour
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             fizzleEffect = hitEffect;
+            if (popOnPlayerHit)
+                Pop();
         }
-
-        Pop();
+        else if (other.CompareTag("Bubble"))
+        {
+            if(popOnBubbleHit)
+                Pop();
+        }
+        else
+        {
+            Pop();
+        }
     }
     protected virtual void Pop()
     {
@@ -242,7 +253,7 @@ public class BasicBubble : NetworkBehaviour
     private void OnDestroy()
     {
         if (GameManager.Instance != null)
-            GameManager.Instance.OnGameStarted -= DestroyBubble;
+            GameManager.Instance.OnGameEnded -= DestroyBubble;
     }
 
     protected void IncrementMissedShotAchievement()

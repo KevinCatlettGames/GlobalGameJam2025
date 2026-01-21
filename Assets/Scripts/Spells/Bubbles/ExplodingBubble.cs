@@ -19,24 +19,13 @@ public class ExplodingBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || !IsServer) return; 
-        if (other.CompareTag("Player") && other.GetComponent<Collider>() != playerCollider)
-        {
-            PlayerController player = other.GetComponent<PlayerController>();
-            GameManager gameManager = GameManager.Instance;
-
-            if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-            else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-        }
-        else if (other.CompareTag("Bubble"))
+        if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             OwnerID = other.GetComponent<BasicBubble>().OwnerID;
         }
         fizzleEffect = hitEffect;
-        Pop();
+
+        base.BubbleCollision(other);
     }
     protected override void InflateOverlapChack()
     {

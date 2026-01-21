@@ -27,8 +27,11 @@ public class RevolverBulletBubble : BasicBubble
 
             if (revolverBubble)
                 revolverBubble.AddToHitCount();
-            
-            Pop();
+
+            if (popOnPlayerHit)
+            {
+                Pop();
+            }
         }
         else if (other.CompareTag("Bubble"))
         {
@@ -37,7 +40,10 @@ public class RevolverBulletBubble : BasicBubble
                 if (revolverComp.OwnerID == OwnerID)
                     return;
             }
-            Pop();
+            if (popOnBubbleHit)
+            {
+                Pop();
+            }
         }
         else
         {

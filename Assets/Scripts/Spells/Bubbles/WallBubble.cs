@@ -30,7 +30,7 @@ public class WallBubble : BasicBubble
         {
             return;
         }
-        else if (other.CompareTag("Bubble"))
+        else if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
             other.GetComponent<BasicBubble>().IncreaseSpeed(speedBosst);

@@ -1,5 +1,4 @@
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class DemolishBubble : BasicBubble
 {
@@ -22,11 +21,11 @@ public class DemolishBubble : BasicBubble
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
 
             var effect = Instantiate(hitEffect, transform.position, Quaternion.identity);
-
         }
         else if (other.CompareTag("Wall"))
         {
-            if (other.TryGetComponent<RisingWall>(out RisingWall risingWall))
+            RisingWall risingWall = other.GetComponentInParent<RisingWall>();
+            if (risingWall != null)
             {
                 risingWall.Sink(true);
                 //Effect/Archievenemt can go here
