@@ -58,7 +58,7 @@ public class BasicBubble : NetworkBehaviour
     
     private void Start()
     {
-        GameManager.Instance.OnGameStarted += DestroyBubble;
+        GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
     public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
@@ -253,7 +253,7 @@ public class BasicBubble : NetworkBehaviour
     private void OnDestroy()
     {
         if (GameManager.Instance != null)
-            GameManager.Instance.OnGameStarted -= DestroyBubble;
+            GameManager.Instance.OnGameEnded -= DestroyBubble;
     }
 
     protected void IncrementMissedShotAchievement()

@@ -1,4 +1,3 @@
-using Febucci.UI.Core;
 using System.Collections;
 using UnityEngine;
 
@@ -8,6 +7,8 @@ public class BoomerangBubble : BasicBubble
     [SerializeField] private float knbMod = 1.5f;
     [SerializeField] private float spdMod = 1.5f;
     [SerializeField] private float dmgMod = 1.5f;
+    [SerializeField] private float rotationAngle = 5f;
+    [SerializeField] private float returnRotation = 2f;
 
     [SerializeField] private float stayDuration = 1f;
     [SerializeField] private float catchRange = 5f;
@@ -17,21 +18,26 @@ public class BoomerangBubble : BasicBubble
         popOnBubbleHit = false;
         popOnPlayerHit = false;
         float lifetime = range / speed;
-        float progress = 0;
         float baseSpeed = speed;
         
         yield return new WaitForSeconds(lifetime);
-        speed = 0;
         popOnPlayerHit = true;
         popOnBubbleHit = true;
-        yield return new WaitForSeconds(stayDuration);
+        float timer = 0;
+        do
+        {
+            Quaternion r = Quaternion.AngleAxis(rotationAngle * Time.deltaTime, Vector3.up);
+            direction = r * direction;
+            timer += Time.deltaTime;
+            yield return null;
+        } while (timer < stayDuration);
         ReturnRang(baseSpeed);
         lifetime *= returnRangeMod;
         Vector3 targetVector;
-        progress = 0;
+        timer = 0;
         do
         {
-            progress += Time.deltaTime;
+            timer += Time.deltaTime;
             if (playerCollider != null && playerCollider.enabled)
             {
                 targetVector = playerCollider.transform.position - transform.position;
@@ -39,10 +45,10 @@ public class BoomerangBubble : BasicBubble
                     break;
                 targetVector.y = 0;
                 targetVector.Normalize();
-                direction = targetVector;
+                direction = Vector3.Lerp(direction, targetVector, Time.fixedDeltaTime * returnRotation);
             }
             yield return null;
-        } while (progress < lifetime);
+        } while (timer < lifetime);
 
         if (canMiss)
             IncrementMissedShotAchievement();
