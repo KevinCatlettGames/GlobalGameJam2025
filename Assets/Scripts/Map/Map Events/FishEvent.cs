@@ -1,6 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
-using UnityEngine.InputSystem.LowLevel;
+
 
 public class FishEvent : MonoBehaviour
 {
@@ -15,7 +15,7 @@ public class FishEvent : MonoBehaviour
     {
         bool isMapEventActive = true;
         if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.playWithMapEvents;
+            isMapEventActive = LobbyManager.instance.MapSettings[3].PlayWithMapEvent;
 
         if (!isMapEventActive)
         {
