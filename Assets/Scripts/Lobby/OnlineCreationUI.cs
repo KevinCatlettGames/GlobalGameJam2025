@@ -64,10 +64,7 @@ public class OnlineCreationUI : MonoBehaviour
             InitLobbyCreation(true);
         });
         
-        joinCodeButton.interactable = false; 
         joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
-
-        createPublicButton.interactable = false;
         serverNameInputField.onValueChanged.AddListener(ValidateCreatePublicActivation);
     }
 
