@@ -61,4 +61,10 @@ public class ButtonEventTriggerHandler : MonoBehaviour,
         if (targetText != null)
             targetText.fontSize = s;
     }
+    
+    public void ResetFontSize()
+    {
+        if (targetText != null)
+            targetText.fontSize = normalSize; 
+    }
 }
