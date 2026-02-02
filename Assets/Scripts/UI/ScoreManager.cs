@@ -1,7 +1,5 @@
-using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -11,7 +9,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject restarText;
-
+    [SerializeField] private GameObject scoreScreen;
+    [SerializeField] private GameObject winScreen;
     private int[] pendingWins = new int[4];
     private int[] pendingKills = new int[4];
     private int currentActivePlayers = 0;
@@ -19,6 +18,8 @@ public class ScoreManager : MonoBehaviour
     private bool scoresResolved = false;
     public bool ScoresResolved {  get { return scoresResolved; } }
 
+    public bool showWinner = false;
+    
     void Start()
     {
         if (Instance == null)
@@ -88,9 +89,21 @@ public class ScoreManager : MonoBehaviour
             }
             yield return new WaitForSeconds(.2f);
         }
-        pendingKills = new int[4];
-        pendingWins = new int[4];
-        restarText.SetActive(true);
+        yield return new WaitForSeconds(2f);
+        
+        if (showWinner)
+        {
+            restarText.SetActive(false);
+            winScreen.SetActive(true);
+            scoreScreen.SetActive(false);
+        }
+        else
+        {
+            pendingKills = new int[4];
+            pendingWins = new int[4];
+            restarText.SetActive(true);
+        }
+
         scoresResolved = true;
     }
     public void ResetScores()

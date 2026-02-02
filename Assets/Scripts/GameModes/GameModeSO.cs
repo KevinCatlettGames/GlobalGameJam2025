@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.Localization.PropertyVariants.TrackedProperties;
-using UnityEngine.UI;
 
 [CreateAssetMenu(fileName = "GameModeSO", menuName = "Scriptable Objects/SO_GameMode")]
 public class GameModeSO : ScriptableObject

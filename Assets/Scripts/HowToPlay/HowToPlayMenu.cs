@@ -61,9 +61,9 @@ public class HowToPlayMenu : MonoBehaviour
     private bool tabTogglingEnabled = false;
 
     [Header("Smooth Page Switch")]
-    [SerializeField] private float stickThreshold = 0.5f;      // Minimum stick tilt
-    [SerializeField] private float pageInitialDelay = 0.35f;   // Delay before repeating
-    [SerializeField] private float pageRepeatRate = 0.12f;     // Repeat speed when held
+    [SerializeField] private float stickThreshold = 0.5f;
+    [SerializeField] private float pageInitialDelay = 0.35f;
+    [SerializeField] private float pageRepeatRate = 0.12f;
 
     [Header("FMOD events")]
     [SerializeField] StudioEventEmitter tabSwitchEmitter;

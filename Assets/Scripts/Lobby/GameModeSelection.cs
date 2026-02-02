@@ -13,39 +13,26 @@ public class GameModeSelection : NetworkBehaviour
     [Header("UI")]
     [SerializeField] Image gameModeTypeImage;
     [SerializeField] StudioEventEmitter buttonOnClickEmitter;
-    
-    [Header("Input")]
-    public InputActionProperty incrementInputAction;
-    public InputActionProperty decrementInputAction;
+    [SerializeField] TextMeshProUGUI gameModeNameText;
     public InputActionProperty exitGameModeSelectionInputAction;
     
     [Header("Lobby Connection")]
     [SerializeField] LobbyButtons lobbyButtons;
     LobbyManager lobbyManager;
-
-    [SerializeField] private TextMeshProUGUI backButtonText;
-    [SerializeField] LocalizedStringProperty normalBackButtonStringProperty;
-    [SerializeField] LocalizedStringProperty activeBackButtonStringProperty;
     
     private void OnEnable()
     {
         lobbyManager = LobbyManager.instance;
         
-        incrementInputAction.action.performed += IncrementActionPerformed;
-        decrementInputAction.action.performed += DecrementActionPerformed;
         exitGameModeSelectionInputAction.action.performed += ExitGameModeSelectionPerformed;
         exitGameModeSelectionInputAction.action.Enable();
-        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = activeBackButtonStringProperty.LocalizedString; 
         UpdateGameModeSelectionUI();
     }
 
     private void OnDisable()
     {
-        incrementInputAction.action.performed -= IncrementActionPerformed;
-        decrementInputAction.action.performed -= DecrementActionPerformed;
         exitGameModeSelectionInputAction.action.performed -= ExitGameModeSelectionPerformed;
         exitGameModeSelectionInputAction.action.Disable();
-        backButtonText.GetComponent<LocalizeStringEvent>().StringReference = normalBackButtonStringProperty.LocalizedString; 
     }
 
     public void UpdateSelectedGameManagerType(bool increment)
@@ -76,8 +63,8 @@ public class GameModeSelection : NetworkBehaviour
             }
         }
 
-        gameModeTypeImage.sprite = gameModeSoToUse.GameModeTypeImage; 
-        
+        gameModeTypeImage.sprite = gameModeSoToUse.GameModeTypeImage;
+        gameModeNameText.text = gameModeSoToUse.GamemodeTypeName;
         int indexOfUsedGameMode = 0;
         for (int i = 0; i < LobbyManager.instance.GameModes.Length; i++)
         {

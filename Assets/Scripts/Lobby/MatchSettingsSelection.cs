@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using FMODUnity;
 using Unity.Netcode;

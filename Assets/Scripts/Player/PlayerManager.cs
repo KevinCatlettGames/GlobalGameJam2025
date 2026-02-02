@@ -367,9 +367,6 @@ public class PlayerManager : NetworkBehaviour
         else
         {
             Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
-            //Cant work without lobby manager anyways
-            //playerHUDs[playerID].InitialisePlayerHUD(playerID);
-            //ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
         }
     }
 

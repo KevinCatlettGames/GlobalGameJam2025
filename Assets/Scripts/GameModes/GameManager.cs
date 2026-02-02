@@ -1,16 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using Steamworks.Data;
 using UnityEngine;
 using Unity.Netcode;
-using UnityEngine.SceneManagement;
 using UnityEngine.InputSystem;
-using Object = System.Object;
 
 public class GameManager : NetworkBehaviour
 {
-    public enum GameModeType {SingleElimination, Timed}
+    public enum GameModeType {Standard, Team}
 
     [SerializeField] protected GameModeType gameModeType;
     public static GameManager Instance;
@@ -21,8 +18,9 @@ public class GameManager : NetworkBehaviour
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
+    public int maxGameRounds = 7;
+    public bool playEndless = true;
     protected int finishedRoundCount = 0;
-
     public Action OnGameEnded;
     public Action OnGameStarted;
 
@@ -56,10 +54,16 @@ public class GameManager : NetworkBehaviour
     private void Awake()
     {
         if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
-            || !LobbyManager.instance && gameModeType != GameModeType.SingleElimination)
+            || !LobbyManager.instance && gameModeType != GameModeType.Standard)
         {
             Destroy(this);
             return;
+        }
+
+        if (LobbyManager.instance)
+        {
+            maxGameRounds = LobbyManager.instance.maxGameRounds;
+            playEndless = LobbyManager.instance.playEndless;
         }
 
         if (Instance != null)
@@ -186,8 +190,19 @@ public class GameManager : NetworkBehaviour
     {
         OnGameEnded?.Invoke();
         UIManager.Instance.SetScoreScreenActive(true);
-        ScoreManager.Instance.ResolveScores();
         finishedRoundCount++;
+        if (LobbyManager.instance)
+        {
+            LobbyManager.instance.playedRounds++;
+            if (LobbyManager.instance.playedRounds >= maxGameRounds && !playEndless)
+            {
+                if (ScoreManager.Instance)
+                    ScoreManager.Instance.showWinner = true;
+            }
+        }
+
+        ScoreManager.Instance.ResolveScores();
+        
         foreach (HitReference hitReference in hitReferences)
         {
             hitReference.spellType = BasicBubble.SpellType.Null;
@@ -195,7 +210,15 @@ public class GameManager : NetworkBehaviour
             hitReference.wasSlippery = false;
             hitReference.wasReflected = false;
         }
-        isReadyToRestart = true;
+
+        if (LobbyManager.instance && LobbyManager.instance.playedRounds < maxGameRounds || playEndless)
+        {
+            isReadyToRestart = true;
+        }
+        else
+        {
+            isReadyToRestart = true;
+        }
     }
 
     public virtual void RestartGame()

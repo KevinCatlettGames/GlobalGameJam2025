@@ -1,7 +1,4 @@
-using System;
 using FMODUnity;
-using Netcode.Transports.Facepunch;
-using Steamworks;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -117,6 +114,10 @@ public class PauseManager : MonoBehaviour
         GameManager.IsGamePaused = false;
         scores.ResetKills();
         scores.ResetWins();
+        
+        if (LobbyManager.instance)
+            LobbyManager.instance.playedRounds = 0;
+        
         if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
@@ -196,6 +197,17 @@ public class PauseManager : MonoBehaviour
 
         GlobalLobby.CurrentLobby = null;
         SceneManager.LoadScene("UI_MainMenu");
+    }
+
+    public async void ReturnToLobby()
+    {
+        Cursor.visible = true;
+        Time.timeScale = 1f; 
+        
+        if(LobbyManager.instance)
+            Destroy(LobbyManager.instance.gameObject);
+        
+        SceneManager.LoadScene("UI_Lobby");
     }
     
     private bool IsHost()

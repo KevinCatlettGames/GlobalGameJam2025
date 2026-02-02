@@ -78,7 +78,7 @@ public class TimedGM : GameManager
     private void OnDestroy()
     {
         if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
-            || !LobbyManager.instance && gameModeType != GameModeType.SingleElimination)
+            || !LobbyManager.instance && gameModeType != GameModeType.Standard)
             return;
             
         OnGameStarted -= StartTimer;

@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using FMOD.Studio;
 using FMODUnity;
 
 public class PointBubbleResizeEffect : MonoBehaviour
@@ -39,7 +38,8 @@ public class PointBubbleResizeEffect : MonoBehaviour
         transform.localScale = Vector3.zero;
         yield return new WaitForSeconds(beginEffectWaitTime);
 
-        emitter.Play();
+        if(emitter) 
+            emitter.Play();
 
         float timer = 0f;
         while (timer < appearDuration)

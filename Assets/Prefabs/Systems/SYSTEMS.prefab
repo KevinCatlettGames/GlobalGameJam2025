@@ -189,7 +189,6 @@ GameObject:
   m_Component:
   - component: {fileID: 5395857063166275379}
   - component: {fileID: 2318929943055816316}
-  - component: {fileID: 985847803460137825}
   - component: {fileID: 9037970889961924712}
   m_Layer: 0
   m_Name: GameManager
@@ -229,40 +228,9 @@ MonoBehaviour:
   gameModeType: 0
   playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
     type: 3}
+  maxGameRounds: 7
+  playEndless: 1
   gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
-  playerInputManager: {fileID: 8605951647801297494}
-  PlayingLocal: 0
-  countdown: {fileID: 0}
-  deathZones:
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  - {fileID: 0}
-  hitReferences: []
-  multiKillTimeWindow: 3
-  damageAmountForAchievement: 300
---- !u!114 &985847803460137825
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3737377328279540851}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e872b0aaa8c4cae4e9d807967af8933c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  gameModeType: 1
-  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
-    type: 3}
-  gameSettings: {fileID: 11400000, guid: 1a4a200bef0232a4295fc0a159e333cd, type: 2}
   playerInputManager: {fileID: 8605951647801297494}
   PlayingLocal: 0
   countdown: {fileID: 0}
@@ -291,12 +259,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d669160384f45a748bb3fe64bf51b095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapSetting: {fileID: 0}
   maxRounds: 3
-  sceneNames:
-  - LVL_Pot
-  - LVL_MainScene
-  - LVL_TunaDose
-  - LVL_Eimer
+  mapSettings: []
 --- !u!1 &3857527044487169854
 GameObject:
   m_ObjectHideFlags: 0
@@ -489,15 +454,7 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
-  startingSpells:
-  - {fileID: 11400000, guid: 4f04cd759a4b3a24fbb80fd46dd859af, type: 2}
-  - {fileID: 11400000, guid: 042d2a652f99b7a49af96d56e3acde85, type: 2}
-  - {fileID: 11400000, guid: 1501419895c09e04ab4fd2ff20be0417, type: 2}
-  - {fileID: 11400000, guid: b9c65d75b23394443b192a0c4366e3d4, type: 2}
-  - {fileID: 11400000, guid: fc5877b1adf38e74fbd25d89b629a412, type: 2}
-  - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
-  - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
-  - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
+  startingSpellCount: 0
   spawnPoints:
   - {fileID: 2737577178785275174}
   - {fileID: 1647630035624308313}
