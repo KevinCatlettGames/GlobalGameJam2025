@@ -6,16 +6,16 @@ using FMODUnity;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
 using UnityEngine.Localization.Components;
-using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class GameModeSelection : NetworkBehaviour
 {
     [Header("UI")]
     [SerializeField] Image gameModeTypeImage;
     [SerializeField] StudioEventEmitter buttonOnClickEmitter;
-    [SerializeField] TextMeshProUGUI gameModeNameText;
+    public LocalizeStringEvent matchSettingsGameModeNameStringEvent;
     public InputActionProperty exitGameModeSelectionInputAction;
-    
+    public LocalizeStringEvent localizeStringEvent;
+
     [Header("Lobby Connection")]
     [SerializeField] LobbyButtons lobbyButtons;
     LobbyManager lobbyManager;
@@ -64,7 +64,8 @@ public class GameModeSelection : NetworkBehaviour
         }
 
         gameModeTypeImage.sprite = gameModeSoToUse.GameModeTypeImage;
-        gameModeNameText.text = gameModeSoToUse.GamemodeTypeName;
+        matchSettingsGameModeNameStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
+        localizeStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
         int indexOfUsedGameMode = 0;
         for (int i = 0; i < LobbyManager.instance.GameModes.Length; i++)
         {

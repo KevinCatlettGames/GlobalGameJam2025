@@ -3,8 +3,8 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Video;
 using UnityEngine.UI; 
 
-[CreateAssetMenu(fileName = "New HowToPlay ItemSO", menuName = "Scriptable Objects/SO_HowToPlayItem")]
-public class HowToPlayItemSO : ScriptableObject
+[CreateAssetMenu(fileName = "New Tutorial ItemSO", menuName = "Scriptable Objects/SO_TutorialItem")]
+public class TutorialItemSO : ScriptableObject
 {
     [Header("Video")]
     [SerializeField] private VideoClip itemClip;
