@@ -39,9 +39,9 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private Button itemButton;
 
     [Header("Item Data Sets")]
-    [SerializeField] private HowToPlayItemSO[] generalItems;
-    [SerializeField] private HowToPlayItemSO[] weaponItems;
-    [SerializeField] private HowToPlayItemSO[] mapItems;
+    [SerializeField] private TutorialItemSO[] generalItems;
+    [SerializeField] private TutorialItemSO[] weaponItems;
+    [SerializeField] private TutorialItemSO[] mapItems;
 
     [Header("Input Actions")]
     [SerializeField] private InputActionProperty leftTabSwitchAction;
@@ -209,7 +209,7 @@ public class HowToPlayMenu : MonoBehaviour
 
     private void ChangePage(bool forward)
     {
-        HowToPlayItemSO[] items = GetActiveItems();
+        TutorialItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
 
         currentIndex = forward
@@ -223,7 +223,7 @@ public class HowToPlayMenu : MonoBehaviour
     #endregion
 
     #region Display / Dots
-    private HowToPlayItemSO[] GetActiveItems()
+    private TutorialItemSO[] GetActiveItems()
     {
         return currentTab switch
         {
@@ -286,7 +286,7 @@ public class HowToPlayMenu : MonoBehaviour
 
     private void UpdatePageDots()
     {
-        HowToPlayItemSO[] items = GetActiveItems();
+        TutorialItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
 
         for (int i = 0; i < pageDots.Length; i++)
@@ -325,7 +325,7 @@ public class HowToPlayMenu : MonoBehaviour
         currentIndex = 0;
         Display(currentIndex);
 
-        HowToPlayItemSO[] items = GetActiveItems();
+        TutorialItemSO[] items = GetActiveItems();
         if (items == null || items.Length == 0) return;
 
         foreach (GameObject go in pageDots)
