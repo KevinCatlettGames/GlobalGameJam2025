@@ -1,20 +1,20 @@
 using UnityEngine;
 using TMPro;
+using UnityEngine.Localization.Components;
 using UnityEngine.Localization.PropertyVariants.TrackedProperties;
 
 public class ChangeTextDependingOnTransport : MonoBehaviour
 {
     public LocalizedStringProperty localLocalizedStringProperty;
     public LocalizedStringProperty onlineLocalizedStringProperty;
-    public TextMeshProUGUI text;
-    
+    public LocalizeStringEvent localizeStringEvent;
     private void Start()
     {
-        if (text == null) return;
+        if (localizeStringEvent == null) return;
 
         if (TransportSwitcher.Instance.isUsingRelay)
-            text.text = onlineLocalizedStringProperty.LocalizedString.GetLocalizedString();
+            localizeStringEvent.StringReference = onlineLocalizedStringProperty.LocalizedString;
         else
-            text.text = localLocalizedStringProperty.LocalizedString.GetLocalizedString();
+            localizeStringEvent.StringReference = localLocalizedStringProperty.LocalizedString;
     }
 }

@@ -167,29 +167,37 @@ public class SteamIntegration : MonoBehaviour
             {
                 switch (SteamApps.GameLanguage)
                 {
-                    case "german":
+                    case "english":
+                        LocaleSelector.Instance.ChangeLocale(0);
+                        Debug.Log("Locale set to english");
+                        break;
+                    case "french":
                         LocaleSelector.Instance.ChangeLocale(1);
+                        Debug.Log("Locale set to french");
+                        break;
+                    case "german":
+                        LocaleSelector.Instance.ChangeLocale(2);
                         Debug.Log("Locale set to german");
                         break;
-                    // case "chinese":
-                    //     LocaleSelector.Instance.ChangeLocale(2);
-                    //     Debug.Log("Locale set to chinese");
-                    //     break;
-                    // case "japanese":
-                    //     LocaleSelector.Instance.ChangeLocale(3);
-                    //     Debug.Log("Locale set to japanese");
-                    //     break;
-                    case "portuguese":
-                        LocaleSelector.Instance.ChangeLocale(2);
-                        Debug.Log("Locale set to portuguese");
-                        break;
-                    // case "russian":
-                    //     LocaleSelector.Instance.ChangeLocale(5);
-                    //     Debug.Log("Locale set to russian");
-                    //     break;
-                    case "spanish":
+                    case "italian":
                         LocaleSelector.Instance.ChangeLocale(3);
+                        Debug.Log("Locale set to italian");
+                        break;
+                    case "polish":
+                        LocaleSelector.Instance.ChangeLocale(4);
+                        Debug.Log("Locale set to polish");
+                        break;
+                    case "brazilian":
+                        LocaleSelector.Instance.ChangeLocale(5);
+                        Debug.Log("Locale set to portuguese (brazil)");
+                        break;
+                    case "spanish":
+                        LocaleSelector.Instance.ChangeLocale(6);
                         Debug.Log("Locale set to spanish");
+                        break;
+                    case "turkish":
+                        LocaleSelector.Instance.ChangeLocale(7);
+                        Debug.Log("Locale set to turkish");
                         break;
                     default:
                         LocaleSelector.Instance.ChangeLocale(0);
