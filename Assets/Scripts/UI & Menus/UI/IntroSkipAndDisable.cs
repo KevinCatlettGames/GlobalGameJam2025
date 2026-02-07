@@ -13,6 +13,8 @@ public class IntroSkipAndDisable : MonoBehaviour
     [SerializeField] private GameObject blackImage;
     [SerializeField] private GameObject mainMenu;
     private VideoPlayer videoPlayer;
+    [SerializeField] private VideoClip windowsClip;
+    [SerializeField] private VideoClip linuxClip;
     private bool isSkippable = false;
     private bool played = false;
     
@@ -35,6 +37,12 @@ public class IntroSkipAndDisable : MonoBehaviour
 
     void Start()
     {
+        #if UNITY_STANDALONE_WINDOWS || UNITY_EDITOR
+        videoPlayer.clip = windowsClip;
+        #endif
+        #if UNITY_STANDALONE_LINUX
+        videoPlayer.clip = linuxClip;
+        #endif
         videoPlayer.Prepare();
         videoPlayer.prepareCompleted += OnVideoPrepared;
 
