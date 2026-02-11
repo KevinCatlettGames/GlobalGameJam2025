@@ -11,12 +11,16 @@ public class Crab : MonoBehaviour
 {
     [SerializeField] private Transform[] eyes = new Transform[2];
     [SerializeField] private CrabClaw claw;
-    [SerializeField] private CrabHuntingGrounds huntingGrounds;
-    [SerializeField] private Transform crabBody;
+    [SerializeField] private LurkingShadow shadow;
     [SerializeField] private float startDelay = 5f;
-    [SerializeField] private float eyeRotationSpeed = 2;
-    [SerializeField] private float crabRotationSpeed = 1;
+    [SerializeField] private float eyeRotationSpeed = 2f;
+    [SerializeField] private float crabSearchingSpeed = 1f;
+    [SerializeField] private float crabHuntingSpeed = 2f;
+
+    [SerializeField] protected float maxRange = 20f;
     [SerializeField] private float restingTime = 3f;
+    [SerializeField] private float huntingTime = 2f; 
+    private GameObject currentTarget = null;
     private CrabState state = CrabState.Resting;
     private float rotationDirection = 1;
     private float timer = 100;
@@ -50,7 +54,7 @@ public class Crab : MonoBehaviour
     }
     private void FixedUpdate()
     {
-        switch(state)
+        switch (state)
         {
             case CrabState.Searching:
                 Search();
@@ -75,28 +79,40 @@ public class Crab : MonoBehaviour
     }
     private void Search()
     {
-        crabBody.Rotate(Vector3.up, rotationDirection * crabRotationSpeed * Time.fixedDeltaTime);
-        if (Physics.Raycast(new Vector3(0, 1, 0), crabBody.forward, out RaycastHit hit, 20f, LayerMask.GetMask("Player")))
+        transform.Rotate(Vector3.up, rotationDirection * crabSearchingSpeed * Time.fixedDeltaTime);
+        if (currentTarget != null)
         {
-            Vector3 v = hit.point;
-            v.y = 0;
-            claw.transform.position = v;
-            claw.Target = huntingGrounds.GetClosestTargetPosition(v);
-            claw.StartHunting();
+            timer = huntingTime;
             state = CrabState.Hunting;
+            shadow.LerpShadow(1, huntingTime);
         }
     }
     private void Hunt()
     {
-        if (claw.Status != CrabClawStatus.hunting)
+        if (timer > 0)
         {
-            timer = restingTime;
-            state = CrabState.Resting;
-            ResetEyes();
+            if (maxRange < Vector3.Distance(currentTarget.transform.position, new Vector3(0, 1, 0)))
+            {
+                shadow.LerpShadow(0, .2f);
+                ResetEyes();
+                currentTarget = null;
+                state = CrabState.Searching;
+                return;
+            }
+            timer -= Time.fixedDeltaTime;
+            if (Physics.Raycast(new Vector3(0, 1, 0), transform.forward, out RaycastHit hit, maxRange, LayerMask.GetMask("Player")))
+            {
+                    currentTarget = hit.transform.gameObject;
+            }
+            RotateCrab();
         }
         else
         {
-            RotateCrab();
+            currentTarget = null;
+            claw.Snap();
+            ResetEyes();
+            timer = restingTime;
+            state = CrabState.Resting;
         }
     }
     private void Rest()
@@ -116,11 +132,11 @@ public class Crab : MonoBehaviour
     }
     private void RotateCrab()
     {
-        Vector3 t = claw.Target;
+        Vector3 t = currentTarget.transform.position;
         Vector3 lookVector = t - transform.position;
         lookVector.y = 0;
         Quaternion targetRotation = Quaternion.LookRotation(lookVector, Vector3.up);
-        crabBody.rotation = Quaternion.Lerp(crabBody.rotation, targetRotation, Time.fixedDeltaTime * crabRotationSpeed);
+        transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * crabSearchingSpeed);
         for (int i = 0; i < eyes.Length; i++)
         {
             eyes[i].LookAt(new Vector3(t.x, eyes[i].position.y, t.z));
@@ -131,7 +147,14 @@ public class Crab : MonoBehaviour
         //Quaternion targetRotation = Quaternion.LookRotation(new Vector3(0, 0, -1), Vector3.up);
         for (int i = 0; i < eyes.Length; i++)
         {
-            eyes[i].rotation = crabBody.rotation;
+            eyes[i].rotation = transform.rotation;
+        }
+    }
+    private void OnTriggerEnter(Collider other)
+    {
+        if (state == CrabState.Searching && other.CompareTag("Player"))
+        {
+            currentTarget = other.gameObject;
         }
     }
     private void OnDestroy()
