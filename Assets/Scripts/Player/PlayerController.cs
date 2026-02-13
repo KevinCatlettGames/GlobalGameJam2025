@@ -117,16 +117,16 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float moveSmoothTime = 0.1f;
     private float currentPlayerSpeed = 1;
 
-    private CharacterController controller;
+    protected CharacterController controller;
     private bool groundedPlayer = false;
     
     [Header("Movement")]
     private Vector3 playerVelocity;
-    private Vector2 movementInput = Vector2.zero;
+    protected Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
     private Vector3 moveVelocity = Vector3.zero;
-    private Vector3 knockbackVelocity = Vector3.zero;
+    protected Vector3 knockbackVelocity = Vector3.zero;
 
     #endregion
 
@@ -134,7 +134,7 @@ public class PlayerController : NetworkBehaviour
 
     private PlayerHUD playerHUD;
     private ControllerRumbler controllerRumbler = null;
-    private bool isUsingGamepad = false;
+    protected bool isUsingGamepad = false;
     private float mouseInputDeadzoneRadius = 0.4f;
     private float mouseInputVectorLimit = 5f;
     private Vector3 lastPosition;
@@ -183,7 +183,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
-            PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
+            PlayerManager.Instance?.AddPlayerServerRpc(new NetworkObjectReference(netObj));
             EnableInput();
         }
 
@@ -195,7 +195,7 @@ public class PlayerController : NetworkBehaviour
 
     public void InitializeLocal()
     {
-        PlayerManager.Instance.AddPlayerLocal(GetComponent<PlayerInput>());
+        PlayerManager.Instance?.AddPlayerLocal(GetComponent<PlayerInput>());
         EnableInput();
 
         controller = GetComponent<CharacterController>();
@@ -213,11 +213,11 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Update Loop
-    private void Start()
+    protected void Start()
     {
         currentPlayerSpeed = playerBaseSpeed;
     }
-    private void Update()
+    protected void Update()
     {
         if (!initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;

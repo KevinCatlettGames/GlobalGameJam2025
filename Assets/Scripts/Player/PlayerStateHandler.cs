@@ -23,7 +23,7 @@ public class PlayerStateHandler : MonoBehaviour
     private PlayerController playerController;
     private CharacterController characterController;
     private int currentLifes = 0;
-    private int maxLifes = 0;
+    [SerializeField] private int maxLifes = 0;
 
     private void Start()
     {

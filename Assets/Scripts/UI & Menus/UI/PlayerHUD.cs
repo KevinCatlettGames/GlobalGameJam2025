@@ -107,6 +107,15 @@ public class PlayerHUD : NetworkBehaviour
         portraitSprites = skin.GameSprites;
         SetPortrait(0);
     }
+    public void InitialisePlayerHUD(SkinSO skin)
+    {
+        foreach (var uiElement in coloredUI)
+        {
+            uiElement.color = skin.Color;
+        }
+        portraitSprites = skin.GameSprites;
+        SetPortrait(0);
+    }
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
     {
