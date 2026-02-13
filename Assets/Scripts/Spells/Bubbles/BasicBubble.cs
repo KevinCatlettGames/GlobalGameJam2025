@@ -20,7 +20,8 @@ public class BasicBubble : NetworkBehaviour
         Grenade,
         Demolish,
         Ink,
-        Boomerang
+        Boomerang,
+        Blast
     };
 
     public SpellType spellType;
