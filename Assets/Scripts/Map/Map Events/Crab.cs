@@ -109,7 +109,7 @@ public class Crab : MonoBehaviour
         else
         {
             currentTarget = null;
-            claw.Snap();
+            claw.StartSnap();
             ResetEyes();
             timer = restingTime;
             state = CrabState.Resting;
