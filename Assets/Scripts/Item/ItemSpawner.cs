@@ -15,6 +15,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] float maxSpawnInterval = 7;
     [SerializeField] float spawnRadius = 15;
     [SerializeField] SO_Spell[] spawnableItems;
+    [SerializeField] bool spawningEnabled = true;
     public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
     
     public int maxAmount = 2;
@@ -32,7 +33,7 @@ public class ItemSpawner : MonoBehaviour
 
     public void InitialSpawn()
     {
-        if (NetworkManager.Singleton.IsServer)
+        if (NetworkManager.Singleton.IsServer && spawningEnabled)
         {
             GameManager.Instance.OnGameStarted += ResetSpawner;
 
@@ -55,6 +56,7 @@ public class ItemSpawner : MonoBehaviour
 
     private void SpawnItem(Vector3 location)
     {
+        if(!spawningEnabled) return;
         Vector3 spawnPosition;
         if (location == Vector3.zero)
         {
@@ -64,9 +66,7 @@ public class ItemSpawner : MonoBehaviour
             {
                 randomPos = Random.insideUnitSphere * spawnRadius;
                 randomPos.y = itemPrefab.transform.position.y;
-                Collider[] wallOverlaps = Physics.OverlapSphere(
-                    randomPos, 2.3f, LayerMask.GetMask("Wall"));
-
+                Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
                 if (wallOverlaps.Length == 0) break;
                 i++;
             } while (i < 10);

@@ -26,7 +26,6 @@ public class DummyController : PlayerController
 
     private void Update()
     {
-        Debug.Log(knockbackVelocity);
         if (knockbackVelocity.sqrMagnitude > .5f)
         {
             moveTimer = resetDelay;

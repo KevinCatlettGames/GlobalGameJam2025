@@ -20,6 +20,7 @@ public class Item : NetworkBehaviour
     [SerializeField] private float itemBlinkDuration = 10f;
     [SerializeField] private float itemBlinkIntervall = 0.4f;
     [SerializeField] private Material itemMaterial;
+    [SerializeField] private bool disableDespawn = false;
 
     private Material spellMaterial;
 
@@ -29,7 +30,7 @@ public class Item : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (IsServer)
+        if (IsServer && !disableDespawn)
         {
             StartCoroutine(ServerItemDespawn());
         }
@@ -67,10 +68,12 @@ public class Item : NetworkBehaviour
         yield return new WaitForEndOfFrame();
 
         StopAllCoroutines();
-        ItemSpawner.Instance.currentAmount--;
-        if (pickUpEffect != null) Instantiate(pickUpEffect, transform.position, Quaternion.identity);
+        if(!disableDespawn)
+            ItemSpawner.Instance.currentAmount--;
+        if (pickUpEffect != null) 
+            Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
-        if (IsServer)
+        if (IsServer && !disableDespawn)
             GetComponent<NetworkObject>().Despawn();
     }
 
