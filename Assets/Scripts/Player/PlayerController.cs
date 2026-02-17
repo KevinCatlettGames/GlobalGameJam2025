@@ -118,6 +118,7 @@ public class PlayerController : NetworkBehaviour
     private float currentPlayerSpeed = 1;
 
     protected CharacterController controller;
+    public CharacterController Controller { get { return controller; } }
     private bool groundedPlayer = false;
     
     [Header("Movement")]
@@ -949,7 +950,6 @@ public class PlayerController : NetworkBehaviour
         // Fixed knockback for -2 ID
         float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
         Vector3 knockback = direction.normalized * mul * force;
-        Debug.Log(knockback);
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;

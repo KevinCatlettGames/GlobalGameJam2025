@@ -10,6 +10,9 @@ public class GameManager : NetworkBehaviour
     public enum GameModeType {Standard, Team}
 
     [SerializeField] protected GameModeType gameModeType;
+    [SerializeField] protected int[] teamIDs = new int[maxPlayers];
+    [SerializeField] protected List<PlayerController> teamA = new List<PlayerController>();
+    [SerializeField] protected List<PlayerController> teamB = new List<PlayerController>();
     public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
@@ -54,12 +57,12 @@ public class GameManager : NetworkBehaviour
     
     private void Awake()
     {
-        if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
-            || !LobbyManager.instance && gameModeType != GameModeType.Standard)
-        {
-            Destroy(this);
-            return;
-        }
+        //if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
+        //    || !LobbyManager.instance && gameModeType != GameModeType.Standard)
+        //{
+        //    Destroy(this);
+        //    return;
+        //}
 
         if (LobbyManager.instance)
         {
@@ -91,12 +94,6 @@ public class GameManager : NetworkBehaviour
             hitReferences[i] = new HitReference(); 
             hitReferences[i].playerHitID = -1;
         }
-    }
-
-    private IEnumerator DelayedStartGame()
-    {
-        yield return new WaitForSeconds(10f);
-        StartGameAfterDelay();
     }
 
     private void OnDisable()
@@ -242,14 +239,42 @@ public class GameManager : NetworkBehaviour
         UIManager.Instance.SetScoreScreenActive(false);
     }
 
-    public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD)
+    public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD, int teamID)
     {
         if (playerID < 0 || playerID >= maxPlayers) return;
-
+        if(gameModeType == GameModeType.Team)
+        {
+            teamIDs[playerID] = teamID;
+            switch (teamID)
+            {
+                case 1:
+                    teamA.Add(player);
+                    break;
+                case 2:
+                    teamB.Add(player);
+                    break;
+                default:
+                    break;
+            }
+        }
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
     }
-
+    public List<PlayerController> GetTeam(int playerID)
+    {
+        if (gameModeType != GameModeType.Team)
+            return null;
+        int t = teamIDs[playerID];
+        switch (t)
+        {
+            case 1:
+                return teamA;
+            case 2:
+                return teamB;
+            default:
+                return null;
+        }
+    }
     [ServerRpc(RequireOwnership = false)]
     public virtual void DeathReportServerRpc(int playerID, int killCredit)
     {
