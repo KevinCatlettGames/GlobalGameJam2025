@@ -16,12 +16,10 @@ public class BoomerangBubble : BasicBubble
     protected override IEnumerator BubbleRangeLimit()
     {
         popOnBubbleHit = false;
-        popOnPlayerHit = false;
         float lifetime = range / speed;
         float baseSpeed = speed;
         
         yield return new WaitForSeconds(lifetime);
-        popOnPlayerHit = true;
         popOnBubbleHit = true;
         float timer = 0;
         do

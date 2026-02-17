@@ -21,11 +21,11 @@ public class Abschieber : MonoBehaviour
                     direction.y = 0;
                     if (GameManager.Instance.PlayingLocal)
                     {
-                        playersInside[i].ApplyKnockbackLocal(-2, direction, knockback, damage);
+                        playersInside[i].ApplyKnockbackLocal(-1, direction, knockback, damage);
                     }
                     else
                     {
-                        playersInside[i].ApplyKnockbackClientRpc(-2, direction, knockback, damage);
+                        playersInside[i].ApplyKnockbackClientRpc(-1, direction, knockback, damage);
                     }
                 }
                 timer = 0;

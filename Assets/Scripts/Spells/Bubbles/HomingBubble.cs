@@ -16,7 +16,7 @@ public class HomingBubble : BasicBubble
         homingTargeting = GetComponentInChildren<HomingTargeting>();
         if (homingTargeting != null)
         {
-            homingTargeting.SetTargeting(homingRadius / size, playerCollider);
+            homingTargeting.SetTargeting(homingRadius / size, playerCollider, ID);
         }
         else
         {
