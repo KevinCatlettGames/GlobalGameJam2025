@@ -44,15 +44,11 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private Image[] coloredUI;
 
     [Header("Score")]
-    [SerializeField] private TypewriterByWord winsTypewriter;
-    [SerializeField] private TypewriterByWord killsTypewriter;
     [SerializeField] private TypewriterByWord lifesTypewriter;
 
     [Header("GameSettings")]
     [SerializeField] private SO_GameSettings gameSettings;
 
-    private int kills = 0;
-    private int wins = 0;
     private int lifes = 0;
     private int maxLifes = 0;
 
@@ -60,8 +56,6 @@ public class PlayerHUD : NetworkBehaviour
     {
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
-        killsTypewriter.ShowText(kills.ToString());
-        winsTypewriter.ShowText(wins.ToString());
         if (gameSettings != null)
         {
             maxLifes = gameSettings.Lifes;
@@ -225,19 +219,6 @@ public class PlayerHUD : NetworkBehaviour
         }
     }
 
-
-    public void AddWin()
-    {
-        wins++;
-        winsTypewriter.ShowText(wins.ToString());
-    }
-
-    public void AddKill()
-    {
-        kills++;
-        killsTypewriter.ShowText(kills.ToString());
-    }
-
     public void DisplayDeath()
     {
         SetPortrait(2);
@@ -262,14 +243,6 @@ public class PlayerHUD : NetworkBehaviour
         UICover.SetActive(false);
         UpdateDamageText(0);
         SetPortrait(0);
-    }
-
-    public void SetInitaialScores(int _kills, int _wins)
-    {
-        kills = _kills;
-        wins = _wins;
-        killsTypewriter.ShowText(kills.ToString());
-        winsTypewriter.ShowText(wins.ToString());
     }
 
     private void SetPortrait(int portaritIndex)

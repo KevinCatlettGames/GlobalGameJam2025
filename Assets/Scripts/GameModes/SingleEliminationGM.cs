@@ -112,6 +112,7 @@ public class SingleEliminationGM : GameManager
 
     private IEnumerator AwardVictory()
     {
+        float danceTime = 1.5f;
         yield return new WaitForSeconds(gameEndDelay);
         int winnerID = -1;
         if (gameModeType == GameModeType.Standard)
@@ -131,12 +132,7 @@ public class SingleEliminationGM : GameManager
 
             if (winnerID >= 0 && winnerID < playerHUDs.Length)
             {
-                UIManager.Instance.PlayVictoryAnimation(winnerID);
-                yield return null;
-                float duration = UIManager.Instance.GetVictoryAnimationDuration();
-                yield return new WaitForSeconds(duration);
-                playerHUDs[winnerID].AddWin();
-                yield return new WaitForSeconds(0.75f);
+                yield return new WaitForSeconds(1.5f);
             }
         }
         else
@@ -154,7 +150,7 @@ public class SingleEliminationGM : GameManager
             if (winnerID != -1)
             {
                 ScoreManager.Instance.AddPendingScore(winnerID, true);
-                yield return new WaitForSeconds(0.75f);
+                yield return new WaitForSeconds(1.5f);
             }
         }
         EndGame();

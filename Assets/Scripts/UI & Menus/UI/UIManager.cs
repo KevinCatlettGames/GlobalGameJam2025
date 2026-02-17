@@ -20,21 +20,6 @@ public class UIManager : MonoBehaviour
     {
         scoreScreen.SetActive(isActive);
     }
-    public void PlayVictoryAnimation(int winnerID)
-    {
-        if (winnerID == -1)
-        {
-            victoryAnimator.gameObject.SetActive(false);
-            return;
-        }
-        victoryAnimator.gameObject.SetActive(true);
-        victoryAnimator.Play($"P{winnerID}");
-    }
-    public float GetVictoryAnimationDuration()
-    {
-        AnimatorStateInfo animatorStateInfo = victoryAnimator.GetCurrentAnimatorStateInfo(0);
-        return animatorStateInfo.length;
-    }
     public Timer GetTimer()
     {
         timer.gameObject.SetActive(true);

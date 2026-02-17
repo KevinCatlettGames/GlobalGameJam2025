@@ -57,12 +57,8 @@ public class GameManager : NetworkBehaviour
     
     private void Awake()
     {
-        //if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
-        //    || !LobbyManager.instance && gameModeType != GameModeType.Standard)
-        //{
-        //    Destroy(this);
-        //    return;
-        //}
+        // vvv Remove comment (//) when no longer forecing game type vvv
+        //gameModeType = LobbyManager.instance.SelectedGameMode;
 
         if (LobbyManager.instance)
         {
@@ -280,7 +276,6 @@ public class GameManager : NetworkBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ChangePlayerHUDClientRpc(killCredit);
             ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
 
@@ -299,7 +294,6 @@ public class GameManager : NetworkBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ChangePlayerHUDLocal(killCredit);
             ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
         
@@ -314,16 +308,6 @@ public class GameManager : NetworkBehaviour
         CheckForRoundEndLocal();
     }
 
-    [ClientRpc]
-    private void ChangePlayerHUDClientRpc(int killCredit)
-    {
-        playerHUDs[killCredit].AddKill();
-    }
-
-    private void ChangePlayerHUDLocal(int killCredit)
-    {
-        playerHUDs[killCredit].AddKill();
-    }
 
     [ServerRpc(RequireOwnership = false)]
     public virtual void ChangePlayerStateServerRpc(int playerID, PlayerState playerState)

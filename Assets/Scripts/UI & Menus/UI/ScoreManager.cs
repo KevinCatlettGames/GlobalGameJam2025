@@ -37,7 +37,6 @@ public class ScoreManager : MonoBehaviour
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
         scorePanel.SetPortrait(playerPortrait, playerColor);
-        playerHUDs[playerID].SetInitaialScores(scores.KillScores[playerID], scores.WinScores[playerID]);
         
         for (int i = 0; i < currentActivePlayers; i++)
         {
