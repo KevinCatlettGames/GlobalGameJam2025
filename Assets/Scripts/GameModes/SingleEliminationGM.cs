@@ -147,14 +147,13 @@ public class SingleEliminationGM : GameManager
                 {
                     winnerID = teamIDs[i];
                     players[i].Victory();
-                    ScoreManager.Instance.AddPendingScore(winnerID, true);
                     UnlockRoundEndWithZeroDamageAchievement(winnerID);
                     UnlockRoundEndWithXDamageAchievement(winnerID);
-                    break;
                 }
             }
             if (winnerID != -1)
             {
+                ScoreManager.Instance.AddPendingScore(winnerID, true);
                 yield return new WaitForSeconds(0.75f);
             }
         }
