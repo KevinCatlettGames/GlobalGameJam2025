@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -10,9 +9,16 @@ public class GameManager : NetworkBehaviour
     public enum GameModeType {Standard, Team}
 
     [SerializeField] protected GameModeType gameModeType;
+    public GameModeType GameMode {get{return gameModeType;}}
     [SerializeField] protected int[] teamIDs = new int[maxPlayers];
+    public int[] TeamIDs {get{return teamIDs;}}
+    
     [SerializeField] protected List<PlayerController> teamA = new List<PlayerController>();
+    public List<PlayerController> TeamA {get{return teamA;}}
+    
     [SerializeField] protected List<PlayerController> teamB = new List<PlayerController>();
+    public List<PlayerController> TeamB {get{return teamB;}}
+    
     public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
@@ -30,6 +36,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] protected SO_GameSettings gameSettings;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
+    public PlayerController[] Players {get{return players;}}
+    
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
     
@@ -57,8 +65,7 @@ public class GameManager : NetworkBehaviour
     
     private void Awake()
     {
-        // vvv Remove comment (//) when no longer forecing game type vvv
-        //gameModeType = LobbyManager.instance.SelectedGameMode;
+        gameModeType = LobbyManager.instance.SelectedGameMode;
 
         if (LobbyManager.instance)
         {

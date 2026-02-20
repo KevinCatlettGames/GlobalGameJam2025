@@ -9,6 +9,10 @@ public class LobbyInput : NetworkBehaviour
     public InputActionProperty readyAction;
     public InputActionProperty rightColorChange;
     public InputActionProperty leftColorChange;
+   
+    public InputActionProperty rightTeamChange;
+    public InputActionProperty leftTeamChange;
+    
     public int playerIndex;
     private Dictionary<InputDevice, float> readyActionStartTimes = new();
     private const float QuickTapThreshold = 0.2f;
@@ -31,6 +35,12 @@ public class LobbyInput : NetworkBehaviour
         leftColorChange.action.performed += OnLeftColorChange;
         leftColorChange.action.Enable();
 
+        rightTeamChange.action.performed += OnRightTeamChange;
+        rightTeamChange.action.Enable();
+
+        leftTeamChange.action.performed += OnLeftTeamChange;
+        leftTeamChange.action.Enable();
+        
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
     
@@ -48,6 +58,12 @@ public class LobbyInput : NetworkBehaviour
         leftColorChange.action.performed -= OnLeftColorChange;
         leftColorChange.action.Disable();
 
+        rightTeamChange.action.performed -= OnRightTeamChange;
+        rightTeamChange.action.Disable();
+
+        leftTeamChange.action.performed -= OnLeftTeamChange;
+        leftTeamChange.action.Disable();
+        
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
     }
     
@@ -62,6 +78,12 @@ public class LobbyInput : NetworkBehaviour
         
         leftColorChange.action.performed -= OnLeftColorChange;
         leftColorChange.action.Disable();
+        
+        rightTeamChange.action.performed -= OnRightTeamChange;
+        rightTeamChange.action.Disable();
+
+        leftTeamChange.action.performed -= OnLeftTeamChange;
+        leftTeamChange.action.Disable();
     }
     
     private void OnReadyStarted(InputAction.CallbackContext context)
@@ -172,7 +194,41 @@ public class LobbyInput : NetworkBehaviour
                 .SwapColorWithIncrementation(false);
         }
     }
+
+    private void OnRightTeamChange(InputAction.CallbackContext context)
+    {
+        if (TransportSwitcher.Instance.isUsingRelay && IsHost || !TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (lobbyManager.GameModeSelection.activeSelf || lobbyManager.MatchSettingsSelection.activeSelf)
+                return;
+        }
+
+        if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
+        
+        int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
+
+        lobbyManager.playerContainers[playerIndex]
+            .GetComponentInChildren<TeamSelection>()
+            .ChangeTeam();
+    }
     
+    private void OnLeftTeamChange(InputAction.CallbackContext context)
+    {
+        if (TransportSwitcher.Instance.isUsingRelay && IsHost || !TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (lobbyManager.GameModeSelection.activeSelf || lobbyManager.MatchSettingsSelection.activeSelf)
+                return;
+        }
+
+        if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
+        
+        int playerIndex = LobbyPlayerHandler.Instance.GetPlayerIndex(context.control.device);
+
+            lobbyManager.playerContainers[playerIndex]
+                .GetComponentInChildren<TeamSelection>()
+                .ChangeTeam();
+    }
+
     [ServerRpc(RequireOwnership = false)]
     void RightColorChangeServerRpc(int index)
     {
