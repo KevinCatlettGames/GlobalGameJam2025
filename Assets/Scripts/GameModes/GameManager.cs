@@ -65,10 +65,9 @@ public class GameManager : NetworkBehaviour
     
     private void Awake()
     {
-        gameModeType = LobbyManager.instance.SelectedGameMode;
-
         if (LobbyManager.instance)
         {
+            gameModeType = LobbyManager.instance.SelectedGameMode;
             maxGameRounds = LobbyManager.instance.maxGameRounds;
             playEndless = LobbyManager.instance.playEndless;
         }
