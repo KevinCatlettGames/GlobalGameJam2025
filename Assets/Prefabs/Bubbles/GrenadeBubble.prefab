@@ -4883,7 +4883,7 @@ MeshFilter:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 449082112856618060}
-  m_Mesh: {fileID: 2534964839176971238, guid: cc6f7060f5f8caa4ebfab49fdc3d502a, type: 3}
+  m_Mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!23 &363169325850266822
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -5131,9 +5131,31 @@ MonoBehaviour:
   hitEffect: {fileID: 7883030796252567183, guid: b63944ceb38d21e4cbfccaa01687ee8f,
     type: 3}
   explosionRadius: 8
-  height: 2.5
-  gravity: 8
   vulnerableDuration: 3
+  arc:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1.5
+      inSlope: 30.22328
+      outSlope: 30.22328
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.013951409
+    - serializedVersion: 3
+      time: 1
+      value: -0.01
+      inSlope: -59.918015
+      outSlope: -59.918015
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.006300628
+      outWeight: 0.33333334
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &3866570355573510464
 GameObject:
   m_ObjectHideFlags: 0
