@@ -1666,12 +1666,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1683005718}
   m_PrefabAsset: {fileID: 0}
---- !u!95 &1768148394 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 2586243695198736759, guid: ef310da78073cd04982db8f49e852300,
-    type: 3}
-  m_PrefabInstance: {fileID: 5758177152077098217}
-  m_PrefabAsset: {fileID: 0}
 --- !u!114 &1939145951 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 180788454599801031, guid: ef310da78073cd04982db8f49e852300,
@@ -1872,13 +1866,19 @@ PrefabInstance:
     - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: spawnableItems.Array.size
-      value: 9
+      value: 10
       objectReference: {fileID: 0}
     - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: 'spawnableItems.Array.data[8]'
       value: 
       objectReference: {fileID: 11400000, guid: e9e69c8cf464cd74c9adcf655838b9ff,
+        type: 2}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: 'spawnableItems.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 6fa5c977ceb7d2948ba3ce89ed219b56,
         type: 2}
     - target: {fileID: 2287918274636373491, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
@@ -1904,7 +1904,7 @@ PrefabInstance:
         type: 3}
       propertyPath: victoryAnimator
       value: 
-      objectReference: {fileID: 1768148394}
+      objectReference: {fileID: 0}
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: 'deathZones.Array.data[0]'
