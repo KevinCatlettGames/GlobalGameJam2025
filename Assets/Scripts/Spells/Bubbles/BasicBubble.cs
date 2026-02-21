@@ -221,7 +221,7 @@ public class BasicBubble : NetworkBehaviour
             Destroy(gameObject);
         }
     }  
-    private void Reflect(Vector3 normal)
+    protected virtual void Reflect(Vector3 normal)
     {
         if (!IsServer) return;
         if (playerCollider != null)
