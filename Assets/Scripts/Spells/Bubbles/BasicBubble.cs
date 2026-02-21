@@ -22,7 +22,8 @@ public class BasicBubble : NetworkBehaviour
         Demolish,
         Ink,
         Boomerang,
-        Blast
+        Blast,
+        Harpoon
     };
 
     public SpellType spellType;
