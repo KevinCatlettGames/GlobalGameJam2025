@@ -19,7 +19,7 @@ public class BlastBubble : BasicBubble
         if (GameManager.Instance.PlayingLocal)
             playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
         else
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
+            playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
     }
     protected override void InflateOverlapChack()
     {
