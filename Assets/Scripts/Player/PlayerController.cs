@@ -843,7 +843,21 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Damage
-
+    [ServerRpc]
+    public void ApplyImpulseServerRpc(Vector3 direction, float force) => ApplyForceClientRpc(direction, force);
+    [ClientRpc]
+    public void ApplyForceClientRpc(Vector3 direction, float force)
+    {
+        direction.y = 0;
+        direction.Normalize();
+        knockbackVelocity += direction * force;
+    }
+    public void ApplyImpulseLocal(Vector3 direction, float force)
+    {
+        direction.y = 0;
+        direction.Normalize();
+        knockbackVelocity += direction * force; 
+    }
     [ServerRpc(RequireOwnership = false)]
     public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
     {
