@@ -91,6 +91,7 @@ public class PlayerController : NetworkBehaviour
     private int slipperyCounter = 0;
     private bool isSlippery = false; 
     private Coroutine vulnerableRoutine = null;
+    private float vulnerableTimer = 0f;
     #endregion
 
     #region Sprint
@@ -1233,21 +1234,30 @@ public class PlayerController : NetworkBehaviour
     }
     public void StartVulnerable(float time)
     {
-        if (vulnerableRoutine != null)
-            StopCoroutine(vulnerableRoutine);
-        vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time)); 
+        if (vulnerableRoutine == null)
+            vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time));
+        else if (time > vulnerableTimer)
+        {
+            vulnerableTimer = time;
+        }
     }
     private IEnumerator VulnerableCoroutine(float duration)
     {
+        vulnerableTimer = duration;
         isVulnerable = true;
         shaderManager.SetShaderState(ShaderState.sauced);
-        yield return new WaitForSeconds(duration);
+        while (vulnerableTimer > 0)
+        {
+            vulnerableTimer -= Time.deltaTime;
+            yield return null;
+        }
         StopVulnerable();
     }
     private void StopVulnerable()
     {
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
+        vulnerableRoutine = null;
         isVulnerable = false;
         shaderManager.SetShaderState(ShaderState.sober);
     }
