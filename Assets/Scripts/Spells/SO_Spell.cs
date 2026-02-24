@@ -29,11 +29,11 @@ public class SO_Spell : ScriptableObject
 
     [Header("Pickup")]
     [SerializeField] protected Mesh itemMesh;
-    [SerializeField] protected Material itemMaterial;
+    [SerializeField] protected Material[] itemMaterials;
     [SerializeField] protected Material[] effectMaterials;
     [SerializeField] protected Color itemEffectColor;
     public Mesh ItemMesh { get { return itemMesh; } }
-    public Material ItemMaterial { get { return itemMaterial; } }
+    public Material[] ItemMaterials { get { return itemMaterials; } }
     public Color ItemEffectColor { get { return itemEffectColor; } }
 
     [Header("Sound Events")]

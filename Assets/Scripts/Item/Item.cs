@@ -50,8 +50,7 @@ public class Item : NetworkBehaviour
         SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);
         meshFilter.mesh = spell.ItemMesh;
 
-        spellMaterial = spell.ItemMaterial;
-        meshRenderer.material = spellMaterial;
+        meshRenderer.materials = spell.ItemMaterials;
         spriteRenderer.color = spell.ItemEffectColor;
 
         Material[] effectMaterials = spell.GetEffectMaterials();

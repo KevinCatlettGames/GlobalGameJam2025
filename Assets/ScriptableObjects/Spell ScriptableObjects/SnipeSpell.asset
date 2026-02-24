@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533b7b6e572a75e4194c233ad8fa3c37, type: 3}
   m_Name: SnipeSpell
   m_EditorClassIdentifier: 
-  spellIndex: 5
   spellIcon: {fileID: 21300000, guid: 212e8802a8d0955468919b5f480f70c6, type: 3}
   usedSpellIcon: {fileID: 21300000, guid: fe6c254e5d3dbc240b557c5a18837bbd, type: 3}
   indicatorColor: {r: 1, g: 0.3679244, b: 0.66997796, a: 1}
@@ -26,7 +25,9 @@ MonoBehaviour:
   spellCooldown: 3
   itemMesh: {fileID: -4263314800395540744, guid: f4999be33bbdec940970b2638a1f2f84,
     type: 3}
-  itemMaterial: {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  itemMaterials:
+  - {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  - {fileID: 2100000, guid: 07753b3f00a985e4f9fe7e971de5403f, type: 2}
   effectMaterials:
   - {fileID: 2100000, guid: be9961d544172434da5b03de788e4144, type: 2}
   - {fileID: 2100000, guid: dc277874c5e7016488104e4074af1d97, type: 2}
@@ -46,3 +47,4 @@ MonoBehaviour:
       Data3: 412654254
       Data4: 757630187
     Path: event:/voice/fast_voice
+  canUse: 1

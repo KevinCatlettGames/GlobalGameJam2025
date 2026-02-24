@@ -12,7 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533b7b6e572a75e4194c233ad8fa3c37, type: 3}
   m_Name: GiantSpell
   m_EditorClassIdentifier: 
-  spellIndex: 2
   spellIcon: {fileID: 21300000, guid: 1a3e57524f46a0a47be5ffb971f39f8f, type: 3}
   usedSpellIcon: {fileID: 21300000, guid: 3a775d153214681459888989eb83751e, type: 3}
   indicatorColor: {r: 0.41960788, g: 1, b: 0.38823533, a: 1}
@@ -26,7 +25,9 @@ MonoBehaviour:
   spellCooldown: 3.5
   itemMesh: {fileID: -8414269465070398784, guid: f4999be33bbdec940970b2638a1f2f84,
     type: 3}
-  itemMaterial: {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  itemMaterials:
+  - {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  - {fileID: 2100000, guid: d5bb4e158e3553446a8538c34eadb395, type: 2}
   effectMaterials:
   - {fileID: 2100000, guid: d3d8bcc80fc497846807d923705ffbb0, type: 2}
   - {fileID: 2100000, guid: 50ad62c981acab74aa69fccca954d29a, type: 2}
@@ -46,3 +47,4 @@ MonoBehaviour:
       Data3: -1327147373
       Data4: 470645323
     Path: event:/voice/slow_voice
+  canUse: 1
