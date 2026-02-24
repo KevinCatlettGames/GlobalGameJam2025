@@ -49,7 +49,7 @@ public class Item : NetworkBehaviour
         spellID = index;
         SO_Spell spell = ItemSpawner.Instance.GetSpellByIndex(spellID);
         meshFilter.mesh = spell.ItemMesh;
-
+        spellMaterial = spell.ItemMaterials[0];
         meshRenderer.materials = spell.ItemMaterials;
         spriteRenderer.color = spell.ItemEffectColor;
 
