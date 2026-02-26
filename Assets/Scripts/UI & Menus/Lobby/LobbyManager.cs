@@ -193,16 +193,18 @@ public class LobbyManager : NetworkBehaviour
 
         var player = players[index];
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
+        TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
         if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
         {
+            if (selectedGameMode == GameManager.GameModeType.Team && !teamSelection.SetTeamIsValid) return; 
+            
             player.IsReady = !player.IsReady;
             players[index] = player;
 
             OnReadyStateUpdated?.Invoke((ulong)playerIndex);
             CheckAllReady();
             UpdatePlayerUI();
-
             if (player.IsReady)
                 selectEmitter.Play();
             else
@@ -235,9 +237,12 @@ public class LobbyManager : NetworkBehaviour
         {
             var player = players[index];
             var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
-
+            TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
+            
             if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
             {
+                if (selectedGameMode == GameManager.GameModeType.Team && !teamSelection.SetTeamIsValid) return; 
+                
                 player.IsReady = !player.IsReady;
                 players[index] = player;
                 InvokeOnReadyStateUpdatedClientRpc(clientID);

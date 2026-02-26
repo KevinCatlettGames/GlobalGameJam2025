@@ -117,16 +117,17 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float moveSmoothTime = 0.1f;
     private float currentPlayerSpeed = 1;
 
-    private CharacterController controller;
+    protected CharacterController controller;
+    public CharacterController Controller { get { return controller; } }
     private bool groundedPlayer = false;
     
     [Header("Movement")]
     private Vector3 playerVelocity;
-    private Vector2 movementInput = Vector2.zero;
+    protected Vector2 movementInput = Vector2.zero;
     private Vector3 targetDirection = Vector3.zero;
     private Vector3 smoothMoveDirection = Vector3.zero;
     private Vector3 moveVelocity = Vector3.zero;
-    private Vector3 knockbackVelocity = Vector3.zero;
+    protected Vector3 knockbackVelocity = Vector3.zero;
 
     #endregion
 
@@ -134,7 +135,7 @@ public class PlayerController : NetworkBehaviour
 
     private PlayerHUD playerHUD;
     private ControllerRumbler controllerRumbler = null;
-    private bool isUsingGamepad = false;
+    protected bool isUsingGamepad = false;
     private float mouseInputDeadzoneRadius = 0.4f;
     private float mouseInputVectorLimit = 5f;
     private Vector3 lastPosition;
@@ -183,7 +184,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
-            PlayerManager.Instance.AddPlayerServerRpc(new NetworkObjectReference(netObj));
+            PlayerManager.Instance?.AddPlayerServerRpc(new NetworkObjectReference(netObj));
             EnableInput();
         }
 
@@ -195,7 +196,7 @@ public class PlayerController : NetworkBehaviour
 
     public void InitializeLocal()
     {
-        PlayerManager.Instance.AddPlayerLocal(GetComponent<PlayerInput>());
+        PlayerManager.Instance?.AddPlayerLocal(GetComponent<PlayerInput>());
         EnableInput();
 
         controller = GetComponent<CharacterController>();
@@ -213,11 +214,11 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Update Loop
-    private void Start()
+    protected void Start()
     {
         currentPlayerSpeed = playerBaseSpeed;
     }
-    private void Update()
+    protected void Update()
     {
         if (!initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
@@ -869,7 +870,9 @@ public class PlayerController : NetworkBehaviour
 
         // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
         if (ID != -3) direction.y = 0;
-        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        // Fixed knockback for -2 ID
+        float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
+        Vector3 knockback = direction.normalized * mul * force;
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
@@ -877,49 +880,52 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += knockback;
         damage += dmg;
 
-        playerHUD.UpdateDamageText((int)damage);
-        damagedEffect.UpdateParticleSystem(damage);
-        damageParticleSystem.Play();
-
-        if (GameManager.Instance.PlayingLocal)
+        if(damage > 0)
         {
-            mainAnimator.SetTrigger("Flinch");
+            playerHUD.UpdateDamageText((int)damage);
+            damagedEffect.UpdateParticleSystem(damage);
+            damageParticleSystem.Play();
 
-            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            if (GameManager.Instance.PlayingLocal)
+            {
+                mainAnimator.SetTrigger("Flinch");
 
-            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
-            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-            fmodEvent.start();
-            fmodEvent.release();
-            
-            shaderManager.DamageEffect(damageColorEffectDuration);
-            
-            float knbMagnitude = knockbackVelocity.magnitude;
-            float duration = knbMagnitude * rumbleDurationFactor;
-            controllerRumbler?.Rumble(duration, force, dmg);
-            // Use ID -2 to avoid hitstun for specific kockback events 
-            //if (knbMagnitude >= hitStunThreshold && ID != -2)
-            //{
-            //    hitStunDuration = knbMagnitude * hitStunFactor;
-            //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
-            //    mainAnimator.SetBool("HitStun", true);
-            //}
-        }
-        else
-        {
-            FlinchAnimServerRpc(force, dmg);
-            
-            float knbMagnitude = knockbackVelocity.magnitude;
-            float duration = knbMagnitude * rumbleDurationFactor;
-            controllerRumbler?.Rumble(duration, force, dmg);
-            //if (knbMagnitude >= hitStunThreshold && ID != -2)
-            //{
-            //    float stunDuration = knbMagnitude * hitStunFactor;
-            //    HitStunServerRpc(stunDuration);
-            //}
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+
+                float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+                float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+                int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+                fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+                fmodEvent.start();
+                fmodEvent.release();
+                
+                shaderManager.DamageEffect(damageColorEffectDuration);
+                
+                float knbMagnitude = knockbackVelocity.magnitude;
+                float duration = knbMagnitude * rumbleDurationFactor;
+                controllerRumbler?.Rumble(duration, force, dmg);
+                // Use ID -2 to avoid hitstun for specific kockback events 
+                //if (knbMagnitude >= hitStunThreshold && ID != -2)
+                //{
+                //    hitStunDuration = knbMagnitude * hitStunFactor;
+                //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+                //    mainAnimator.SetBool("HitStun", true);
+                //}
+            }
+            else
+            {
+                FlinchAnimServerRpc(force, dmg);
+                
+                float knbMagnitude = knockbackVelocity.magnitude;
+                float duration = knbMagnitude * rumbleDurationFactor;
+                controllerRumbler?.Rumble(duration, force, dmg);
+                //if (knbMagnitude >= hitStunThreshold && ID != -2)
+                //{
+                //    float stunDuration = knbMagnitude * hitStunFactor;
+                //    HitStunServerRpc(stunDuration);
+                //}
+            }
         }
     }
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
@@ -940,8 +946,10 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Use ID -3 to avoid zeroing the y-component of the knockback for specific kockback events
-        if(ID != -3)direction.y = 0;
-        Vector3 knockback = direction.normalized * (force * (1 + (damage * damageModifier)));
+        if(ID != -3) direction.y = 0;
+        // Fixed knockback for -2 ID
+        float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
+        Vector3 knockback = direction.normalized * mul * force;
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
@@ -949,49 +957,52 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += knockback;
         damage += dmg;
 
-        playerHUD.UpdateDamageText((int)damage);
-        damageParticleSystem.Play();
-        damagedEffect.UpdateParticleSystem(damage);
-
-        if (GameManager.Instance.PlayingLocal)
+        if (damage > 0)
         {
-            mainAnimator.SetTrigger("Flinch");
+            playerHUD.UpdateDamageText((int)damage);
+            damageParticleSystem.Play();
+            damagedEffect.UpdateParticleSystem(damage);
 
-            EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            if (GameManager.Instance.PlayingLocal)
+            {
+                mainAnimator.SetTrigger("Flinch");
 
-            float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
-            float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-            int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-            fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-            fmodEvent.start();
-            fmodEvent.release();
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
 
-            shaderManager?.DamageEffect(damageColorEffectDuration);
-            
-            float knbMagnitude = knockbackVelocity.magnitude;
-            float duration = knbMagnitude * rumbleDurationFactor;
-            controllerRumbler?.Rumble(duration, force, dmg);
-            // Use ID -2 to avoid hitstun for specific kockback events 
-            //if (knbMagnitude >= hitStunThreshold && ID != -2)
-            //{
-            //    hitStunDuration = knbMagnitude * hitStunFactor;
-            //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
-            //    mainAnimator.SetBool("HitStun", true);
-            //}
-        }
-        else
-        {
-            FlinchAnimServerRpc(force, dmg);
-            
-            float knbMagnitude = knockbackVelocity.magnitude;
-            float duration = knbMagnitude * rumbleDurationFactor;
-            controllerRumbler?.Rumble(duration, force, dmg);
-            //if (knbMagnitude >= hitStunThreshold && ID != -2)
-            //{
-            //    float stunDuration = knbMagnitude * hitStunFactor;
-            //    HitStunServerRpc(stunDuration);
-            //}
+                float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+                float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+                int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+                fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+                fmodEvent.start();
+                fmodEvent.release();
+
+                shaderManager?.DamageEffect(damageColorEffectDuration);
+                
+                float knbMagnitude = knockbackVelocity.magnitude;
+                float duration = knbMagnitude * rumbleDurationFactor;
+                controllerRumbler?.Rumble(duration, force, dmg);
+                // Use ID -2 to avoid hitstun for specific kockback events 
+                //if (knbMagnitude >= hitStunThreshold && ID != -2)
+                //{
+                //    hitStunDuration = knbMagnitude * hitStunFactor;
+                //    hitStunDuration = Mathf.Clamp(hitStunDuration, 0, maxHitStunDuration);
+                //    mainAnimator.SetBool("HitStun", true);
+                //}
+            }
+            else
+            {
+                FlinchAnimServerRpc(force, dmg);
+                
+                float knbMagnitude = knockbackVelocity.magnitude;
+                float duration = knbMagnitude * rumbleDurationFactor;
+                controllerRumbler?.Rumble(duration, force, dmg);
+                //if (knbMagnitude >= hitStunThreshold && ID != -2)
+                //{
+                //    float stunDuration = knbMagnitude * hitStunFactor;
+                //    HitStunServerRpc(stunDuration);
+                //}
+            }
         }
     }
 

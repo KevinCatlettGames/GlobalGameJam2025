@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode;
@@ -10,6 +9,16 @@ public class GameManager : NetworkBehaviour
     public enum GameModeType {Standard, Team}
 
     [SerializeField] protected GameModeType gameModeType;
+    public GameModeType GameMode {get{return gameModeType;}}
+    [SerializeField] protected int[] teamIDs = new int[maxPlayers];
+    public int[] TeamIDs {get{return teamIDs;}}
+    
+    [SerializeField] protected List<PlayerController> teamA = new List<PlayerController>();
+    public List<PlayerController> TeamA {get{return teamA;}}
+    
+    [SerializeField] protected List<PlayerController> teamB = new List<PlayerController>();
+    public List<PlayerController> TeamB {get{return teamB;}}
+    
     public static GameManager Instance;
     public GameObject playerPrefab;
     public static bool IsGamePaused = false;
@@ -27,6 +36,8 @@ public class GameManager : NetworkBehaviour
     [SerializeField] protected SO_GameSettings gameSettings;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
+    public PlayerController[] Players {get{return players;}}
+    
     protected PlayerHUD[] playerHUDs = new PlayerHUD[maxPlayers];
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
     
@@ -50,18 +61,13 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private float multiKillTimeWindow = 3f;
     private Dictionary<int, List<float>> playerKillTimestamps  = new Dictionary<int, List<float>>();
     [SerializeField] private int damageAmountForAchievement = 300;
+    [SerializeField] private bool enableArchievents = true;
     
     private void Awake()
     {
-        if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode != gameModeType
-            || !LobbyManager.instance && gameModeType != GameModeType.Standard)
-        {
-            Destroy(this);
-            return;
-        }
-
         if (LobbyManager.instance)
         {
+            gameModeType = LobbyManager.instance.SelectedGameMode;
             maxGameRounds = LobbyManager.instance.maxGameRounds;
             playEndless = LobbyManager.instance.playEndless;
         }
@@ -90,12 +96,6 @@ public class GameManager : NetworkBehaviour
             hitReferences[i] = new HitReference(); 
             hitReferences[i].playerHitID = -1;
         }
-    }
-
-    private IEnumerator DelayedStartGame()
-    {
-        yield return new WaitForSeconds(10f);
-        StartGameAfterDelay();
     }
 
     private void OnDisable()
@@ -241,24 +241,51 @@ public class GameManager : NetworkBehaviour
         UIManager.Instance.SetScoreScreenActive(false);
     }
 
-    public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD)
+    public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD, int teamID)
     {
         if (playerID < 0 || playerID >= maxPlayers) return;
-
+        if(gameModeType == GameModeType.Team)
+        {
+            teamIDs[playerID] = teamID;
+            switch (teamID)
+            {
+                case 1:
+                    teamA.Add(player);
+                    break;
+                case 2:
+                    teamB.Add(player);
+                    break;
+                default:
+                    break;
+            }
+        }
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
     }
-
+    public List<PlayerController> GetTeam(int playerID)
+    {
+        if (gameModeType != GameModeType.Team)
+            return null;
+        int t = teamIDs[playerID];
+        switch (t)
+        {
+            case 1:
+                return teamA;
+            case 2:
+                return teamB;
+            default:
+                return null;
+        }
+    }
     [ServerRpc(RequireOwnership = false)]
     public virtual void DeathReportServerRpc(int playerID, int killCredit)
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ChangePlayerHUDClientRpc(killCredit);
             ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
 
-        if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
@@ -273,11 +300,10 @@ public class GameManager : NetworkBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ChangePlayerHUDLocal(killCredit);
             ScoreManager.Instance.AddPendingScore(killCredit, false);
         }
         
-        if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
@@ -288,16 +314,6 @@ public class GameManager : NetworkBehaviour
         CheckForRoundEndLocal();
     }
 
-    [ClientRpc]
-    private void ChangePlayerHUDClientRpc(int killCredit)
-    {
-        playerHUDs[killCredit].AddKill();
-    }
-
-    private void ChangePlayerHUDLocal(int killCredit)
-    {
-        playerHUDs[killCredit].AddKill();
-    }
 
     [ServerRpc(RequireOwnership = false)]
     public virtual void ChangePlayerStateServerRpc(int playerID, PlayerState playerState)
@@ -329,10 +345,16 @@ public class GameManager : NetworkBehaviour
         // To be overridden
     }
 
+    public SO_GameSettings GetGameSettings()
+    {
+        return gameSettings;
+    }
+
     #region Achievements
     
     protected void UnlockRoundEndWithZeroDamageAchievement(int winnerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage > 0
             || !SteamIntegration.instance) return;
@@ -343,6 +365,7 @@ public class GameManager : NetworkBehaviour
 
     protected void UnlockRoundEndWithXDamageAchievement(int winnerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage < damageAmountForAchievement
             || !SteamIntegration.instance) return;
@@ -353,6 +376,7 @@ public class GameManager : NetworkBehaviour
 
     private void IncrementSmallerGiantBubbleKillAchievement(int playerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
             || hitReferences[playerID].spellType != BasicBubble.SpellType.SmallerGiant
             || !SteamIntegration.instance) return;
@@ -366,6 +390,7 @@ public class GameManager : NetworkBehaviour
     
     private void UnlockMultiKillAchievements(int killerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance) return;
         
@@ -386,6 +411,7 @@ public class GameManager : NetworkBehaviour
 
     private void IncrementSlipperyKillAchievement(int killerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance 
             || !hitReferences[killerID].wasSlippery) return;
@@ -399,6 +425,7 @@ public class GameManager : NetworkBehaviour
     
     private void IncrementReflectedKillAchievement(int killerID)
     {
+        if (!enableArchievents) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance 
             || !hitReferences[killerID].wasReflected) return;

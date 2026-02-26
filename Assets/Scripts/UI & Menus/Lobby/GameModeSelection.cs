@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using UnityEngine.UI;
-using TMPro; 
 using FMODUnity;
 using Unity.Netcode;
 using UnityEngine.InputSystem;
@@ -19,6 +18,8 @@ public class GameModeSelection : NetworkBehaviour
     [Header("Lobby Connection")]
     [SerializeField] LobbyButtons lobbyButtons;
     LobbyManager lobbyManager;
+
+    [SerializeField] private GameObject[] teamSelections; 
     
     private void OnEnable()
     {
@@ -66,15 +67,9 @@ public class GameModeSelection : NetworkBehaviour
         gameModeTypeImage.sprite = gameModeSoToUse.GameModeTypeImage;
         matchSettingsGameModeNameStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
         localizeStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
-        int indexOfUsedGameMode = 0;
-        for (int i = 0; i < LobbyManager.instance.GameModes.Length; i++)
-        {
-            if (gameModeSoToUse == LobbyManager.instance.GameModes[i])
-            {
-                indexOfUsedGameMode = i;
-                break;
-            }
-        }
+
+        foreach (GameObject teamSelection in teamSelections)
+            teamSelection.SetActive(gameModeSoToUse.GameModeType == GameManager.GameModeType.Team);
     }
     
     private void IncrementActionPerformed(InputAction.CallbackContext obj)

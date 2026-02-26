@@ -37,7 +37,6 @@ public class ScoreManager : MonoBehaviour
         ScorePanel scorePanel = scorePanels[playerID];
         scorePanel.gameObject.SetActive(true);
         scorePanel.SetPortrait(playerPortrait, playerColor);
-        playerHUDs[playerID].SetInitaialScores(scores.KillScores[playerID], scores.WinScores[playerID]);
         
         for (int i = 0; i < currentActivePlayers; i++)
         {
@@ -53,6 +52,14 @@ public class ScoreManager : MonoBehaviour
         {
             pendingWins[playerID]++;
             scores.WinScores[playerID]++;
+
+            if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+            {
+                if (playerID == 1)
+                    scores.WinScores[0]++;
+                else if (playerID == 2)
+                    scores.WinScores[3]++;
+            }
         }
         else
         {
