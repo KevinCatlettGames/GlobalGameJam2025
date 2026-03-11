@@ -76,11 +76,6 @@ public class MainMenuLobbyCreator : MonoBehaviour
         GlobalLobby.CurrentLobby = joinedLobby;
         NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
-    
-    void LoadLocal()
-    {
-        
-    }
 
     /// <summary>
     /// Opens the Lobby scene directly.
