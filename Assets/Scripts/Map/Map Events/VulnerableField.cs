@@ -5,6 +5,7 @@ public class VulnerableField : MonoBehaviour
 {
     [SerializeField] private float duration = 0.5f;
     private List<PlayerController> playersInRange = new List<PlayerController>();
+    private bool isActive = false;
 
     private void FixedUpdate()
     {

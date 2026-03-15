@@ -21,14 +21,14 @@ public class RisingWall : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Rise()
+    public virtual void Rise()
     {
         if (isActive) return;
         isActive = true;
         StopAllCoroutines();
         StartCoroutine(RiseCoroutine());
     }
-    public void Sink(bool instant)
+    public virtual void Sink(bool instant)
     {
         if (!isActive) return;
         isActive = false; 
@@ -44,7 +44,8 @@ public class RisingWall : MonoBehaviour
         animator.SetTrigger("Rise");
         riseParticle?.Play();
         idleParticle?.Play();
-        abschieber.SetActive(true);
+        if (abschieber != null)
+            abschieber.SetActive(true);
         bubblingParticle?.Stop();
     }
     private IEnumerator SinkCoroutine(bool instant)
@@ -61,10 +62,11 @@ public class RisingWall : MonoBehaviour
         animator.SetTrigger("Sink");
         idleParticle?.Stop();
         sinkParticle?.Play();
-        abschieber.SetActive(false);
-        yield return null;
+        //yield return null;
         //AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
         //float animationLengh = animatorStateInfo.length;
+        if (abschieber != null)
+            abschieber.SetActive(false);
         yield return new WaitForSeconds(2f);
         animator.speed = 1;
         gameObject.SetActive(false);

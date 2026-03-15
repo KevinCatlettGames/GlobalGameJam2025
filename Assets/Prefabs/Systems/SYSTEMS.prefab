@@ -172,13 +172,18 @@ MonoBehaviour:
   playerValuesList:
   - PlayerIndex: 0
     Skin: {fileID: 11400000, guid: a89659f1bebec2240920383b74987893, type: 2}
+    TeamIndex: 0
   - PlayerIndex: 1
     Skin: {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4, type: 2}
+    TeamIndex: 0
   - PlayerIndex: 2
     Skin: {fileID: 11400000, guid: 9e7d19a9dd1bd204da93d9a1c04eb672, type: 2}
+    TeamIndex: 0
   - PlayerIndex: 3
     Skin: {fileID: 11400000, guid: f2bb8c2cc88648e4ba1b02fb6eb829c1, type: 2}
+    TeamIndex: 0
   maxPlayers: 4
+  maxTeamSize: 2
 --- !u!1 &3737377328279540851
 GameObject:
   m_ObjectHideFlags: 0
@@ -226,6 +231,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   gameModeType: 0
+  teamIDs: 00000000000000000000000000000000
+  teamA: []
+  teamB: []
   playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
     type: 3}
   maxGameRounds: 7
@@ -247,6 +255,7 @@ MonoBehaviour:
   hitReferences: []
   multiKillTimeWindow: 3
   damageAmountForAchievement: 300
+  enableArchievents: 1
 --- !u!114 &9037970889961924712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -307,9 +316,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   scenes:
+  - LVL_Testing
+  - LVL_MainScene
   - LVL_Pot
   - LVL_Eimer
-  - LVL_MainScene
   - LVL_TunaDose
 --- !u!1 &4108901858045191531
 GameObject:
@@ -460,6 +470,7 @@ MonoBehaviour:
   - {fileID: 1647630035624308313}
   - {fileID: 3164768564512664138}
   - {fileID: 8757892686786655870}
+  teamIDs: 
   startGameInputAction:
     m_UseReference: 1
     m_Action:
@@ -611,6 +622,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 73563a0994b2adb468cff090f95a470c, type: 2}
   - {fileID: 11400000, guid: 7ef8938e618f7ec4080ce5f84528cebe, type: 2}
   - {fileID: 11400000, guid: f6464100ab9a6714ebae06a78a7070ce, type: 2}
+  spawningEnabled: 1
   maxAmount: 1
   currentAmount: 0
 --- !u!1 &7198490919497150978
