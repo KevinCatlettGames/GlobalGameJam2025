@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public class RisingWall : MonoBehaviour
     [SerializeField] private ParticleSystem riseParticle;
     [SerializeField] private ParticleSystem idleParticle;
     [SerializeField] private ParticleSystem sinkParticle;
+    [SerializeField] private EventReference riseEvent;
+    [SerializeField] private EventReference sinkEvent;
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
     void Start()
@@ -42,6 +45,7 @@ public class RisingWall : MonoBehaviour
         float r = Random.Range(0, randomDelay);
         yield return new WaitForSeconds(r);
         animator.SetTrigger("Rise");
+        RuntimeManager.PlayOneShotAttached(riseEvent, gameObject);
         riseParticle?.Play();
         idleParticle?.Play();
         if (abschieber != null)
@@ -60,6 +64,7 @@ public class RisingWall : MonoBehaviour
             animator.speed = 3;
         }
         animator.SetTrigger("Sink");
+        RuntimeManager.PlayOneShotAttached(sinkEvent, gameObject);
         idleParticle?.Stop();
         sinkParticle?.Play();
         //yield return null;
