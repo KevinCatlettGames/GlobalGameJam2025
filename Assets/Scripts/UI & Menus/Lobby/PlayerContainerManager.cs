@@ -22,6 +22,9 @@ public class PlayerContainerManager : MonoBehaviour
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        isReady = false;
+        image.sprite = unreadySprite;
     }
 
     private void Start()

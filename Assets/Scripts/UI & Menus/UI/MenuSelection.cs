@@ -3,15 +3,35 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using Cinemachine; 
 
-public class MainMenu : MonoBehaviour
+public class MenuSelection : MonoBehaviour
 {
+    public static MenuSelection Instance { get; private set; }
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject selectedGameObject;
     private GameObject currentSubMenu;
 
     private InputSystemUIInputModule inputModuleUI;
     private InputAction backAction;
+    public CinemachineVirtualCamera menuSelectionVritualCam;
+    public CinemachineVirtualCamera[] otherVirtualsCams; 
+
+    private void Awake()
+    {
+        if(Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);      
+    }
+
+    private void OnEnable()
+    {
+        menuSelectionVritualCam.Priority = 1;
+        foreach(var cam in otherVirtualsCams)
+            cam.Priority = 0;     
+    }
+
     void Start()
     {
         SetSelected();

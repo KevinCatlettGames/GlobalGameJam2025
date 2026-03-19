@@ -11,13 +11,13 @@ public class IntroSkipAndDisable : MonoBehaviour
     [SerializeField] StudioEventEmitter eventEmitter;
     [SerializeField] StudioEventEmitter bubbleEmitter;
     [SerializeField] private GameObject blackImage;
-    [SerializeField] private GameObject mainMenu;
     private VideoPlayer videoPlayer;
     [SerializeField] private VideoClip windowsClip;
     [SerializeField] private VideoClip linuxClip;
     private bool isSkippable = false;
     private bool played = false;
-    
+    public GameObject introParent;
+
     void Awake()
     {
         if (instance != null && instance != this)
@@ -55,7 +55,7 @@ public class IntroSkipAndDisable : MonoBehaviour
         videoPlayer.Play();
         videoPlayer.time = 0;
         eventEmitter.Play();
-        mainMenu.SetActive(false);
+        MenuSelection.Instance.gameObject.SetActive(false);
     }
 
     void Update()
@@ -89,6 +89,7 @@ public class IntroSkipAndDisable : MonoBehaviour
     }
     void ActivateMainMenu()
     {
-        mainMenu.SetActive(true);
+        MenuSelection.Instance.gameObject.SetActive(true);
+        Destroy(introParent);
     }
 }

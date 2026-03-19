@@ -75,6 +75,9 @@ public class GameLobby : MonoBehaviour
     /// </summary>
     public static GameLobby instance { get; private set; }
 
+    public GameObject lobby;
+    public GameObject onlineMatchmakingParent;
+
     /// <summary>
     /// Unity Awake method. Initializes singleton and Unity Authentication.
     /// </summary>
@@ -123,7 +126,9 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
 
             onlineCreationUI.HideOnCreateUI();
-            NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
+            //NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
+            lobby.SetActive(true);
+            onlineMatchmakingParent.SetActive(false);
         }
         catch (LobbyServiceException e)
         {
@@ -251,7 +256,7 @@ public class GameLobby : MonoBehaviour
         catch
         {
             NetworkManager.Singleton.Shutdown();
-            SceneManager.LoadScene("UI_MainMenu");
+            Instantiate(lobby);
         }
     }
 
