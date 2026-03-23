@@ -1211,26 +1211,26 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            slowCounter = Mathf.Max(0, slipperyCounter - 1);
+            slowCounter = Mathf.Max(0, slowCounter - 1);
         }
 
         isSlowed = slowCounter > 0;
 
         //Effect continuos
-        if (isSlowed)
-        {
-            currentPlayerSpeed = playerBaseSpeed * slowFactor;
-            //Effect.Play();
-        }
-        else
-        {
-            currentPlayerSpeed = playerBaseSpeed;
-            //Effect.Stop();
-        }
+        //if (isSlowed)
+        //{
+        //    currentPlayerSpeed = playerBaseSpeed * slowFactor;
+        //    //Effect.Play();
+        //}
+        //else
+        //{
+        //    currentPlayerSpeed = playerBaseSpeed;
+        //    //Effect.Stop();
+        //}
 
         ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
-        dashDisabledUI.SetActive(isSlowed);
+        //dashDisabledUI.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
