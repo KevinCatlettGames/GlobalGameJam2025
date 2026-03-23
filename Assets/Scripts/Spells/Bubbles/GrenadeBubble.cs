@@ -59,6 +59,7 @@ public class GrenadeBubble : BasicBubble
                         
                         gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                         player.StartVulnerable(vulnerableDuration);
+                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                     }
                 }
                 else

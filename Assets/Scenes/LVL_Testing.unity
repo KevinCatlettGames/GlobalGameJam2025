@@ -1173,12 +1173,6 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
---- !u!4 &1242311256 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 1647630035624308313, guid: fcb4f7d39024c7e41a042d4f16f9370b,
-    type: 3}
-  m_PrefabInstance: {fileID: 1608606915266651741}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &1382051662
 GameObject:
   m_ObjectHideFlags: 0
@@ -2072,6 +2066,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7dac5ec256a8d74abdadbc776efdffb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1542867655
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1542867656}
+  m_Layer: 0
+  m_Name: DummyRespawn
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1542867656
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1542867655}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0.9238796, z: 0, w: -0.38268325}
+  m_LocalPosition: {x: 10, y: 2, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1550741317
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -31327,7 +31352,7 @@ MonoBehaviour:
       Data4: 2076522920
     Path: event:/sfx/player/player_spawn
   respawnTime: 3
-  setRespawnPosition: {fileID: 1242311256}
+  setRespawnPosition: {fileID: 1542867656}
   maxLifes: -1
 --- !u!198 &4183130229057037974
 ParticleSystem:
@@ -50999,6 +51024,11 @@ PrefabInstance:
       propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2443735587043106483, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4409842814362948880, guid: ef310da78073cd04982db8f49e852300,
         type: 3}
       propertyPath: GlobalObjectIdHash
@@ -61610,6 +61640,9 @@ MonoBehaviour:
   slipperyModifier: 2
   slowFactor: 0.7
   dashDisabledUI: {fileID: 8435244653213296778}
+  dmgTakenUltFactor: 0.5
+  dmgDealtUltFactor: 0.25
+  maxUltCharge: 100
   playerSprintSpeed: 24
   playerSprintDuration: 0.5
   sprintCooldown: 3
@@ -61832,3 +61865,4 @@ SceneRoots:
   - {fileID: 495965606}
   - {fileID: 1657017457}
   - {fileID: 8774792281960362095}
+  - {fileID: 1542867656}

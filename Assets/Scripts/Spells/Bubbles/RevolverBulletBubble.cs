@@ -15,23 +15,8 @@ public class RevolverBulletBubble : BasicBubble
 
         if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            GameManager gameManager = GameManager.Instance;
-
-            if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-            else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-
             if (revolverBubble)
                 revolverBubble.AddToHitCount();
-
-            if (popOnPlayerHit)
-            {
-                Pop();
-            }
         }
         else if (other.CompareTag("Bubble"))
         {
@@ -40,14 +25,7 @@ public class RevolverBulletBubble : BasicBubble
                 if (revolverComp.OwnerID == OwnerID)
                     return;
             }
-            if (popOnBubbleHit)
-            {
-                Pop();
-            }
         }
-        else
-        {
-            Pop();
-        }
+        base.BubbleCollision(other);
     }
 }

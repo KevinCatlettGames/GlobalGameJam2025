@@ -17,6 +17,7 @@ public class SO_Spell : ScriptableObject
     
     [Header("Bubble")]
     [SerializeField] protected GameObject bubble;
+    [SerializeField] protected GameObject ultBubble;
     [SerializeField] protected float bubbleDamage = 1.0f;
     [SerializeField] protected float bubbleKnockback = 1.0f;
     [SerializeField] protected float bubbleSpeed = 1.0f;
@@ -46,7 +47,7 @@ public class SO_Spell : ScriptableObject
     [SerializeField] private bool canUse = true;
     public bool CanUse { get => canUse; set => canUse = value; }
     
-    virtual public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
+    virtual public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt)
     {
         dir.Normalize();
 
@@ -55,7 +56,11 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
-            GameObject bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
+            GameObject bubbleInstance;
+            if (isUlt)
+                bubbleInstance = Instantiate(ultBubble, pos, Quaternion.LookRotation(dir));
+            else
+                bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
             bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
