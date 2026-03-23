@@ -15,6 +15,17 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     public int playerIndex = 0;
     public bool currentlyOnLocked;
 
+    private void OnDisable()
+    {
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[playerIndex];
+        containerBackground.color = skinToUse.Color;
+        containerBackgroundOutline.effectColor = skinToUse.Color;
+        avatarBackground.color = skinToUse.Color;
+        avatar.sprite = skinToUse.LobbySprite;
+        avatar.color = Color.white;
+        gameObject.SetActive(false);
+    }
+
     public void SwapColorWithIncrementation(bool increment)
     {
         if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return;

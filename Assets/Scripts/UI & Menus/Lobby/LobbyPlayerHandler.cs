@@ -45,6 +45,11 @@ public class LobbyPlayerHandler : NetworkBehaviour
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
     }
 
+    private void OnDisable()
+    {
+        playerValuesList.Clear();
+    }
+
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;

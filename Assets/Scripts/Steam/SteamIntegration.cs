@@ -60,6 +60,8 @@ public class SteamIntegration : MonoBehaviour
     #region Unity Life Cycle
     private void Awake()
     {
+        gameObject.transform.parent = null;
+
         if (instance == null)
             instance = this;
         else Destroy(gameObject);

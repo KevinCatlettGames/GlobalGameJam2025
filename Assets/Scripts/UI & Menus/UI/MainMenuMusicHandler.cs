@@ -8,6 +8,8 @@ public class MainMenuMusicHandler : MonoBehaviour
     [SerializeField] private int[] indexesToPersist;
     private void Awake()
     {
+        gameObject.transform.parent = null;
+
         if (Instance != null && Instance != this)
         {
             Destroy(this.gameObject);
