@@ -8,10 +8,10 @@ public class BasicUlt : BasicBubble
         //Manual Placeholders
         dmg = 50f;
         knb = 12f;
-        spd = 25f;
-        rng = 20f;
+        spd = 30f;
+        rng = 25f;
         siz = 10f;
-        inf = 30f;
+        inf = 60f;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
     }
 }
