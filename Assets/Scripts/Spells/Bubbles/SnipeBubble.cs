@@ -19,21 +19,6 @@ public class SnipeBubble : BasicBubble
         maxDamage = dmg;
         currentDamage = minDamage;
         damageScaling = (maxDamage - minDamage) / damageRampUpDistance;
-
-        if (playerCollider != null)
-        {
-            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, true);
-            StartCoroutine(ReenableCollisionAfterDelay(1f));
-        }
-    }
-
-    private IEnumerator ReenableCollisionAfterDelay(float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        if (playerCollider != null)
-        {
-            Physics.IgnoreCollision(GetComponent<Collider>(), playerCollider, false);
-        }
     }
 
     protected override void BubbleMovement()
@@ -53,20 +38,8 @@ public class SnipeBubble : BasicBubble
 
         if (other.CompareTag("Player"))
         {
-            PlayerController player = other.GetComponent<PlayerController>();
-            GameManager gameManager = GameManager.Instance;
-            
-            if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, currentDamage);
-            else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, currentDamage);
-            
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-            
             if (currentDamage >= maxDamage)
                 CheckMaxSniperDamageAchievement();
-            
-            Pop();
         }
         else if (other.CompareTag("Bubble"))
         {
@@ -74,12 +47,11 @@ public class SnipeBubble : BasicBubble
             {
                 snipeComponent.Pop();
                 Pop();
+                return;
             }
         }
-        else
-        {
-            Pop();
-        }
+        damage = currentDamage;
+        base.BubbleCollision(other);
     }
 
     void CheckMaxSniperDamageAchievement()

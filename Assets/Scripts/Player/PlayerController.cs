@@ -91,6 +91,16 @@ public class PlayerController : NetworkBehaviour
     private int slipperyCounter = 0;
     private bool isSlippery = false; 
     private Coroutine vulnerableRoutine = null;
+    private float vulnerableTimer = 0f;
+    #endregion
+
+    #region Ult
+    [Header("Ult")]
+    [SerializeField] private float dmgTakenUltFactor = .5f;
+    [SerializeField] private float dmgDealtUltFactor = .25f;
+    [SerializeField] private float maxUltCharge = 100f;
+    private float currentUltCharge = 0f;
+    private bool isUltCharged = false;
     #endregion
 
     #region Sprint
@@ -403,6 +413,18 @@ public class PlayerController : NetworkBehaviour
         CastSpell(false);
     }
 
+    public void OnUltCharge(InputAction.CallbackContext context)
+    {
+        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
+        if (currentUltCharge >= maxUltCharge)
+        {
+            isUltCharged = true;
+            playerHUD.ChargeUlt(true);
+        }
+        else
+            controllerRumbler?.Rumble(.15f, 1f, 5f);
+    }
+
     private void CastSpell(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
@@ -430,7 +452,14 @@ public class PlayerController : NetworkBehaviour
     private void CastSpellLocal(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged);
+        if (isUltCharged)
+        {
+            currentUltCharge = 0;
+            isUltCharged = false;
+            playerHUD.ChargeUlt(false);
+            playerHUD.SetUltSlider(0);
+        }
         if (isFirstSpell)
         {
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
@@ -460,7 +489,14 @@ public class PlayerController : NetworkBehaviour
     private void CastSpellClientRpc(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller);
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged);
+        if (isUltCharged)
+        {
+            currentUltCharge = 0;
+            isUltCharged = false;
+            playerHUD.ChargeUlt(false);
+            playerHUD.SetUltSlider(0);
+        }
         if (isFirstSpell)
         {
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
@@ -843,7 +879,21 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Damage
-
+    [ServerRpc]
+    public void ApplyImpulseServerRpc(Vector3 direction, float force) => ApplyForceClientRpc(direction, force);
+    [ClientRpc]
+    public void ApplyForceClientRpc(Vector3 direction, float force)
+    {
+        direction.y = 0;
+        direction.Normalize();
+        knockbackVelocity += direction * force;
+    }
+    public void ApplyImpulseLocal(Vector3 direction, float force)
+    {
+        direction.y = 0;
+        direction.Normalize();
+        knockbackVelocity += direction * force; 
+    }
     [ServerRpc(RequireOwnership = false)]
     public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
     {
@@ -885,6 +935,7 @@ public class PlayerController : NetworkBehaviour
             playerHUD.UpdateDamageText((int)damage);
             damagedEffect.UpdateParticleSystem(damage);
             damageParticleSystem.Play();
+            GainUltCharge(dmg, false);
 
             if (GameManager.Instance.PlayingLocal)
             {
@@ -962,6 +1013,7 @@ public class PlayerController : NetworkBehaviour
             playerHUD.UpdateDamageText((int)damage);
             damageParticleSystem.Play();
             damagedEffect.UpdateParticleSystem(damage);
+            GainUltCharge(dmg, false);
 
             if (GameManager.Instance.PlayingLocal)
             {
@@ -1111,6 +1163,17 @@ public class PlayerController : NetworkBehaviour
 
     #endregion
 
+    #region Ult
+    public void GainUltCharge(float charge, bool isDamageDealt)
+    {
+        charge *= isDamageDealt ? dmgDealtUltFactor : dmgTakenUltFactor;
+        currentUltCharge += charge;
+        currentUltCharge = Mathf.Clamp(currentUltCharge, 0, maxUltCharge);
+        playerHUD.SetUltSlider((float)currentUltCharge/maxUltCharge);
+    }
+
+    #endregion
+
     #region BoneFish
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
@@ -1196,44 +1259,53 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            slowCounter = Mathf.Max(0, slipperyCounter - 1);
+            slowCounter = Mathf.Max(0, slowCounter - 1);
         }
 
         isSlowed = slowCounter > 0;
 
         //Effect continuos
-        if (isSlowed)
-        {
-            currentPlayerSpeed = playerBaseSpeed * slowFactor;
-            //Effect.Play();
-        }
-        else
-        {
-            currentPlayerSpeed = playerBaseSpeed;
-            //Effect.Stop();
-        }
+        //if (isSlowed)
+        //{
+        //    currentPlayerSpeed = playerBaseSpeed * slowFactor;
+        //    //Effect.Play();
+        //}
+        //else
+        //{
+        //    currentPlayerSpeed = playerBaseSpeed;
+        //    //Effect.Stop();
+        //}
 
         ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
-        dashDisabledUI.SetActive(isSlowed);
+        //dashDisabledUI.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
-        if (vulnerableRoutine != null)
-            StopCoroutine(vulnerableRoutine);
-        vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time)); 
+        if (vulnerableRoutine == null)
+            vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time));
+        else if (time > vulnerableTimer)
+        {
+            vulnerableTimer = time;
+        }
     }
     private IEnumerator VulnerableCoroutine(float duration)
     {
+        vulnerableTimer = duration;
         isVulnerable = true;
         shaderManager.SetShaderState(ShaderState.sauced);
-        yield return new WaitForSeconds(duration);
+        while (vulnerableTimer > 0)
+        {
+            vulnerableTimer -= Time.deltaTime;
+            yield return null;
+        }
         StopVulnerable();
     }
     private void StopVulnerable()
     {
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
+        vulnerableRoutine = null;
         isVulnerable = false;
         shaderManager.SetShaderState(ShaderState.sober);
     }
@@ -1260,7 +1332,9 @@ public class PlayerController : NetworkBehaviour
         damagedEffect.UpdateParticleSystem(-1);
         killCreditID = -1;
         hitStunDuration = 0;
-
+        currentUltCharge = 0;
+        playerHUD.SetUltSlider(0);
+        isUltCharged = false;
         slipperyCounter = 0;
         isSlippery = false;
         slowCounter = 0;

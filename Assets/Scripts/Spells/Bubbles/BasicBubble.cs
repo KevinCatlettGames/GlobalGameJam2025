@@ -22,7 +22,8 @@ public class BasicBubble : NetworkBehaviour
         Demolish,
         Ink,
         Boomerang,
-        Blast
+        Blast,
+        Harpoon
     };
 
     public SpellType spellType;
@@ -45,8 +46,8 @@ public class BasicBubble : NetworkBehaviour
     protected bool isReflected = false;
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
-    protected bool popOnPlayerHit = true;
-    protected bool popOnBubbleHit = true;
+    [SerializeField] protected bool popOnPlayerHit = true;
+    [SerializeField] protected bool popOnBubbleHit = true;
 
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
@@ -191,6 +192,7 @@ public class BasicBubble : NetworkBehaviour
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
             if (popOnPlayerHit)
                 Pop();
@@ -221,7 +223,7 @@ public class BasicBubble : NetworkBehaviour
             Destroy(gameObject);
         }
     }  
-    private void Reflect(Vector3 normal)
+    protected virtual void Reflect(Vector3 normal)
     {
         if (!IsServer) return;
         if (playerCollider != null)

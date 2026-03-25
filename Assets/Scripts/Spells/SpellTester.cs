@@ -11,7 +11,7 @@ public class SpellTester : MonoBehaviour
     {
         if (Input.GetKeyDown("space"))
         {
-            spell.CastSpell(0, transform.position, transform.forward, null);
+            spell.CastSpell(0, transform.position, transform.forward, null, false);
         }
     }
 }

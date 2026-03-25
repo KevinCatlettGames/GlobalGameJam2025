@@ -65,6 +65,7 @@ public class ExplodingBubble : BasicBubble
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                     }
                 }
                 else

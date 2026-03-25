@@ -42,6 +42,7 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private Color deathColor;
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
+    [SerializeField] private Slider ultSlider;
 
     [Header("Score")]
     [SerializeField] private TypewriterByWord lifesTypewriter;
@@ -243,6 +244,8 @@ public class PlayerHUD : NetworkBehaviour
         UICover.SetActive(false);
         UpdateDamageText(0);
         SetPortrait(0);
+        ChargeUlt(false);
+        SetUltSlider(0);
     }
 
     private void SetPortrait(int portaritIndex)
@@ -250,6 +253,19 @@ public class PlayerHUD : NetworkBehaviour
         if (portaritIndex == currentPortraitIndex || portaritIndex < 0 || portaritIndex >= portraitSprites.Length) return;
         currentPortraitIndex = portaritIndex;
         portrait.sprite = portraitSprites[currentPortraitIndex];
+    }
+
+    public void SetUltSlider(float value)
+    {
+        value = Mathf.Clamp01(value);
+        ultSlider.value = value;
+    }
+
+    public void ChargeUlt(bool isCharged)
+    {
+        Color color = isCharged ? Color.yellow : Color.white;
+        firstSpellImage.color = color;
+        secondSpellImage.color = color;
     }
 
     private void OnDestroy()

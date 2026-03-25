@@ -17,9 +17,9 @@ public class BlastBubble : BasicBubble
         transform.position += direction * extraOffset;
 
         if (GameManager.Instance.PlayingLocal)
-            playerCollider.GetComponent<PlayerController>().ApplyKnockbackLocal(-2, direction * -1, shooterKnb, 0);
+            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
         else
-            playerCollider.GetComponent<PlayerController>().ApplyKnockbackServerRpc(-2, direction * -1, shooterKnb, 0);
+            playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
     }
     protected override void InflateOverlapChack()
     {

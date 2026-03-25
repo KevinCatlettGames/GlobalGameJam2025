@@ -50,14 +50,17 @@ public class PlayerStateHandler : MonoBehaviour
 
         if (other.CompareTag("Deathzone") && canDie)
         {
-            canDie = false;
-
-            LooseLife();
-
-            playerController.Die();
-            Invoke(nameof(DisablePlayer), 2f);
+            KillPlayer();
         }
+    }
+    public void KillPlayer()
+    {
+        canDie = false;
 
+        LooseLife();
+
+        playerController.Die();
+        Invoke(nameof(DisablePlayer), 2f);
     }
 
     private void DisablePlayer()

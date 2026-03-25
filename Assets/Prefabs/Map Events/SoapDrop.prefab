@@ -160,6 +160,7 @@ GameObject:
   - component: {fileID: 3023968487518810883}
   - component: {fileID: 3712151359011690177}
   - component: {fileID: 5828059704565752848}
+  - component: {fileID: 3069317608349125726}
   m_Layer: 0
   m_Name: SoapDrop
   m_TagString: Untagged
@@ -271,6 +272,13 @@ MonoBehaviour:
   soapSplash: {fileID: 5835028745261568127, guid: b20db66dbcb1ddc4f93ca0bd8d16e506,
     type: 3}
   startDelay: 0.5
+  soundEvent:
+    Guid:
+      Data1: -1174739011
+      Data2: 1208866332
+      Data3: 864525192
+      Data4: -1674144284
+    Path: event:/sfx/map/water_incoming
   dropletTransform: {fileID: 1097493945000504887}
   startHeight: 50
   dropletFallSpeed: 50
@@ -280,6 +288,37 @@ MonoBehaviour:
   radius: 2.65
   minSize: 0.8
   maxSize: 2
+--- !u!114 &3069317608349125726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5807514194699078856}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 798824260
+      Data2: 1334367502
+      Data3: -288311886
+      Data4: -2120918217
+    Path: event:/sfx/map/water_drop
+  Event: 
+  EventPlayTrigger: 2
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &7613433043958518959
 GameObject:
   m_ObjectHideFlags: 0

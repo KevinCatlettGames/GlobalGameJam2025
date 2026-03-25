@@ -10,23 +10,32 @@ public class LevelSwitcher : MonoBehaviour
     
     void Update()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay) return; 
-        
-        if (Input.GetKeyDown(KeyCode.Alpha1))
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay) return;
+
+
+        if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha2))
+        else if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[1], LoadSceneMode.Single);
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha3))
+        else if (Input.GetKeyDown(KeyCode.Alpha2))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[2], LoadSceneMode.Single);
         }
-        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        else if (Input.GetKeyDown(KeyCode.Alpha3))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[3], LoadSceneMode.Single);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha4))
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[4], LoadSceneMode.Single);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha0))
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);
         }
     }
 }

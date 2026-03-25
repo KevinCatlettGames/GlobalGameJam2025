@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public class RisingWall : MonoBehaviour
     [SerializeField] private ParticleSystem riseParticle;
     [SerializeField] private ParticleSystem idleParticle;
     [SerializeField] private ParticleSystem sinkParticle;
+    [SerializeField] private EventReference riseEvent;
+    [SerializeField] private EventReference sinkEvent;
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
     void Start()
@@ -21,14 +24,14 @@ public class RisingWall : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void Rise()
+    public virtual void Rise()
     {
         if (isActive) return;
         isActive = true;
         StopAllCoroutines();
         StartCoroutine(RiseCoroutine());
     }
-    public void Sink(bool instant)
+    public virtual void Sink(bool instant)
     {
         if (!isActive) return;
         isActive = false; 
@@ -42,9 +45,11 @@ public class RisingWall : MonoBehaviour
         float r = Random.Range(0, randomDelay);
         yield return new WaitForSeconds(r);
         animator.SetTrigger("Rise");
+        RuntimeManager.PlayOneShotAttached(riseEvent, gameObject);
         riseParticle?.Play();
         idleParticle?.Play();
-        abschieber.SetActive(true);
+        if (abschieber != null)
+            abschieber.SetActive(true);
         bubblingParticle?.Stop();
     }
     private IEnumerator SinkCoroutine(bool instant)
@@ -59,12 +64,14 @@ public class RisingWall : MonoBehaviour
             animator.speed = 3;
         }
         animator.SetTrigger("Sink");
+        RuntimeManager.PlayOneShotAttached(sinkEvent, gameObject);
         idleParticle?.Stop();
         sinkParticle?.Play();
-        abschieber.SetActive(false);
-        yield return null;
+        //yield return null;
         //AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
         //float animationLengh = animatorStateInfo.length;
+        if (abschieber != null)
+            abschieber.SetActive(false);
         yield return new WaitForSeconds(2f);
         animator.speed = 1;
         gameObject.SetActive(false);
