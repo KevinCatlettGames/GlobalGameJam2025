@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
+using UnityEngine.Events;
 
 public class LobbyButtons : MonoBehaviour
 {
@@ -28,7 +29,8 @@ public class LobbyButtons : MonoBehaviour
     public StudioEventEmitter buttonOnClickEmitter;
     
     LobbyManager lobbyManager;
-    
+    public GameObject lobbyParent; 
+
     private void OnEnable()
     {
         lobbyManager = LobbyManager.instance;
@@ -155,10 +157,12 @@ public class LobbyButtons : MonoBehaviour
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
 
-        Destroy(NetworkManager.Singleton.gameObject);
+        // Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
-        SceneManager.LoadScene("UI_MainMenu");
+        MenuSelection.Instance.gameObject.SetActive(true);
+        Destroy(lobbyParent);
+        //SceneManager.LoadScene("UI_MainMenu");
     }
 
     private async void GoToMainMenu()
@@ -248,6 +252,7 @@ public class LobbyButtons : MonoBehaviour
         if (lobbyManager.MatchSettingsSelection.activeSelf)
             lobbyManager.GameModeSelection.SetActive(false);
         
+
         buttonOnClickEmitter.Play();
     }
 }
