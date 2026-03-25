@@ -257,6 +257,7 @@ public class PlayerHUD : NetworkBehaviour
 
     public void SetUltSlider(float value)
     {
+        return; // Remove when Ult back
         value = Mathf.Clamp01(value);
         ultSlider.value = value;
     }

@@ -415,6 +415,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnUltCharge(InputAction.CallbackContext context)
     {
+        return; // Remove when Ult is back
         if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
         if (currentUltCharge >= maxUltCharge)
         {
