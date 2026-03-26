@@ -14,17 +14,16 @@ public class PlayerContainerManager : MonoBehaviour
 
     private void OnEnable()
     {
+        Debug.Log("On enable");
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.AddListener(ReadyStateUpdated);
     }
 
     private void OnDisable()
     {
+        Debug.Log("On disable");
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
-
-        isReady = false;
-        image.sprite = unreadySprite;
     }
 
     private void Start()
@@ -48,6 +47,7 @@ public class PlayerContainerManager : MonoBehaviour
     {
         if ((int)clientId != uiIndex) return;
 
+        Debug.Log("Ready updated");
         isReady = !isReady;
         image.sprite = isReady ? readySprite : unreadySprite;
     }
