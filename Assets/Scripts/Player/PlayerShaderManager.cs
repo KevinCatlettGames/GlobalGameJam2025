@@ -17,7 +17,7 @@ public class PlayerShaderManager : MonoBehaviour
     private bool damageEffectActice = false;
     private ShaderState currentShaderState = ShaderState.sober;
     private string[] enumKeys = { "_STATUS_SOBER", "_STATUS_WET", "_STATUS_SAUCED", "_STATUS_INKED", "_STATUS_BUFFED" };
-    void Start()
+    void Awake()
     {
         material = GetComponent<SkinnedMeshRenderer>().materials[materialElementID];
     }
