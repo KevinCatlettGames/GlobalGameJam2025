@@ -85,6 +85,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float slowFactor = .4f;
     [SerializeField] private GameObject dashDisabledUI;
+    [SerializeField] private GameObject doomedUI;
     private bool isVulnerable = false;
     private int slowCounter = 0;
     private bool isSlowed = false;
@@ -693,6 +694,9 @@ public class PlayerController : NetworkBehaviour
 
         if (!isSlowed)
             currentPlayerSpeed = playerBaseSpeed;
+        else
+            currentPlayerSpeed = playerBaseSpeed * slowFactor;
+
         moveSmoothTime = originalSmooth;
         isSprinting = false;
 
@@ -1175,7 +1179,7 @@ public class PlayerController : NetworkBehaviour
 
     #endregion
 
-    #region BoneFish
+    #region MapEvent
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("BoneFish") && canBeBoneFished)
@@ -1219,6 +1223,13 @@ public class PlayerController : NetworkBehaviour
         //Effects and Animation go here
         knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
         knockbackVelocity.y = 0;
+    }
+
+    public void SetDoomed(bool isDoomed)
+    {
+        doomedUI.SetActive(isDoomed);
+        ShaderState state = (isDoomed) ? ShaderState.inked : ShaderState.sober;
+        shaderManager.SetShaderState(state);
     }
     #endregion
 
@@ -1266,20 +1277,20 @@ public class PlayerController : NetworkBehaviour
         isSlowed = slowCounter > 0;
 
         //Effect continuos
-        //if (isSlowed)
-        //{
-        //    currentPlayerSpeed = playerBaseSpeed * slowFactor;
-        //    //Effect.Play();
-        //}
-        //else
-        //{
-        //    currentPlayerSpeed = playerBaseSpeed;
-        //    //Effect.Stop();
-        //}
+        if (isSlowed)
+        {
+            currentPlayerSpeed = playerBaseSpeed * slowFactor;
+            //Effect.Play();
+        }
+        else
+        {
+            currentPlayerSpeed = playerBaseSpeed;
+            //Effect.Stop();
+        }
 
         ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
-        //dashDisabledUI.SetActive(isSlowed);
+        dashDisabledUI.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
@@ -1341,6 +1352,7 @@ public class PlayerController : NetworkBehaviour
         slowCounter = 0;
         isSlowed = false;
         dashDisabledUI.SetActive(false);
+        doomedUI.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);

@@ -27,7 +27,7 @@ public class VortexDeathZone : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.SetSlowed(true);
+            player.SetDoomed(true);
             playersInRange.Add(player);
         }
     }
@@ -36,7 +36,7 @@ public class VortexDeathZone : MonoBehaviour
         if (other.CompareTag("Player") && playersInRange.Contains(other.GetComponent<PlayerController>()))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-            player.SetSlowed(false);
+            player.SetDoomed(false);
             timeInZone[player.PlayerID] = 0f;
             playersInRange.Remove(player);
         }
