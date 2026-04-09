@@ -30,7 +30,6 @@ public class SoapDroplet : NetworkBehaviour
         dropletTransform.gameObject.SetActive(false);
         size = Random.Range(minSize, maxSize);
         transform.localScale = Vector3.one * size;
-        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         Invoke(nameof(ActivateDroplet), startDelay);
         GameManager.Instance.OnGameStarted += DestroyOnRestart;
     }
@@ -38,6 +37,7 @@ public class SoapDroplet : NetworkBehaviour
     private void ActivateDroplet()
     {
         dropletTransform.gameObject.SetActive(true);
+        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         activeDroplet = true;
     }
     void FixedUpdate()
