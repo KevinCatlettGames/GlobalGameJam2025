@@ -7,9 +7,9 @@ public abstract class MapEvent : MonoBehaviour
     [SerializeField] private int mapID = 0;
     void Awake()
     {
-        bool isMapEventEnabled = false;
+        bool isMapEventEnabled = true;
         if (LobbyManager.instance)
-            isMapEventEnabled = LobbyManager.instance.MapSettings[0].PlayWithMapEvent;
+            isMapEventEnabled = LobbyManager.instance.MapSettings[mapID].PlayWithMapEvent;
 
         if (!isMapEventEnabled) Destroy(gameObject);
         if (TransportSwitcher.Instance)
