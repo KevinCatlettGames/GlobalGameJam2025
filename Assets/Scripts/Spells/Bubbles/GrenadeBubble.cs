@@ -1,28 +1,26 @@
 using FMODUnity;
+using System.Collections;
 using UnityEngine;
 
 public class GrenadeBubble : BasicBubble
 {
     private bool hasExploded = false;
     [SerializeField] private float explosionRadius = 5f;
-    [SerializeField] private float height = 20f;
-    [SerializeField] private float gravity = 10f;
     [SerializeField] private float vulnerableDuration = 4f;
+    [SerializeField] private AnimationCurve arc;
+    private float evaluateStep = 1f;
+    private float progress = 0f;
 
     public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        dir.y = height;
         base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
         canMiss = false;
+        evaluateStep = range / speed;
     }
     protected override void BubbleMovement()
     {
-        direction.y -= gravity * Time.fixedDeltaTime;
-        transform.rotation = Quaternion.LookRotation(direction);
-        if (transform.position.y <= 0)
-        {
-            Pop();
-        }
+        progress += evaluateStep * Time.fixedDeltaTime;
+        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress), transform.position.z);
         base.BubbleMovement();
     }
     protected override void Pop()
@@ -61,6 +59,7 @@ public class GrenadeBubble : BasicBubble
                         
                         gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                         player.StartVulnerable(vulnerableDuration);
+                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                     }
                 }
                 else

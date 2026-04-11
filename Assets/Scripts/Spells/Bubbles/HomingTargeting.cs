@@ -44,10 +44,26 @@ public class HomingTargeting : MonoBehaviour
             targetsInRange.Remove(other.transform);
         }
     }
-    public void SetTargeting(float radius, Collider playerCollider)
+    public void SetTargeting(float radius, Collider playerCollider, int ID)
     {
         SphereCollider homigCollider = GetComponent<SphereCollider>();
-        if (playerCollider != null) Physics.IgnoreCollision(homigCollider, playerCollider, true);
+        if (homigCollider != null)
+        {
+            List<PlayerController> team = GameManager.Instance.GetTeam(ID);
+            if (team != null)
+            {
+                foreach (PlayerController player in team)
+                {
+                    if (player != null)
+                        Physics.IgnoreCollision(homigCollider, player.Controller, true);
+                }
+            }
+            else
+            {
+                if (playerCollider != null)
+                    Physics.IgnoreCollision(homigCollider, playerCollider, true);
+            }
+        }
         homigCollider.radius = radius;
     }
 }

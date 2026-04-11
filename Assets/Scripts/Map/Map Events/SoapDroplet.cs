@@ -1,3 +1,4 @@
+using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -5,6 +6,7 @@ public class SoapDroplet : NetworkBehaviour
 {
     [SerializeField] private GameObject soapSplash;
     [SerializeField] private float startDelay = .5f;
+    [SerializeField] private EventReference soundEvent;
     [Header("Droplet Physics")]
     [SerializeField] private Transform dropletTransform;
     [SerializeField] private float startHeight = 50;
@@ -35,6 +37,7 @@ public class SoapDroplet : NetworkBehaviour
     private void ActivateDroplet()
     {
         dropletTransform.gameObject.SetActive(true);
+        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         activeDroplet = true;
     }
     void FixedUpdate()
@@ -51,8 +54,8 @@ public class SoapDroplet : NetworkBehaviour
             if (IsServer)
             {
                 GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
-                splash.GetComponent<NetworkObject>()?.Spawn();
                 splash.transform.localScale = Vector3.one * size;
+                splash.GetComponent<NetworkObject>()?.Spawn();
             }
 
             hasExploded = true;

@@ -196,7 +196,14 @@ public class PauseManager : MonoBehaviour
             Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
-        SceneManager.LoadScene("UI_MainMenu");
+
+        if (SceneTransition.instance)
+        {
+            SceneTransition.instance.OnTransitionFinished.AddListener(LoadMainMenu);
+            SceneTransition.instance.MenuTransition();
+        }
+        else
+            LoadMainMenu();
     }
 
     public async void ReturnToLobby()
@@ -207,7 +214,23 @@ public class PauseManager : MonoBehaviour
         if(LobbyManager.instance)
             Destroy(LobbyManager.instance.gameObject);
         
+        if (SceneTransition.instance)
+        {
+            SceneTransition.instance.OnTransitionFinished.AddListener(LoadLobby);
+            SceneTransition.instance.MenuTransition();
+        }
+        else
+            LoadLobby();
+    }
+
+    void LoadLobby()
+    {
         SceneManager.LoadScene("UI_Lobby");
+    }
+
+    void LoadMainMenu()
+    {
+        SceneManager.LoadScene("UI_MainMenu");
     }
     
     private bool IsHost()

@@ -1,7 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using FMOD.Studio;
 using FMODUnity;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
@@ -15,6 +14,17 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     public int currentColorIndex;
     public int playerIndex = 0;
     public bool currentlyOnLocked;
+
+    private void OnDisable()
+    {
+        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[playerIndex];
+        containerBackground.color = skinToUse.Color;
+        containerBackgroundOutline.effectColor = skinToUse.Color;
+        avatarBackground.color = skinToUse.Color;
+        avatar.sprite = skinToUse.LobbySprite;
+        avatar.color = Color.white;
+        gameObject.SetActive(false);
+    }
 
     public void SwapColorWithIncrementation(bool increment)
     {

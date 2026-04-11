@@ -2,6 +2,7 @@ using System.Collections;
 using UnityEngine;
 using FMODUnity;
 using Unity.Netcode;
+using System.Collections.Generic;
 
 public class BasicBubble : NetworkBehaviour
 {
@@ -20,7 +21,9 @@ public class BasicBubble : NetworkBehaviour
         Grenade,
         Demolish,
         Ink,
-        Boomerang
+        Boomerang,
+        Blast,
+        Harpoon
     };
 
     public SpellType spellType;
@@ -38,12 +41,13 @@ public class BasicBubble : NetworkBehaviour
     protected SphereCollider sphereCollider;
     protected float currentSize = 0.01f;
     protected Collider playerCollider;
+    protected List<Collider> ignoredColliders = new List<Collider>();
     protected bool isSoaped = false;
     protected bool isReflected = false;
     protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
-    protected bool popOnPlayerHit = true;
-    protected bool popOnBubbleHit = true;
+    [SerializeField] protected bool popOnPlayerHit = true;
+    [SerializeField] protected bool popOnBubbleHit = true;
 
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
@@ -80,8 +84,24 @@ public class BasicBubble : NetworkBehaviour
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
-            if (playerCollider != null)
-                Physics.IgnoreCollision(sphereCollider, playerCollider, true);
+            List<PlayerController> team = GameManager.Instance.GetTeam(ID);
+            if (team != null)
+            {
+                foreach (PlayerController player in team)
+                {
+                    if (player != null)
+                        ignoredColliders.Add(player.Controller);
+                }
+            }
+            else
+            {
+                if (playerCollider != null)
+                    ignoredColliders.Add(playerCollider);
+            }
+            foreach(Collider col in ignoredColliders)
+            {
+                Physics.IgnoreCollision(sphereCollider,col);
+            }
             StartCoroutine(Inflate());
         }
     }
@@ -111,9 +131,9 @@ public class BasicBubble : NetworkBehaviour
     {
         Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
 
-        foreach (var col in overlaps)
+        foreach (Collider col in overlaps)
         {
-            if (col == playerCollider) continue;
+            if (ignoredColliders.Contains(col)) continue;
             BubbleCollision(col.gameObject);
             break;
         }
@@ -172,6 +192,7 @@ public class BasicBubble : NetworkBehaviour
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
             if (popOnPlayerHit)
                 Pop();
@@ -202,7 +223,7 @@ public class BasicBubble : NetworkBehaviour
             Destroy(gameObject);
         }
     }  
-    private void Reflect(Vector3 normal)
+    protected virtual void Reflect(Vector3 normal)
     {
         if (!IsServer) return;
         if (playerCollider != null)

@@ -2,7 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 
 
-public class FishEvent : MonoBehaviour
+public class FishEvent : MapEvent
 {
     [SerializeField] private JumpingFish jumpingFish;
     [SerializeField] private Transform[] jumpingPoints;
@@ -11,42 +11,15 @@ public class FishEvent : MonoBehaviour
     private bool isLeft = false;
     private int jp_offset = 0;
 
-    private void Awake()
-    {
-        bool isMapEventActive = true;
-        if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.MapSettings[3].PlayWithMapEvent;
-
-        if (!isMapEventActive)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        if (TransportSwitcher.Instance)
-        {
-            if (!NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted += StartEvent;
-            GameManager.Instance.OnGameEnded += StopEvent;
-            Invoke(nameof(StartEvent), 7);
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted += StartEvent;
-            GameManager.Instance.OnGameEnded += StopEvent;
-            Invoke(nameof(StartEvent), 7);
-        }
-    }
-
     void Start()
     {
         jp_offset = jumpingPoints.Length / 2;
     }
-    private void StartEvent()
+    protected override void StartEvent()
     {
         Invoke(nameof(FishGo), startDelay);
     }
-    private void StopEvent()
+    protected override void StopEvent()
     {
         CancelInvoke();
     }
@@ -57,19 +30,5 @@ public class FishEvent : MonoBehaviour
         isLeft = !isLeft;
         jumpingFish.Jump(jumpingPoints[r]);
         Invoke(nameof(FishGo), jumpDelay);
-    }
-    private void OnDestroy()
-    {
-        if (TransportSwitcher.Instance)
-        {
-            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted -= StartEvent;
-            GameManager.Instance.OnGameEnded -= StopEvent;
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted -= StartEvent;
-            GameManager.Instance.OnGameEnded -= StopEvent;
-        }
     }
 }

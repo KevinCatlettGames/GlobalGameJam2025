@@ -42,17 +42,14 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private Color deathColor;
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
+    [SerializeField] private Slider ultSlider;
 
     [Header("Score")]
-    [SerializeField] private TypewriterByWord winsTypewriter;
-    [SerializeField] private TypewriterByWord killsTypewriter;
     [SerializeField] private TypewriterByWord lifesTypewriter;
 
     [Header("GameSettings")]
     [SerializeField] private SO_GameSettings gameSettings;
 
-    private int kills = 0;
-    private int wins = 0;
     private int lifes = 0;
     private int maxLifes = 0;
 
@@ -60,8 +57,6 @@ public class PlayerHUD : NetworkBehaviour
     {
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
-        killsTypewriter.ShowText(kills.ToString());
-        winsTypewriter.ShowText(wins.ToString());
         if (gameSettings != null)
         {
             maxLifes = gameSettings.Lifes;
@@ -100,6 +95,15 @@ public class PlayerHUD : NetworkBehaviour
     public void InitialisePlayerHUD(int playerID)
     {
         SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
+        foreach (var uiElement in coloredUI)
+        {
+            uiElement.color = skin.Color;
+        }
+        portraitSprites = skin.GameSprites;
+        SetPortrait(0);
+    }
+    public void InitialisePlayerHUD(SkinSO skin)
+    {
         foreach (var uiElement in coloredUI)
         {
             uiElement.color = skin.Color;
@@ -216,19 +220,6 @@ public class PlayerHUD : NetworkBehaviour
         }
     }
 
-
-    public void AddWin()
-    {
-        wins++;
-        winsTypewriter.ShowText(wins.ToString());
-    }
-
-    public void AddKill()
-    {
-        kills++;
-        killsTypewriter.ShowText(kills.ToString());
-    }
-
     public void DisplayDeath()
     {
         SetPortrait(2);
@@ -253,14 +244,8 @@ public class PlayerHUD : NetworkBehaviour
         UICover.SetActive(false);
         UpdateDamageText(0);
         SetPortrait(0);
-    }
-
-    public void SetInitaialScores(int _kills, int _wins)
-    {
-        kills = _kills;
-        wins = _wins;
-        killsTypewriter.ShowText(kills.ToString());
-        winsTypewriter.ShowText(wins.ToString());
+        ChargeUlt(false);
+        SetUltSlider(0);
     }
 
     private void SetPortrait(int portaritIndex)
@@ -268,6 +253,20 @@ public class PlayerHUD : NetworkBehaviour
         if (portaritIndex == currentPortraitIndex || portaritIndex < 0 || portaritIndex >= portraitSprites.Length) return;
         currentPortraitIndex = portaritIndex;
         portrait.sprite = portraitSprites[currentPortraitIndex];
+    }
+
+    public void SetUltSlider(float value)
+    {
+        return; // Remove when Ult back
+        value = Mathf.Clamp01(value);
+        ultSlider.value = value;
+    }
+
+    public void ChargeUlt(bool isCharged)
+    {
+        Color color = isCharged ? Color.yellow : Color.white;
+        firstSpellImage.color = color;
+        secondSpellImage.color = color;
     }
 
     private void OnDestroy()

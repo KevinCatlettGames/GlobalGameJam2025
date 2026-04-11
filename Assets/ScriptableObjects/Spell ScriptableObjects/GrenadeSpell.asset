@@ -12,32 +12,36 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533b7b6e572a75e4194c233ad8fa3c37, type: 3}
   m_Name: GrenadeSpell
   m_EditorClassIdentifier: 
-  spellIcon: {fileID: 21300000, guid: 8e1c3463ad357594abe1787e3bcda5a7, type: 3}
+  spellIcon: {fileID: 21300000, guid: 7d5b94d8b4266434fa8ceaaf42b64b8a, type: 3}
   usedSpellIcon: {fileID: 21300000, guid: 8e1c3463ad357594abe1787e3bcda5a7, type: 3}
-  indicatorColor: {r: 1, g: 0, b: 0.9000077, a: 1}
+  indicatorColor: {r: 1, g: 0, b: 0.1812253, a: 1}
   bubble: {fileID: 449082112856618060, guid: 231483f60588710479d4039ea1c5b26c, type: 3}
+  ultBubble: {fileID: 449082112856618060, guid: 027cf2dd87d1e434e8729a716e236332,
+    type: 3}
   bubbleDamage: 18
   bubbleKnockback: 4
-  bubbleSpeed: 12
+  bubbleSpeed: 20
   bubbleRange: 20
   bubbleSize: 2
-  inflationSpeed: 2
+  inflationSpeed: 8
   spellCooldown: 3
-  itemMesh: {fileID: -1503308910308505396, guid: f4999be33bbdec940970b2638a1f2f84,
+  itemMesh: {fileID: 6143027480726198341, guid: fa33b77eb5259ae458c813c7721039e0,
     type: 3}
-  itemMaterial: {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  itemMaterials:
+  - {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  - {fileID: 2100000, guid: 90f7868e4594096419728a8835936072, type: 2}
   effectMaterials:
-  - {fileID: 2100000, guid: be9961d544172434da5b03de788e4144, type: 2}
-  - {fileID: 2100000, guid: dc277874c5e7016488104e4074af1d97, type: 2}
-  - {fileID: 2100000, guid: dc277874c5e7016488104e4074af1d97, type: 2}
-  itemEffectColor: {r: 0.8490566, g: 0, b: 0.82156444, a: 1}
+  - {fileID: 2100000, guid: f66fae2849793d54eb8f5471c4b8090b, type: 2}
+  - {fileID: 2100000, guid: db3a6a234d691594e8d2eedf109ff792, type: 2}
+  - {fileID: 2100000, guid: db3a6a234d691594e8d2eedf109ff792, type: 2}
+  itemEffectColor: {r: 0.8509804, g: 0.1940099, b: 0, a: 1}
   castEventStruct:
     Guid:
-      Data1: -2040333143
-      Data2: 1208168029
-      Data3: 60858797
-      Data4: 572528128
-    Path: event:/sfx/spells/slow_spell
+      Data1: 1431059900
+      Data2: 1139238808
+      Data3: 1347817110
+      Data4: 1910373409
+    Path: event:/sfx/spells/grenade_spell
   spellEventStruct:
     Guid:
       Data1: 1053319559

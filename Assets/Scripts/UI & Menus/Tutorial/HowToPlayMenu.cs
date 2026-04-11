@@ -14,9 +14,6 @@ public class HowToPlayMenu : MonoBehaviour
 
     [Header("System References")]
     [SerializeField] private GameObject mainMenuButtons;
-    [SerializeField] private Image mainMenuBackground;
-    [SerializeField] private Color mainMenuBackgroundColor;
-    [SerializeField] private Color mainMenuBackgroundDarkColor;
     
     [Header("Tab Buttons")]
     [SerializeField] private Button howToPlayButton;
@@ -85,7 +82,6 @@ public class HowToPlayMenu : MonoBehaviour
     private void OnEnable()
     {
         SetTab(Tab.General);
-        mainMenuBackground.color = mainMenuBackgroundDarkColor;
     }
 
     private void OnDisable()
@@ -98,7 +94,6 @@ public class HowToPlayMenu : MonoBehaviour
         itemSpriteImage.enabled = false;
         itemHeaderText.enabled = false;
         itemDescriptionText.enabled = false;
-        mainMenuBackground.color = mainMenuBackgroundColor;
     }
 
     private void OnCloseHowToPlay(InputAction.CallbackContext ctx)

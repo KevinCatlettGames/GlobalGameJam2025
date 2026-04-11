@@ -16,20 +16,22 @@ public class PlayerStateHandler : MonoBehaviour
 {
     [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference startEvent;
-    [SerializeField] private SO_GameSettings gameSettings;
     [SerializeField] private float respawnTime = 3f;
+    [SerializeField] private Transform setRespawnPosition;
+    private SO_GameSettings gameSettings;
 
     private bool canDie = false;
     private PlayerController playerController;
     private CharacterController characterController;
     private int currentLifes = 0;
-    private int maxLifes = 0;
+    [SerializeField] private int maxLifes = 0;
 
     private void Start()
     {
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         playerController = GetComponent<PlayerController>();
         characterController = GetComponent<CharacterController>();
+        gameSettings = GameManager.Instance.GetGameSettings();
         if (gameSettings != null)
         {
             maxLifes = gameSettings.Lifes;
@@ -48,14 +50,17 @@ public class PlayerStateHandler : MonoBehaviour
 
         if (other.CompareTag("Deathzone") && canDie)
         {
-            canDie = false;
-
-            LooseLife();
-
-            playerController.Die();
-            Invoke(nameof(DisablePlayer), 2f);
+            KillPlayer();
         }
+    }
+    public void KillPlayer()
+    {
+        canDie = false;
 
+        LooseLife();
+
+        playerController.Die();
+        Invoke(nameof(DisablePlayer), 2f);
     }
 
     private void DisablePlayer()
@@ -70,7 +75,15 @@ public class PlayerStateHandler : MonoBehaviour
         canDie = false;
         CancelInvoke();
         characterController.enabled = false;
-        PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
+        if (setRespawnPosition == null)
+        {
+            PlayerManager.Instance.ResetPlayerPosition(playerController.PlayerID);
+        }
+        else
+        {
+            transform.position = setRespawnPosition.position;
+            transform.rotation = setRespawnPosition.rotation;
+        }
         RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         characterController.enabled = true;
         canDie = true;

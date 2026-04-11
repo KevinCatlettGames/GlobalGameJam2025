@@ -25,13 +25,10 @@ public class OnlineCreationUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI joiningLobbyText;
 
     [Header("Settings")]
-    [SerializeField] private string mainMenuSceneName;
     [SerializeField] private EventSystem eventSystem;
-    
+
     private void Awake()
     {
-        mainMenuButton.onClick.AddListener(() => SceneManager.LoadScene(mainMenuSceneName));
-
         joinCodeButton.onClick.AddListener(() =>
         {
             joinCodeButton.gameObject.SetActive(false);
@@ -60,7 +57,20 @@ public class OnlineCreationUI : MonoBehaviour
         joinCodeInputField.onValueChanged.AddListener(ValidateJoinButtonActivation);
         serverNameInputField.onValueChanged.AddListener(ValidateCreatePublicActivation);
     }
-    
+
+    private void OnEnable()
+    {
+        joinCodeButton.gameObject.SetActive(true);
+        joinCodeInputField.gameObject.SetActive(true);
+        serverNameInputField.gameObject.SetActive(true);
+        createPublicButton.gameObject.SetActive(true);
+        createPrivateButton.gameObject.SetActive(true);
+        refreshButton.gameObject.SetActive(false);
+        lobbyList.SetActive(true);
+        creatingLobbyText.gameObject.SetActive(false);
+        joiningLobbyText.gameObject.SetActive(false);
+    }
+
     void InitLobbyCreation(bool isPrivate)
     {
         joinCodeButton.gameObject.SetActive(false);

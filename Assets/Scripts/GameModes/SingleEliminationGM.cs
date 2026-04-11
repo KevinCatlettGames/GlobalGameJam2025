@@ -13,20 +13,42 @@ public class SingleEliminationGM : GameManager
     public override void CheckForRoundEndServerRpc()
     {
         if (gameEnded) return;
-        if (CountAlivePlayers() <= 1)
+        if (gameModeType == GameModeType.Team)
         {
-            gameEnded = true;
-            CallGameEndClientRpc();
+            if (CountAliveTeams() <= 1)
+            {
+                gameEnded = true;
+                CallGameEndClientRpc();
+            }
+        }
+        else
+        {
+            if (CountAlivePlayers() <= 1)
+            {
+                gameEnded = true;
+                CallGameEndClientRpc();
+            }
         }
     }
 
     public override void CheckForRoundEndLocal()
     {
         if (gameEnded) return;
-        if (CountAlivePlayers() <= 1)
+        if (gameModeType == GameModeType.Team)
         {
-            gameEnded = true;
-            CallGameEndLocal();
+            if (CountAliveTeams() <= 1)
+            {
+                gameEnded = true;
+                CallGameEndLocal();
+            }
+        }
+        else
+        {
+            if (CountAlivePlayers() <= 1)
+            {
+                gameEnded = true;
+                CallGameEndLocal();
+            }
         }
     }
 
@@ -36,6 +58,32 @@ public class SingleEliminationGM : GameManager
         foreach (var state in playerStates)
         {
             if (state == PlayerState.alive || state == PlayerState.pendingRespawn) count++;
+        }
+        return count;
+    }
+
+    private int CountAliveTeams()
+    {
+        int count = 0;
+        foreach (var player in teamA)
+        {
+            int ID = player.PlayerID;
+            PlayerState state = playerStates[ID];
+            if (state == PlayerState.alive || state == PlayerState.pendingRespawn)
+            {
+                count++;
+                break;
+            }
+        }
+        foreach (var player in teamB)
+        {
+            int ID = player.PlayerID;
+            PlayerState state = playerStates[ID];
+            if (state == PlayerState.alive || state == PlayerState.pendingRespawn)
+            {
+                count++;
+                break;
+            }
         }
         return count;
     }
@@ -64,31 +112,46 @@ public class SingleEliminationGM : GameManager
 
     private IEnumerator AwardVictory()
     {
+        float danceTime = 1.5f;
         yield return new WaitForSeconds(gameEndDelay);
-
         int winnerID = -1;
-        for (int i = 0; i < playerStates.Length; i++)
+        if (gameModeType == GameModeType.Standard)
         {
-            if (playerStates[i] == PlayerState.alive)
+            for (int i = 0; i < playerStates.Length; i++)
             {
-                winnerID = i;
-                players[winnerID].Victory();
-                ScoreManager.Instance.AddPendingScore(winnerID, true);
-                UnlockRoundEndWithZeroDamageAchievement(winnerID);
-                UnlockRoundEndWithXDamageAchievement(winnerID);
-                break;
+                if (playerStates[i] == PlayerState.alive)
+                {
+                    winnerID = i;
+                    players[winnerID].Victory();
+                    ScoreManager.Instance.AddPendingScore(winnerID, true);
+                    UnlockRoundEndWithZeroDamageAchievement(winnerID);
+                    UnlockRoundEndWithXDamageAchievement(winnerID);
+                    break;
+                }
+            }
+
+            if (winnerID >= 0 && winnerID < playerHUDs.Length)
+            {
+                yield return new WaitForSeconds(danceTime);
             }
         }
-
-        if (winnerID >= 0 && winnerID < playerHUDs.Length)
+        else
         {
-            UIManager.Instance.PlayVictoryAnimation(winnerID);
-            yield return null;
-            float duration = UIManager.Instance.GetVictoryAnimationDuration();
-            yield return new WaitForSeconds(duration);
-            playerHUDs[winnerID].AddWin();
-            UIManager.Instance.PlayVictoryAnimation(-1);
-            yield return new WaitForSeconds(0.75f);
+            for (int i = 0; i < playerStates.Length; i++)
+            {
+                if (playerStates[i] == PlayerState.alive)
+                {
+                    winnerID = teamIDs[i];
+                    players[i].Victory();
+                    UnlockRoundEndWithZeroDamageAchievement(winnerID);
+                    UnlockRoundEndWithXDamageAchievement(winnerID);
+                }
+            }
+            if (winnerID != -1)
+            {
+                ScoreManager.Instance.AddPendingScore(winnerID, true);
+                yield return new WaitForSeconds(danceTime);
+            }
         }
         EndGame();
     }

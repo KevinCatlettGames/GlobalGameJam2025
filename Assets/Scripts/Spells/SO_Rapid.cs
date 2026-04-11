@@ -4,7 +4,7 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Rapid")]
 public class SO_Rapid : SO_Spell
 {
-    public override float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider)
+    public override float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt)
     {
         dir.Normalize();
 

@@ -381,12 +381,6 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ef310da78073cd04982db8f49e852300, type: 3}
---- !u!95 &3739135 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 2586243695198736759, guid: ef310da78073cd04982db8f49e852300,
-    type: 3}
-  m_PrefabInstance: {fileID: 3739134}
-  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3739136 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 5699327107670439900, guid: ef310da78073cd04982db8f49e852300,
@@ -1423,7 +1417,7 @@ PrefabInstance:
     - target: {fileID: 6308818890919857227, guid: 11c16ae5511fad64ea0c8159d350dfa7,
         type: 3}
       propertyPath: m_Duration
-      value: 6
+      value: 4.5
       objectReference: {fileID: 0}
     - target: {fileID: 6308818890919857227, guid: 11c16ae5511fad64ea0c8159d350dfa7,
         type: 3}
@@ -1433,7 +1427,7 @@ PrefabInstance:
     - target: {fileID: 6308818890919857227, guid: 11c16ae5511fad64ea0c8159d350dfa7,
         type: 3}
       propertyPath: m_MaxSpeed
-      value: 17.704546
+      value: 23.60606
       objectReference: {fileID: 0}
     - target: {fileID: 6308818890919857227, guid: 11c16ae5511fad64ea0c8159d350dfa7,
         type: 3}
@@ -1444,26 +1438,6 @@ PrefabInstance:
         type: 3}
       propertyPath: m_PlayOnAwake
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 8924051843843698661, guid: 11c16ae5511fad64ea0c8159d350dfa7,
-        type: 3}
-      propertyPath: m_Size.y
-      value: 7.058569
-      objectReference: {fileID: 0}
-    - target: {fileID: 8924051843843698661, guid: 11c16ae5511fad64ea0c8159d350dfa7,
-        type: 3}
-      propertyPath: m_Center.x
-      value: 0.363962
-      objectReference: {fileID: 0}
-    - target: {fileID: 8924051843843698661, guid: 11c16ae5511fad64ea0c8159d350dfa7,
-        type: 3}
-      propertyPath: m_Center.y
-      value: -0.970725
-      objectReference: {fileID: 0}
-    - target: {fileID: 8924051843843698661, guid: 11c16ae5511fad64ea0c8159d350dfa7,
-        type: 3}
-      propertyPath: m_Center.z
-      value: -1.15743274e-14
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
@@ -1493,6 +1467,29 @@ PrefabInstance:
       propertyPath: minSpawnInterval
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: spawnableItems.Array.size
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: 'spawnableItems.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 6fa5c977ceb7d2948ba3ce89ed219b56,
+        type: 2}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: 'spawnableItems.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: bf728b75ba5de1f41a64d675f9e690a5,
+        type: 2}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: 'spawnableItems.Array.data[10]'
+      value: 
+      objectReference: {fileID: 11400000, guid: e9e69c8cf464cd74c9adcf655838b9ff,
+        type: 2}
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: countdown
@@ -1518,7 +1515,7 @@ PrefabInstance:
         type: 3}
       propertyPath: victoryAnimator
       value: 
-      objectReference: {fileID: 3739135}
+      objectReference: {fileID: 0}
     - target: {fileID: 2318929943055816316, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: playerInputManager
@@ -8715,6 +8712,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58ef26123603d74cb89bdba8d192a5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  firstSpawnDelay: 5
+  mapID: 3
   jumpingFish: {fileID: 1435557998}
   jumpingPoints:
   - {fileID: 1021516251}
@@ -9568,7 +9567,7 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 153490670}
   - {fileID: 1243326895}

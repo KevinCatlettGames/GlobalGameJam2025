@@ -9812,6 +9812,56 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   waitDuration: 1
   destroyOnRestart: 1
+--- !u!1 &4082438123262991187
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5338912779317931854}
+  - component: {fileID: 1729492068699815933}
+  m_Layer: 7
+  m_Name: AnimatorRoot
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5338912779317931854
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4082438123262991187}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 2776495268992456798}
+  m_Father: {fileID: 7788634883322622023}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!111 &1729492068699815933
+Animation:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4082438123262991187}
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_Animations:
+  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
+  m_WrapMode: 0
+  m_PlayAutomatically: 1
+  m_AnimatePhysics: 0
+  m_UpdateMode: 0
+  m_CullingType: 0
 --- !u!1 &5069415546406309118
 GameObject:
   m_ObjectHideFlags: 0
@@ -9838,12 +9888,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5069415546406309118}
   serializedVersion: 2
-  m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
+  m_LocalRotation: {x: 0.7071068, y: -0, z: -0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0.05, z: 0}
   m_LocalScale: {x: 0.3, y: 0.3, z: 0.3}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 7788634883322622023}
+  m_Father: {fileID: 5338912779317931854}
   m_LocalEulerAnglesHint: {x: 90, y: 0, z: 0}
 --- !u!212 &976542331781092153
 SpriteRenderer:
@@ -9929,7 +9979,6 @@ GameObject:
   - component: {fileID: -1287617038941500806}
   - component: {fileID: 5581147797748263621}
   - component: {fileID: 7942119247223717270}
-  - component: {fileID: 8558185043554715447}
   m_Layer: 7
   m_Name: SoapPuddleMap
   m_TagString: Untagged
@@ -9950,7 +9999,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 2776495268992456798}
+  - {fileID: 5338912779317931854}
   - {fileID: 4047144461927235637}
   - {fileID: 3508924654264161943}
   - {fileID: 7919971041599033956}
@@ -10076,23 +10125,6 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   waitDuration: 5
   destroyOnRestart: 1
---- !u!111 &8558185043554715447
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5835028745261568127}
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_UpdateMode: 0
-  m_CullingType: 0
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

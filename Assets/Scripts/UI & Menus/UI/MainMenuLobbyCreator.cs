@@ -23,11 +23,8 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     private Lobby joinedLobby;
 
-    /// <summary>
-    /// Reference to the relay server heartbeat component to manage lobby heartbeat.
-    /// </summary>
-    [FormerlySerializedAs("lobbyHeartBeat")] 
-    public RelayServerHeartbeat relayServerHeartbeat;
+    [SerializeField] private string lobbySceneName = "UI_Lobby";
+    public GameObject lobby;
 
     /// <summary>
     /// Unity Awake method, ensures that this class follows the Singleton pattern.
@@ -58,9 +55,8 @@ public class MainMenuLobbyCreator : MonoBehaviour
             .SwitchToUnityTransportAndDisable();
 
         NetworkManager.Singleton.StartHost();
-        relayServerHeartbeat.joinedLobby = joinedLobby;
         GlobalLobby.CurrentLobby = joinedLobby;
-        NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(lobbySceneName, LoadSceneMode.Single);
     }
 
     public async void StartSceneLocal(string sceneName)
@@ -70,9 +66,9 @@ public class MainMenuLobbyCreator : MonoBehaviour
             .SwitchToUnityTransportAndDisable();
 
         NetworkManager.Singleton.StartHost();
-        relayServerHeartbeat.joinedLobby = joinedLobby;
         GlobalLobby.CurrentLobby = joinedLobby;
-        NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        Instantiate(lobby);
+        // NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 
     /// <summary>
@@ -80,7 +76,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     public void OpenLobby()
     {
-        SceneManager.LoadScene("Lobby", LoadSceneMode.Single);
+        SceneManager.LoadScene(lobbySceneName, LoadSceneMode.Single);
     }
 
     /// <summary>

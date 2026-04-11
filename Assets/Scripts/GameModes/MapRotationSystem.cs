@@ -8,11 +8,14 @@ public class MapRotationSystem : MonoBehaviour
 {
     [SerializeField] private MapSettingsSO mapSetting;
     [SerializeField] private int maxRounds = 3;
+    [SerializeField] private bool enableMapSwitch = true;
     public int MaxRounds {get => maxRounds;}
     
     [SerializeField] private MapSettingsSO[] mapSettings;
 
     public static MapRotationSystem Instance;
+    MapSettingsSO chosenMap;
+    
     void Start()
     {
         if (Instance == null)
@@ -30,7 +33,7 @@ public class MapRotationSystem : MonoBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        if (roundCount < maxRounds)
+        if (!enableMapSwitch || roundCount < maxRounds)
             return false;
 
         string currentScene = SceneManager.GetActiveScene().name;
@@ -52,14 +55,28 @@ public class MapRotationSystem : MonoBehaviour
         if (availableMaps.Count == 0)
             return false;
 
-        MapSettingsSO chosenMap = availableMaps[Random.Range(0, availableMaps.Count)];
+        chosenMap = availableMaps[Random.Range(0, availableMaps.Count)];
         chosenMap.PlayedThisLoop = true;
 
+        if (SceneTransition.instance)
+        {
+            SceneTransition.instance.OnTransitionFinished.AddListener(LoadMap);
+            SceneTransition.instance.SceneEndTransition();
+        }
+        else
+            LoadMap();
+        
+        return true;
+    }
+
+    public void LoadMap()
+    {
+        if(SceneTransition.instance)
+            SceneTransition.instance.OnTransitionFinished.RemoveListener(LoadMap);
+        
         NetworkManager.Singleton.SceneManager.LoadScene(
             chosenMap.SceneName,
             LoadSceneMode.Single
         );
-
-        return true;
     }
 }

@@ -12,11 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 533b7b6e572a75e4194c233ad8fa3c37, type: 3}
   m_Name: RevolverSpell
   m_EditorClassIdentifier: 
-  spellIndex: 4
   spellIcon: {fileID: 21300000, guid: eb8448e461d516a49a0cc0ecbe6a5397, type: 3}
   usedSpellIcon: {fileID: 21300000, guid: edef21d50ae1cc1479758a2720bf2f3a, type: 3}
   indicatorColor: {r: 0.61341244, g: 0.38679236, b: 1, a: 1}
   bubble: {fileID: 6964861354299243678, guid: babf9c66ffafe2941a4adc4e46eba17d, type: 3}
+  ultBubble: {fileID: 449082112856618060, guid: 027cf2dd87d1e434e8729a716e236332,
+    type: 3}
   bubbleDamage: 12
   bubbleKnockback: 2
   bubbleSpeed: 25
@@ -26,7 +27,9 @@ MonoBehaviour:
   spellCooldown: 3.5
   itemMesh: {fileID: -6468230157749427700, guid: f4999be33bbdec940970b2638a1f2f84,
     type: 3}
-  itemMaterial: {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  itemMaterials:
+  - {fileID: 2100000, guid: 36fbfedcedfa31744863f216a9f17445, type: 2}
+  - {fileID: 2100000, guid: d029a4718624ad14e8632427eb661665, type: 2}
   effectMaterials:
   - {fileID: 2100000, guid: 059b4538280d8e74f93f7283e3a48a3c, type: 2}
   - {fileID: 2100000, guid: 14ebc8de727a9fd45bc24e3fd60094dd, type: 2}
@@ -46,3 +49,4 @@ MonoBehaviour:
       Data3: -1079520094
       Data4: 1565899640
     Path: event:/voice/revolver_voice
+  canUse: 1

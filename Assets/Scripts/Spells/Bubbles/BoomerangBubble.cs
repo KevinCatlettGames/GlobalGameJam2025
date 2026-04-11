@@ -15,14 +15,12 @@ public class BoomerangBubble : BasicBubble
 
     protected override IEnumerator BubbleRangeLimit()
     {
-        popOnBubbleHit = false;
-        popOnPlayerHit = false;
         float lifetime = range / speed;
         float baseSpeed = speed;
         
         yield return new WaitForSeconds(lifetime);
-        popOnPlayerHit = true;
-        popOnBubbleHit = true;
+        float angle = Vector3.SignedAngle(direction,playerCollider.transform.position - transform.position, Vector3.up);
+        rotationAngle *= angle > 0 ? 1 : -1;        
         float timer = 0;
         do
         {
@@ -38,7 +36,7 @@ public class BoomerangBubble : BasicBubble
         do
         {
             timer += Time.deltaTime;
-            if (playerCollider != null && playerCollider.enabled)
+            if (!isReflected && playerCollider != null && playerCollider.enabled)
             {
                 targetVector = playerCollider.transform.position - transform.position;
                 if(targetVector.sqrMagnitude <= catchRange)
