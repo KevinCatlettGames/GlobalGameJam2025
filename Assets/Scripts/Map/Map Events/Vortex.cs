@@ -2,7 +2,7 @@ using Febucci.UI.Core;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Vortex : MonoBehaviour 
+public class Vortex : MapEvent
 {
     [SerializeField] private float strength = 1.0f;
     [SerializeField] private float sidewaysStrength = .5f;
@@ -11,15 +11,6 @@ public class Vortex : MonoBehaviour
     private float range = 1.0f;
     private void Start()
     {
-        bool isMapEventActive = true;
-        if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.MapSettings[2].PlayWithMapEvent; //Index must be changed once implemented!!!
-
-        if (!isMapEventActive)
-        {
-            Destroy(gameObject);
-            return;
-        }
         range = GetComponent<SphereCollider>().radius;
     }
     private void FixedUpdate()
@@ -52,5 +43,15 @@ public class Vortex : MonoBehaviour
         {
             playersInRange.Remove(other.GetComponent<PlayerController>());
         }
+    }
+
+    protected override void StartEvent()
+    {
+        return;
+    }
+
+    protected override void StopEvent()
+    {
+        return;
     }
 }

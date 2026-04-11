@@ -1,10 +1,8 @@
-using NUnit.Framework;
 using System.Collections.Generic;
-using System.Linq;
 using Unity.Netcode;
 using UnityEngine;
 
-public class WallManager : MonoBehaviour
+public class WallManager : MapEvent
 {
     [SerializeField] private List<WallFormation> wallFormations;
     [SerializeField] private float stayTime = 5f;
@@ -13,33 +11,6 @@ public class WallManager : MonoBehaviour
     private int currentFormation = -1;
     private bool wallsActive = false;
 
-
-    private void Awake()
-    {
-        bool isMapEventActive = true;
-        if (LobbyManager.instance)
-            isMapEventActive = LobbyManager.instance.MapSettings[1].PlayWithMapEvent;
-        
-        if (!isMapEventActive)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        if (TransportSwitcher.Instance)
-        {
-            if (!NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted += StartEvent;
-            GameManager.Instance.OnGameEnded += StopEvent;
-            Invoke(nameof(StartEvent), 7);
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted += StartEvent;
-            GameManager.Instance.OnGameEnded += StopEvent;
-            Invoke(nameof(StartEvent), 7);
-        }
-    }
     void Update()
     {
         // Remove in final build!
@@ -86,11 +57,11 @@ public class WallManager : MonoBehaviour
         Invoke(nameof(RiseWalls), sinkTime);
     }
 
-    private void StartEvent()
+    protected override void StartEvent()
     {
         Invoke(nameof(RiseWalls), startDelay);
     }
-    private void StopEvent()
+    protected override void StopEvent()
     {
         if (wallsActive)
         {
@@ -100,20 +71,5 @@ public class WallManager : MonoBehaviour
 
         CancelInvoke();
         currentFormation = -1;
-    }
-
-    private void OnDestroy()
-    {
-        if (TransportSwitcher.Instance)
-        {
-            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted -= StartEvent;
-            GameManager.Instance.OnGameEnded -= StopEvent;
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted -= StartEvent;
-            GameManager.Instance.OnGameEnded -= StopEvent;
-        }
     }
 }
