@@ -13,6 +13,13 @@ public class LobbyManager : NetworkBehaviour
 {
     public static LobbyManager instance;
 
+    [SerializeField] private bool isDemo; 
+    public bool IsDemo
+    {
+        get { return isDemo; }
+        set { isDemo = value;}
+    }
+
     [Header("Game Mode Settings")]
     [SerializeField] private bool loadRandomLevel = true;
     [SerializeField] private string plateLevel = "Lvl_MainScene";

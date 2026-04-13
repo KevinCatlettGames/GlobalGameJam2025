@@ -245,6 +245,8 @@ public class LobbyButtons : MonoBehaviour
 
     public void ToggleMatchSettings()
     {
+        if (LobbyManager.instance.IsDemo) return; 
+
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
