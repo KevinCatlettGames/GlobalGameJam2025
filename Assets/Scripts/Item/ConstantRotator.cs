@@ -4,11 +4,11 @@ using UnityEngine;
 
 public class ConstantRotator : MonoBehaviour
 {
-    public float rotationSpeed = 50f; // Speed of rotation in degrees per second
-
+    [SerializeField] private float rotationSpeed = 50f; // Speed of rotation in degrees per second
+    [SerializeField] private Vector3 rotationAxis = Vector3.up;
     void Update()
     {
         // Rotate the object around its Y-axis (world space), can be modified to other axes
-        transform.Rotate(Vector3.up * (rotationSpeed * Time.deltaTime));
+        transform.Rotate(rotationAxis * (rotationSpeed * Time.deltaTime));
     }
 }

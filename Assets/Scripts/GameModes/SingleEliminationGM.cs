@@ -132,7 +132,7 @@ public class SingleEliminationGM : GameManager
 
             if (winnerID >= 0 && winnerID < playerHUDs.Length)
             {
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(danceTime);
             }
         }
         else
@@ -150,7 +150,7 @@ public class SingleEliminationGM : GameManager
             if (winnerID != -1)
             {
                 ScoreManager.Instance.AddPendingScore(winnerID, true);
-                yield return new WaitForSeconds(1.5f);
+                yield return new WaitForSeconds(danceTime);
             }
         }
         EndGame();

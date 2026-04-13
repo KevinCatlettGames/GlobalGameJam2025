@@ -8,6 +8,7 @@ public class MapRotationSystem : MonoBehaviour
 {
     [SerializeField] private MapSettingsSO mapSetting;
     [SerializeField] private int maxRounds = 3;
+    [SerializeField] private bool enableMapSwitch = true;
     public int MaxRounds {get => maxRounds;}
     
     [SerializeField] private MapSettingsSO[] mapSettings;
@@ -32,7 +33,7 @@ public class MapRotationSystem : MonoBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        if (roundCount < maxRounds)
+        if (!enableMapSwitch || roundCount < maxRounds)
             return false;
 
         string currentScene = SceneManager.GetActiveScene().name;
