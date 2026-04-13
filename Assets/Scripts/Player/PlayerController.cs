@@ -20,7 +20,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] string knockBackEventIntensityParam;
     [SerializeField] int knockBackEventMaxIntensity = 100; 
-    [SerializeField] private EventReference deathEvent;
     [SerializeField] private EventReference dashEvent;
 
     #endregion
@@ -1104,14 +1103,6 @@ public class PlayerController : NetworkBehaviour
     void DeadAnimServerRpc(bool activationState)
     {
         mainAnimator.SetBool("IsDead", activationState);
-        DeadAnimClientRpc(activationState);
-    }
-
-    [ClientRpc]
-    void DeadAnimClientRpc(bool activationState)
-    {
-        if (activationState)
-            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
     }
 
     [ClientRpc]
@@ -1126,7 +1117,6 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetBool("IsDead", true);
-            RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
         }
         else
         {

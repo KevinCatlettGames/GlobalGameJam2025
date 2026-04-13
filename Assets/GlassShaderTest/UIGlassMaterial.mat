@@ -33,8 +33,20 @@ Material:
         m_Texture: {fileID: 2800000, guid: eb443c6949a3cd543a4ce49d32e5afb0, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _MaskTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     - _OutlineTex:
         m_Texture: {fileID: 2800000, guid: 7991f9f7af9729e47ae80eadf35f19d2, type: 3}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _OutlineTexture:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _RenderTexture:
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _Texture2D:
@@ -60,8 +72,9 @@ Material:
     m_Ints: []
     m_Floats:
     - _BlurSize: 0.002
+    - _BlurStrength: 50
     - _ColorMask: 15
-    - _DistortionStrength: 0.2
+    - _DistortionStrength: 0.03
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Stencil: 0
@@ -72,9 +85,11 @@ Material:
     - _UIMaskSoftnessX: 1
     - _UIMaskSoftnessY: 1
     m_Colors:
+    - _BackgroundColor: {r: 1, g: 1, b: 1, a: 0}
     - _CenterUV: {r: 0.65208334, g: 0.475, b: 0, a: 0}
     - _ClipRect: {r: 0, g: 0, b: 0, a: 0}
     - _Size: {r: 0.104166664, g: 0.094912946, b: 0, a: 0}
+    - _Vector2: {r: 5, g: 5, b: 0, a: 0}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
 --- !u!114 &7522673955316418414

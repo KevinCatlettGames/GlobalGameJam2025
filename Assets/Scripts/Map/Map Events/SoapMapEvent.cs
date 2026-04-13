@@ -1,9 +1,8 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class SoapMapEvent : MonoBehaviour
+public class SoapMapEvent : MapEvent
 {
-    [SerializeField] private bool isMapEventEnabled = true;
     [SerializeField] private GameObject soapDroplet;
     [SerializeField] private float spawnRadius = 21f;
     [SerializeField] private float startDelay = 10f;
@@ -13,26 +12,18 @@ public class SoapMapEvent : MonoBehaviour
 
     private float currentIntervall = 0;
     private bool isSpawning = false;
-    void Start()
+    protected override void StartEvent()
     {
-        if (LobbyManager.instance)
-            isMapEventEnabled = LobbyManager.instance.MapSettings[0].PlayWithMapEvent;
-        
-        if (!isMapEventEnabled) Destroy(this);
-        if (TransportSwitcher.Instance)
-        {
-            if (!NetworkManager.Singleton.IsServer) return; 
-            GameManager.Instance.OnGameStarted += StartSpawning;
-            GameManager.Instance.OnGameEnded += StopSpawning;
-            StartSpawning();
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted += StartSpawning;
-            GameManager.Instance.OnGameEnded += StopSpawning;
-            StartSpawning();
-        }
-    } 
+        currentIntervall = startInvterval;
+        isSpawning = true;
+        Invoke(nameof(SpawnDroplet), currentIntervall + startDelay);
+    }
+
+    protected override void StopEvent()
+    {
+        isSpawning = false;
+        CancelInvoke();
+    }
     private void SpawnDroplet()
     {
         if (!isSpawning) return;
@@ -43,32 +34,5 @@ public class SoapMapEvent : MonoBehaviour
         if (currentIntervall > minInterval)
             currentIntervall += intervalAdjustment;
         Invoke(nameof(SpawnDroplet),currentIntervall);
-    }
-
-    private void StartSpawning()
-    {
-        currentIntervall = startInvterval;
-        isSpawning = true;
-        Invoke(nameof(SpawnDroplet), currentIntervall + startDelay);
-    }
-
-    private void StopSpawning()
-    {
-        isSpawning = false;
-        CancelInvoke();
-    }
-    private void OnDestroy()
-    {
-        if (TransportSwitcher.Instance)
-        {
-            if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return; 
-            GameManager.Instance.OnGameStarted -= StartSpawning;
-            GameManager.Instance.OnGameEnded -= StopSpawning;
-        }
-        else
-        {
-            GameManager.Instance.OnGameStarted -= StartSpawning;
-            GameManager.Instance.OnGameEnded -= StopSpawning; 
-        }
     }
 }
