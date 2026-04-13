@@ -1,20 +1,51 @@
 using Febucci.UI.Core;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.PlayerLoop;
 
 public class Vortex : MapEvent
 {
     [SerializeField] private float strength = 1.0f;
     [SerializeField] private float sidewaysStrength = .5f;
+    [SerializeField] private float movementRange = 5f;
+    [SerializeField] private float speed = 10f;
+    [SerializeField] private float resetSpeed = 20f;
+    [SerializeField] private float turnRate = 5f;
     private List<PlayerController> playersInRange = new List<PlayerController>();
     [SerializeField] public AnimationCurve rangeFallOff;
     private float range = 1.0f;
+    private Vector3 targetPosition = Vector3.zero;
+    private Vector3 direction = Vector3.zero;
+    private bool isRoaming = false;
     private void Start()
     {
         range = GetComponent<SphereCollider>().radius;
     }
     private void FixedUpdate()
     {
+        if (isRoaming)
+        {
+            if (Vector3.Distance(transform.position, targetPosition) < .5f)
+            {
+                Vector2 r = Random.insideUnitCircle;
+                r *= movementRange;
+                targetPosition = new Vector3(r.x, 0, r.y);
+            }
+            Vector3 targetVector = targetPosition - transform.position;
+            targetVector.y = 0;
+
+            if (targetVector != Vector3.zero)
+            {
+                targetVector.Normalize();
+                direction = Vector3.Lerp(direction, targetVector, Time.fixedDeltaTime * turnRate);
+                transform.position = transform.position + direction * speed * Time.deltaTime;
+            }
+        }
+        else if (transform.position != Vector3.zero)
+        {
+            transform.position = Vector3.Lerp(transform.position, Vector3.zero, Time.fixedDeltaTime * resetSpeed);
+        }
+
         foreach (PlayerController player in playersInRange)
         {
             Vector3 pull = transform.position - player.transform.position;
@@ -44,14 +75,14 @@ public class Vortex : MapEvent
             playersInRange.Remove(other.GetComponent<PlayerController>());
         }
     }
-
     protected override void StartEvent()
     {
-        return;
+        isRoaming = true;
     }
 
     protected override void StopEvent()
     {
-        return;
+        isRoaming = false;
+        targetPosition = Vector3.zero;
     }
 }
