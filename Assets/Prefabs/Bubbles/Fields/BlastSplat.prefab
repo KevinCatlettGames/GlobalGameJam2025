@@ -100,6 +100,8 @@ GameObject:
   - component: {fileID: 5581147797748263621}
   - component: {fileID: 7942119247223717270}
   - component: {fileID: 4326400507565594377}
+  - component: {fileID: 5987053777098941522}
+  - component: {fileID: 4430920238037959969}
   m_Layer: 7
   m_Name: BlastSplat
   m_TagString: Untagged
@@ -208,7 +210,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  waitDuration: 5
+  waitDuration: 3
   destroyOnRestart: 1
 --- !u!111 &4326400507565594377
 Animation:
@@ -227,6 +229,41 @@ Animation:
   m_AnimatePhysics: 0
   m_UpdateMode: 0
   m_CullingType: 0
+--- !u!65 &5987053777098941522
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 64
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 1983
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Size: {x: 4.5, y: 4.5, z: 4.5}
+  m_Center: {x: 0, y: 2, z: 2}
+--- !u!114 &4430920238037959969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3f8d7741bb70b44a9d77558c247a7a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  damage: 2
+  intervall: 0.4
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

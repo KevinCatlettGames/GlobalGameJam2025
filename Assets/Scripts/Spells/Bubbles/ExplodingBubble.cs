@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class ExplodingBubble : BasicBubble
 {
+    [Header("Special Stats")]
     [SerializeField] private bool indicator = true;
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private GameObject earlyFizzleEffect;
     private bool isReadyToExpode = false;
     private bool hasExploded = false;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         canMiss = false;
     }
     public override void BubbleCollision(GameObject other)
