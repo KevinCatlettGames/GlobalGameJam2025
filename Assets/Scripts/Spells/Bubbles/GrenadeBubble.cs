@@ -5,15 +5,16 @@ using UnityEngine;
 public class GrenadeBubble : BasicBubble
 {
     private bool hasExploded = false;
+    [Header("Special Stats")]
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
     private float evaluateStep = 1f;
     private float progress = 0f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         canMiss = false;
         evaluateStep = range / speed;
     }

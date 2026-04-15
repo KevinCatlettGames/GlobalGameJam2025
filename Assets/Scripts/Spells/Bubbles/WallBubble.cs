@@ -3,12 +3,13 @@ using UnityEngine;
 
 public class WallBubble : BasicBubble
 {
+    [Header("Special Stats")]
     [SerializeField] private float speedBosst = 1.5f;
     private int hitPoints = 0;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         Reflector reflector = GetComponent<Reflector>();
         if (reflector != null)
         {
@@ -20,7 +21,7 @@ public class WallBubble : BasicBubble
         }
 
         canMiss = false;
-        hitPoints = Mathf.Max(1, Mathf.RoundToInt(dmg));
+        hitPoints = Mathf.Max(1, Mathf.RoundToInt(damage));
     }
     public override void BubbleCollision(GameObject other)
     {
