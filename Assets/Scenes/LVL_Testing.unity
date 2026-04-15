@@ -13276,6 +13276,17 @@ PrefabInstance:
       propertyPath: spawningEnabled
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: spawnableItems.Array.size
+      value: 13
+      objectReference: {fileID: 0}
+    - target: {fileID: 2130259752331920523, guid: fcb4f7d39024c7e41a042d4f16f9370b,
+        type: 3}
+      propertyPath: 'spawnableItems.Array.data[12]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 3dcd2ed7b521e91488676d6884c43ac4,
+        type: 2}
     - target: {fileID: 2197251191804606987, guid: fcb4f7d39024c7e41a042d4f16f9370b,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -61545,6 +61556,13 @@ MonoBehaviour:
       Data3: 1040230820
       Data4: 1737141532
     Path: event:/sfx/player/player_knockback
+  tickDamageEvent:
+    Guid:
+      Data1: -1816417679
+      Data2: 1137378551
+      Data3: -998466633
+      Data4: -294722646
+    Path: event:/sfx/player/player_bleed_tick
   knockBackEventIntensityParam: SFXIntensity
   knockBackEventMaxIntensity: 100
   dashEvent:
