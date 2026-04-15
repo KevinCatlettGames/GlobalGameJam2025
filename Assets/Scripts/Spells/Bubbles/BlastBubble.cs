@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class BlastBubble : BasicBubble
 {
+    [Header("Special Stats")]
     [SerializeField] private GameObject splat;
     [SerializeField] private LayerMask groundedLayerMask;
     [SerializeField] private float extraOffset = 4.5f;
     [SerializeField] private float shooterKnb = 8f;
     private const float raycastDistance = 5f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         transform.position += direction * extraOffset;
 
         if (GameManager.Instance.PlayingLocal)
@@ -35,6 +36,7 @@ public class BlastBubble : BasicBubble
                 GameObject puddle;
                 puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
+                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
         }
         base.Pop();

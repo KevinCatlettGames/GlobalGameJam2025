@@ -5,24 +5,20 @@ using Unity.Netcode;
 
 public class RevolverBubble : BasicBubble
 {
+    [Header("Special Stats")]
     [SerializeField] private int maxAmmo = 6;
     [SerializeField] private float delayBetweenShots = 0.02f;
     [SerializeField] private float spread = 2f;
     [SerializeField] private GameObject bubblePrefab;
+    [SerializeField] private MeshRenderer revolverMesh;
    
     private int hitCount = 0;
     private EventReference soundEvent;
     
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
-        damage = dmg;
-        knockback = knb;
-        speed = spd;
-        range = rng;
-        size = siz;
         direction = dir;
-        inflationSpeed = inf;
         this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
 
@@ -31,6 +27,7 @@ public class RevolverBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
+        return;
         // Revolver bubble doesn't move itself
     }
 
@@ -53,13 +50,15 @@ public class RevolverBubble : BasicBubble
                 netObj.Spawn();
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, damage, knockback, speed, range, size, inflationSpeed, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID, dir, soundEvent, playerCollider);
 
             yield return new WaitForSeconds(delayBetweenShots);
             rotation++;
             
         }
-        yield return new WaitForSeconds(5f);
+        yield return new WaitForSeconds(.1f);
+        revolverMesh.enabled = false;
+        yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }
 

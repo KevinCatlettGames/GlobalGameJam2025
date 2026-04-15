@@ -19,9 +19,9 @@ public class GiantBubble : BasicBubble
 
     private bool isSmall = false;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         transform.position += direction * extraOffset;
     }
     protected override void BubbleMovement()
@@ -42,6 +42,7 @@ public class GiantBubble : BasicBubble
             speed *= speedMod;
             transform.localScale = Vector3.one * size;
             hitEffect = smallHitEffect;
+            spellType = SpellType.SmallerGiant;
             return;
         }
         if (!isSmall && other.CompareTag("Player"))
@@ -58,8 +59,6 @@ public class GiantBubble : BasicBubble
                 knockback *= 1 - (knbDecreaseIncrement * i);
             }
         }
-        else if (isSmall && other.CompareTag("Player"))
-            spellType = SpellType.SmallerGiant;
         
         base.BubbleCollision(other);
     }

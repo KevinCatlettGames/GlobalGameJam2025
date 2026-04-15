@@ -30,13 +30,16 @@ public class BasicBubble : NetworkBehaviour
     public int OwnerID = -1;
     protected Vector3 direction;
     protected bool hasPopped;
-    public bool HasPopped {  get { return hasPopped; } }
-    protected float size;
-    
-    protected float damage = 1.0f;
-    protected float knockback = 1.0f;
-    protected float speed = 1.0f;
-    protected float range = 1.0f;
+    [HideInInspector] public bool HasPopped {  get { return hasPopped; } }
+
+    [Header("Bubble Base Stats")]
+    [SerializeField] protected float size = 1f;
+    [SerializeField] protected float damage = 1.0f;
+    [SerializeField] protected float knockback = 1.0f;
+    [SerializeField] protected float speed = 1.0f;
+    [SerializeField] protected float range = 1.0f;
+    [SerializeField] protected float inflationSpeed = 8f;
+
     protected Coroutine rangeCoroutine;
     protected SphereCollider sphereCollider;
     protected float currentSize = 0.01f;
@@ -44,11 +47,13 @@ public class BasicBubble : NetworkBehaviour
     protected List<Collider> ignoredColliders = new List<Collider>();
     protected bool isSoaped = false;
     protected bool isReflected = false;
-    protected float inflationSpeed = 8f;
     protected bool hasInflated = false;
+
+    [Header("Hit behaviour")]
     [SerializeField] protected bool popOnPlayerHit = true;
     [SerializeField] protected bool popOnBubbleHit = true;
 
+    [Header("Effecs")]
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
     private float soapSpeedAmp = 2f;
@@ -59,22 +64,17 @@ public class BasicBubble : NetworkBehaviour
     protected float desyncThreshold = 0.05f;
     
     protected bool canMiss = true;
+    protected bool isUlt = false;
     
     private void Start()
     {
         GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
-    public virtual void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public virtual void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
-        damage = dmg;
-        knockback = knb;
-        speed = spd;
-        range = rng;
-        size = siz;
         direction = dir;
-        inflationSpeed = inf;
         this.playerCollider = playerCollider;
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
@@ -192,7 +192,7 @@ public class BasicBubble : NetworkBehaviour
                 player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-            playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+            if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
             if (popOnPlayerHit)
                 Pop();

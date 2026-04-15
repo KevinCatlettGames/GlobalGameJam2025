@@ -4,9 +4,10 @@ using Unity.Netcode;
 
 public class SoapBubble : BasicBubble
 {
+    [Header("Special Stats")]
+    [SerializeField] private float soapDropInterval = 0.2f;
     [SerializeField] private GameObject soapPuddleObject;
     [SerializeField] private GameObject soapSplatObject;
-    [SerializeField] private float soapDropInterval = 0.2f;
     [SerializeField] private LayerMask groundedLayerMask;
     private const float raycastDistance = 5f;
 
