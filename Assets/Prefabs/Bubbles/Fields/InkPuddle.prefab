@@ -114,9 +114,9 @@ GameObject:
   - component: {fileID: 1790206518761671852}
   - component: {fileID: -1287617038941500806}
   - component: {fileID: 5581147797748263621}
-  - component: {fileID: 7942119247223717270}
   - component: {fileID: 2920990628748248145}
-  - component: {fileID: 666883388521705025}
+  - component: {fileID: 8522453177596149706}
+  - component: {fileID: 7859846789730126242}
   m_Layer: 7
   m_Name: InkPuddle
   m_TagString: Untagged
@@ -233,21 +233,6 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &7942119247223717270
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5835028745261568127}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 85edf0a548859b44d8e7f5b4bf5e3e61, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  waitDuration: 5
-  destroyOnRestart: 1
 --- !u!114 &2920990628748248145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -260,23 +245,44 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc71c8a5aea8cbd4aabaa2192e8cff8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!111 &666883388521705025
-Animation:
+--- !u!95 &8522453177596149706
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5835028745261568127}
   m_Enabled: 1
-  serializedVersion: 4
-  m_Animation: {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: d8618398e9db4ab438f73e4bc241c135, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: c9fa28ef6f72b8a7abc2cafc9dec52f5, type: 2}
+  m_CullingMode: 0
   m_UpdateMode: 0
-  m_CullingType: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &7859846789730126242
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5835028745261568127}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 186c3721d931867459a167172c478f1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  waitDuration: 5
+  destroyOnRestart: 1
+  fadeDuration: 0.3
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

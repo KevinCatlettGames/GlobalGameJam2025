@@ -1,5 +1,6 @@
 using FMODUnity;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GrenadeBubble : BasicBubble
@@ -9,8 +10,11 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
+    [SerializeField] private GameObject splat;
+    [SerializeField] private LayerMask groundedLayerMask;
     private float evaluateStep = 1f;
     private float progress = 0f;
+    private const float raycastDistance = 5f;
 
     public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
@@ -40,10 +44,9 @@ public class GrenadeBubble : BasicBubble
         Vector3 direction;
         foreach (Collider col in explosionOverlaps)
         {
-            if (col == null || col.gameObject == gameObject) continue;
+            if (!col || col.gameObject == gameObject) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
-            //Debug.Log(col.name);
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
                 if (col.CompareTag("Player"))
@@ -72,6 +75,16 @@ public class GrenadeBubble : BasicBubble
                     }
                 }
 
+            }
+        }
+        if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
+        {
+            if (IsServer)
+            {
+                GameObject puddle;
+                puddle = Instantiate(splat, hitInfo.point, transform.rotation);
+                puddle.GetComponent<NetworkObject>()?.Spawn();
+                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
         }
     }
