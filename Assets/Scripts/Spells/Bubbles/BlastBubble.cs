@@ -24,7 +24,14 @@ public class BlastBubble : BasicBubble
     }
     protected override void InflateOverlapChack()
     {
-        base.InflateOverlapChack();
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Bubble"));
+
+        foreach (Collider col in overlaps)
+        {
+            if (ignoredColliders.Contains(col)) continue;
+            BubbleCollision(col.gameObject);
+        }
+        
         Pop();
     }
     protected override void Pop()
