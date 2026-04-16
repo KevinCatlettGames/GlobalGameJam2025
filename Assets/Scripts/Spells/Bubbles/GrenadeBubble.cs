@@ -12,7 +12,6 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private AnimationCurve arc;
     [SerializeField] private GameObject splat;
     [SerializeField] private LayerMask groundedLayerMask;
-    private float evaluateStep = 1f;
     private float progress = 0f;
     private const float raycastDistance = 5f;
 
@@ -20,13 +19,17 @@ public class GrenadeBubble : BasicBubble
     {
         base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         canMiss = false;
-        evaluateStep = range / speed;
     }
     protected override void BubbleMovement()
     {
-        progress += evaluateStep * Time.fixedDeltaTime;
-        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress), transform.position.z);
+        progress += speed * Time.fixedDeltaTime;
+        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress / range), transform.position.z);
         base.BubbleMovement();
+        if (transform.position.y <= 0.1f)
+        {
+            transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+            Pop();
+        }
     }
     protected override void Pop()
     {
