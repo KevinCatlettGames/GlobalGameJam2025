@@ -923,10 +923,11 @@ public class PlayerController : NetworkBehaviour
             force *= slipperyModifier;
             splashEffect.Play();
         }
-
+        
+        direction.y = 0;
         // Fixed knockback for -2 ID
         float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
-        Vector3 knockback = direction.normalized * mul * force;
+        Vector3 knockback = mul * force * direction.normalized;
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
@@ -993,9 +994,10 @@ public class PlayerController : NetworkBehaviour
             splashEffect.Play();
         }
 
+        direction.y = 0;
         // Fixed knockback for -2 ID
         float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
-        Vector3 knockback = direction.normalized * mul * force;
+        Vector3 knockback = mul * force * direction.normalized;
 
         if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
             killCreditID = ID;
