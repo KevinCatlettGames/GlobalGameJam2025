@@ -1,16 +1,13 @@
 using FMOD.Studio;
 using FMODUnity;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using static UnityEditor.Profiling.RawFrameDataView;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
