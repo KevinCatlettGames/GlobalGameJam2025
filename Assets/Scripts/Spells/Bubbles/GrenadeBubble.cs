@@ -1,27 +1,35 @@
 using FMODUnity;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GrenadeBubble : BasicBubble
 {
     private bool hasExploded = false;
+    [Header("Special Stats")]
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
-    private float evaluateStep = 1f;
+    [SerializeField] private GameObject splat;
+    [SerializeField] private LayerMask groundedLayerMask;
     private float progress = 0f;
+    private const float raycastDistance = 5f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         canMiss = false;
-        evaluateStep = range / speed;
     }
     protected override void BubbleMovement()
     {
-        progress += evaluateStep * Time.fixedDeltaTime;
-        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress), transform.position.z);
+        progress += speed * Time.fixedDeltaTime;
+        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress / range), transform.position.z);
         base.BubbleMovement();
+        if (transform.position.y <= 0.1f)
+        {
+            transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
+            Pop();
+        }
     }
     protected override void Pop()
     {
@@ -39,10 +47,9 @@ public class GrenadeBubble : BasicBubble
         Vector3 direction;
         foreach (Collider col in explosionOverlaps)
         {
-            if (col == null || col.gameObject == gameObject) continue;
+            if (!col || col.gameObject == gameObject) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
-            //Debug.Log(col.name);
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
                 if (col.CompareTag("Player"))
@@ -71,6 +78,16 @@ public class GrenadeBubble : BasicBubble
                     }
                 }
 
+            }
+        }
+        if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
+        {
+            if (IsServer)
+            {
+                GameObject puddle;
+                puddle = Instantiate(splat, hitInfo.point, transform.rotation);
+                puddle.GetComponent<NetworkObject>()?.Spawn();
+                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
         }
     }

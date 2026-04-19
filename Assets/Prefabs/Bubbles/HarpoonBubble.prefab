@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4781185463443737726}
   - component: {fileID: 38428987872841024}
   - component: {fileID: 7494781503810421203}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Particle System (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4852,7 +4852,7 @@ GameObject:
   - component: {fileID: -9100837447648041081}
   - component: {fileID: 5133857024651618929}
   - component: {fileID: -2729434609252916535}
-  m_Layer: 7
+  m_Layer: 11
   m_Name: HarpoonBubble
   m_TagString: Bubble
   m_Icon: {fileID: 0}
@@ -5126,10 +5126,19 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 15
   OwnerID: -1
+  size: 2
+  damage: 14
+  knockback: 0
+  speed: 25
+  range: 20
+  inflationSpeed: 10
+  popOnPlayerHit: 1
+  popOnBubbleHit: 0
   fizzleEffect: {fileID: 7883030796252567183, guid: 040cc9f5298f55045866dd3dd509940f,
     type: 3}
   hitEffect: {fileID: 7883030796252567183, guid: 64bdc0ee91328414dad63baf3026d880,
     type: 3}
+  pullForce: 40
 --- !u!1 &3866570355573510464
 GameObject:
   m_ObjectHideFlags: 0
@@ -5140,7 +5149,7 @@ GameObject:
   m_Component:
   - component: {fileID: 180433232201412110}
   - component: {fileID: 7267560198876945268}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5344,6 +5353,11 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 3871257379577124586, guid: fd27fdadab21b9d459a00c06ea331d00,
         type: 3}
+      propertyPath: m_Layer
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 3871257379577124586, guid: fd27fdadab21b9d459a00c06ea331d00,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 0
       objectReference: {fileID: 0}
@@ -5416,6 +5430,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: BubbleTrail
+      objectReference: {fileID: 0}
+    - target: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
+        type: 3}
+      propertyPath: m_Layer
+      value: 11
       objectReference: {fileID: 0}
     - target: {fileID: 7883030796252567183, guid: fd27fdadab21b9d459a00c06ea331d00,
         type: 3}

@@ -16,7 +16,7 @@ public class SO_Rapid : SO_Spell
             GameObject bubbleInstance = Instantiate(bubble, spawnPos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
+            bubbleScript.InitialiseBubble(ID, dir, castEventStruct, playerCollider);
 
             bubbleInstance.GetComponent<NetworkObject>().Spawn();
             
@@ -26,7 +26,7 @@ public class SO_Rapid : SO_Spell
             bubbleInstance = Instantiate(bubble, spawnPos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(ID, bubbleDamage, bubbleKnockback, bubbleSpeed, bubbleRange, bubbleSize, inflationSpeed, dir, castEventStruct, playerCollider);
+            bubbleScript.InitialiseBubble(ID, dir, castEventStruct, playerCollider);
 
             bubbleInstance.GetComponent<NetworkObject>().Spawn();
         }

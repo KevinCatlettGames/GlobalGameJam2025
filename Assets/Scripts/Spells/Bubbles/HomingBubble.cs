@@ -9,9 +9,9 @@ public class HomingBubble : BasicBubble
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float homingRadius = 5f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
 
         homingTargeting = GetComponentInChildren<HomingTargeting>();
         if (homingTargeting != null)

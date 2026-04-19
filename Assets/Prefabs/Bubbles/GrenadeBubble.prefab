@@ -5126,6 +5126,12 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 10
   OwnerID: -1
+  size: 2
+  damage: 18
+  knockback: 2.5
+  speed: 20
+  range: 18
+  inflationSpeed: 8
   popOnPlayerHit: 1
   popOnBubbleHit: 1
   fizzleEffect: {fileID: 7883030796252567183, guid: 105305074cad54c46a7cd3bd4eddd75e,
@@ -5147,8 +5153,8 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.013951409
     - serializedVersion: 3
-      time: 1
-      value: -0.01
+      time: 1.0255296
+      value: -1.7062458
       inSlope: -59.918015
       outSlope: -59.918015
       tangentMode: 0
@@ -5158,6 +5164,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+  splat: {fileID: 5835028745261568127, guid: 59ca74833bf54b80caac7a5fc9ae5dea, type: 3}
+  groundedLayerMask:
+    serializedVersion: 2
+    m_Bits: 512
 --- !u!1 &3866570355573510464
 GameObject:
   m_ObjectHideFlags: 0

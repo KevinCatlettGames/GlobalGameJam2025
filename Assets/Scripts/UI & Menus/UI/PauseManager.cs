@@ -197,13 +197,7 @@ public class PauseManager : MonoBehaviour
 
         GlobalLobby.CurrentLobby = null;
 
-        if (SceneTransition.instance)
-        {
-            SceneTransition.instance.OnTransitionFinished.AddListener(LoadMainMenu);
-            SceneTransition.instance.MenuTransition();
-        }
-        else
-            LoadMainMenu();
+        LoadMainMenu();
     }
 
     public async void ReturnToLobby()
@@ -213,14 +207,8 @@ public class PauseManager : MonoBehaviour
         
         if(LobbyManager.instance)
             Destroy(LobbyManager.instance.gameObject);
-        
-        if (SceneTransition.instance)
-        {
-            SceneTransition.instance.OnTransitionFinished.AddListener(LoadLobby);
-            SceneTransition.instance.MenuTransition();
-        }
-        else
-            LoadLobby();
+
+        LoadLobby();
     }
 
     void LoadLobby()

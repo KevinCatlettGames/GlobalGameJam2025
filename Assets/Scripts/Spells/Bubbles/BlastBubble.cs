@@ -5,15 +5,16 @@ using UnityEngine;
 
 public class BlastBubble : BasicBubble
 {
+    [Header("Special Stats")]
     [SerializeField] private GameObject splat;
     [SerializeField] private LayerMask groundedLayerMask;
     [SerializeField] private float extraOffset = 4.5f;
     [SerializeField] private float shooterKnb = 8f;
     private const float raycastDistance = 5f;
 
-    public override void InitialiseBubble(int ID, float dmg, float knb, float spd, float rng, float siz, float inf, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dmg, knb, spd, rng, siz, inf, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
         transform.position += direction * extraOffset;
 
         if (GameManager.Instance.PlayingLocal)
@@ -23,9 +24,42 @@ public class BlastBubble : BasicBubble
     }
     protected override void InflateOverlapChack()
     {
-        base.InflateOverlapChack();
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Bubble"));
+
+        foreach (Collider col in overlaps)
+        {
+            if (ignoredColliders.Contains(col)) continue;
+            if (col.CompareTag("Player"))
+            {
+                if (col.CompareTag("Player"))
+                {
+                    var player = col.GetComponent<PlayerController>();
+                    GameManager gameManager = GameManager.Instance;
+
+                    if (gameManager.PlayingLocal)
+                        player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+                    gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                    if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                    fizzleEffect = hitEffect;
+                }
+                else if (col.CompareTag("Bubble"))
+                {
+                    col.GetComponent<BasicBubble>()?.BubbleCollision(gameObject);
+                }
+            }
+        }
+        
         Pop();
     }
+
+    public override void BubbleCollision(GameObject other)
+    {
+        return;
+    }
+
     protected override void Pop()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
@@ -35,6 +69,7 @@ public class BlastBubble : BasicBubble
                 GameObject puddle;
                 puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
+                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
         }
         base.Pop();
