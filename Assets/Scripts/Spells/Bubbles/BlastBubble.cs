@@ -29,11 +29,37 @@ public class BlastBubble : BasicBubble
         foreach (Collider col in overlaps)
         {
             if (ignoredColliders.Contains(col)) continue;
-            BubbleCollision(col.gameObject);
+            if (col.CompareTag("Player"))
+            {
+                if (col.CompareTag("Player"))
+                {
+                    var player = col.GetComponent<PlayerController>();
+                    GameManager gameManager = GameManager.Instance;
+
+                    if (gameManager.PlayingLocal)
+                        player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+
+                    gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                    if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                    fizzleEffect = hitEffect;
+                }
+                else if (col.CompareTag("Bubble"))
+                {
+                    col.GetComponent<BasicBubble>()?.BubbleCollision(gameObject);
+                }
+            }
         }
         
         Pop();
     }
+
+    public override void BubbleCollision(GameObject other)
+    {
+        return;
+    }
+
     protected override void Pop()
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))

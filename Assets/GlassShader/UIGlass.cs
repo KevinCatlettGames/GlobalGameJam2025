@@ -8,7 +8,7 @@ public class UIGlass : MonoBehaviour
 
     private Material instanceMaterial;
 
-    void Awake()
+    void Start()
     {
         instanceMaterial = Instantiate(baseMaterial);
         GetComponent<Image>().material = instanceMaterial;

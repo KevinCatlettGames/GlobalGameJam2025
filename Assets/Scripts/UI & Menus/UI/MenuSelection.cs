@@ -27,9 +27,9 @@ public class MenuSelection : MonoBehaviour
 
     private void OnEnable()
     {
-        menuSelectionVritualCam.Priority = 1;
-        foreach(var cam in otherVirtualsCams)
-            cam.Priority = 0;     
+        //menuSelectionVritualCam.Priority = 1;
+        //foreach(var cam in otherVirtualsCams)
+        //    cam.Priority = 0;     
     }
 
     void Start()

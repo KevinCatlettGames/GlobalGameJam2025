@@ -3476,18 +3476,60 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   firstStartDelay: 5
   mapID: 2
-  strength: 75
-  sidewaysStrength: 0.75
+  strength: 100
+  sidewaysStrength: 10
   movementRange: 8
   speed: 6
   resetSpeed: 8
   turnRate: 1
-  rangeFallOff:
+  pullForceCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.1
+      value: 0.5
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.35472012
+      value: 0.7781309
+      inSlope: 1.9675729
+      outSlope: 1.9675729
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 0.58475643
+      value: 1.8613374
+      inSlope: 2.4392402
+      outSlope: 2.4392402
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 2
+      inSlope: -0.5488228
+      outSlope: -0.5488228
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.9131187
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  spinForceCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 2
       inSlope: 0
       outSlope: 0
       tangentMode: 0
@@ -3496,12 +3538,12 @@ MonoBehaviour:
       outWeight: 0
     - serializedVersion: 3
       time: 1
-      value: 2
-      inSlope: 2
-      outSlope: 2
+      value: 0
+      inSlope: -0.7166419
+      outSlope: -0.7166419
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.5271672
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
