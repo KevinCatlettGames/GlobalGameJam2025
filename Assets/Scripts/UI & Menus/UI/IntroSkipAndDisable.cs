@@ -17,6 +17,7 @@ public class IntroSkipAndDisable : MonoBehaviour
     private bool isSkippable = false;
     private bool played = false;
     public GameObject introParent;
+    [SerializeField] private RenderTexture videoTexture;
 
     void Awake()
     {
@@ -25,13 +26,19 @@ public class IntroSkipAndDisable : MonoBehaviour
             Destroy(this.gameObject);
             return;
         }
+
         instance = this;
         Cursor.visible = false;
+
         videoPlayer = GetComponent<VideoPlayer>();
-        if (videoPlayer == null)
-        {
-            Debug.LogError("No VideoPlayer component found!");
-        }
+
+        videoTexture = new RenderTexture(1920, 1080, 0);
+        videoTexture.Create();
+
+        videoPlayer.targetTexture = videoTexture;
+
+        GetComponent<RawImage>().texture = videoTexture;
+
         blackImage.SetActive(true);
     }
 

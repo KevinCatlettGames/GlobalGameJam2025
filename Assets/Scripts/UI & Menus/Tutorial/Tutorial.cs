@@ -5,16 +5,16 @@ using UnityEngine.InputSystem;
 using UnityEngine.Video;
 using FMODUnity;
 
-public class HowToPlayMenu : MonoBehaviour
+public class Tutorial : MonoBehaviour
 {
-    public static HowToPlayMenu Instance;
+    public static Tutorial Instance;
 
     public enum Tab { General, Weapons, Maps }
     public Tab currentTab = Tab.General;
 
     [Header("System References")]
     [SerializeField] private GameObject mainMenuButtons;
-    
+
     [Header("Tab Buttons")]
     [SerializeField] private Button howToPlayButton;
     [SerializeField] private Color activeColor;
@@ -24,7 +24,7 @@ public class HowToPlayMenu : MonoBehaviour
     [SerializeField] private GameObject mapsTabFrame;
     [SerializeField] private GameObject lbFrame;
     [SerializeField] private GameObject rbFrame;
-    
+
     [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage itemRawImage;
@@ -47,10 +47,10 @@ public class HowToPlayMenu : MonoBehaviour
     [Header("Page Dots")]
     [SerializeField] private GameObject[] pageDots;
     [SerializeField] private Sprite activePageDotSprite;
-    [SerializeField] private Color activePageDotColor; 
+    [SerializeField] private Color activePageDotColor;
     [SerializeField] private Sprite inactivePageDotSprite;
     [SerializeField] private Color inactivePageDotColor;
-    
+
     private int currentIndex;
 
     private bool pageTogglingEnabled = false;
@@ -64,18 +64,23 @@ public class HowToPlayMenu : MonoBehaviour
     [Header("FMOD events")]
     [SerializeField] StudioEventEmitter tabSwitchEmitter;
     [SerializeField] private StudioEventEmitter pageSwitchEmitter;
-    
+
     private bool stickInUse = false;
     private float pageHoldTimer = 0f;
     private int pageDirection = 0;
-    
+
+    private RenderTexture runtimeTexture;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        if (videoPlayer.targetTexture != null)
-            itemRawImage.texture = videoPlayer.targetTexture;
+        runtimeTexture = new RenderTexture(1920, 1080, 0);
+        runtimeTexture.Create();
+
+        videoPlayer.targetTexture = runtimeTexture;
+        itemRawImage.texture = runtimeTexture;
     }
 
     private void OnEnable()
@@ -99,7 +104,7 @@ public class HowToPlayMenu : MonoBehaviour
     {
         gameObject.SetActive(false);
     }
-    
+
     #region Tab Switching
     private void OnLeftTabSwitch(InputAction.CallbackContext ctx)
     {
@@ -119,7 +124,7 @@ public class HowToPlayMenu : MonoBehaviour
 
         leftTabSwitchAction.action.Enable();
         rightTabSwitchAction.action.Enable();
-        
+
         leftTabSwitchAction.action.performed += OnLeftTabSwitch;
         rightTabSwitchAction.action.performed += OnRightTabSwitch;
     }
@@ -130,10 +135,9 @@ public class HowToPlayMenu : MonoBehaviour
 
         leftTabSwitchAction.action.Disable();
         rightTabSwitchAction.action.Disable();
-        
+
         leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
         rightTabSwitchAction.action.performed -= OnRightTabSwitch;
-
     }
 
     private void ChangeTab(bool forward)
@@ -177,25 +181,22 @@ public class HowToPlayMenu : MonoBehaviour
         {
             if (!stickInUse)
             {
-                // First trigger
                 ChangePage(direction > 0);
                 pageHoldTimer = 0f;
                 stickInUse = true;
             }
             else
             {
-                // Holding stick: repeat after initial delay
                 pageHoldTimer += Time.deltaTime;
                 if (pageHoldTimer >= pageInitialDelay)
                 {
                     ChangePage(direction > 0);
-                    pageHoldTimer = pageInitialDelay - pageRepeatRate; // maintain repeat interval
+                    pageHoldTimer = pageInitialDelay - pageRepeatRate;
                 }
             }
         }
         else
         {
-            // Stick released
             stickInUse = false;
             pageHoldTimer = 0f;
         }
@@ -244,7 +245,7 @@ public class HowToPlayMenu : MonoBehaviour
         if (hasVideo)
         {
             videoPlayer.Prepare();
-            videoPlayer.prepareCompleted += _ => videoPlayer.Play();
+            videoPlayer.prepareCompleted += OnVideoPrepared;
         }
 
         bool hasMainImage = item.ItemMainImage != null;
@@ -276,6 +277,12 @@ public class HowToPlayMenu : MonoBehaviour
         }
     }
 
+    private void OnVideoPrepared(VideoPlayer vp)
+    {
+        vp.prepareCompleted -= OnVideoPrepared;
+        vp.Play();
+    }
+
     private void UpdatePageDots()
     {
         TutorialItemSO[] items = GetActiveItems();
@@ -297,7 +304,7 @@ public class HowToPlayMenu : MonoBehaviour
             if (img != null)
             {
                 img.sprite = activePageDotSprite;
-                img.color = activePageDotColor; 
+                img.color = activePageDotColor;
             }
         }
     }
@@ -308,11 +315,8 @@ public class HowToPlayMenu : MonoBehaviour
         currentTab = tab;
         mainMenuButtons.SetActive(false);
 
-        if (!pageTogglingEnabled)
-            EnablePageToggling();
-
-        if (!tabTogglingEnabled)
-            EnableTabToggling();
+        if (!pageTogglingEnabled) EnablePageToggling();
+        if (!tabTogglingEnabled) EnableTabToggling();
 
         currentIndex = 0;
         Display(currentIndex);
@@ -327,14 +331,16 @@ public class HowToPlayMenu : MonoBehaviour
             pageDots[i].SetActive(true);
 
         UpdatePageDots();
+
         generalTabFrame.GetComponent<Image>().color = (currentTab == Tab.General) ? inactiveColor : activeColor;
         weaponsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Weapons) ? inactiveColor : activeColor;
         mapsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Maps) ? inactiveColor : activeColor;
+
         generalTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.General;
         weaponsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Weapons;
         mapsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Maps;
-        
-        switch(tab)
+
+        switch (tab)
         {
             case Tab.General:
                 generalTabFrame.transform.SetAsLastSibling();
@@ -342,7 +348,7 @@ public class HowToPlayMenu : MonoBehaviour
             case Tab.Weapons:
                 weaponsTabFrame.transform.SetAsLastSibling();
                 break;
-            case  Tab.Maps:
+            case Tab.Maps:
                 mapsTabFrame.transform.SetAsLastSibling();
                 break;
         }

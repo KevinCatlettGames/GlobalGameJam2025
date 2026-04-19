@@ -4,50 +4,72 @@ using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
-using UnityEngine.Events;
 
 public class LobbyButtons : MonoBehaviour
 {
-    public InputActionProperty toggleGameModeInputAction;
+    [Tooltip("Input action used to toggle match settings")]
     public InputActionProperty toggleMatchSettingsInputAction;
+
+    [Tooltip("Input action used to return to the main menu")]
     public InputActionProperty goToMainMenuInputAction;
+
+    [Tooltip("Input action used to start the game")]
     public InputActionProperty startGameInputAction;
-        
-    public Image radialFillImage;
+
+    [Tooltip("Radial fill image for the start game hold progress")]
+    public Image startGameRadialFillImage;
+
+    [Tooltip("Radial fill image for the main menu hold progress")]
+    public Image mainMenuRadialFillImage;
 
     [SerializeField] private float startGameHoldDuration = 1f;
+    [SerializeField] private float mainMenuHoldDuration = 1f;
 
     private float startGamePressTime;
     private bool isPressingStartGame;
     private bool gameStarting;
-    private bool emitting;
 
-    public StudioEventEmitter progressEmitter;
+    private float mainMenuPressTime;
+    private bool isPressingMainMenu;
+    private bool goingToMainMenu;
+
+    private bool startEmitting;
+    private bool menuEmitting;
+
+    [Tooltip("Audio emitter for start game hold progress")]
+    public StudioEventEmitter startProgressEmitter;
+
+    [Tooltip("Audio emitter for main menu hold progress")]
+    public StudioEventEmitter mainMenuProgressEmitter;
+
+    [Tooltip("Audio emitter for button click feedback")]
     public StudioEventEmitter buttonOnClickEmitter;
-    
-    LobbyManager lobbyManager;
-    public GameObject lobbyParent; 
+
+    private LobbyManager lobbyManager;
+
+    [Tooltip("Parent object for the lobby UI")]
+    public GameObject lobbyParent;
 
     private void OnEnable()
     {
         lobbyManager = LobbyManager.instance;
-        
-        toggleGameModeInputAction.action.performed += OnToggleGameModeSelection;
+
         toggleMatchSettingsInputAction.action.performed += OnToggleMatchSettingsSelection;
-        goToMainMenuInputAction.action.performed += OnGoToMainMenu;
+
+        goToMainMenuInputAction.action.started += OnMainMenuPressed;
+        goToMainMenuInputAction.action.canceled += OnMainMenuReleased;
+
         startGameInputAction.action.started += OnStartGamePressed;
         startGameInputAction.action.canceled += OnStartGameReleased;
 
-        toggleGameModeInputAction.action.Enable();
         toggleMatchSettingsInputAction.action.Enable();
         goToMainMenuInputAction.action.Enable();
         startGameInputAction.action.Enable();
 
-        if (radialFillImage != null)
-            radialFillImage.fillAmount = 0f;
+        ResetStartRadial();
+        ResetMainMenuRadial();
 
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
@@ -55,13 +77,14 @@ public class LobbyButtons : MonoBehaviour
 
     private void OnDisable()
     {
-        toggleGameModeInputAction.action.performed -= OnToggleGameModeSelection;
         toggleMatchSettingsInputAction.action.performed -= OnToggleMatchSettingsSelection;
-        goToMainMenuInputAction.action.performed -= OnGoToMainMenu;
+
+        goToMainMenuInputAction.action.started -= OnMainMenuPressed;
+        goToMainMenuInputAction.action.canceled -= OnMainMenuReleased;
+
         startGameInputAction.action.started -= OnStartGamePressed;
         startGameInputAction.action.canceled -= OnStartGameReleased;
 
-        toggleGameModeInputAction.action.Disable();
         toggleMatchSettingsInputAction.action.Disable();
         goToMainMenuInputAction.action.Disable();
         startGameInputAction.action.Disable();
@@ -72,19 +95,25 @@ public class LobbyButtons : MonoBehaviour
 
     private void Update()
     {
+        HandleStartGameHold();
+        HandleMainMenuHold();
+    }
+
+    private void HandleStartGameHold()
+    {
         if (!isPressingStartGame || gameStarting) return;
 
         float heldTime = Time.time - startGamePressTime;
         float progress = Mathf.Clamp01(heldTime / startGameHoldDuration);
 
-        if (progress > 0.1f && !emitting)
+        if (progress > 0.1f && !startEmitting)
         {
-            emitting = true;
-            progressEmitter.Play();
+            startEmitting = true;
+            startProgressEmitter.Play();
         }
 
-        if (radialFillImage != null)
-            radialFillImage.fillAmount = progress;
+        if (startGameRadialFillImage != null)
+            startGameRadialFillImage.fillAmount = progress;
 
         if (heldTime >= startGameHoldDuration)
         {
@@ -93,11 +122,47 @@ public class LobbyButtons : MonoBehaviour
         }
     }
 
-    private async void OnApplicationQuit()
+    private void HandleMainMenuHold()
     {
-        await CleanupLobby();
+        if (!isPressingMainMenu || goingToMainMenu) return;
+
+        float heldTime = Time.time - mainMenuPressTime;
+        float progress = Mathf.Clamp01(heldTime / mainMenuHoldDuration);
+
+        if (progress > 0.1f && !menuEmitting)
+        {
+            menuEmitting = true;
+            mainMenuProgressEmitter.Play();
+        }
+
+        if (mainMenuRadialFillImage != null)
+            mainMenuRadialFillImage.fillAmount = progress;
+
+        if (heldTime >= mainMenuHoldDuration)
+        {
+            goingToMainMenu = true;
+            GoToMainMenu();
+        }
     }
-    
+
+    private void ResetStartRadial()
+    {
+        if (startGameRadialFillImage != null)
+            startGameRadialFillImage.fillAmount = 0f;
+
+        startEmitting = false;
+        startProgressEmitter.Stop();
+    }
+
+    private void ResetMainMenuRadial()
+    {
+        if (mainMenuRadialFillImage != null)
+            mainMenuRadialFillImage.fillAmount = 0f;
+
+        menuEmitting = false;
+        mainMenuProgressEmitter.Stop();
+    }
+
     private void OnToggleGameModeSelection(InputAction.CallbackContext context)
     {
         if (IsHost())
@@ -110,34 +175,73 @@ public class LobbyButtons : MonoBehaviour
             ToggleMatchSettings();
     }
 
-    private void OnGoToMainMenu(InputAction.CallbackContext context)
+    private void OnMainMenuPressed(InputAction.CallbackContext context)
     {
-        GoToMainMenu();
+        StartMainMenuHold();
+    }
+
+    private void OnMainMenuReleased(InputAction.CallbackContext context)
+    {
+        StopMainMenuHold();
     }
 
     private void OnStartGamePressed(InputAction.CallbackContext context)
     {
-        StartGame();
+        StartGameHold();
     }
 
     private void OnStartGameReleased(InputAction.CallbackContext context)
     {
-        StopStartGame();
+        StopStartGameHold();
     }
 
-    // ---------------------------------------------------------
-    // Public UI Button Hooks
-    // ---------------------------------------------------------
+    public void OnStartGameButtonDown() => StartGameHold();
+    public void OnStartGameButtonUp() => StopStartGameHold();
 
-    public void OnToggleGameModeButton() => ToggleGameMode();
-    public void OnToggleMatchSettingsButton() => ToggleMatchSettings();
-    public void OnGoToMainMenuButton() => GoToMainMenu();
-    public void OnStartGameButton() => StartGame();
-    public void OnStopStartGameButton() => StopStartGame();
+    public void OnMainMenuButtonDown() => StartMainMenuHold();
+    public void OnMainMenuButtonUp() => StopMainMenuHold();
 
-    // ---------------------------------------------------------
-    // Core Logic
-    // ---------------------------------------------------------
+    private void StartGameHold()
+    {
+        if (TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer)
+            return;
+
+        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0)
+            return;
+
+        isPressingStartGame = true;
+        startGamePressTime = Time.time;
+        gameStarting = false;
+
+        ResetStartRadial();
+    }
+
+    private void StopStartGameHold()
+    {
+        isPressingStartGame = false;
+        startGamePressTime = 0f;
+
+        if (!gameStarting)
+            ResetStartRadial();
+    }
+
+    private void StartMainMenuHold()
+    {
+        isPressingMainMenu = true;
+        mainMenuPressTime = Time.time;
+        goingToMainMenu = false;
+
+        ResetMainMenuRadial();
+    }
+
+    private void StopMainMenuHold()
+    {
+        isPressingMainMenu = false;
+        mainMenuPressTime = 0f;
+
+        if (!goingToMainMenu)
+            ResetMainMenuRadial();
+    }
 
     private void OnClientDisconnect(ulong clientId)
     {
@@ -151,18 +255,15 @@ public class LobbyButtons : MonoBehaviour
     {
         if (lobbyManager.GameModeSelection.activeSelf || lobbyManager.MatchSettingsSelection.activeSelf)
             return;
-        
+
         buttonOnClickEmitter.Play();
-            
+
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
-
-        // Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
         MenuSelection.Instance.gameObject.SetActive(true);
         Destroy(lobbyParent);
-        //SceneManager.LoadScene("UI_MainMenu");
     }
 
     private async void GoToMainMenu()
@@ -201,34 +302,6 @@ public class LobbyButtons : MonoBehaviour
         }
     }
 
-    private void StartGame()
-    {
-        if (TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer)
-            return;
-
-        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0)
-            return;
-
-        isPressingStartGame = true;
-        startGamePressTime = Time.time;
-        gameStarting = false;
-
-        if (radialFillImage != null)
-            radialFillImage.fillAmount = 0f;
-    }
-
-    private void StopStartGame()
-    {
-        isPressingStartGame = false;
-        startGamePressTime = 0f;
-
-        if (!gameStarting && radialFillImage != null)
-            radialFillImage.fillAmount = 0f;
-
-        emitting = false;
-        progressEmitter.Stop();
-    }
-
     private bool IsHost() => NetworkManager.Singleton.IsHost;
 
     public void ToggleGameMode()
@@ -237,23 +310,24 @@ public class LobbyButtons : MonoBehaviour
             !NetworkManager.Singleton.IsServer) return;
 
         lobbyManager.GameModeSelection.SetActive(!lobbyManager.GameModeSelection.activeSelf);
+
         if (lobbyManager.GameModeSelection.activeSelf)
             lobbyManager.MatchSettingsSelection.SetActive(false);
-        
+
         buttonOnClickEmitter.Play();
     }
 
     public void ToggleMatchSettings()
     {
-        if (LobbyManager.instance.IsDemo) return; 
+        if (LobbyManager.instance.IsDemo) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
         lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
+
         if (lobbyManager.MatchSettingsSelection.activeSelf)
             lobbyManager.GameModeSelection.SetActive(false);
-        
 
         buttonOnClickEmitter.Play();
     }
