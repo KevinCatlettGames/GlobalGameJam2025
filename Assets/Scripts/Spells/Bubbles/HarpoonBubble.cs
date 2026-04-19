@@ -6,6 +6,14 @@ public class HarpoonBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped) return;
+        if (other.CompareTag("Bubble"))
+        {
+            BasicBubble bubble = other.GetComponent<BasicBubble>();
+            if (bubble != null && bubble.spellType != BasicBubble.SpellType.Wall)
+            {
+                Physics.IgnoreCollision(sphereCollider, other.GetComponent<Collider>());
+            }
+        }
         if (other.CompareTag("Player"))
         {
             if (GameManager.Instance.PlayingLocal)
