@@ -83,6 +83,7 @@ public class Settings : MonoBehaviour
     #region UI
     [Header("UI")]
     [SerializeField] private GameObject selectedObject;
+    [SerializeField] private Button backButton;
     #endregion
 
     #region Enums
@@ -263,7 +264,10 @@ public class Settings : MonoBehaviour
         rightTabSwitchAction.action.performed -= OnRightTabSwitch;
     }
 
-    private void ExitSettings(InputAction.CallbackContext obj) { }
+    private void ExitSettings(InputAction.CallbackContext obj) 
+    {
+        backButton.onClick?.Invoke();
+    }
     #endregion
 
     #region Tabs Logic

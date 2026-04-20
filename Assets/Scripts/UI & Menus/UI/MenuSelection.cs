@@ -10,7 +10,11 @@ public class MenuSelection : MonoBehaviour
     public static MenuSelection Instance { get; private set; }
 
     public CinemachineVirtualCamera menuSelectionVritualCam;
-    public CinemachineVirtualCamera[] otherVirtualsCams; 
+    public CinemachineVirtualCamera[] otherVirtualsCams;
+
+    GameObject currentToSelect;
+    public EventSystem eventSystem;
+    public GameObject localOnline;
 
     private void Awake()
     {
@@ -40,5 +44,16 @@ public class MenuSelection : MonoBehaviour
         #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
         #endif
+    }
+
+    public void ChangeSelectedGameObject(GameObject newGameObject)
+    {
+        currentToSelect = newGameObject;
+        Invoke(nameof(ChangeSelect), 1f);
+    }
+
+    void ChangeSelect(GameObject gameObject)
+    {
+        eventSystem.SetSelectedGameObject(currentToSelect);
     }
 }
