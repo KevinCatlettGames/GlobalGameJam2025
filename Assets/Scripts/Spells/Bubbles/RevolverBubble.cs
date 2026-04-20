@@ -14,11 +14,13 @@ public class RevolverBubble : BasicBubble
    
     private int hitCount = 0;
     private EventReference soundEvent;
+    private Vector3 offset;
     
     public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
+        offset = transform.position - playerCollider.transform.position;
         this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
 
@@ -27,13 +29,12 @@ public class RevolverBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        return;
-        // Revolver bubble doesn't move itself
+        transform.position = playerCollider.transform.position + offset;
     }
 
     private IEnumerator EmptyBarrel()
     {
-        Vector3 pos = transform.position + direction;
+        Vector3 pos;
         float rotation = -(maxAmmo - 1);
         rotation *= .5f;
         
@@ -41,7 +42,7 @@ public class RevolverBubble : BasicBubble
         {
             
             Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
-    
+            pos = transform.position + direction;
             GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
             bubbleObj.GetComponent<RevolverBulletBubble>().RevolverBubble = this; 
             

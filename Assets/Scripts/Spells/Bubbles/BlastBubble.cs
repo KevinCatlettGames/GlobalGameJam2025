@@ -69,7 +69,7 @@ public class BlastBubble : BasicBubble
                 GameObject puddle;
                 puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
+                puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID);
             }
         }
         base.Pop();
