@@ -71,8 +71,8 @@ public class Settings : MonoBehaviour
 
     #region Tab UI
     [Header("Tab UI")]
-    [SerializeField] private Color activeColor;
-    [SerializeField] private Color inactiveColor;
+    //[SerializeField] private Color activeColor;
+    //[SerializeField] private Color inactiveColor;
     [SerializeField] private GameObject videoTabFrame;
     [SerializeField] private GameObject audioTabFrame;
     [SerializeField] private GameObject gameTabFrame;
@@ -304,19 +304,22 @@ public class Settings : MonoBehaviour
 
     private void SetTabVisual(GameObject frame, bool active)
     {
-        frame.GetComponent<Image>().color = active ? inactiveColor : activeColor;
-        frame.GetComponent<Outline>().enabled = active;
+        //frame.GetComponent<Image>().color = active ? inactiveColor : activeColor;
+        //frame.GetComponent<Outline>().enabled = active;
     }
 
     private void UpdateTabVisibility(Tab tab)
     {
         videoTab.SetActive(tab == Tab.Video);
+        videoTabFrame.SetActive(tab == Tab.Video);
         audioTab.SetActive(tab == Tab.Audio);
+        audioTabFrame.SetActive(tab == Tab.Audio);
         gameTab.SetActive(tab == Tab.Game);
+        gameTabFrame.SetActive(tab == Tab.Game);
 
-        if (tab == Tab.Video) videoTabFrame.transform.SetAsLastSibling();
-        if (tab == Tab.Audio) audioTabFrame.transform.SetAsLastSibling();
-        if (tab == Tab.Game) gameTabFrame.transform.SetAsLastSibling();
+        //if (tab == Tab.Video) videoTabFrame.transform.SetAsLastSibling();
+        //if (tab == Tab.Audio) audioTabFrame.transform.SetAsLastSibling();
+        //if (tab == Tab.Game) gameTabFrame.transform.SetAsLastSibling();
     }
 
     public void OpenVideoTab() => SetTab(Tab.Video);
