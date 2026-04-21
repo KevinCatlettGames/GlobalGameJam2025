@@ -44,4 +44,9 @@ public class UIGlass : MonoBehaviour
 
         instanceMaterial.SetVector("_Size", normalizedSize);
     }
+
+    public void SetTransparency(float newValue)
+    {
+        GetComponent<Image>().material.SetFloat("_OutlineTranparency", newValue);
+    }
 }
