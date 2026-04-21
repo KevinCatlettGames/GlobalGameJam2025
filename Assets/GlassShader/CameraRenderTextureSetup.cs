@@ -3,7 +3,7 @@ using UnityEngine;
 public class CameraRenderTextureSetup : MonoBehaviour
 {
     [SerializeField] private Camera targetCamera;
-    [SerializeField] private Material targetMaterial;
+    [SerializeField] private Material[] targetMaterials;
 
     private RenderTexture runtimeRT;
 
@@ -11,9 +11,11 @@ public class CameraRenderTextureSetup : MonoBehaviour
     {
         runtimeRT = new RenderTexture(1920, 1080, 24);
         runtimeRT.Create();
-
         targetCamera.targetTexture = runtimeRT;
-        targetMaterial.mainTexture = runtimeRT;
+        foreach (Material mat in targetMaterials)
+        {          
+            mat.mainTexture = runtimeRT;
+        }
     }
 
     void OnDestroy()
