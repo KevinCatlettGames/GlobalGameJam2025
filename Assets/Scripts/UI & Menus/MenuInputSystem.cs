@@ -4,10 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 
-public class GameInput : MonoBehaviour
+public class MenuInputSystem : MonoBehaviour
 {
     #region Singleton
-    public static GameInput Instance { get; private set; }
+    public static MenuInputSystem Instance { get; private set; }
     #endregion
 
     #region Enums

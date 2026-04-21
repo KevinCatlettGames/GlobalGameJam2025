@@ -3,7 +3,7 @@ using UnityEngine.EventSystems;
 using TMPro;
 using System.Collections;
 
-public class ButtonHelper : MonoBehaviour, ISelectHandler, IDeselectHandler
+public class SelectableTextScaler : MonoBehaviour, ISelectHandler, IDeselectHandler
 {
     public TextMeshProUGUI targetText;
     public bool changeFontSize = true;

@@ -1,13 +1,7 @@
 using UnityEngine;
-
-/// <summary>
-/// This class manages the visibility and locking state of the mouse cursor.
-/// </summary>
-public class MouseVisibilityHandler : MonoBehaviour
+public class CursorManager : MonoBehaviour
 {
-    [Tooltip("Singleton instance of the MouseVisibilityHandler.")]
-    public static MouseVisibilityHandler instance; // Singleton instance for accessing from other scripts
-
+    public static CursorManager instance;
     public bool hideAtStart = true; 
     
     private void Awake()
