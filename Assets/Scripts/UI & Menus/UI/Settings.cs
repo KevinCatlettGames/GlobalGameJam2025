@@ -8,9 +8,9 @@ using UnityEngine.InputSystem;
 public class Settings : MonoBehaviour
 {
     #region Defaults
-    private const float DEFAULT_MASTER = 1f;
-    private const float DEFAULT_SFX = 1f;
-    private const float DEFAULT_MUSIC = 1f;
+    private const float DEFAULT_MASTER = 0.5f;
+    private const float DEFAULT_SFX = 0.5f;
+    private const float DEFAULT_MUSIC = 0.5f;
 
     private const bool DEFAULT_FULLSCREEN = true;
     private const int DEFAULT_RESOLUTION = 2;
@@ -41,10 +41,6 @@ public class Settings : MonoBehaviour
     private FMOD.Studio.VCA sfxVCA;
     private FMOD.Studio.VCA musicVCA;
 
-    private float masterVolume;
-    private float sfxVolume;
-    private float musicVolume;
-
     [Header("Audio")]
     [SerializeField] private Slider masterSlider;
     [SerializeField] private Slider sfxSlider;
@@ -67,17 +63,14 @@ public class Settings : MonoBehaviour
     [SerializeField] private GameObject videoTab;
     [SerializeField] private GameObject audioTab;
     [SerializeField] private GameObject gameTab;
+    [SerializeField] private bool useGameTab = true;
     #endregion
 
     #region Tab UI
     [Header("Tab UI")]
-    //[SerializeField] private Color activeColor;
-    //[SerializeField] private Color inactiveColor;
     [SerializeField] private GameObject videoTabFrame;
     [SerializeField] private GameObject audioTabFrame;
     [SerializeField] private GameObject gameTabFrame;
-    [SerializeField] private GameObject lbFrame;
-    [SerializeField] private GameObject rbFrame;
     #endregion
 
     #region UI
@@ -86,32 +79,37 @@ public class Settings : MonoBehaviour
     [SerializeField] private Button backButton;
     #endregion
 
-    #region Enums
     public enum Tab { Video, Audio, Game }
-    #endregion
 
-    #region Tab State
     public Tab currentTab = Tab.Video;
     private bool tabTogglingEnabled;
-    #endregion
 
     #region Unity Lifecycle
     private void OnEnable()
     {
-        exitSettingsAction.action.performed += ExitSettings;
-        exitSettingsAction.action.Enable();
+        if (exitSettingsAction.action != null)
+        {
+            exitSettingsAction.action.performed += ExitSettings;
+            exitSettingsAction.action.Enable();
+        }
 
         LoadSavedIntoPending();
         ApplyPendingToUI();
+
         ApplyVideoRuntime();
         ApplyAudioRuntime();
+
         SetTab(Tab.Video);
     }
 
     private void OnDisable()
     {
-        exitSettingsAction.action.performed -= ExitSettings;
-        exitSettingsAction.action.Disable();
+        if (exitSettingsAction.action != null)
+        {
+            exitSettingsAction.action.performed -= ExitSettings;
+            exitSettingsAction.action.Disable();
+        }
+
         DisableTabToggling();
     }
 
@@ -128,58 +126,36 @@ public class Settings : MonoBehaviour
         masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Master");
         sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/SFX");
         musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Music");
-
-        masterVCA.getVolume(out masterVolume);
-        sfxVCA.getVolume(out sfxVolume);
-        musicVCA.getVolume(out musicVolume);
-
-        masterSlider.value = masterVolume * 100;
-        sfxSlider.value = sfxVolume * 100;
-        musicSlider.value = musicVolume * 100;
-
-        masterValueText.text = Mathf.CeilToInt(PlayerPrefs.GetFloat(SettingsInitialiser.MasterVolKey) * 100).ToString();
-        sfxValueText.text = Mathf.CeilToInt(PlayerPrefs.GetFloat(SettingsInitialiser.SfxVolKey) * 100).ToString();
-        musicValueText.text = Mathf.CeilToInt(PlayerPrefs.GetFloat(SettingsInitialiser.MusicVolKey) * 100).ToString();
-
-        pendingMaster = masterVolume;
-        pendingSfx = sfxVolume;
-        pendingMusic = musicVolume;
     }
 
     private void InitialiseVideo()
     {
-        fullScreenToggle.isOn = Screen.fullScreen;
         InitialiseResolutions();
 
-        graphicsQualityDropdown.value = QualitySettings.GetQualityLevel();
-        graphicsQualityDropdown.RefreshShownValue();
-
         pendingFullscreen = Screen.fullScreen;
-        pendingResolution = PlayerPrefs.GetInt("ResolutionLevel", 2);
+        pendingResolution = PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION);
         pendingQuality = QualitySettings.GetQualityLevel();
     }
     #endregion
 
-    #region Video Controls
+    #region Video Controls (LIVE PREVIEW)
     public void SetFullscreen(bool isFullScreen)
     {
         pendingFullscreen = isFullScreen;
 
         Screen.fullScreen = isFullScreen;
         resolutionDropdown.interactable = !isFullScreen;
-        ApplyVideoRuntime();
     }
 
     public void SetResolution(int option)
     {
-        pendingResolution = option;
+        pendingResolution = Mathf.Clamp(option, 0, resolutionsWidth.Length - 1);
 
         Screen.SetResolution(
-            resolutionsWidth[option],
-            resolutionsHeight[option],
+            resolutionsWidth[pendingResolution],
+            resolutionsHeight[pendingResolution],
             pendingFullscreen
         );
-        ApplyVideoRuntime();
     }
 
     public void SetGraphicsQuality(int option)
@@ -188,7 +164,6 @@ public class Settings : MonoBehaviour
 
         QualitySettings.SetQualityLevel(option);
         Application.targetFrameRate = option == 0 ? 60 : -1;
-        ApplyVideoRuntime();
     }
 
     private void InitialiseResolutions()
@@ -204,30 +179,38 @@ public class Settings : MonoBehaviour
 
         resolutionDropdown.AddOptions(labels);
 
-        int value = PlayerPrefs.GetInt("ResolutionLevel", 2);
+        int value = PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION);
+        value = Mathf.Clamp(value, 0, resolutionsWidth.Length - 1);
+
         resolutionDropdown.value = value;
         resolutionDropdown.RefreshShownValue();
         resolutionDropdown.interactable = !Screen.fullScreen;
     }
     #endregion
 
-    #region Audio Controls
+    #region Audio Controls (LIVE PREVIEW)
     public void SetMasterVolume(float volume)
     {
-        masterValueText.text = volume.ToString();
         pendingMaster = volume * 0.01f;
+        masterValueText.text = Mathf.RoundToInt(volume).ToString();
+
+        masterVCA.setVolume(pendingMaster);
     }
 
     public void SetSFXVolume(float volume)
     {
-        sfxValueText.text = volume.ToString();
         pendingSfx = volume * 0.01f;
+        sfxValueText.text = Mathf.RoundToInt(volume).ToString();
+
+        sfxVCA.setVolume(pendingSfx);
     }
 
     public void SetMusicVolume(float volume)
     {
-        musicValueText.text = volume.ToString();
         pendingMusic = volume * 0.01f;
+        musicValueText.text = Mathf.RoundToInt(volume).ToString();
+
+        musicVCA.setVolume(pendingMusic);
     }
     #endregion
 
@@ -246,39 +229,53 @@ public class Settings : MonoBehaviour
     {
         tabTogglingEnabled = true;
 
-        leftTabSwitchAction.action.Enable();
-        rightTabSwitchAction.action.Enable();
+        if (leftTabSwitchAction.action != null)
+        {
+            leftTabSwitchAction.action.Enable();
+            leftTabSwitchAction.action.performed += OnLeftTabSwitch;
+        }
 
-        leftTabSwitchAction.action.performed += OnLeftTabSwitch;
-        rightTabSwitchAction.action.performed += OnRightTabSwitch;
+        if (rightTabSwitchAction.action != null)
+        {
+            rightTabSwitchAction.action.Enable();
+            rightTabSwitchAction.action.performed += OnRightTabSwitch;
+        }
     }
 
     private void DisableTabToggling()
     {
         tabTogglingEnabled = false;
 
-        leftTabSwitchAction.action.Disable();
-        rightTabSwitchAction.action.Disable();
+        if (leftTabSwitchAction.action != null)
+        {
+            leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
+            leftTabSwitchAction.action.Disable();
+        }
 
-        leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
-        rightTabSwitchAction.action.performed -= OnRightTabSwitch;
+        if (rightTabSwitchAction.action != null)
+        {
+            rightTabSwitchAction.action.performed -= OnRightTabSwitch;
+            rightTabSwitchAction.action.Disable();
+        }
     }
 
-    private void ExitSettings(InputAction.CallbackContext obj) 
+    private void ExitSettings(InputAction.CallbackContext obj)
     {
         backButton.onClick?.Invoke();
     }
     #endregion
 
-    #region Tabs Logic
+    #region Tabs
     public void SetTab(Tab tab)
     {
+        if (!useGameTab && tab == Tab.Game)
+            tab = Tab.Video;
+
         currentTab = tab;
 
         if (!tabTogglingEnabled)
             EnableTabToggling();
 
-        UpdateTabUI();
         UpdateTabVisibility(tab);
     }
 
@@ -286,45 +283,35 @@ public class Settings : MonoBehaviour
     {
         if (!tabTogglingEnabled) return;
 
-        Tab nextTab = forward
-            ? (currentTab == Tab.Video ? Tab.Audio :
-               currentTab == Tab.Audio ? Tab.Game : Tab.Video)
-            : (currentTab == Tab.Video ? Tab.Game :
-               currentTab == Tab.Game ? Tab.Audio : Tab.Video);
+        Tab nextTab;
+
+        if (useGameTab)
+        {
+            nextTab = forward
+                ? (currentTab == Tab.Video ? Tab.Audio :
+                   currentTab == Tab.Audio ? Tab.Game : Tab.Video)
+                : (currentTab == Tab.Video ? Tab.Game :
+                   currentTab == Tab.Game ? Tab.Audio : Tab.Video);
+        }
+        else
+        {
+            nextTab = (currentTab == Tab.Video) ? Tab.Audio : Tab.Video;
+        }
 
         SetTab(nextTab);
-    }
-
-    private void UpdateTabUI()
-    {
-        SetTabVisual(videoTabFrame, currentTab == Tab.Video);
-        SetTabVisual(audioTabFrame, currentTab == Tab.Audio);
-        SetTabVisual(gameTabFrame, currentTab == Tab.Game);
-    }
-
-    private void SetTabVisual(GameObject frame, bool active)
-    {
-        //frame.GetComponent<Image>().color = active ? inactiveColor : activeColor;
-        //frame.GetComponent<Outline>().enabled = active;
     }
 
     private void UpdateTabVisibility(Tab tab)
     {
         videoTab.SetActive(tab == Tab.Video);
         videoTabFrame.SetActive(tab == Tab.Video);
+
         audioTab.SetActive(tab == Tab.Audio);
         audioTabFrame.SetActive(tab == Tab.Audio);
+
         gameTab.SetActive(tab == Tab.Game);
         gameTabFrame.SetActive(tab == Tab.Game);
-
-        //if (tab == Tab.Video) videoTabFrame.transform.SetAsLastSibling();
-        //if (tab == Tab.Audio) audioTabFrame.transform.SetAsLastSibling();
-        //if (tab == Tab.Game) gameTabFrame.transform.SetAsLastSibling();
     }
-
-    public void OpenVideoTab() => SetTab(Tab.Video);
-    public void OpenAudioTab() => SetTab(Tab.Audio);
-    public void OpenGameTab() => SetTab(Tab.Game);
     #endregion
 
     #region UI Helpers
@@ -334,7 +321,7 @@ public class Settings : MonoBehaviour
     }
     #endregion
 
-    #region Reset And Apply
+    #region Apply / Cancel / Reset
     private void LoadSavedIntoPending()
     {
         pendingMaster = PlayerPrefs.GetFloat(SettingsInitialiser.MasterVolKey, DEFAULT_MASTER);
@@ -367,6 +354,28 @@ public class Settings : MonoBehaviour
         resolutionDropdown.interactable = !pendingFullscreen;
     }
 
+    public void ApplySettings()
+    {
+        PlayerPrefs.SetFloat(SettingsInitialiser.MasterVolKey, pendingMaster);
+        PlayerPrefs.SetFloat(SettingsInitialiser.SfxVolKey, pendingSfx);
+        PlayerPrefs.SetFloat(SettingsInitialiser.MusicVolKey, pendingMusic);
+
+        PlayerPrefs.SetInt("Fullscreen", pendingFullscreen ? 1 : 0);
+        PlayerPrefs.SetInt("ResolutionLevel", pendingResolution);
+        PlayerPrefs.SetInt("QualityLevel", pendingQuality);
+
+        PlayerPrefs.Save();
+    }
+
+    public void CancelSettings()
+    {
+        LoadSavedIntoPending();
+
+        ApplyPendingToUI();
+        ApplyVideoRuntime();
+        ApplyAudioRuntime();
+    }
+
     public void ResetSettings()
     {
         pendingMaster = DEFAULT_MASTER;
@@ -377,41 +386,10 @@ public class Settings : MonoBehaviour
         pendingResolution = DEFAULT_RESOLUTION;
         pendingQuality = DEFAULT_QUALITY;
 
-        masterVCA.setVolume(pendingMaster);
-        sfxVCA.setVolume(pendingSfx);
-        musicVCA.setVolume(pendingMusic);
-
-        Screen.fullScreen = pendingFullscreen;
-
-        Screen.SetResolution(
-            resolutionsWidth[pendingResolution],
-            resolutionsHeight[pendingResolution],
-            pendingFullscreen
-        );
-
-        QualitySettings.SetQualityLevel(pendingQuality);
-        Application.targetFrameRate = pendingQuality == 0 ? 60 : -1;
-
         ApplyPendingToUI();
         ApplyVideoRuntime();
         ApplyAudioRuntime();
-    }
-
-    public void ApplySettings()
-    {
-        masterVCA.setVolume(pendingMaster);
-        sfxVCA.setVolume(pendingSfx);
-        musicVCA.setVolume(pendingMusic);
-
-        PlayerPrefs.SetFloat(SettingsInitialiser.MasterVolKey, pendingMaster);
-        PlayerPrefs.SetFloat(SettingsInitialiser.SfxVolKey, pendingSfx);
-        PlayerPrefs.SetFloat(SettingsInitialiser.MusicVolKey, pendingMusic);
-
-        PlayerPrefs.SetInt("Fullscreen", pendingFullscreen ? 1 : 0);
-        PlayerPrefs.SetInt("ResolutionLevel", pendingResolution);
-        PlayerPrefs.SetInt("QualityLevel", pendingQuality);
-
-        PlayerPrefs.Save();
+        ApplySettings();
     }
 
     private void ApplyVideoRuntime()
@@ -434,29 +412,9 @@ public class Settings : MonoBehaviour
         sfxVCA.setVolume(pendingSfx);
         musicVCA.setVolume(pendingMusic);
     }
-
-    public void CancelSettings()
-    {
-        LoadSavedIntoPending();
-
-        masterVCA.setVolume(pendingMaster);
-        sfxVCA.setVolume(pendingSfx);
-        musicVCA.setVolume(pendingMusic);
-
-        Screen.fullScreen = pendingFullscreen;
-
-        Screen.SetResolution(
-            resolutionsWidth[pendingResolution],
-            resolutionsHeight[pendingResolution],
-            pendingFullscreen
-        );
-
-        QualitySettings.SetQualityLevel(pendingQuality);
-        Application.targetFrameRate = pendingQuality == 0 ? 60 : -1;
-
-        ApplyPendingToUI();
-        ApplyVideoRuntime();
-        ApplyAudioRuntime();
-    }
     #endregion
+
+    public void OpenVideoTab() => SetTab(Tab.Video);
+    public void OpenAudioTab() => SetTab(Tab.Audio);
+    public void OpenGameTab() => SetTab(Tab.Game);
 }
