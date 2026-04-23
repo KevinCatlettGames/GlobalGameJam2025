@@ -8,7 +8,9 @@ public class CameraHandler : NetworkBehaviour
     [SerializeField] private GameObject cinematicCamera;
     public bool playCinematicAtStart = true;
     public UnityEvent onCinematicEnd;
-    
+    public UnityEvent onTransitionHolding;
+    bool onTransitionHoldingInvoked = false;
+
     private void Awake()
     {
         if(Instance == null) 
@@ -70,5 +72,12 @@ public class CameraHandler : NetworkBehaviour
     {
         PlayerManager.Instance.StartPlayerJoining();
         onCinematicEnd?.Invoke();
+    }
+
+    public void OnTransitionHolding()
+    {
+        if (onTransitionHoldingInvoked) return;
+        onTransitionHolding?.Invoke();
+        onTransitionHoldingInvoked = true; 
     }
 }
