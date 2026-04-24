@@ -1,24 +1,31 @@
-using Febucci.UI.Core;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Serialization;
+
 
 public class Vortex : MapEvent
 {
+    private List<PlayerController> playersInRange = new List<PlayerController>();
+    [Header("Vortex Strength")]
     [SerializeField] private float strength = 1.0f;
     [SerializeField] private float sidewaysStrength = .5f;
-    [SerializeField] private float movementRange = 5f;
-    [SerializeField] private float speed = 10f;
+    [SerializeField] private AnimationCurve pullForceCurve;
+    [SerializeField] private AnimationCurve spinForceCurve;
+    [Header("Vortex Growth")]
     [SerializeField] private float resetSpeed = 20f;
-    [SerializeField] private float turnRate = 5f;
-    private List<PlayerController> playersInRange = new List<PlayerController>();
-    [SerializeField] public AnimationCurve pullForceCurve;
-    [SerializeField] public AnimationCurve spinForceCurve;
+    [SerializeField] private float growSpeed = 5.0f;
+    [SerializeField] private float minSize = 1f;
+    [SerializeField] private float maxSize = 2f;
+    [SerializeField] private float pauseTime = 10f;
+    private Vector3 targetScale = Vector3.one;
+    private bool isBig = false;
     private float range = 1.0f;
+    private bool reset = false;
     private void Start()
     {
         range = GetComponent<SphereCollider>().radius;
+        targetScale = Vector3.one *  minSize;
     }
     private void FixedUpdate()
     {
@@ -38,6 +45,34 @@ public class Vortex : MapEvent
                 player.GetComponent<PlayerController>().ApplyImpulseServerRpc(force, 100f * Time.fixedDeltaTime);
         }
     }
+
+    private IEnumerator GrowCoroutine()
+    {
+        while (!reset)
+        {
+            yield return new WaitForSeconds(pauseTime);
+            if (isBig)
+                targetScale = Vector3.one * minSize;
+            else 
+                targetScale = Vector3.one * maxSize;
+            while (MathF.Abs(transform.localScale.x - targetScale.x) > .01f)
+            {
+                transform.localScale =  Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * growSpeed);
+                yield return null;
+            }
+            transform.localScale = targetScale;
+            isBig = !isBig;
+        }
+    }
+    private IEnumerator ResetCoroutine()
+    {
+        targetScale = Vector3.one * minSize;
+        while (transform.localScale != targetScale)
+        {
+            transform.localScale =  Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * resetSpeed);
+            yield return null;
+        }
+    }
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -54,10 +89,23 @@ public class Vortex : MapEvent
     }
     protected override void StartEvent()
     {
-
+        reset = false;
+        StopAllCoroutines();
+        StartCoroutine(GrowCoroutine());
     }
 
     protected override void StopEvent()
     {
+        reset = true;
+        isBig = false;
+        StopAllCoroutines();
+        StartCoroutine(ResetCoroutine());
+        playersInRange.Clear();
+    }
+
+    public void RemovePlayer(PlayerController player)
+    {
+        if (playersInRange.Contains(player))
+            playersInRange.Remove(player);
     }
 }

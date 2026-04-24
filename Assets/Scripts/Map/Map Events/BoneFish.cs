@@ -14,7 +14,6 @@ public class BoneFish : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Bubble"))
         {
-            Debug.Log("Hit");
             animator?.SetTrigger("Hit");
         }
     }
