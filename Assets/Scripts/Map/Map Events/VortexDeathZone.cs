@@ -6,6 +6,11 @@ public class VortexDeathZone : MonoBehaviour
     private List<PlayerController> playersInRange = new List<PlayerController>();
     private float[] timeInZone = new float[4];
     [SerializeField] private float timeToDeath = 1f;
+    private Vortex vortex;
+    private void Start()
+    {
+        vortex = GetComponentInParent<Vortex>();
+    }
 
     private void FixedUpdate()
     {
@@ -17,6 +22,7 @@ public class VortexDeathZone : MonoBehaviour
             {
                 timeInZone[id] = 0f;
                 playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer();
+                vortex.RemovePlayer(playersInRange[i]);
                 playersInRange.RemoveAt(i);
             }
         }

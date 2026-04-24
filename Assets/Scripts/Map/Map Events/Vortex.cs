@@ -1,53 +1,34 @@
-using Febucci.UI.Core;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.PlayerLoop;
-using UnityEngine.Serialization;
+
 
 public class Vortex : MapEvent
 {
+    private List<PlayerController> playersInRange = new List<PlayerController>();
+    [Header("Vortex Strength")]
     [SerializeField] private float strength = 1.0f;
     [SerializeField] private float sidewaysStrength = .5f;
-    [SerializeField] private float movementRange = 5f;
-    [SerializeField] private float speed = 10f;
+    [SerializeField] private AnimationCurve pullForceCurve;
+    [SerializeField] private AnimationCurve spinForceCurve;
+    [Header("Vortex Growth")]
     [SerializeField] private float resetSpeed = 20f;
-    [SerializeField] private float turnRate = 5f;
-    private List<PlayerController> playersInRange = new List<PlayerController>();
-    [SerializeField] public AnimationCurve pullForceCurve;
-    [SerializeField] public AnimationCurve spinForceCurve;
+    [SerializeField] private float growSpeed = 5.0f;
+    [SerializeField] private float minSize = 1f;
+    [SerializeField] private float maxSize = 2f;
+    [SerializeField] private float pauseTime = 10f;
+    private Vector3 targetScale = Vector3.one;
+    private bool isBig = false;
     private float range = 1.0f;
-    private Vector3 targetPosition = Vector3.zero;
-    private Vector3 direction = Vector3.zero;
-    private bool isRoaming = false;
+    private bool reset = false;
     private void Start()
     {
         range = GetComponent<SphereCollider>().radius;
+        targetScale = Vector3.one *  minSize;
     }
     private void FixedUpdate()
     {
-        // if (isRoaming)
-        // {
-        //     if (Vector3.Distance(transform.position, targetPosition) < .5f)
-        //     {
-        //         Vector2 r = Random.insideUnitCircle;
-        //         r *= movementRange;
-        //         targetPosition = new Vector3(r.x, 0, r.y);
-        //     }
-        //     Vector3 targetVector = targetPosition - transform.position;
-        //     targetVector.y = 0;
-        //
-        //     if (targetVector != Vector3.zero)
-        //     {
-        //         targetVector.Normalize();
-        //         direction = Vector3.Lerp(direction, targetVector, Time.fixedDeltaTime * turnRate);
-        //         transform.position = transform.position + direction * speed * Time.deltaTime;
-        //     }
-        // }
-        // else if (transform.position != Vector3.zero)
-        // {
-        //     transform.position = Vector3.Lerp(transform.position, Vector3.zero, Time.fixedDeltaTime * resetSpeed);
-        // }
-
         foreach (PlayerController player in playersInRange)
         {
             Vector3 force = transform.position - new Vector3(player.transform.position.x, 0, player.transform.position.z);
@@ -56,13 +37,40 @@ public class Vortex : MapEvent
             relativeDistance = Mathf.Clamp(relativeDistance, 0, 1f);
             Vector3 spin = Vector3.Cross(Vector3.up, force).normalized;
             force *= pullForceCurve.Evaluate(1f - relativeDistance) * strength;
-            force *= strength;
             force += spinForceCurve.Evaluate(1 - relativeDistance) * sidewaysStrength * spin;
 
             if (GameManager.Instance.PlayingLocal)
-                player.GetComponent<PlayerController>().ApplyImpulseLocal(force, strength * relativeDistance * Time.fixedDeltaTime);
+                player.GetComponent<PlayerController>().ApplyImpulseLocal(force, 100f * Time.fixedDeltaTime);
             else
-                player.GetComponent<PlayerController>().ApplyImpulseServerRpc(force, strength * relativeDistance * Time.fixedDeltaTime);
+                player.GetComponent<PlayerController>().ApplyImpulseServerRpc(force, 100f * Time.fixedDeltaTime);
+        }
+    }
+
+    private IEnumerator GrowCoroutine()
+    {
+        while (!reset)
+        {
+            yield return new WaitForSeconds(pauseTime);
+            if (isBig)
+                targetScale = Vector3.one * minSize;
+            else 
+                targetScale = Vector3.one * maxSize;
+            while (MathF.Abs(transform.localScale.x - targetScale.x) > .01f)
+            {
+                transform.localScale =  Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * growSpeed);
+                yield return null;
+            }
+            transform.localScale = targetScale;
+            isBig = !isBig;
+        }
+    }
+    private IEnumerator ResetCoroutine()
+    {
+        targetScale = Vector3.one * minSize;
+        while (transform.localScale != targetScale)
+        {
+            transform.localScale =  Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * resetSpeed);
+            yield return null;
         }
     }
     private void OnTriggerEnter(Collider other)
@@ -81,12 +89,23 @@ public class Vortex : MapEvent
     }
     protected override void StartEvent()
     {
-        isRoaming = true;
+        reset = false;
+        StopAllCoroutines();
+        StartCoroutine(GrowCoroutine());
     }
 
     protected override void StopEvent()
     {
-        isRoaming = false;
-        targetPosition = Vector3.zero;
+        reset = true;
+        isBig = false;
+        StopAllCoroutines();
+        StartCoroutine(ResetCoroutine());
+        playersInRange.Clear();
+    }
+
+    public void RemovePlayer(PlayerController player)
+    {
+        if (playersInRange.Contains(player))
+            playersInRange.Remove(player);
     }
 }
