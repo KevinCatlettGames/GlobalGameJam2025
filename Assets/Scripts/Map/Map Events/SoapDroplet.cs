@@ -9,6 +9,7 @@ public class SoapDroplet : NetworkBehaviour
     [SerializeField] private GameObject dangerVFX;
     [SerializeField] private float startDelay = .5f;
     [SerializeField] private EventReference soundEvent;
+    [SerializeField] private EventReference splatEvent;
     
     [Header("Droplet Physics")]
     [SerializeField] private Transform dropletTransform;
@@ -64,7 +65,7 @@ public class SoapDroplet : NetworkBehaviour
         splash.transform.localScale = Vector3.one * size;
         splash.GetComponent<NetworkObject>()?.Spawn();
         
-        
+        RuntimeManager.PlayOneShotAttached(splatEvent, gameObject);
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
