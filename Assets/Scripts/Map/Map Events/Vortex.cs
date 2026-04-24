@@ -17,6 +17,7 @@ public class Vortex : MapEvent
     [SerializeField] private float growSpeed = 5.0f;
     [SerializeField] private float minSize = 1f;
     [SerializeField] private float maxSize = 2f;
+    [SerializeField] private float startSize = .2f;
     [SerializeField] private float pauseTime = 10f;
     private Vector3 targetScale = Vector3.one;
     private bool isBig = false;
@@ -26,6 +27,7 @@ public class Vortex : MapEvent
     {
         range = GetComponent<SphereCollider>().radius;
         targetScale = Vector3.one *  minSize;
+        transform.localScale = Vector3.one * startSize;
     }
     private void FixedUpdate()
     {
@@ -66,7 +68,7 @@ public class Vortex : MapEvent
     }
     private IEnumerator ResetCoroutine()
     {
-        targetScale = Vector3.one * minSize;
+        targetScale = Vector3.one * startSize;
         while (transform.localScale != targetScale)
         {
             transform.localScale =  Vector3.Lerp(transform.localScale, targetScale, Time.deltaTime * resetSpeed);
