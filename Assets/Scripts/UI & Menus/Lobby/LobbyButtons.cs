@@ -262,7 +262,7 @@ public class LobbyButtons : MonoBehaviour
             NetworkManager.Singleton.Shutdown();
 
         GlobalLobby.CurrentLobby = null;
-        MenuSelection.Instance.gameObject.SetActive(true);
+        MenuSelection.Instance.localOnline.SetActive(true);
         Destroy(lobbyParent);
     }
 

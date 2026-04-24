@@ -8,14 +8,13 @@ using Cinemachine;
 public class MenuSelection : MonoBehaviour
 {
     public static MenuSelection Instance { get; private set; }
-    [SerializeField] private GameObject mainMenu;
-    [SerializeField] private GameObject selectedGameObject;
-    private GameObject currentSubMenu;
 
-    private InputSystemUIInputModule inputModuleUI;
-    private InputAction backAction;
     public CinemachineVirtualCamera menuSelectionVritualCam;
-    public CinemachineVirtualCamera[] otherVirtualsCams; 
+    public CinemachineVirtualCamera[] otherVirtualsCams;
+
+    GameObject currentToSelect;
+    public EventSystem eventSystem;
+    public GameObject localOnline;
 
     private void Awake()
     {
@@ -25,25 +24,8 @@ public class MenuSelection : MonoBehaviour
             Destroy(gameObject);      
     }
 
-    private void OnEnable()
-    {
-        //menuSelectionVritualCam.Priority = 1;
-        //foreach(var cam in otherVirtualsCams)
-        //    cam.Priority = 0;     
-    }
-
     void Start()
     {
-        SetSelected();
-        inputModuleUI = EventSystem.current.gameObject.GetComponent<InputSystemUIInputModule>();
-        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
-
-        if (backAction != null)
-        {
-            backAction.performed += OnBackInput;
-            backAction.Enable();
-        }
-
         Vector2 mousePosition = new Vector2(.3f * Screen.width, .65f * Screen.height);
         Mouse.current.WarpCursorPosition(mousePosition);
     }
@@ -64,48 +46,14 @@ public class MenuSelection : MonoBehaviour
         #endif
     }
 
-    public void ToggleSubMenu(GameObject subMenu)
+    public void ChangeSelectedGameObject(GameObject newGameObject)
     {
-        if (currentSubMenu != null)
-        {
-            currentSubMenu.SetActive(false);
-            mainMenu.SetActive(true);
-            SetSelected();
-            currentSubMenu = null;
-        }
-        else
-        {
-            currentSubMenu = subMenu;
-            currentSubMenu.SetActive(true);
-            mainMenu.SetActive(false);
-        }
-    }
-    public void SetSelected()
-    {
-        EventSystem eventSystem = EventSystem.current;
-        eventSystem.SetSelectedGameObject(selectedGameObject);
-    }
-    public void SetSelected(GameObject selectedObject)
-    {
-        EventSystem eventSystem = EventSystem.current;
-        eventSystem.SetSelectedGameObject(selectedObject);
+        currentToSelect = newGameObject;
+        Invoke(nameof(ChangeSelect), 1f);
     }
 
-    public void OnBackInput(InputAction.CallbackContext context)
+    void ChangeSelect(GameObject gameObject)
     {
-        ToggleSubMenu(null);
-    }
-
-    private void OnDestroy()
-    {
-        if (backAction != null)
-        {
-            backAction.performed -= OnBackInput;
-        }
-    }
-
-    public void OpenOnlineCreation()
-    {
-        SceneManager.LoadScene("UI_OnlineCreation");
+        eventSystem.SetSelectedGameObject(currentToSelect);
     }
 }

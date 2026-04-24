@@ -4,6 +4,7 @@ using TMPro;
 using UnityEngine.InputSystem;
 using UnityEngine.Video;
 using FMODUnity;
+using Cinemachine;
 
 public class Tutorial : MonoBehaviour
 {
@@ -43,6 +44,7 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private InputActionProperty leftTabSwitchAction;
     [SerializeField] private InputActionProperty rightTabSwitchAction;
     [SerializeField] private InputActionProperty leftPageSwitchAction;
+    [SerializeField] private InputActionProperty exitTutorialAction;
 
     [Header("Page Dots")]
     [SerializeField] private GameObject[] pageDots;
@@ -70,7 +72,7 @@ public class Tutorial : MonoBehaviour
     private int pageDirection = 0;
 
     private RenderTexture runtimeTexture;
-
+    [SerializeField] private Button backButton;
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -85,11 +87,17 @@ public class Tutorial : MonoBehaviour
 
     private void OnEnable()
     {
+        exitTutorialAction.action.performed += ExitTutorial;
+        exitTutorialAction.action.Enable();
+
         SetTab(Tab.General);
     }
 
     private void OnDisable()
     {
+        exitTutorialAction.action.performed -= ExitTutorial;
+        exitTutorialAction.action.Disable();
+
         DisablePageToggling();
         DisableTabToggling();
 
@@ -332,13 +340,10 @@ public class Tutorial : MonoBehaviour
 
         UpdatePageDots();
 
-        generalTabFrame.GetComponent<Image>().color = (currentTab == Tab.General) ? inactiveColor : activeColor;
-        weaponsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Weapons) ? inactiveColor : activeColor;
-        mapsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Maps) ? inactiveColor : activeColor;
+        generalTabFrame.SetActive(tab == Tab.General);
+        weaponsTabFrame.SetActive(tab == Tab.Weapons);
+        mapsTabFrame.SetActive(tab == Tab.Maps);
 
-        generalTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.General;
-        weaponsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Weapons;
-        mapsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Maps;
 
         switch (tab)
         {
@@ -359,4 +364,14 @@ public class Tutorial : MonoBehaviour
     public void OpenGeneralTab() => SetTab(Tab.General);
     public void OpenWeaponsTab() => SetTab(Tab.Weapons);
     public void OpenMapsTab() => SetTab(Tab.Maps);
+
+    private void ExitTutorial(InputAction.CallbackContext obj)
+    {
+        backButton.onClick?.Invoke();
+        MenuSelection.Instance.menuSelectionVritualCam.Priority = 1;
+        foreach (CinemachineVirtualCamera cam in MenuSelection.Instance.otherVirtualsCams)
+            cam.Priority = 0; 
+
+        gameObject.SetActive(false);    
+    }
 }
