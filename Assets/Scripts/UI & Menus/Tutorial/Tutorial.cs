@@ -340,13 +340,10 @@ public class Tutorial : MonoBehaviour
 
         UpdatePageDots();
 
-        generalTabFrame.GetComponent<Image>().color = (currentTab == Tab.General) ? inactiveColor : activeColor;
-        weaponsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Weapons) ? inactiveColor : activeColor;
-        mapsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Maps) ? inactiveColor : activeColor;
+        generalTabFrame.SetActive(tab == Tab.General);
+        weaponsTabFrame.SetActive(tab == Tab.Weapons);
+        mapsTabFrame.SetActive(tab == Tab.Maps);
 
-        generalTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.General;
-        weaponsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Weapons;
-        mapsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Maps;
 
         switch (tab)
         {

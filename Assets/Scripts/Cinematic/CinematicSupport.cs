@@ -23,6 +23,7 @@ public class CinematicSupport : MonoBehaviour
                 {
                     fadeState = FadeState.Holding;
                     holdTimer = holdDuration;
+                    CameraHandler.Instance?.OnTransitionHolding();
                 }
                 break;
 

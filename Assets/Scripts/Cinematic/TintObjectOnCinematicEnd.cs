@@ -6,7 +6,7 @@ public class TintObjectOnCinematicEnd : MonoBehaviour
     [SerializeField] float newBaseColorValue = .65f;
     [SerializeField] float newEmissiveColorValue = .2f;
 
-    MeshRenderer meshRenderer;
+    Renderer meshRenderer;
     Material mat;
 
     private int BaseColorID = Shader.PropertyToID("_BaseColor_Value");
@@ -14,17 +14,17 @@ public class TintObjectOnCinematicEnd : MonoBehaviour
 
     private void Start()
     {
-        meshRenderer = GetComponent<MeshRenderer>();
+        meshRenderer = GetComponent<Renderer>();
         mat = meshRenderer.material;
 
         if (CameraHandler.Instance != null)
-            CameraHandler.Instance.onCinematicEnd.AddListener(Tint);
+            CameraHandler.Instance.onTransitionHolding.AddListener(Tint);
     }
 
     private void OnDisable()
     {
         if (CameraHandler.Instance != null)
-            CameraHandler.Instance.onCinematicEnd.RemoveListener(Tint);
+            CameraHandler.Instance.onTransitionHolding.RemoveListener(Tint);
     }
 
     void Tint()
