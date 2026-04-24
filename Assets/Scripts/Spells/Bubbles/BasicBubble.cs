@@ -251,14 +251,14 @@ public class BasicBubble : NetworkBehaviour
         else
         {
             soapSecSpeedIncrease = speed * soapSecSpeedAmp;
-            IncreaseSpeed(soapSpeedAmp);
+            ChangeSpeed(soapSpeedAmp);
             isSoaped = true;
         }
     }
-    public void IncreaseSpeed(float inceaseFactor)
+    public void ChangeSpeed(float factor)
     {
         if (!IsServer) return;
-        speed *= inceaseFactor;
+        speed *= factor;
     }
     [ClientRpc]
     private void SpawnPopEffectClientRpc(Vector3 pos)
