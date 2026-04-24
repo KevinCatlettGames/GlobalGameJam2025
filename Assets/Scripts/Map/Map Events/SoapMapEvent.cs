@@ -23,7 +23,6 @@ public class SoapMapEvent : MapEvent
     protected override void StartEvent()
     {
         isSpawning = true;
-        Debug.Log("Start Event waves...");
         StartCoroutine(SpawnWaves());
     }
 
@@ -35,7 +34,6 @@ public class SoapMapEvent : MapEvent
     }
     private IEnumerator SpawnWaves()
     {
-        Debug.Log("Spawning waves...");
         yield return new WaitForSeconds(pauseDuration);
         while (isSpawning)
         {

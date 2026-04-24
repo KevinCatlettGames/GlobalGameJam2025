@@ -60,7 +60,6 @@ public class SoapDroplet : NetworkBehaviour
             yield return null;
         }
         
-
         GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
         splash.transform.localScale = Vector3.one * size;
         splash.GetComponent<NetworkObject>()?.Spawn();
