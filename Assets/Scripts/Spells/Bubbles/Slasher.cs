@@ -41,6 +41,11 @@ public class Slasher : MonoBehaviour
     {
         if(!inflated)
             return;
+        if(other.CompareTag("Wall"))
+        {
+            gameObject.SetActive(false);
+            return;
+        }
         if(other.gameObject != null)
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
     }

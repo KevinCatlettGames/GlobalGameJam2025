@@ -24,7 +24,8 @@ public class BasicBubble : NetworkBehaviour
         Boomerang,
         Blast,
         Harpoon,
-        Slasher
+        Slasher,
+        Zap
     };
 
     public SpellType spellType;
