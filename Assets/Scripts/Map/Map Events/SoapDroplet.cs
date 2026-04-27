@@ -1,3 +1,4 @@
+using System.Collections;
 using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
@@ -5,8 +6,11 @@ using UnityEngine;
 public class SoapDroplet : NetworkBehaviour
 {
     [SerializeField] private GameObject soapSplash;
+    [SerializeField] private GameObject dangerVFX;
     [SerializeField] private float startDelay = .5f;
     [SerializeField] private EventReference soundEvent;
+    [SerializeField] private EventReference splatEvent;
+    
     [Header("Droplet Physics")]
     [SerializeField] private Transform dropletTransform;
     [SerializeField] private float startHeight = 50;
@@ -26,87 +30,89 @@ public class SoapDroplet : NetworkBehaviour
 
     void Start()
     {
-        dropletTransform.position = new Vector3 (dropletTransform.position.x, startHeight, dropletTransform.position.z);
-        dropletTransform.gameObject.SetActive(false);
+        ResetDroplet();
+        GameManager.Instance.OnGameEnded += ResetOnRoundEnd;
+    }
+
+    public void ActivateDroplet(Vector3 position, float time)
+    {
+        gameObject.SetActive(true);
         size = Random.Range(minSize, maxSize);
         transform.localScale = Vector3.one * size;
-        Invoke(nameof(ActivateDroplet), startDelay);
-        GameManager.Instance.OnGameStarted += DestroyOnRestart;
+        transform.position = position;
+        StartCoroutine(Fall(time));
     }
 
-    private void ActivateDroplet()
+    private IEnumerator Fall(float maxDelay)
     {
+        float delay = Random.Range(0f, maxDelay);
+        yield return new WaitForSeconds(delay);
         dropletTransform.gameObject.SetActive(true);
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
-        activeDroplet = true;
-    }
-    void FixedUpdate()
-    {
-        if (activeDroplet && dropletTransform.position.y > 0)
+        float fallSpeed = dropletFallSpeed;
+        GameObject effect = Instantiate(dangerVFX, transform.position, Quaternion.identity);
+        effect.transform.localScale = Vector3.one * size;
+        
+        while (dropletTransform.position.y > 0)
         {
-            dropletFallSpeed += Time.fixedDeltaTime * gravity;
-            dropletTransform.position = dropletTransform.position + Vector3.down * dropletFallSpeed * Time.fixedDeltaTime;
+            fallSpeed += Time.deltaTime * gravity;
+            dropletTransform.position = dropletTransform.position + fallSpeed * Time.deltaTime * Vector3.down;
+            yield return null;
         }
-        else if (activeDroplet)
+        
+        GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
+        splash.transform.localScale = Vector3.one * size;
+        splash.GetComponent<NetworkObject>()?.Spawn();
+        
+        RuntimeManager.PlayOneShotAttached(splatEvent, gameObject);
+        Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
+        Vector3 origin;
+        Vector3 direction;
+        foreach (Collider col in explosionOverlaps)
         {
-            if (hasExploded) return;
-
-            if (IsServer)
+            if (col == null) continue;
+            origin = transform.position;
+            direction = col.transform.position - transform.position;
+            if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
-                GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
-                splash.transform.localScale = Vector3.one * size;
-                splash.GetComponent<NetworkObject>()?.Spawn();
-            }
-
-            hasExploded = true;
-            Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
-            Vector3 origin;
-            Vector3 direction;
-            foreach (Collider col in explosionOverlaps)
-            {
-                if (col == null) continue;
-                origin = transform.position;
-                direction = col.transform.position - transform.position;
-                if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
+                if (col.CompareTag("Player"))
                 {
-                    if (col.CompareTag("Player"))
+                    PlayerController player = col.GetComponent<PlayerController>();
+                    if (player != null)
                     {
-                        PlayerController player = col.GetComponent<PlayerController>();
-                        if (player != null)
-                        {
-                            if (GameManager.Instance.PlayingLocal)
-                                player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
-                            else
-                                player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
-                        }
+                        if (GameManager.Instance.PlayingLocal)
+                            player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
+                        else
+                            player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
                     }
-                    else
-                    {
-                        BasicBubble bubble = col.GetComponent<BasicBubble>();
-                        if (bubble != null)
-                        {
-                            bubble.BubbleCollision(this.gameObject);
-                        }
-                    }
-
                 }
-            }
+                else
+                {
+                    BasicBubble bubble = col.GetComponent<BasicBubble>();
+                    if (bubble != null)
+                    {
+                        bubble.BubbleCollision(this.gameObject);
+                    }
+                }
 
-            // Sound here
-            if (IsServer)
-            {
-                NetworkObject.Despawn();
-                Destroy(gameObject);
             }
         }
+        Destroy(effect);
+        ResetDroplet();
     }
-    private void DestroyOnRestart()
+    private void ResetDroplet()
     {
-        Destroy(gameObject);
+        dropletTransform.position = new Vector3 (dropletTransform.position.x, startHeight, dropletTransform.position.z);
+        dropletTransform.gameObject.SetActive(false);
+        gameObject.SetActive(false);
+    }
+    private void ResetOnRoundEnd()
+    {
+        ResetDroplet();
     }
 
     private void OnDestroy()
     {
-        GameManager.Instance.OnGameStarted -= DestroyOnRestart;
+        GameManager.Instance.OnGameEnded -= ResetOnRoundEnd;
     }
 }

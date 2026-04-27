@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 856856142708281634}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0.1, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -50,10 +50,24 @@ MonoBehaviour:
   riseDelay: 2
   randomDelay: 0.3
   abschieber: {fileID: 0}
-  bubblingParticle: {fileID: 9063777193925998600}
+  bubblingParticle: {fileID: 3352153829839889266}
   riseParticle: {fileID: 1954217676808776474}
-  idleParticle: {fileID: 8488133592420573480}
+  idleParticle: {fileID: 9063777193925998600}
   sinkParticle: {fileID: 7061699220322727077}
+  riseEvent:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
+  sinkEvent:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
 --- !u!95 &5719861083430297676
 Animator:
   serializedVersion: 7
@@ -88,7 +102,7 @@ GameObject:
   - component: {fileID: 9063777193925998600}
   - component: {fileID: 6119929220571805709}
   m_Layer: 10
-  m_Name: BubbleEffect
+  m_Name: Continous_effect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -108,7 +122,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1271968899749037456}
-  - {fileID: 6404418044906061635}
+  - {fileID: 2372840267323175494}
   m_Father: {fileID: 9004810335566530782}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!198 &9063777193925998600
@@ -1565,7 +1579,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 1346eed03762b814ea3aff8e0dd5a3ca, type: 3}
+    - sprite: {fileID: 21300000, guid: 65309e8d0226e284a9a877512717f9da, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -3889,13 +3903,8 @@ ParticleSystem:
     primitives: []
   SubModule:
     serializedVersion: 2
-    enabled: 1
-    subEmitters:
-    - serializedVersion: 3
-      emitter: {fileID: 0}
-      type: 0
-      properties: 0
-      emitProbability: 1
+    enabled: 0
+    subEmitters: []
   LightsModule:
     enabled: 0
     ratio: 0
@@ -4978,7 +4987,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0510eadb06bbe51428f7f950877d7e16, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  duration: 0.5
+  duration: 3
 --- !u!1 &3282587703517903911
 GameObject:
   m_ObjectHideFlags: 0
@@ -9899,9 +9908,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 6404418044906061635}
   - {fileID: 1659470479312918237}
   - {fileID: 516422146287602195}
-  - {fileID: 2372840267323175494}
   - {fileID: 7122493674894887707}
   m_Father: {fileID: 370087284485671842}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -14750,7 +14759,7 @@ GameObject:
   - component: {fileID: 3352153829839889266}
   - component: {fileID: 297574712256447871}
   m_Layer: 10
-  m_Name: BubbleEffect (1)
+  m_Name: foreshadowing_effect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -14764,12 +14773,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5057247772537824690}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.46}
+  m_LocalRotation: {x: -0.70710707, y: -0, z: -0, w: 0.70710653}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1659470479312918237}
+  m_Father: {fileID: 9004810335566530782}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!198 &3352153829839889266
 ParticleSystem:
@@ -14779,7 +14788,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5057247772537824690}
   serializedVersion: 8
-  lengthInSec: 0.5
+  lengthInSec: 2
   simulationSpeed: 2
   stopAction: 0
   cullingMode: 0
@@ -14854,7 +14863,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 1.5
+      scalar: 2
       minScalar: 0.8
       maxCurve:
         serializedVersion: 2
@@ -14961,7 +14970,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.855, b: 0.855, a: 0.2}
+      maxColor: {r: 1, g: 0.5990566, b: 0.7487062, a: 0.2}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -15025,7 +15034,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 9.2
+      scalar: 11
       minScalar: 0.8
       maxCurve:
         serializedVersion: 2
@@ -19656,8 +19665,8 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_LocalScale: {x: 2.3, y: 2.3, z: 2.3}
+  m_ConstrainProportionsScale: 1
   m_Children: []
   m_Father: {fileID: 1573150528853001508}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
@@ -19705,8 +19714,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: becdf44177787e14495697473e335ddf, type: 3}
-  m_Color: {r: 0.408805, g: 0, b: 0.32074773, a: 1}
+  m_Sprite: {fileID: 21300000, guid: a1446ac4e88d8564f9864513cc404630, type: 3}
+  m_Color: {r: 1, g: 0.387945, b: 0.3820755, a: 0.69803923}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -24624,7 +24633,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &2372840267323175494
 Transform:
   m_ObjectHideFlags: 0
@@ -24633,12 +24642,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9211579859325656776}
   serializedVersion: 2
-  m_LocalRotation: {x: -0.7071067, y: -0, z: -0, w: 0.70710695}
-  m_LocalPosition: {x: 0, y: 0.3, z: 0}
+  m_LocalRotation: {x: 0.00000053644175, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9004810335566530782}
+  m_Father: {fileID: 1659470479312918237}
   m_LocalEulerAnglesHint: {x: -90, y: 0, z: 0}
 --- !u!198 &8488133592420573480
 ParticleSystem:
