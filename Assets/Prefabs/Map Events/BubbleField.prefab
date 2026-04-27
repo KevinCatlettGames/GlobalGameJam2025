@@ -102,7 +102,7 @@ GameObject:
   - component: {fileID: 9063777193925998600}
   - component: {fileID: 6119929220571805709}
   m_Layer: 10
-  m_Name: Continous_effect
+  m_Name: IdleEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -315,7 +315,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.93333334, g: 0.5058824, b: 0.3647059, a: 1}
+      maxColor: {r: 1, g: 0.34456646, b: 0.333, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -4973,7 +4973,7 @@ SphereCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Radius: 5
+  m_Radius: 4.5
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &4531298193827933230
 MonoBehaviour:
@@ -9926,7 +9926,7 @@ GameObject:
   - component: {fileID: 1660550699121131108}
   - component: {fileID: 4477462797337868448}
   m_Layer: 10
-  m_Name: BubbleEffect (2)
+  m_Name: IdleBubbles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10137,7 +10137,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.93333334, g: 0.5058824, b: 0.3647059, a: 1}
+      maxColor: {r: 1, g: 0.37073025, b: 0.29900002, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -14970,7 +14970,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 1, g: 0.5990566, b: 0.7487062, a: 0.2}
+      maxColor: {r: 1, g: 0.5990566, b: 0.7487062, a: 0.4}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -19715,7 +19715,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: a1446ac4e88d8564f9864513cc404630, type: 3}
-  m_Color: {r: 1, g: 0.387945, b: 0.3820755, a: 0.69803923}
+  m_Color: {r: 1, g: 0.67244095, b: 0.6, a: 0.8}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -19948,7 +19948,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.9339623, g: 0.5078367, b: 0.36565503, a: 1}
+      maxColor: {r: 1, g: 0.4169704, b: 0.3, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -24628,7 +24628,7 @@ GameObject:
   - component: {fileID: 8488133592420573480}
   - component: {fileID: 7951668583978457021}
   m_Layer: 10
-  m_Name: IdleEffect
+  m_Name: IdleWaves
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -24643,7 +24643,7 @@ Transform:
   m_GameObject: {fileID: 9211579859325656776}
   serializedVersion: 2
   m_LocalRotation: {x: 0.00000053644175, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0.3}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -24839,7 +24839,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.9528302, g: 0.62817967, b: 0.56181026, a: 1}
+      maxColor: {r: 1, g: 0.5218659, b: 0.39999998, a: 0.29803923}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -24903,7 +24903,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 15
+      scalar: 17
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -25061,9 +25061,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 3.1415925
-      minScalar: 0
+      minScalar: 3.1415925
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -25114,7 +25114,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -25167,9 +25167,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotation:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
-      minScalar: 0
+      minScalar: 6.283185
       maxCurve:
         serializedVersion: 2
         m_Curve:
