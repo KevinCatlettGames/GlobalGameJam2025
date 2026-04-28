@@ -21,18 +21,21 @@ public class JumpingFish : MonoBehaviour
         if (isJumping) return;
         transform.position = startPos.position;
         transform.rotation = startPos.rotation;
-        announceVFX.Play();
+        if (announceVFX)
+            announceVFX.Play();
         StartCoroutine(JumpCoroutine());
     }
     private IEnumerator JumpCoroutine()
     {
         yield return new WaitForSeconds(vfxDelay);
-        jumpVFX.Play();
+        if (jumpVFX)
+            jumpVFX.Play();
         isJumping = true;
         fish.SetActive(true);
         splineAnimate.Restart(true);
         yield return new WaitForSeconds(splineAnimate.Duration - .2f);
-        dipVFX?.Play();
+        if (dipVFX)
+            dipVFX.Play();
         yield return new WaitForSeconds(.2f);
         fish.SetActive(false);
         isJumping = false;
