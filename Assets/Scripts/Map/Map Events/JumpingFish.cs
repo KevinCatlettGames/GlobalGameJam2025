@@ -8,6 +8,9 @@ public class JumpingFish : MonoBehaviour
     private bool isJumping = false;
     [SerializeField] private GameObject fish;
     [SerializeField] private ParticleSystem jumpVFX;
+    [SerializeField] private ParticleSystem announceVFX;
+    [SerializeField] private ParticleSystem dipVFX;
+    [SerializeField] private float vfxDelay = .5f;
     void Start()
     {
         splineAnimate = fish.GetComponent<SplineAnimate>();
@@ -18,15 +21,22 @@ public class JumpingFish : MonoBehaviour
         if (isJumping) return;
         transform.position = startPos.position;
         transform.rotation = startPos.rotation;
-        jumpVFX.Play();
+        if (announceVFX)
+            announceVFX.Play();
         StartCoroutine(JumpCoroutine());
     }
     private IEnumerator JumpCoroutine()
     {
+        yield return new WaitForSeconds(vfxDelay);
+        if (jumpVFX)
+            jumpVFX.Play();
         isJumping = true;
         fish.SetActive(true);
         splineAnimate.Restart(true);
-        yield return new WaitForSeconds(splineAnimate.Duration);
+        yield return new WaitForSeconds(splineAnimate.Duration - .2f);
+        if (dipVFX)
+            dipVFX.Play();
+        yield return new WaitForSeconds(.2f);
         fish.SetActive(false);
         isJumping = false;
     }
