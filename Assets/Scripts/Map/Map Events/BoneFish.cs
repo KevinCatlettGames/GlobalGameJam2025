@@ -5,6 +5,8 @@ using UnityEngine;
 public class BoneFish : MonoBehaviour
 {
     private Animator animator;
+    [SerializeField] private ParticleSystem hitVFX;
+    [SerializeField] private float damage = 8f;
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -12,9 +14,18 @@ public class BoneFish : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        if (collision.gameObject.CompareTag("Player") || collision.gameObject.CompareTag("Bubble"))
+        if (collision.gameObject.CompareTag("Bubble"))
         {
             animator?.SetTrigger("Hit");
+            if (hitVFX)
+                hitVFX.Play();
         }
+    }
+    public float BoneHit()
+    {
+        animator?.SetTrigger("Hit");
+        if (hitVFX)
+            hitVFX.Play();
+        return damage;
     }
 }
