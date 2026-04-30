@@ -1142,40 +1142,33 @@ public class PlayerController : NetworkBehaviour
     #region MapEvent
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (hit.collider.CompareTag("BoneFish") && canBeBoneFished)
+        if (canBeBoneFished && hit.gameObject.CompareTag("BoneFish"))
         {
             canBeBoneFished = false;
-            if (knockbackVelocity.sqrMagnitude < 1)
+            Debug.Log("knb vl: " + knockbackVelocity);
+            float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
+            if (knockbackVelocity.magnitude < 3f)
             {
-                Vector3 v = transform.position - hit.collider.transform.position;
+                Vector3 v = transform.position - hit.point;
                 if (GameManager.Instance.PlayingLocal)
                 {
-                    ApplyKnockbackLocal(-1, v, 5f, 5f);
+                    ApplyKnockbackLocal(-1, v, 1, dmg);
                 }
                 else
                 {
-                    ApplyKnockbackServerRpc(-1, v, 5f, 5f);
+                    ApplyKnockbackServerRpc(-1, v, 1, dmg);
                 }
             }
             else
             {
                 ReflectKnockback(hit.normal);
-                if (GameManager.Instance.PlayingLocal)
-                {
-                    ApplyKnockbackLocal(-1, knockbackVelocity, 5f, 5f);
-                }
-                else
-                {
-                    ApplyKnockbackServerRpc(-1, knockbackVelocity, 5f, 5f);
-                }
             }
             StartCoroutine(BoneFishCoroutine());
         }
-        
     }
     private IEnumerator BoneFishCoroutine()
     {
-        yield return new WaitForSeconds(.2f);
+        yield return new WaitForSeconds(.25f);
         canBeBoneFished = true;
     }
     public void ReflectKnockback(Vector3 reflectNormal)
@@ -1183,6 +1176,7 @@ public class PlayerController : NetworkBehaviour
         //Effects and Animation go here
         knockbackVelocity = Vector3.Reflect(knockbackVelocity, reflectNormal);
         knockbackVelocity.y = 0;
+        knockbackVelocity *= 1.1f;
     }
 
     public void SetDoomed(bool isDoomed)
