@@ -360,8 +360,16 @@ public class PlayerController : NetworkBehaviour
         mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
     }
 
+    public void Teleport(Vector3 destination)
+    {
+        knockbackVelocity = Vector3.zero;
+        controller.enabled = false;
+        transform.position = destination;
+        controller.enabled = true;
+        //Effects
+    }
     #endregion
-    
+
     #region Input Events
 
     public void OnMove(InputAction.CallbackContext context)
