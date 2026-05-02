@@ -537,34 +537,6 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 283204716}
   m_PrefabAsset: {fileID: 0}
---- !u!1 &295641136 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: b05743765f1c9c24ca1e90f4581c225f,
-    type: 3}
-  m_PrefabInstance: {fileID: 332236082}
-  m_PrefabAsset: {fileID: 0}
---- !u!64 &295641140
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 295641136}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 0
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 5
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 3736213754101489272, guid: b05743765f1c9c24ca1e90f4581c225f, type: 3}
 --- !u!4 &295641141 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: b05743765f1c9c24ca1e90f4581c225f,
@@ -666,6 +638,12 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: a99667d71fc61e046b312ddd73958c81, type: 2}
+    - target: {fileID: -5754084199372789682, guid: b05743765f1c9c24ca1e90f4581c225f,
+        type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 3736213754101489272, guid: b05743765f1c9c24ca1e90f4581c225f,
+        type: 3}
     - target: {fileID: 919132149155446097, guid: b05743765f1c9c24ca1e90f4581c225f,
         type: 3}
       propertyPath: m_Name
@@ -688,12 +666,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: b05743765f1c9c24ca1e90f4581c225f,
+    m_AddedGameObjects:
+    - targetCorrespondingSourceObject: {fileID: -8679921383154817045, guid: b05743765f1c9c24ca1e90f4581c225f,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 295641140}
+      addedObject: {fileID: 950550164}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b05743765f1c9c24ca1e90f4581c225f, type: 3}
 --- !u!1001 &351830737
 PrefabInstance:
@@ -767,6 +745,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: KitchenWalls
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: c7eb98382c6cdc54abdb5ad3f54a959f,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: c7eb98382c6cdc54abdb5ad3f54a959f,
         type: 3}
@@ -1132,6 +1115,60 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1961021240}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &950550163
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 950550164}
+  - component: {fileID: 950550165}
+  m_Layer: 9
+  m_Name: MapFloor
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 127
+  m_IsActive: 1
+--- !u!4 &950550164
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950550163}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 50, z: 0}
+  m_LocalScale: {x: 100, y: 100, z: 100}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 295641141}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!64 &950550165
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 950550163}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 0
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 5
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: -1800373666503261164, guid: a27a840c68a7383419d462baac983991, type: 3}
 --- !u!114 &1015452931 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6079635359326899931, guid: 88dc1d66c30f3504e9f67d62de862b50,
@@ -1676,6 +1713,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 65cc0891f67623f48b776d17d0414221,
         type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 65cc0891f67623f48b776d17d0414221,
+        type: 3}
       propertyPath: m_StaticEditorFlags
       value: 2147483647
       objectReference: {fileID: 0}
@@ -1878,6 +1920,11 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 363d4490c716bfd46821507131152adf,
         type: 3}
       propertyPath: m_Layer
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 363d4490c716bfd46821507131152adf,
+        type: 3}
+      propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 363d4490c716bfd46821507131152adf,
@@ -2161,6 +2208,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: Pot_MapAssets
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: a27a840c68a7383419d462baac983991,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4060316096828850059, guid: a27a840c68a7383419d462baac983991,
         type: 3}
       propertyPath: m_IsActive
@@ -2399,6 +2451,11 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 3e9296ec2753d2242af2a639018b55ec,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2569,6 +2626,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: TellerMap_SinkScene
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: d3e572d68fbab8f4394a26a5c92a9899,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4255186633505938192, guid: d3e572d68fbab8f4394a26a5c92a9899,
         type: 3}
