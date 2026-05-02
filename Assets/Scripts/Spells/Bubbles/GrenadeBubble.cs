@@ -8,6 +8,8 @@ public class GrenadeBubble : BasicBubble
     private bool hasExploded = false;
     [Header("Special Stats")]
     [SerializeField] private float explosionRadius = 5f;
+    [SerializeField] private float explosionDamage = 5f;
+    [SerializeField] private float explosionKnockback = 5f;
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
     [SerializeField] private GameObject splat;
@@ -60,13 +62,13 @@ public class GrenadeBubble : BasicBubble
                     if (player != null)
                     {
                         if (gameManager.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID, direction, explosionKnockback, explosionDamage);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID, direction, explosionKnockback, explosionDamage);
                         
                         gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                         player.StartVulnerable(vulnerableDuration);
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                        playerCollider.GetComponent<PlayerController>().GainUltCharge(explosionDamage, true);
                     }
                 }
                 else

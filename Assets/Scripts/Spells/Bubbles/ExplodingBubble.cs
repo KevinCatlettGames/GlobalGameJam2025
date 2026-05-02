@@ -9,8 +9,10 @@ public class ExplodingBubble : BasicBubble
     [SerializeField] private bool indicator = true;
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private GameObject earlyFizzleEffect;
+    [SerializeField] private float primaryKnockbackIncrease = 1.2f;
     private bool isReadyToExpode = false;
     private bool hasExploded = false;
+    private GameObject primaryTarget;
 
     public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
@@ -24,22 +26,15 @@ public class ExplodingBubble : BasicBubble
         {
             OwnerID = other.GetComponent<BasicBubble>().OwnerID;
         }
+        else if (other.CompareTag("Player"))
+        {
+            primaryTarget = other;
+        }
         fizzleEffect = hitEffect;
-
-        base.BubbleCollision(other);
+        Pop();
     }
     protected override void InflateOverlapChack()
     {
-        Collider[] bubbleOverlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Bubble"));
-        foreach (var col in bubbleOverlaps)
-        {
-            if  (col.gameObject.TryGetComponent<ExplodingBubble>(out ExplodingBubble ex))
-            {
-                if(ex == this) continue;
-                Pop();
-                return;
-            }
-        }
         isReadyToExpode = true;
         base.InflateOverlapChack();
     }
@@ -52,7 +47,7 @@ public class ExplodingBubble : BasicBubble
         Vector3 direction;
         foreach (Collider col in explosionOverlaps)
         {
-            if (col == null || col.gameObject == this) continue;
+            if (col == null || col.gameObject == this.gameObject) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
@@ -62,11 +57,15 @@ public class ExplodingBubble : BasicBubble
                     PlayerController player = col.GetComponent<PlayerController>();
                     if (player != null)
                     {
+                        if (col.gameObject == primaryTarget)
+                            knockback *= primaryKnockbackIncrease;
                         if (GameManager.Instance.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
                         playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                        if (col.gameObject == primaryTarget)
+                            knockback /= primaryKnockbackIncrease;
                     }
                 }
                 else
