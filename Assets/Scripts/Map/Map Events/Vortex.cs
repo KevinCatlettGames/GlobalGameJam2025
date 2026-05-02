@@ -50,9 +50,14 @@ public class Vortex : MapEvent
 
     private IEnumerator GrowCoroutine()
     {
+        strength *= .5f;
+        sidewaysStrength *= .5f;
+        yield return new WaitForSeconds(pauseTime);
+        strength *= 2f;
+        sidewaysStrength *= 2f;
+        
         while (!reset)
         {
-            yield return new WaitForSeconds(pauseTime);
             if (isBig)
                 targetScale = Vector3.one * minSize;
             else 
@@ -64,6 +69,7 @@ public class Vortex : MapEvent
             }
             transform.localScale = targetScale;
             isBig = !isBig;
+            yield return new WaitForSeconds(pauseTime);
         }
     }
     private IEnumerator ResetCoroutine()
