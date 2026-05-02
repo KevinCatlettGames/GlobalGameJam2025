@@ -1153,7 +1153,6 @@ public class PlayerController : NetworkBehaviour
         if (canBeBoneFished && hit.gameObject.CompareTag("BoneFish"))
         {
             canBeBoneFished = false;
-            Debug.Log("knb vl: " + knockbackVelocity);
             float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
             if (knockbackVelocity.magnitude < 3f)
             {

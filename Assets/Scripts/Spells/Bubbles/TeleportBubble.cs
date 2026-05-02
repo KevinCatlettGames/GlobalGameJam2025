@@ -4,6 +4,7 @@ using UnityEngine;
 public class TeleportBubble : BasicBubble
 {
     [Header("SpecialStats")]
+    [SerializeField] private float teleportOffset = 3f;
     [SerializeField] private float explosionRadius = 2f;
     [SerializeField] private float explosionDamage = 6f;
     [SerializeField] private float explosionKnockback = 1f;
@@ -28,7 +29,7 @@ public class TeleportBubble : BasicBubble
             if (!isUlt) playerController.GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
             Explode();
-            playerController.Teleport(transform.position);
+            playerController.Teleport(other.transform.position - teleportOffset * direction);
 
             if (popOnPlayerHit)
                 Pop();
@@ -50,13 +51,9 @@ public class TeleportBubble : BasicBubble
         hasExploded = true;
         fizzleEffect = hitEffect;
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
-        Vector3 origin;
-        Vector3 direction;
         foreach (Collider col in explosionOverlaps)
         {
             if (!col || col.gameObject == gameObject) continue;
-            origin = transform.position;
-            direction = col.transform.position - transform.position;
 
             if (col.CompareTag("Player"))
             {
