@@ -14,6 +14,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] float minSpawnInterval = 1;
     [SerializeField] float maxSpawnInterval = 7;
     [SerializeField] float spawnRadius = 15;
+    [SerializeField] private float side = 0f;
     [SerializeField] SO_Spell[] spawnableItems;
     [SerializeField] bool spawningEnabled = true;
     public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
@@ -65,6 +66,10 @@ public class ItemSpawner : MonoBehaviour
             do
             {
                 randomPos = Random.insideUnitSphere * spawnRadius;
+                if (side != 0)
+                {
+                    randomPos.x += Random.Range(-side, side);
+                }
                 randomPos.y = itemPrefab.transform.position.y;
                 Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
                 if (wallOverlaps.Length == 0) break;
