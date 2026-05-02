@@ -6,6 +6,7 @@ public class WallBubble : BasicBubble
     [Header("Special Stats")]
     [SerializeField] private float speedBosst = 1.5f;
     private int hitPoints = 0;
+    private bool stop = false;
 
     public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
     {
@@ -42,7 +43,13 @@ public class WallBubble : BasicBubble
         }
         else if (other.CompareTag("Wall"))
         {
-            Pop();
+            stop = true;
         }
+    }
+
+    protected override void BubbleMovement()
+    {
+        if(!stop)
+            base.BubbleMovement();
     }
 }
