@@ -28,8 +28,8 @@ public class SlashBubble : BasicBubble
 		    yield return null;
 	    }
 
-	    slasherL.GetComponent<Slasher>().SetInflated(playerCollider, OwnerID);
-	    slasherR.GetComponent<Slasher>().SetInflated(playerCollider, OwnerID);
+	    slasherL.GetComponentInChildren<Slasher>().SetInflated(playerCollider, OwnerID);
+	    slasherR.GetComponentInChildren<Slasher>().SetInflated(playerCollider, OwnerID);
 	    hasInflated = true;
     }
 	protected override void BubbleMovement()
