@@ -2,7 +2,6 @@ using Febucci.UI;
 using System.Collections;
 using TMPro;
 using Unity.Netcode;
-using Unity.Services.Lobbies.Models;
 using UnityEngine;
 using UnityEngine.UI;
 

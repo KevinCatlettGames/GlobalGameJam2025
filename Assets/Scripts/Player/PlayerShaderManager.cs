@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public enum ShaderState
@@ -8,7 +7,7 @@ public enum ShaderState
     wet,
     sauced,
     inked,
-    buffed
+    doomed
 }
 public class PlayerShaderManager : MonoBehaviour
 {

@@ -22,18 +22,31 @@ public class Vortex : MapEvent
     private Vector3 targetScale = Vector3.one;
     private bool isBig = false;
     private float range = 1.0f;
+    private float radius = 1.0f;
     private bool reset = false;
+    private VortexDeathZone deathZone;
     private void Start()
     {
-        range = GetComponent<SphereCollider>().radius;
+        deathZone = GetComponentInChildren<VortexDeathZone>();
+        radius = GetComponent<SphereCollider>().radius;
         targetScale = Vector3.one *  minSize;
         transform.localScale = Vector3.one * startSize;
     }
     private void FixedUpdate()
     {
-        foreach (PlayerController player in playersInRange)
+        range = radius * transform.localScale.x;
+        PlayerController player;
+        for (int i = playersInRange.Count - 1; i >= 0; i--)
         {
-            Vector3 force = transform.position - new Vector3(player.transform.position.x, 0, player.transform.position.z);
+            player = playersInRange[i];
+            Vector3 playerPos = new Vector3(player.transform.position.x, 0, player.transform.position.z);
+            // Safety removal when player it too far away
+            if (Vector3.Distance(playerPos, transform.position) > range + 3f)
+            {
+                playersInRange.RemoveAt(i);
+                continue;
+            }
+            Vector3 force = transform.position - playerPos;
             float relativeDistance = (force.magnitude / range);
             force.Normalize();
             relativeDistance = Mathf.Clamp(relativeDistance, 0, 1f);
@@ -109,6 +122,7 @@ public class Vortex : MapEvent
         StopAllCoroutines();
         StartCoroutine(ResetCoroutine());
         playersInRange.Clear();
+        deathZone?.ResetDeathZone();
     }
 
     public void RemovePlayer(PlayerController player)

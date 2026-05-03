@@ -47,4 +47,8 @@ public class VortexDeathZone : MonoBehaviour
             playersInRange.Remove(player);
         }
     }
+    public void ResetDeathZone()
+    {
+        playersInRange.Clear();
+    }
 }

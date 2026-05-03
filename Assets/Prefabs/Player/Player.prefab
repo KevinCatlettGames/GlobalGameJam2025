@@ -10328,13 +10328,14 @@ GameObject:
   - component: {fileID: 7561016214664534102}
   - component: {fileID: 5151595440919518721}
   - component: {fileID: 636213019228473691}
+  - component: {fileID: 5377557317900582045}
   m_Layer: 5
-  m_Name: Doomed
+  m_Name: StatusIndicator
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &7561016214664534102
 RectTransform:
   m_ObjectHideFlags: 0
@@ -10369,7 +10370,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2167654999264520317}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
@@ -10382,7 +10383,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 81d475fac75efd648a21cd005bd659d2, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 616aae3f969393947bf451ed3ea4dde4, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -10392,6 +10393,30 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5377557317900582045
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2167654999264520317}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7a228bf3d6d0c0f438c94457b3e4320a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  statusSprites:
+  - {fileID: 0}
+  - {fileID: 21300000, guid: 0341a5612ee12054b9c19161eb9be5e6, type: 3}
+  - {fileID: 21300000, guid: 616aae3f969393947bf451ed3ea4dde4, type: 3}
+  - {fileID: 21300000, guid: 1fc48abf51ab14c4bb298834a8c0d14e, type: 3}
+  - {fileID: 21300000, guid: 81d475fac75efd648a21cd005bd659d2, type: 3}
+  statusColores:
+  - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0, g: 0.08086133, b: 1, a: 1}
+  - {r: 1, g: 0.10602394, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0.85837364, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
 --- !u!1 &2574592670043573264
 GameObject:
   m_ObjectHideFlags: 0
@@ -15533,10 +15558,13 @@ MonoBehaviour:
   spellIndicator1: {fileID: 2385325780975959840}
   spellIndicator2: {fileID: 4954410157224149200}
   meshParent: {fileID: 575409155661145705}
+  statusIndicator: {fileID: 5377557317900582045}
   dashStartEffect: {fileID: 3459545037407450599, guid: 1f5782430d0962f43882fb902dbd49bc,
     type: 3}
   splashEffect: {fileID: 4770424761678473707}
   wetEffect: {fileID: 248059872337048837}
+  vulnerableEffect: {fileID: 0}
+  vulnerableHitEffect: {fileID: 0}
   damageParticleSystem: {fileID: 1527836326199805677}
   damagedEffect: {fileID: 7211629053520166995}
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
@@ -15552,7 +15580,6 @@ MonoBehaviour:
   slipperyModifier: 2
   slowFactor: 0.7
   dashDisabledUI: {fileID: 8435244652520595979}
-  doomedUI: {fileID: 2167654999264520317}
   dmgTakenUltFactor: 0.5
   dmgDealtUltFactor: 0.5
   maxUltCharge: 100

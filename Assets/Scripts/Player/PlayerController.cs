@@ -31,11 +31,14 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private PlayerSpellIndicator spellIndicator1;
     [SerializeField] private PlayerSpellIndicator spellIndicator2;
     [SerializeField] private Transform meshParent;
+    [SerializeField] private PlayerStatusIndicator statusIndicator;
 
     [Header("Effects")] 
     [SerializeField] private GameObject dashStartEffect;
     [SerializeField] private ParticleSystem splashEffect;
     [SerializeField] private ParticleSystem wetEffect;
+    [SerializeField] private ParticleSystem vulnerableEffect;
+    [SerializeField] private ParticleSystem vulnerableHitEffect;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private PlayerDamagedEffect damagedEffect;
     [SerializeField] private GameObject spellSpawnEffect;
@@ -83,7 +86,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float slipperyModifier = 1.5f;
     [SerializeField] private float slowFactor = .4f;
     [SerializeField] private GameObject dashDisabledUI;
-    [SerializeField] private GameObject doomedUI;
     private bool isVulnerable = false;
     private int slowCounter = 0;
     private bool isSlowed = false;
@@ -918,6 +920,8 @@ public class PlayerController : NetworkBehaviour
 
         if (isVulnerable)
         {
+            if(vulnerableHitEffect)
+                vulnerableHitEffect.Play();
             dmg *= vulnerableFactor;
             force *= vulnerableFactor;
             StopVulnerable();
@@ -988,6 +992,8 @@ public class PlayerController : NetworkBehaviour
 
         if (isVulnerable)
         {
+            if (vulnerableHitEffect)
+                vulnerableHitEffect.Play();
             dmg *= vulnerableFactor;
             force *= vulnerableFactor;
             StopVulnerable();
@@ -1188,9 +1194,9 @@ public class PlayerController : NetworkBehaviour
 
     public void SetDoomed(bool isDoomed)
     {
-        doomedUI.SetActive(isDoomed);
         ShaderState state = (isDoomed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
+        statusIndicator.SetStatus(ShaderState.doomed);
     }
     #endregion
 
@@ -1221,6 +1227,7 @@ public class PlayerController : NetworkBehaviour
 
         ShaderState state = (isSlippery) ? ShaderState.wet : ShaderState.sober;        
         shaderManager.SetShaderState(state);
+        statusIndicator.SetStatus(state);
  
     }
     public void SetSlowed(bool slow)
@@ -1251,12 +1258,17 @@ public class PlayerController : NetworkBehaviour
 
         ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
+        statusIndicator.SetStatus(state);
         dashDisabledUI.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
         if (vulnerableRoutine == null)
+        {
             vulnerableRoutine = StartCoroutine(VulnerableCoroutine(time));
+            if (vulnerableEffect)
+                vulnerableEffect.Play();
+        }
         else if (time > vulnerableTimer)
         {
             vulnerableTimer = time;
@@ -1267,6 +1279,7 @@ public class PlayerController : NetworkBehaviour
         vulnerableTimer = duration;
         isVulnerable = true;
         shaderManager.SetShaderState(ShaderState.sauced);
+        statusIndicator.SetStatus(ShaderState.sauced);
         while (vulnerableTimer > 0)
         {
             vulnerableTimer -= Time.deltaTime;
@@ -1281,6 +1294,9 @@ public class PlayerController : NetworkBehaviour
         vulnerableRoutine = null;
         isVulnerable = false;
         shaderManager.SetShaderState(ShaderState.sober);
+        statusIndicator.SetStatus(ShaderState.sober);
+        if (vulnerableEffect)
+            vulnerableEffect.Stop();
     }
     #endregion
 
@@ -1313,13 +1329,13 @@ public class PlayerController : NetworkBehaviour
         slowCounter = 0;
         isSlowed = false;
         dashDisabledUI.SetActive(false);
-        doomedUI.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
         canBeBoneFished = true;
 
         shaderManager?.ResetShader();
+        statusIndicator.SetStatus(ShaderState.sober);
 
         if (GameManager.Instance.PlayingLocal)
         {
