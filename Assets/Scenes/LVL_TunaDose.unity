@@ -729,6 +729,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2135283662}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!198 &317902018 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 8964017170058095774, guid: 657960f899fc8f5458ab07f4a327bfcb,
+    type: 3}
+  m_PrefabInstance: {fileID: 409423112}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &320674141 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 5229566558653333278, guid: 657960f899fc8f5458ab07f4a327bfcb,
+    type: 3}
+  m_PrefabInstance: {fileID: 409423112}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &367037698
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -888,7 +900,7 @@ PrefabInstance:
     - target: {fileID: 3976439867695290092, guid: 657960f899fc8f5458ab07f4a327bfcb,
         type: 3}
       propertyPath: m_Name
-      value: Fish_Trajectory
+      value: Fish_VFX
       objectReference: {fileID: 0}
     - target: {fileID: 8335922619436225301, guid: 657960f899fc8f5458ab07f4a327bfcb,
         type: 3}
@@ -8430,9 +8442,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fish: {fileID: 2052801818}
-  jumpVFX: {fileID: 587552317}
+  jumpVFX: {fileID: 320674141}
   announceVFX: {fileID: 1617535057}
-  dipVFX: {fileID: 0}
+  dipVFX: {fileID: 317902018}
   vfxDelay: 0.8
 --- !u!1 &1495729897
 GameObject:
