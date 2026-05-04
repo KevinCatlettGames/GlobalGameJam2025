@@ -253,7 +253,7 @@ public class LobbyButtons : MonoBehaviour
 
     private void LeaveToMainMenu()
     {
-        if (lobbyManager.GameModeSelection.activeSelf || lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager.MatchSettingsSelection.activeSelf)
             return;
 
         buttonOnClickEmitter.Play();
@@ -309,11 +309,6 @@ public class LobbyButtons : MonoBehaviour
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
-        lobbyManager.GameModeSelection.SetActive(!lobbyManager.GameModeSelection.activeSelf);
-
-        if (lobbyManager.GameModeSelection.activeSelf)
-            lobbyManager.MatchSettingsSelection.SetActive(false);
-
         buttonOnClickEmitter.Play();
     }
 
@@ -325,9 +320,6 @@ public class LobbyButtons : MonoBehaviour
             !NetworkManager.Singleton.IsServer) return;
 
         lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
-
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
-            lobbyManager.GameModeSelection.SetActive(false);
 
         buttonOnClickEmitter.Play();
     }

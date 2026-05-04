@@ -70,7 +70,7 @@ public class WinScreenManager : MonoBehaviour
 
             int playerID = winnerPlayerIDs[i];
 
-            playerImages[i].sprite = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.LobbySprite;
+            playerImages[i].sprite = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.LobbySprite;
             killCounts[i].text = scores.KillScores[playerID].ToString();
         }
 

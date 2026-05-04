@@ -94,11 +94,11 @@ public class PlayerManager : NetworkBehaviour
         startGameInputAction.action.performed -= ActionOnPerformed;
         startGameInputAction.action.Disable();
         
-        if (LobbyPlayerHandler.Instance != null)
+        if (LobbyPlayerValues.Instance != null)
         {
-            LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
+            LobbyPlayerValues lobbyPlayerHandler = LobbyPlayerValues.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
+            foreach (LobbyPlayerValues.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -133,11 +133,11 @@ public class PlayerManager : NetworkBehaviour
 
     void StartLocalGame()
     {
-        if (LobbyPlayerHandler.Instance != null)
+        if (LobbyPlayerValues.Instance != null)
         {
-            LobbyPlayerHandler lobbyPlayerHandler = LobbyPlayerHandler.Instance;
+            LobbyPlayerValues lobbyPlayerHandler = LobbyPlayerValues.Instance;
 
-            foreach (LobbyPlayerHandler.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
+            foreach (LobbyPlayerValues.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
             {
                 if (playerDevice == null) continue;
 
@@ -198,13 +198,13 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
-        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerHandler.Instance.playerValuesList[playerID].TeamIndex);
+        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
     }
 
@@ -232,13 +232,13 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
-        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerHandler.Instance.playerValuesList[playerID].TeamIndex);
+        GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
     }
 
@@ -360,10 +360,10 @@ public class PlayerManager : NetworkBehaviour
     {
         playerHUDs[playerID].gameObject.SetActive(true);
 
-        if (LobbyPlayerHandler.Instance)
+        if (LobbyPlayerValues.Instance)
         {
             playerHUDs[playerID].InitialisePlayerHUD(playerID);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin.Color);
+            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.Color);
         }
         else
         {

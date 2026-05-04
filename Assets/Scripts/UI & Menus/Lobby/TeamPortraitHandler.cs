@@ -19,9 +19,9 @@ public class TeamPortraitHandler : MonoBehaviour
         int teamACount = 0;
         int teamBCount = 0;
 
-        for (int i = 0; i < LobbyPlayerHandler.Instance.playerValuesList.Count; i++)
+        for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
-            var playerData = LobbyPlayerHandler.Instance.playerValuesList[i];
+            var playerData = LobbyPlayerValues.Instance.playerValuesList[i];
 
             if (playerData == null)
                 continue;
