@@ -93,7 +93,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void InitialisePlayerHUD(int playerID)
     {
-        SkinSO skin = LobbyPlayerHandler.Instance.playerValuesList[playerID].Skin;
+        SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
         foreach (var uiElement in coloredUI)
         {
             uiElement.color = skin.Color;

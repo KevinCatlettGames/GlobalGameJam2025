@@ -1418,7 +1418,7 @@ public class PlayerController : NetworkBehaviour
     {
         SkinSO skinSOToUse = null; 
         
-        foreach (LobbyPlayerHandler.PlayerValues playerValues in LobbyPlayerHandler.Instance.playerValuesList)
+        foreach (LobbyPlayerValues.PlayerValues playerValues in LobbyPlayerValues.Instance.playerValuesList)
         {
             if (playerValues.Skin.Index == index)
             {

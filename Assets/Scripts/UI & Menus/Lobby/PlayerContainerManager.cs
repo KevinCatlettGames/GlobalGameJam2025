@@ -5,7 +5,7 @@ public class PlayerContainerManager : MonoBehaviour
 {
     [Header("Player Settings")]
     [SerializeField] private int uiIndex;
-
+    public GameObject readyObject; 
     [SerializeField] private Image image;
     [SerializeField] private Sprite readySprite;
     [SerializeField] private Sprite unreadySprite;
@@ -14,14 +14,12 @@ public class PlayerContainerManager : MonoBehaviour
 
     private void OnEnable()
     {
-        Debug.Log("On enable");
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.AddListener(ReadyStateUpdated);
     }
 
     private void OnDisable()
     {
-        Debug.Log("On disable");
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
     }
@@ -36,6 +34,7 @@ public class PlayerContainerManager : MonoBehaviour
             {
                 isReady = player.IsReady;
                 image.sprite = isReady ? readySprite : unreadySprite;
+                readyObject.SetActive(true);
                 break;
             }
         }
@@ -45,10 +44,9 @@ public class PlayerContainerManager : MonoBehaviour
 
     public void ReadyStateUpdated(ulong clientId)
     {
-        if ((int)clientId != uiIndex) return;
-
-        Debug.Log("Ready updated");
+        if ((int)clientId != uiIndex) return;     
         isReady = !isReady;
-        image.sprite = isReady ? readySprite : unreadySprite;
+        readyObject.SetActive(!isReady);
+        //image.sprite = isReady ? readySprite : unreadySprite;
     }
 }

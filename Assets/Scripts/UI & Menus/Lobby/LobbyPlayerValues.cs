@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.SceneManagement;
 
-public class LobbyPlayerHandler : NetworkBehaviour
+public class LobbyPlayerValues : NetworkBehaviour
 {
-    public static LobbyPlayerHandler Instance;
+    public static LobbyPlayerValues Instance;
 
     [System.Serializable]
     public class PlayerValues
