@@ -8,7 +8,7 @@ public class TeamSelection : MonoBehaviour
     public PlayerContainerManager playerContainerManager;
 
     [SerializeField, ReadOnly] private int currentTeamIndex;
-    [SerializeField] private LobbyPlayerHandler lobbyPlayerHandler;
+    [SerializeField] private LobbyPlayerValues lobbyPlayerHandler;
 
     [SerializeField] private Image teamImage;
     [SerializeField] private Sprite[] teamSprites;
@@ -105,7 +105,7 @@ public class TeamSelection : MonoBehaviour
     {
         int currentTeamAmount = 0;
 
-        foreach (LobbyPlayerHandler.PlayerValues player in lobbyPlayerHandler.playerValuesList)
+        foreach (LobbyPlayerValues.PlayerValues player in lobbyPlayerHandler.playerValuesList)
         {
             if (player.TeamIndex == currentTeamIndex)
                 currentTeamAmount++;
