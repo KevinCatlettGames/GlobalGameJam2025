@@ -28,6 +28,7 @@ public class PlayerShaderManager : MonoBehaviour
         if (!material) return;
 
         material.SetFloat("_isDamaged", 0);
+        
     }
 
     public void DamageEffect(float effectDuration)
