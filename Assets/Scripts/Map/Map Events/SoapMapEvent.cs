@@ -11,6 +11,7 @@ public class SoapMapEvent : MapEvent
     [SerializeField] private int waveSize = 3;
     [SerializeField] private int waveSizeIncrease = 2;
     [SerializeField] private SoapDroplet[] droplets;
+    [SerializeField] private GameObject waringIndicator;
     private bool isSpawning = false;
     private int maxWaveSize = 0;
     private int startWaveSize = 0;
@@ -37,6 +38,8 @@ public class SoapMapEvent : MapEvent
         yield return new WaitForSeconds(pauseDuration);
         while (isSpawning)
         {
+            waringIndicator.SetActive(true);
+            yield return new WaitForSeconds(1f);
             for (int i = 0; i < waveSize; i++)
             {
                 Vector2 randomPos = Random.insideUnitCircle * spawnRadius;
@@ -45,6 +48,7 @@ public class SoapMapEvent : MapEvent
             }
             
             yield return new WaitForSeconds(waveDuration);
+            waringIndicator.SetActive(false);
             
             if (waveSize < maxWaveSize)
             {
