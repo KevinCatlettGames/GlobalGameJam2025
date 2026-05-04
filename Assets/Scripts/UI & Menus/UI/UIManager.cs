@@ -3,7 +3,6 @@ using UnityEngine;
 public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
-    [SerializeField] private Animator victoryAnimator;
     [SerializeField] private GameObject scoreScreen;
     [SerializeField] private Timer timer;
     void Awake()
