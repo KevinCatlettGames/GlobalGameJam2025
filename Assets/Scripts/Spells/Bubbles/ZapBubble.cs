@@ -1,5 +1,6 @@
 using FMODUnity;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using static UnityEngine.UI.Image;
 
@@ -7,10 +8,9 @@ public class ZapBubble : BasicBubble
 {
     [Header("SpecialStats")]
     [SerializeField] private float delayBetweenZaps = .08f;
+    [SerializeField] private float initialDelay = .2f;
     [SerializeField] private int zaps = 3;
-    [SerializeField] private float[] damages;
-    [SerializeField] private float[] knockbacks;
-    [SerializeField] private LayerMask zapLayerMask;
+    [SerializeField] private GameObject bubblePrefab;
     private Vector3 offset;
     [SerializeField] private EventReference zapSoundEvent;
 
@@ -19,8 +19,8 @@ public class ZapBubble : BasicBubble
         OwnerID = ID;
         direction = dir;
         offset = transform.position - playerCollider.transform.position;
-        this.zapSoundEvent = soundEvent;
         this.playerCollider = playerCollider;
+        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         StartCoroutine(ZapCoroutine());
     }
     protected override void BubbleMovement()
@@ -29,41 +29,20 @@ public class ZapBubble : BasicBubble
     }
     private IEnumerator ZapCoroutine()
     {
+        RuntimeManager.PlayOneShotAttached(zapSoundEvent, gameObject);
+        yield return new WaitForSeconds(initialDelay);
         for (int i = 0; i < zaps; i++)
         {
-            Zap(damages[i], knockbacks[i]);
+            GameObject bubbleObj = Instantiate(bubblePrefab, transform.position, Quaternion.LookRotation(direction));
+            NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+            if (netObj != null)
+                netObj.Spawn();
+
+            BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
+            bubbleScript.InitialiseBubble(OwnerID, direction, zapSoundEvent, playerCollider);
+            
             yield return new WaitForSeconds(delayBetweenZaps);
         }
         Pop();
-    }
-    private void Zap(float _dmg, float _knb)
-    {
-        RuntimeManager.PlayOneShotAttached(zapSoundEvent, gameObject);
-        RaycastHit[] hits = Physics.RaycastAll(transform.position, direction, range, zapLayerMask);
-        Debug.DrawRay(transform.position, direction * range, Color.red, .1f);
-        if (hits.Length != 0)
-        {
-            RaycastHit hit;
-            for (int i = 0; i < hits.Length; i++)
-            {
-                hit = hits[i];
-                if (hit.transform.CompareTag("Player"))
-                {
-                    PlayerController player = hit.transform.GetComponent<PlayerController>();
-                    player?.ApplyKnockbackLocal(OwnerID, direction, _knb, _dmg);
-                    if (!isUlt) 
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(_dmg, true);
-                }
-                else if (hit.transform.CompareTag("Bubble"))
-                {
-                    BasicBubble bubble = hit.transform.GetComponent<BasicBubble>();
-                    bubble?.BubbleCollision(this.gameObject);
-                }
-                else if (hit.transform.CompareTag("Wall"))
-                {
-                    break;
-                }
-            }
-        }
     }
 }
