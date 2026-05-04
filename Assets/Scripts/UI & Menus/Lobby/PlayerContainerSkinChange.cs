@@ -354,7 +354,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (currentlyOnLocked)
         {
-            avatar.sprite = skinToUse.LobbySprite;
+            avatar.sprite = skinToUse.GameSprites[0];
             avatar.color = Color.gray;
             if(currentSkinSelection)
             currentSkinSelection.TogglePlayerIcon(false, playerIndex);
@@ -362,7 +362,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         else
         {
             playerTextImage.color = skinToUse.Color;
-            avatar.sprite = skinToUse.LobbySprite;
+            avatar.sprite = skinToUse.GameSprites[0];
             avatar.color = Color.white;
             if(currentSkinSelection)
                 currentSkinSelection.TogglePlayerIcon(true, playerIndex);
