@@ -14,10 +14,9 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     //public InputActionProperty rightTeamChange;
     //public InputActionProperty leftTeamChange;
-    
+    public LobbyButtons lobbyButtons;
     public int playerIndex;
     private Dictionary<InputDevice, float> readyActionStartTimes = new();
-    private const float QuickTapThreshold = 0.2f;
     private float onlineHostReadyStartTime = 0;
     private InputAction.CallbackContext currentContext;
     
@@ -105,14 +104,14 @@ public class LobbyPlayerInput : NetworkBehaviour
     private void OnReadyPerformed(InputAction.CallbackContext context)
     {
         if (lobbyManager.MatchSettingsSelection.activeSelf)
-            return;
-        
+            return;    
+
         if (TransportSwitcher.Instance.isUsingRelay)
         {
             if (NetworkManager.Singleton.IsServer)
             {
                 float duration = Time.time - onlineHostReadyStartTime;
-                if (duration <= QuickTapThreshold && !lobbyManager.players[(int)NetworkManager.Singleton.LocalClientId].IsReady)
+                if (!lobbyManager.players[(int)NetworkManager.Singleton.LocalClientId].IsReady)
                 {
                     lobbyManager.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
                     onlineHostReadyStartTime = 0; 
@@ -142,15 +141,19 @@ public class LobbyPlayerInput : NetworkBehaviour
 
             float duration = Time.time - startTime;
 
-            if (duration <= QuickTapThreshold)
+            int playerIndex = LobbyPlayerValues.Instance.AssignDeviceToNextFreePlayer(device);
+            if (playerIndex == -1) return;
+
+            if (lobbyButtons.confirmationPromptActive)
             {
-                int playerIndex = LobbyPlayerValues.Instance.AssignDeviceToNextFreePlayer(device);
-                if (playerIndex == -1) return;
-                lobbyManager.ToggleReady(playerIndex);
-                foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                {
-                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
-                }
+                lobbyButtons.OnBackPressed(playerIndex);
+                return;
+            }
+
+            lobbyManager.ToggleReady(playerIndex);
+            foreach (GameObject playerContainer in lobbyManager.playerContainers)
+            {
+                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
             }
             readyActionStartTimes.Remove(device);
         }
@@ -158,6 +161,16 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void OnUnreadyPerformed(InputAction.CallbackContext context)
     {
+        bool deviceRegistered = false;
+        foreach(LobbyPlayerValues.PlayerValues playerValues in LobbyPlayerValues.Instance.playerValuesList)
+        {
+            if(context.control.device == playerValues.Device)
+            {
+                deviceRegistered = true;
+            }
+        }
+        if (!deviceRegistered) return;
+
         if (TransportSwitcher.Instance.isUsingRelay)
         {
             if (NetworkManager.Singleton.IsServer)
@@ -181,11 +194,14 @@ public class LobbyPlayerInput : NetworkBehaviour
         }
         else
         {
-            InputDevice device = context.control.device;
-
+            InputDevice device = context.control.device;      
             int playerIndex = LobbyPlayerValues.Instance.AssignDeviceToNextFreePlayer(device);
             if (playerIndex == -1) return;
-            if (!LobbyManager.instance.players[playerIndex].IsReady) return;
+            if (!LobbyManager.instance.players[playerIndex].IsReady)
+            {
+                lobbyButtons.OnBackPressed(playerIndex);
+                return;
+            }
             lobbyManager.ToggleReady(playerIndex);
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
             {
@@ -196,6 +212,9 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void OnSkinChange(InputAction.CallbackContext context)
     {
+        if (lobbyButtons.confirmationPromptActive)
+            return;
+
         if ((TransportSwitcher.Instance.isUsingRelay && IsHost) || !TransportSwitcher.Instance.isUsingRelay)
         {
             if (lobbyManager.MatchSettingsSelection.activeSelf)

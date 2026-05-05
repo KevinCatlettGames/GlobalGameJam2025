@@ -10,6 +10,7 @@ public class SkinSO : ScriptableObject
     [SerializeField] private Color color;
     [SerializeField] private int index; 
     [SerializeField] private GameObject skinPrefab;
+    [SerializeField] private bool availableInDemo;
 
     public Sprite[] GameSprites => gameSprites;
     
@@ -20,4 +21,6 @@ public class SkinSO : ScriptableObject
     public int Index => index;
 
     public GameObject SkinPrefab => skinPrefab;
+
+    public bool AvailableInDemo => availableInDemo;
 }

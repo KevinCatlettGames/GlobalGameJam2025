@@ -28,21 +28,6 @@ public class LobbyManager : NetworkBehaviour
 
     #endregion
 
-    #region General Settings
-
-    [Header("General Settings")]
-
-    [Tooltip("If true, the game runs in demo mode with restricted features.")]
-    [SerializeField] private bool isDemo;
-
-    public bool IsDemo
-    {
-        get => isDemo;
-        set => isDemo = value;
-    }
-
-    #endregion
-
     #region Game Mode Settings
 
     [Header("Game Mode Settings")]
@@ -64,9 +49,6 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
-
-    [Tooltip("Objects shown when players are ready.")]
-    public GameObject[] readyObjects;
 
     public GameModeSO[] GameModes { get => gameModes; set => gameModes = value; }
     public MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
@@ -459,7 +441,7 @@ public class LobbyManager : NetworkBehaviour
         PlayStartSFXClientRpc();
         yield return new WaitForSeconds(1f);
 
-        if (loadRandomLevel)
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
