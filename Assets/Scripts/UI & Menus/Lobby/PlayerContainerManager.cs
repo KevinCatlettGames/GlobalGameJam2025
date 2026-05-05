@@ -1,3 +1,4 @@
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -6,9 +7,9 @@ public class PlayerContainerManager : MonoBehaviour
     [Header("Player Settings")]
     [SerializeField] private int uiIndex;
     public GameObject readyObject; 
-    [SerializeField] private Image image;
-    [SerializeField] private Sprite readySprite;
-    [SerializeField] private Sprite unreadySprite;
+    [SerializeField] private Image readyImage;
+    [SerializeField] private TextMeshProUGUI unreadyText;
+    [SerializeField] private TextMeshProUGUI readyText;
 
     public bool isReady = false;
 
@@ -25,15 +26,15 @@ public class PlayerContainerManager : MonoBehaviour
     }
 
     private void Start()
-    {
-        image.sprite = unreadySprite;
-
+    {      
         foreach (var player in LobbyManager.instance.players)
         {
             if ((int)player.ClientId == uiIndex)
             {
                 isReady = player.IsReady;
-                image.sprite = isReady ? readySprite : unreadySprite;
+                readyImage.enabled = isReady ? false : true;
+                unreadyText.enabled = isReady ? false : true;
+                readyText.enabled = isReady ? true : false;
                 readyObject.SetActive(true);
                 break;
             }
@@ -46,7 +47,8 @@ public class PlayerContainerManager : MonoBehaviour
     {
         if ((int)clientId != uiIndex) return;     
         isReady = !isReady;
-        readyObject.SetActive(!isReady);
-        //image.sprite = isReady ? readySprite : unreadySprite;
+        readyImage.enabled = isReady ? false : true;
+        unreadyText.enabled = isReady ? false : true;
+        readyText.enabled = isReady ? true : false;
     }
 }

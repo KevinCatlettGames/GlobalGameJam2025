@@ -14,6 +14,7 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinSO skinSo;
     public Image skinImage;
     public Color standardImageColor = Color.gray;
+    public Color disabledColor = Color.red; 
     public Vector3 originalScale;
     public float scaleMultiplier;
 
@@ -23,8 +24,11 @@ public class SkinButtonHandler : MonoBehaviour
     }
 
     private void OnEnable()
-    {
-        GetComponent<Image>().color = standardImageColor;
+    {      
+        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+            GetComponent<Image>().color = disabledColor;
+        else
+            GetComponent<Image>().color = standardImageColor;
     }
 
     public void TogglePlayerIcon(bool activate, int playerIndex)

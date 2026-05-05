@@ -28,21 +28,6 @@ public class LobbyManager : NetworkBehaviour
 
     #endregion
 
-    #region General Settings
-
-    [Header("General Settings")]
-
-    [Tooltip("If true, the game runs in demo mode with restricted features.")]
-    [SerializeField] private bool isDemo;
-
-    public bool IsDemo
-    {
-        get => isDemo;
-        set => isDemo = value;
-    }
-
-    #endregion
-
     #region Game Mode Settings
 
     [Header("Game Mode Settings")]
@@ -51,7 +36,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private bool loadRandomLevel = true;
 
     [Tooltip("Scene name used when random loading is disabled.")]
-    [SerializeField] private string plateLevel = "Lvl_MainScene";
+    [SerializeField] private string plateLevel = "Lvl_Teller";
 
     [Tooltip("Reference to score tracking ScriptableObject.")]
     [SerializeField] private SO_Scores scores;
@@ -65,9 +50,7 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
-    [Tooltip("Objects shown when players are ready.")]
-    public GameObject[] readyObjects;
-
+    [SerializeField] GameObject uiParent;
     public GameModeSO[] GameModes { get => gameModes; set => gameModes = value; }
     public MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
     public SO_Spell[] Spells { get => spells; set => spells = value; }
@@ -457,9 +440,10 @@ public class LobbyManager : NetworkBehaviour
     public IEnumerator LoadGameScene()
     {
         PlayStartSFXClientRpc();
+        uiParent.SetActive(false);
         yield return new WaitForSeconds(1f);
 
-        if (loadRandomLevel)
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);

@@ -2,14 +2,15 @@ using System;
 using UnityEngine;
 using EditorAttributes;
 using Steamworks;
-using Unity.VisualScripting;
 
 public class SteamIntegration : MonoBehaviour
 {
     public static SteamIntegration instance;
-    
+
     [Header("Steam initialization")]
-    [SerializeField] bool isFullVersion = true;
+    [SerializeField] bool isFullVersion; 
+    public bool IsFullVersion => isFullVersion;
+
     private bool statsLoaded = false;
     private float retryInterval = 5f;
     private float retryTimer = 0f;
