@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using EditorAttributes;
 using Steamworks;
-using Unity.VisualScripting;
 
 public class SteamIntegration : MonoBehaviour
 {

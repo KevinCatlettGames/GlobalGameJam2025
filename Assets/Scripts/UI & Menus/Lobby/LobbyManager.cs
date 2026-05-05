@@ -36,7 +36,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private bool loadRandomLevel = true;
 
     [Tooltip("Scene name used when random loading is disabled.")]
-    [SerializeField] private string plateLevel = "Lvl_MainScene";
+    [SerializeField] private string plateLevel = "Lvl_Teller";
 
     [Tooltip("Reference to score tracking ScriptableObject.")]
     [SerializeField] private SO_Scores scores;
@@ -50,6 +50,7 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
+    [SerializeField] GameObject uiParent;
     public GameModeSO[] GameModes { get => gameModes; set => gameModes = value; }
     public MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
     public SO_Spell[] Spells { get => spells; set => spells = value; }
@@ -439,6 +440,7 @@ public class LobbyManager : NetworkBehaviour
     public IEnumerator LoadGameScene()
     {
         PlayStartSFXClientRpc();
+        uiParent.SetActive(false);
         yield return new WaitForSeconds(1f);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)

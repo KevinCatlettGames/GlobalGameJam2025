@@ -4,6 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine.Rendering;
+using FMODUnity;
 
 public class LobbyPlayerInput : NetworkBehaviour
 {
@@ -11,7 +12,8 @@ public class LobbyPlayerInput : NetworkBehaviour
     public InputActionProperty unreadyAction;
 
     public InputActionProperty skinChange;
-
+    public StudioEventEmitter skinChangeEmitter;
+    public StudioEventEmitter unreadyEmitter;
     //public InputActionProperty rightTeamChange;
     //public InputActionProperty leftTeamChange;
     public LobbyButtons lobbyButtons;
@@ -207,6 +209,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             {
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
             }
+            unreadyEmitter.Play();
         }
     }
 
@@ -235,6 +238,8 @@ public class LobbyPlayerInput : NetworkBehaviour
         lobbyManager.playerContainers[playerIndex]
             .GetComponent<PlayerContainerSkinChange>()
             .ChangeSkin(context.ReadValue<Vector2>());
+
+        skinChangeEmitter.Play();
     }
 
     private void OnRightTeamChange(InputAction.CallbackContext context)

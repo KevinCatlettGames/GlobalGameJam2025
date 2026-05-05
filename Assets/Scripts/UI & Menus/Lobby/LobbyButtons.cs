@@ -6,8 +6,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using FMODUnity;
-using System;
-using UnityEditor.Localization.Plugins.XLIFF.V12;
 
 public class LobbyButtons : MonoBehaviour
 {
