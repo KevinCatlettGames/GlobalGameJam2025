@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
-using Unity.Netcode; 
+using Unity.Netcode;
+using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Simple")]
 public class SO_Spell : ScriptableObject
@@ -25,11 +26,11 @@ public class SO_Spell : ScriptableObject
     [Header("Pickup")]
     [SerializeField] protected Mesh itemMesh;
     [SerializeField] protected Material[] itemMaterials;
-    [SerializeField] protected Material[] effectMaterials;
-    [SerializeField] protected Color itemEffectColor;
+    [Tooltip("0 = ShadowColor, 1 = EimerColor, 2 = SparkleColor, 3 = WaveColor")]
+    [SerializeField, ColorUsage(true,true)] protected Color[] effectColors;
+    public Color[]  EffectColors { get { return effectColors; } }
     public Mesh ItemMesh { get { return itemMesh; } }
     public Material[] ItemMaterials { get { return itemMaterials; } }
-    public Color ItemEffectColor { get { return itemEffectColor; } }
 
     [Header("Sound Events")]
     [SerializeField] protected EventReference castEventStruct;
@@ -63,9 +64,5 @@ public class SO_Spell : ScriptableObject
         }
 
         return spellCooldown;
-    }
-    public Material[] GetEffectMaterials()
-    {
-        return effectMaterials;
     }
 }
