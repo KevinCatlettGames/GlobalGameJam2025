@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using FMODUnity;
 
 public class VortexDeathZone : MonoBehaviour
 {
@@ -7,6 +8,7 @@ public class VortexDeathZone : MonoBehaviour
     private float[] timeInZone = new float[4];
     [SerializeField] private float timeToDeath = 1f;
     private Vortex vortex;
+    [SerializeField] private EventReference deathEvent;
     private void Start()
     {
         vortex = GetComponentInParent<Vortex>();
@@ -21,6 +23,7 @@ public class VortexDeathZone : MonoBehaviour
             if (timeInZone[id] >= timeToDeath)
             {
                 timeInZone[id] = 0f;
+                RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
                 playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer();
                 vortex.RemovePlayer(playersInRange[i]);
                 playersInRange.RemoveAt(i);

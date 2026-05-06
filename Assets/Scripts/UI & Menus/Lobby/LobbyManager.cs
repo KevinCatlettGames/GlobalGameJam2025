@@ -9,82 +9,188 @@ using UnityEngine.UI;
 using FMODUnity;
 using TMPro;
 
+/// <summary>
+/// Handles the multiplayer lobby including:
+/// - Player ready states
+/// - Game mode selection
+/// - Map & spell configuration
+/// - UI synchronization
+/// - Network synchronization (RPCs)
+/// </summary>
 public class LobbyManager : NetworkBehaviour
 {
+    #region Singleton
+
+    /// <summary>
+    /// Global instance of the LobbyManager.
+    /// </summary>
     public static LobbyManager instance;
 
-    [SerializeField] private bool isDemo; 
-    public bool IsDemo
-    {
-        get { return isDemo; }
-        set { isDemo = value;}
-    }
+    #endregion
+
+    #region Game Mode Settings
 
     [Header("Game Mode Settings")]
+
+    [Tooltip("If enabled, maps will be selected randomly instead of loading a fixed scene.")]
     [SerializeField] private bool loadRandomLevel = true;
-    [SerializeField] private string plateLevel = "Lvl_MainScene";
+
+    [Tooltip("Scene name used when random loading is disabled.")]
+    [SerializeField] private string plateLevel = "Lvl_Teller";
+
+    [Tooltip("Reference to score tracking ScriptableObject.")]
     [SerializeField] private SO_Scores scores;
+
+    [Tooltip("Available game modes.")]
     [SerializeField] private GameModeSO[] gameModes;
+
+    [Tooltip("All available map configurations.")]
     [SerializeField] private MapSettingsSO[] mapSettings;
+
+    [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
+    [SerializeField] GameObject uiParent;
     public GameModeSO[] GameModes { get => gameModes; set => gameModes = value; }
     public MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
     public SO_Spell[] Spells { get => spells; set => spells = value; }
 
+    [Tooltip("Currently selected game mode.")]
     [SerializeField] private GameManager.GameModeType selectedGameMode = GameManager.GameModeType.Standard;
+
     public GameManager.GameModeType SelectedGameMode
     {
         get => selectedGameMode;
         set => ChangeSelectedGameModeClientRpc(value);
     }
 
+    [Tooltip("Maximum number of rounds before game ends.")]
     public int maxGameRounds = 7;
+
+    public int winsNeededToWin = 8;
+
+    [Tooltip("If enabled, the game runs endlessly.")]
     public bool playEndless;
+
+    [Tooltip("Number of rounds already played.")]
     public int playedRounds;
 
-    [SerializeField] private GameObject gameModeSelection;
+    [Tooltip("UI panel for match settings.")]
     [SerializeField] private GameObject matchSettingsSelection;
-
-    public GameObject GameModeSelection { get => gameModeSelection; set => gameModeSelection = value; }
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
+    public LobbyPlayerInput lobbyInput; 
+    #endregion
+
+    #region Player Settings
+
     [Header("Player Settings")]
+
+    [Tooltip("Maximum number of local players allowed.")]
     [SerializeField] private int maxLocalPlayers = 4;
+
+    [Tooltip("Minimum players required to start a match.")]
     [SerializeField] private int minPlayers = 1;
+
+    [Tooltip("Available player skins.")]
     [SerializeField] private SkinSO[] possibleSkins;
 
     public SkinSO[] PossibleSkins { get => possibleSkins; set => possibleSkins = value; }
 
+    #endregion
+
+    #region Network Players
+
     [Header("Network Players")]
+
+    /// <summary>
+    /// Network-synced list of players in the lobby.
+    /// </summary>
     public NetworkList<PlayerLobbyState> players = new();
+
+    [Tooltip("True if all players are ready.")]
     public bool allPlayersReady;
+
+    /// <summary>
+    /// Invoked when a player's ready state changes.
+    /// </summary>
     public UnityEvent<ulong> OnReadyStateUpdated;
+
+    /// <summary>
+    /// Invoked when all players finished loading a scene.
+    /// </summary>
     public UnityEvent OnAllPlayersLoadedIn;
 
+    #endregion
+
+    #region UI Elements
+
     [Header("UI Elements")]
+
+    [Tooltip("Empty player slot placeholders.")]
+    public GameObject[] emptyPlayerContainers;
+
+    [Tooltip("Active player UI containers.")]
     public GameObject[] playerContainers;
+
+    [Tooltip("Team selection UI elements per player.")]
     public GameObject[] teamSelections;
+
+    [Tooltip("Team indicator images.")]
     public Image[] teamIndicators;
+
+    [Tooltip("Sprites used for team indicators.")]
     public Sprite[] teamSprites;
 
+    [Tooltip("Weapon toggle buttons.")]
     public Toggle[] weaponToggles;
+
+    [Tooltip("Map enable/disable toggles.")]
     public Toggle[] mapUsageToggles;
+
+    [Tooltip("Map event toggles.")]
     public Toggle[] mapEventToggles;
+
+    [Tooltip("Round sliders for each map.")]
     public Slider[] mapRoundsSliders;
 
+    [Tooltip("Start game button.")]
     [SerializeField] private Button startButton;
+
+    [Tooltip("Image component of start button.")]
     [SerializeField] private Image startButtonImage;
+
+    [Tooltip("Texts displayed on start button.")]
     [SerializeField] private TextMeshProUGUI[] startButtonTexts;
+
+    [Tooltip("Text displaying current game mode.")]
     [SerializeField] private TextMeshProUGUI gameModeTypeText;
+
+    [Tooltip("Button color when enabled.")]
     [SerializeField] private Color startButtonColorWhenEnabled;
 
+    #endregion
+
+    #region Audio
+
     [Header("Audio Emitters")]
+
+    [Tooltip("Played when a player joins.")]
     [SerializeField] private StudioEventEmitter joinEmitter;
+
+    [Tooltip("Played when selecting ready.")]
     [SerializeField] private StudioEventEmitter selectEmitter;
+
+    [Tooltip("Played when unselecting ready.")]
     [SerializeField] private StudioEventEmitter unselectEmitter;
+
+    [Tooltip("Played when starting the game.")]
     [SerializeField] private StudioEventEmitter playerStartEmitter;
+
+    [Tooltip("Played on UI button click.")]
     [SerializeField] private StudioEventEmitter buttonOnClickEmitter;
+
+    #endregion
 
     private void Awake()
     {
@@ -142,13 +248,11 @@ public class LobbyManager : NetworkBehaviour
         if (IsServer && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
     }
-
     private void OnLoadEventCompleted(string sceneName, LoadSceneMode mode, List<ulong> completed, List<ulong> timedOut)
     {
         if (sceneName != "UI_Lobby" && sceneName != "UI_MainMenu")
             Invoke(nameof(InvokeEvent), 2f);
     }
-
     private void InvokeEvent()
     {
         OnAllPlayersLoadedIn?.Invoke();
@@ -256,7 +360,7 @@ public class LobbyManager : NetworkBehaviour
             }
         }
 
-        EmitSoundServerRpc(players[index].IsReady ? 1 : 2);
+        EmitSoundServerRpc(players[index].IsReady ? 1 : 2);      
         CheckAllReady();
     }
 
@@ -277,11 +381,11 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     private void AddNewPlayerValuesClientRpc(int clientID)
     {
-        LobbyPlayerHandler.Instance.playerValuesList.Add(
-            new LobbyPlayerHandler.PlayerValues(clientID, null, possibleSkins[clientID], -1)
+        LobbyPlayerValues.Instance.playerValuesList.Add(
+            new LobbyPlayerValues.PlayerValues(clientID, null, possibleSkins[clientID], -1)
         );
 
-        LobbyPlayerHandler.Instance.SortPlayerValues();
+        LobbyPlayerValues.Instance.SortPlayerValues();
     }
 
     [ClientRpc]
@@ -329,19 +433,25 @@ public class LobbyManager : NetworkBehaviour
         {
             int index = (int)player.ClientId;
             if (index >= 0 && index < playerContainers.Length)
+            {
+                emptyPlayerContainers[index].SetActive(false);
                 playerContainers[index].SetActive(true);
+            }
         }
     }
 
     public IEnumerator LoadGameScene()
     {
         PlayStartSFXClientRpc();
+        uiParent.SetActive(false);
         yield return new WaitForSeconds(1f);
 
-        if (loadRandomLevel)
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+      
+        lobbyInput.enabled = false;
     }
 
     private void ChangeStartButtonState(bool enable)
@@ -349,6 +459,7 @@ public class LobbyManager : NetworkBehaviour
         foreach (TextMeshProUGUI text in startButtonTexts)
             text.color = enable ? Color.white : Color.gray;
 
+        startButton.gameObject.SetActive(enable);
         startButtonImage.color = enable ? startButtonColorWhenEnabled : Color.gray;
         startButton.interactable = enable;
     }

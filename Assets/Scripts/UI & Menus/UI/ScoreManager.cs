@@ -97,7 +97,19 @@ public class ScoreManager : MonoBehaviour
             yield return new WaitForSeconds(.2f);
         }
         yield return new WaitForSeconds(2f);
-        
+
+        if (!GameManager.Instance.playEndless || !LobbyManager.instance)
+        {
+            foreach (int score in scores.WinScores)
+            {
+                if (score >= LobbyManager.instance.winsNeededToWin)
+                {
+                    showWinner = true;
+                    break;
+                }
+            }
+        }
+
         if (showWinner)
         {
             restarText.SetActive(false);

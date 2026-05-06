@@ -2,28 +2,69 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using FMODUnity;
+using System.Collections.Generic;
+using System;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
-    [SerializeField] private Image containerBackground;
-    [SerializeField] private Outline containerBackgroundOutline;
-    [SerializeField] private Image avatarBackground;
     [SerializeField] private Image avatar;
+    [SerializeField] private Image playerTextImage;
+    [SerializeField] private Image[] blurImages;
     [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
     public int playerIndex = 0;
     public bool currentlyOnLocked;
 
+    public SkinButtonHandler[] allSkinSelections;
+    public SkinButtonHandler currentSkinSelection;
+    bool init;
+    bool wasInit = false; 
+
     private void OnDisable()
     {
+        if (LobbyManager.instance != null)
+            LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[playerIndex];
-        containerBackground.color = skinToUse.Color;
-        containerBackgroundOutline.effectColor = skinToUse.Color;
-        avatarBackground.color = skinToUse.Color;
+       
         avatar.sprite = skinToUse.LobbySprite;
         avatar.color = Color.white;
         gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        if (LobbyManager.instance != null)
+            LobbyManager.instance.OnReadyStateUpdated.AddListener(ReadyStateUpdated);
+
+        if (init && !wasInit)
+        {
+            SkinButtonHandler availableSkin = null;
+
+            foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
+            {
+                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
+                {
+                    availableSkin = skinButtonHandler;
+                    break;
+                }
+            }
+            currentSkinSelection = availableSkin;
+            currentSkinSelection.isSelected = true;
+            currentSkinSelection.TogglePlayerIcon(true, playerIndex);
+            currentColorIndex = currentSkinSelection.skinSo.Index;
+            avatar.GetComponent<ScaleToCorrectSize>().Play();
+            UpdateSkin();
+            wasInit = true;
+        }
+        init = true;
+    }
+
+    public void ReadyStateUpdated(ulong clientId)
+    {
+        if ((int)clientId != playerIndex) return;
+        currentSkinSelection.ToggleReadyVisuals();
     }
 
     public void SwapColorWithIncrementation(bool increment)
@@ -38,6 +79,185 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         UpdateSkin();
         cycleEmitter.Play();
     }
+
+    public void ChangeSkin(Vector2 skinChangeInput)
+    {
+        SkinButtonHandler availableSkin = null;
+
+        if (skinChangeInput.x == 0 && skinChangeInput.y == 0)
+        {
+            foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
+            {
+                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
+                {
+                    availableSkin = skinButtonHandler;
+                    break;
+                }
+            }
+            currentSkinSelection.isSelected = false;
+            currentSkinSelection.TogglePlayerIcon(false, playerIndex);
+            currentSkinSelection = availableSkin;
+            currentSkinSelection.isSelected = true;
+            currentColorIndex = currentSkinSelection.skinSo.Index;
+            avatar.GetComponent<ScaleToCorrectSize>().Play();
+            UpdateSkin();
+        }
+        else if (skinChangeInput.x > 0)
+        {
+            if (!currentSkinSelection.rightSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.rightSkinSelection.skinSo.AvailableInDemo) return;
+            currentSkinSelection.isSelected = false;
+            SkinButtonHandler skinToCheck = currentSkinSelection.rightSkinSelection;
+            bool checkThroughNeighbor = true;
+
+            var visited = new HashSet<SkinButtonHandler>();
+
+            while (checkThroughNeighbor)
+            {
+                if (visited.Contains(skinToCheck))
+                {
+                    break;
+                }
+
+                if (skinToCheck.isSelected)
+                {
+                    if(skinToCheck.rightSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.rightSkinSelection.skinSo.AvailableInDemo) 
+                    {         
+                        checkThroughNeighbor = false;                      
+                    }
+                    else
+                    {
+                        skinToCheck = skinToCheck.rightSkinSelection;
+                    }
+                }
+                else
+                {
+                    availableSkin = skinToCheck;
+                    checkThroughNeighbor = false;
+                }
+            }
+        }
+        else if (skinChangeInput.x < 0)
+        {
+            if (!currentSkinSelection.leftSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.leftSkinSelection.skinSo.AvailableInDemo) return;
+            currentSkinSelection.isSelected = false;
+            SkinButtonHandler skinToCheck = currentSkinSelection.leftSkinSelection;
+            bool checkThroughNeighbor = true;
+
+            var visited = new HashSet<SkinButtonHandler>();
+
+            while (checkThroughNeighbor)
+            {
+                if (visited.Contains(skinToCheck))
+                {
+                    break;
+                }
+
+                if (skinToCheck.isSelected)
+                {
+                    if (skinToCheck.leftSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.leftSkinSelection.skinSo.AvailableInDemo)
+                    {
+                        checkThroughNeighbor = false;
+                    }
+                    else
+                    {
+                        skinToCheck = skinToCheck.leftSkinSelection;
+                    }
+                }
+                else
+                {
+                    availableSkin = skinToCheck;
+                    checkThroughNeighbor = false;
+                }
+            }
+        }
+        else if (skinChangeInput.y > 0)
+        {
+            if (!currentSkinSelection.topSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.topSkinSelection.skinSo.AvailableInDemo) return;
+            currentSkinSelection.isSelected = false;
+            SkinButtonHandler skinToCheck = currentSkinSelection.topSkinSelection;
+            bool checkThroughNeighbor = true;
+
+            var visited = new HashSet<SkinButtonHandler>();
+
+            while (checkThroughNeighbor)
+            {
+                if (visited.Contains(skinToCheck))
+                {
+                    break;
+                }
+                if (skinToCheck.isSelected)
+                {
+                    if (skinToCheck.topSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.topSkinSelection.skinSo.AvailableInDemo)
+                    {
+                        checkThroughNeighbor = false;
+                    }
+                    else
+                    {
+                        skinToCheck = skinToCheck.topSkinSelection;
+                    }
+                }
+                else
+                {
+                    availableSkin = skinToCheck;
+                    checkThroughNeighbor = false;
+                }
+            }
+        }
+        else if (skinChangeInput.y < 0)
+        {
+            if (!currentSkinSelection.bottomSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.bottomSkinSelection.skinSo.AvailableInDemo) return;
+            currentSkinSelection.isSelected = false;          
+            SkinButtonHandler skinToCheck = currentSkinSelection.bottomSkinSelection;
+            bool checkThroughNeighbor = true;
+
+            var visited = new HashSet<SkinButtonHandler>();
+
+            while (checkThroughNeighbor)
+            {
+                if (visited.Contains(skinToCheck))
+                {
+                    break;
+                }
+                if (skinToCheck.isSelected)
+                {
+                    if (skinToCheck.bottomSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.bottomSkinSelection.skinSo.AvailableInDemo)
+                    {
+                        checkThroughNeighbor = false;
+                    }
+                    else
+                    {
+                        skinToCheck = skinToCheck.bottomSkinSelection;
+                    }
+                }
+                else
+                {
+                    availableSkin = skinToCheck;
+                    checkThroughNeighbor = false;
+                }
+            }                  
+        }
+
+        if (availableSkin == null)
+        {
+            foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
+            {
+                if (!SteamIntegration.instance.IsFullVersion && !skinButtonHandler.skinSo.AvailableInDemo) return;
+                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
+                {
+                    availableSkin = skinButtonHandler;
+                }
+            }
+        }
+        if (availableSkin == null) return; 
+
+        currentSkinSelection.TogglePlayerIcon(false, playerIndex);
+        currentSkinSelection = availableSkin;
+        currentSkinSelection.isSelected = true;
+        currentColorIndex = currentSkinSelection.skinSo.Index;
+        avatar.GetComponent<ScaleToCorrectSize>().Play();
+        UpdateSkin();
+    }
+
 
     [ServerRpc(RequireOwnership = false)]
     public void UpdateSkinServerRpc()
@@ -57,11 +277,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         bool skinLocked = false;
 
-        for (int i = 0; i < LobbyPlayerHandler.Instance.playerValuesList.Count; i++)
+        for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;
 
-            var otherSkin = LobbyPlayerHandler.Instance.playerValuesList[i].Skin;
+            var otherSkin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
             if (otherSkin != null && otherSkin == skinToUse &&
                 i < LobbyManager.instance.players.Count &&
                 LobbyManager.instance.players[i].IsReady)
@@ -75,11 +295,10 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (!currentlyOnLocked &&
             playerIndex >= 0 &&
-            playerIndex < LobbyPlayerHandler.Instance.playerValuesList.Count)
+            playerIndex < LobbyPlayerValues.Instance.playerValuesList.Count)
         {
-            LobbyPlayerHandler.Instance.playerValuesList[playerIndex].Skin = skinToUse;
-        }
-
+            LobbyPlayerValues.Instance.playerValuesList[playerIndex].Skin = skinToUse;
+        }       
         ApplySkinVisuals();
     }
 
@@ -89,19 +308,27 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (currentlyOnLocked)
         {
-            containerBackground.color = Color.gray;
-            containerBackgroundOutline.effectColor = Color.gray;
-            avatarBackground.color = Color.gray;
             avatar.sprite = skinToUse.LobbySprite;
-            avatar.color = Color.gray;
+            avatar.color = Color.gray;           
+            if(currentSkinSelection)
+            currentSkinSelection.TogglePlayerIcon(false, playerIndex);
         }
         else
         {
-            containerBackground.color = skinToUse.Color;
-            containerBackgroundOutline.effectColor = skinToUse.Color;
-            avatarBackground.color = skinToUse.Color;
+            playerTextImage.color = skinToUse.Color;
             avatar.sprite = skinToUse.LobbySprite;
             avatar.color = Color.white;
+            if (currentSkinSelection)
+            {
+                currentSkinSelection.TogglePlayerIcon(true, playerIndex);
+            }
         }
+
+        if(GetComponent<PlayerContainerManager>().isReady)
+            foreach (Image blurImage in blurImages)
+                blurImage.color = skinToUse.Color;
+        else
+            foreach (Image blurImage in blurImages)
+                blurImage.color = Color.white;      
     }
 }

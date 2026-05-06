@@ -12,7 +12,8 @@ public class PointBubbleResizeEffect : MonoBehaviour
 
     [Header("Sound Events")] [SerializeField]
     private StudioEventEmitter emitter;
-    
+    [SerializeField] StudioEventEmitter sparkleEmitter;
+
     public bool HasPerformedEffect { get; set; }
 
     private Vector3 startScale;
@@ -42,6 +43,8 @@ public class PointBubbleResizeEffect : MonoBehaviour
             emitter.Play();
 
         float timer = 0f;
+        bool overshootReached = false;
+
         while (timer < appearDuration)
         {
             timer += Time.deltaTime;
@@ -51,9 +54,16 @@ public class PointBubbleResizeEffect : MonoBehaviour
             float scaleFactor = Mathf.LerpUnclamped(0f, overshootScale, curveValue);
             transform.localScale = startScale * scaleFactor;
 
+            //if (!overshootReached && scaleFactor >= overshootScale)
+            //{
+            //    overshootReached = true;
+
+            //    if (sparkleEmitter)
+            //        sparkleEmitter.Play();
+            //}
+
             yield return null;
         }
-
         transform.localScale = startScale;
         HasPerformedEffect = true;
     }

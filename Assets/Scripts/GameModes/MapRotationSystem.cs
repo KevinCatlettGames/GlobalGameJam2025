@@ -33,7 +33,7 @@ public class MapRotationSystem : MonoBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        if (!enableMapSwitch || roundCount < maxRounds)
+        if (!enableMapSwitch || roundCount < maxRounds || SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
             return false;
 
         string currentScene = SceneManager.GetActiveScene().name;

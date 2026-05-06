@@ -4,6 +4,7 @@ public class UIManager : MonoBehaviour
 {
     public static UIManager Instance;
     [SerializeField] private GameObject scoreScreen;
+    [SerializeField] private GameObject gameUI;
     [SerializeField] private Timer timer;
     void Awake()
     {
@@ -18,6 +19,7 @@ public class UIManager : MonoBehaviour
     public void SetScoreScreenActive(bool isActive)
     {
         scoreScreen.SetActive(isActive);
+        gameUI.SetActive(!isActive);
     }
     public Timer GetTimer()
     {
