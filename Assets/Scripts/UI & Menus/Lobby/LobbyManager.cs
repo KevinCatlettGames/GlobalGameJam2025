@@ -79,6 +79,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private GameObject matchSettingsSelection;
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
+    public LobbyPlayerInput lobbyInput; 
     #endregion
 
     #region Player Settings
@@ -449,6 +450,8 @@ public class LobbyManager : NetworkBehaviour
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+      
+        lobbyInput.enabled = false;
     }
 
     private void ChangeStartButtonState(bool enable)
