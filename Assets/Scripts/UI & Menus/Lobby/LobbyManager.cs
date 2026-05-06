@@ -229,7 +229,7 @@ public class LobbyManager : NetworkBehaviour
         {
             mapSetting.PlayMap = true;
             mapSetting.PlayWithMapEvent = true;
-            mapSetting.MapRounds = 3;
+            mapSetting.MapRounds = 2;
             mapSetting.PlayedThisLoop = false;
         }
 
