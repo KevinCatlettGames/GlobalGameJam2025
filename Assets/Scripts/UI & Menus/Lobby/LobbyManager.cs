@@ -67,6 +67,8 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Maximum number of rounds before game ends.")]
     public int maxGameRounds = 7;
 
+    public int winsNeededToWin = 8;
+
     [Tooltip("If enabled, the game runs endlessly.")]
     public bool playEndless;
 
@@ -229,7 +231,7 @@ public class LobbyManager : NetworkBehaviour
         {
             mapSetting.PlayMap = true;
             mapSetting.PlayWithMapEvent = true;
-            mapSetting.MapRounds = 2;
+            mapSetting.MapRounds = 3;
             mapSetting.PlayedThisLoop = false;
         }
 
