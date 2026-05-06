@@ -9,8 +9,10 @@ public class WinScreenManager : MonoBehaviour
 {
     public static WinScreenManager Instance;
 
+    [SerializeField] private GameObject gameUI;
     [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject[] winPanels;
+    [SerializeField] private Outline[] outlines;
     [SerializeField] private TextMeshProUGUI[] killCounts;
     [SerializeField] private Image[] playerImages;
     [SerializeField] private StudioEventEmitter emitter;
@@ -31,6 +33,7 @@ public class WinScreenManager : MonoBehaviour
 
     private void OnEnable()
     {
+        gameUI.SetActive(false);
         eventSystem.SetSelectedGameObject(restartButton.gameObject);
         ShowWinnerUsingWinScore();
     }
@@ -63,7 +66,7 @@ public class WinScreenManager : MonoBehaviour
         for (int i = 0; i < winnerCount; i++)
         {
             winPanels[i].SetActive(true);
-
+            outlines[i].effectColor = LobbyPlayerValues.Instance.playerValuesList[i].Skin.Color;
             RectTransform rectTransform = winPanels[i].GetComponent<RectTransform>();
             float xPosition = (i - (winnerCount - 1) / 2f) * panelSpacing;
             rectTransform.anchoredPosition = new Vector2(xPosition, rectTransform.anchoredPosition.y);

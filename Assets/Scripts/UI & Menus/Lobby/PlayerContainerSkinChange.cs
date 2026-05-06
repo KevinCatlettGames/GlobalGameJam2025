@@ -54,6 +54,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.isSelected = true;
             currentSkinSelection.TogglePlayerIcon(true, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
+            avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateSkin();
             wasInit = true;
         }
@@ -98,6 +99,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection = availableSkin;
             currentSkinSelection.isSelected = true;
             currentColorIndex = currentSkinSelection.skinSo.Index;
+            avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateSkin();
         }
         else if (skinChangeInput.x > 0)
@@ -252,6 +254,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentSkinSelection = availableSkin;
         currentSkinSelection.isSelected = true;
         currentColorIndex = currentSkinSelection.skinSo.Index;
+        avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateSkin();
     }
 
@@ -295,8 +298,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             playerIndex < LobbyPlayerValues.Instance.playerValuesList.Count)
         {
             LobbyPlayerValues.Instance.playerValuesList[playerIndex].Skin = skinToUse;
-        }
-
+        }       
         ApplySkinVisuals();
     }
 
@@ -327,6 +329,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
                 blurImage.color = skinToUse.Color;
         else
             foreach (Image blurImage in blurImages)
-                blurImage.color = Color.white;
+                blurImage.color = Color.white;      
     }
 }
