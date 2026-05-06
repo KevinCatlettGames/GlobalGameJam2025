@@ -9,6 +9,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 {
     [SerializeField] private Image avatar;
     [SerializeField] private Image playerTextImage;
+    [SerializeField] private Image[] blurImages;
     [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
@@ -305,18 +306,27 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (currentlyOnLocked)
         {
-            avatar.sprite = skinToUse.GameSprites[0];
-            avatar.color = Color.gray;
+            avatar.sprite = skinToUse.LobbySprite;
+            avatar.color = Color.gray;           
             if(currentSkinSelection)
             currentSkinSelection.TogglePlayerIcon(false, playerIndex);
         }
         else
         {
             playerTextImage.color = skinToUse.Color;
-            avatar.sprite = skinToUse.GameSprites[0];
+            avatar.sprite = skinToUse.LobbySprite;
             avatar.color = Color.white;
-            if(currentSkinSelection)
+            if (currentSkinSelection)
+            {
                 currentSkinSelection.TogglePlayerIcon(true, playerIndex);
+            }
         }
+
+        if(GetComponent<PlayerContainerManager>().isReady)
+            foreach (Image blurImage in blurImages)
+                blurImage.color = skinToUse.Color;
+        else
+            foreach (Image blurImage in blurImages)
+                blurImage.color = Color.white;
     }
 }

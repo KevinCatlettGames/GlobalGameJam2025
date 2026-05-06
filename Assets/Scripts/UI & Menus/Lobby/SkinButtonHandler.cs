@@ -13,6 +13,7 @@ public class SkinButtonHandler : MonoBehaviour
     public TextMeshProUGUI selectionText;
     public SkinSO skinSo;
     public Image skinImage;
+    public Image shineImage;
     public Color standardImageColor = Color.gray;
     public Color disabledColor = Color.red; 
     public Vector3 originalScale;
@@ -57,11 +58,13 @@ public class SkinButtonHandler : MonoBehaviour
         {
             GetComponent<Image>().color = standardImageColor;
             selectionimage.gameObject.SetActive(true);
+            shineImage.enabled = false;
         }
         else
         {
             GetComponent<Image>().color = skinSo.Color;
             selectionimage.gameObject.SetActive(false);
+            shineImage.enabled = true;
         }
     }
 }

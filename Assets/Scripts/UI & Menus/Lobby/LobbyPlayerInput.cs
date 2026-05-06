@@ -14,8 +14,8 @@ public class LobbyPlayerInput : NetworkBehaviour
     public InputActionProperty skinChange;
     public StudioEventEmitter skinChangeEmitter;
     public StudioEventEmitter unreadyEmitter;
-    //public InputActionProperty rightTeamChange;
-    //public InputActionProperty leftTeamChange;
+    public InputActionProperty rightTeamChange;
+    public InputActionProperty leftTeamChange;
     public LobbyButtons lobbyButtons;
     public int playerIndex;
     private Dictionary<InputDevice, float> readyActionStartTimes = new();
@@ -38,11 +38,11 @@ public class LobbyPlayerInput : NetworkBehaviour
         skinChange.action.started += OnSkinChange;
         skinChange.action.Enable();
 
-        //rightTeamChange.action.performed += OnRightTeamChange;
-        //rightTeamChange.action.Enable();
+        rightTeamChange.action.performed += OnRightTeamChange;
+        rightTeamChange.action.Enable();
 
-        //leftTeamChange.action.performed += OnLeftTeamChange;
-        //leftTeamChange.action.Enable();
+        leftTeamChange.action.performed += OnLeftTeamChange;
+        leftTeamChange.action.Enable();
 
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
     }
@@ -61,11 +61,11 @@ public class LobbyPlayerInput : NetworkBehaviour
         skinChange.action.started -= OnSkinChange;
         skinChange.action.Disable();
 
-        //rightTeamChange.action.performed -= OnRightTeamChange;
-        //rightTeamChange.action.Disable();
+        rightTeamChange.action.performed -= OnRightTeamChange;
+        rightTeamChange.action.Disable();
 
-        //leftTeamChange.action.performed -= OnLeftTeamChange;
-        //leftTeamChange.action.Disable();
+        leftTeamChange.action.performed -= OnLeftTeamChange;
+        leftTeamChange.action.Disable();
 
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
     }
@@ -82,11 +82,11 @@ public class LobbyPlayerInput : NetworkBehaviour
         skinChange.action.performed -= OnSkinChange;
         skinChange.action.Disable();
 
-        //rightTeamChange.action.performed -= OnRightTeamChange;
-        //rightTeamChange.action.Disable();
+        rightTeamChange.action.performed -= OnRightTeamChange;
+        rightTeamChange.action.Disable();
 
-        //leftTeamChange.action.performed -= OnLeftTeamChange;
-        //leftTeamChange.action.Disable();
+        leftTeamChange.action.performed -= OnLeftTeamChange;
+        leftTeamChange.action.Disable();
     }
 
     private void OnReadyStarted(InputAction.CallbackContext context)
