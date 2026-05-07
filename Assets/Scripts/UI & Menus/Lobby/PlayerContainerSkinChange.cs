@@ -9,7 +9,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 {
     [SerializeField] private Image avatar;
     [SerializeField] private Image playerTextImage;
-    [SerializeField] private Image[] blurImages;
+    [SerializeField] private Image blurImage;
+    [SerializeField] private float blurImageAlpha = .1f;
     [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
@@ -55,6 +56,10 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.TogglePlayerIcon(true, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
+            blurImage.enabled = true;
+            Color c = currentSkinSelection.skinSo.Color;
+            c.a = blurImageAlpha;
+            blurImage.color = c;
             UpdateSkin();
             wasInit = true;
         }
@@ -100,6 +105,10 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.isSelected = true;
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
+            blurImage.enabled = true;
+            Color color = currentSkinSelection.skinSo.Color;
+            color.a = blurImageAlpha;
+            blurImage.color = color;
             UpdateSkin();
         }
         else if (skinChangeInput.x > 0)
@@ -255,6 +264,10 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentSkinSelection.isSelected = true;
         currentColorIndex = currentSkinSelection.skinSo.Index;
         avatar.GetComponent<ScaleToCorrectSize>().Play();
+        blurImage.enabled = true;
+        Color c = currentSkinSelection.skinSo.Color;
+        c.a = blurImageAlpha;
+        blurImage.color = c;
         UpdateSkin();
     }
 
@@ -317,18 +330,12 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         {
             playerTextImage.color = skinToUse.Color;
             avatar.sprite = skinToUse.LobbySprite;
+
             avatar.color = Color.white;
             if (currentSkinSelection)
             {
                 currentSkinSelection.TogglePlayerIcon(true, playerIndex);
             }
-        }
-
-        if(GetComponent<PlayerContainerManager>().isReady)
-            foreach (Image blurImage in blurImages)
-                blurImage.color = skinToUse.Color;
-        else
-            foreach (Image blurImage in blurImages)
-                blurImage.color = Color.white;      
+        }     
     }
 }
