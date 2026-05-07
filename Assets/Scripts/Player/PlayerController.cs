@@ -1196,7 +1196,10 @@ public class PlayerController : NetworkBehaviour
     {
         ShaderState state = (isDoomed) ? ShaderState.inked : ShaderState.sober;
         shaderManager.SetShaderState(state);
-        statusIndicator.SetStatus(ShaderState.doomed);
+        if(isDoomed)
+            statusIndicator.SetStatus(ShaderState.doomed);
+        else
+            statusIndicator.SetStatus(ShaderState.sober);
     }
     #endregion
 
