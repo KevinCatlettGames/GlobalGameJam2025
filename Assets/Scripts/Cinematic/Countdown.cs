@@ -1,30 +1,40 @@
 using System.Collections;
 using UnityEngine;
-using TMPro;
-using Unity.Netcode;
+using UnityEngine.UI;
 using UnityEngine.Events;
+using FMODUnity; 
 
 public class Countdown : MonoBehaviour
 {
     [Header("Countdown Settings")]
     public int countdownTime = 3;
     [SerializeField] private float timeBetweenElements = .5f;
-    public TextMeshProUGUI countdownText;
+
+    [Header("Sprite Countdown")]
+    [SerializeField] private Image countdownImage;
+    [SerializeField] private Sprite[] countdownSprites;
+    [SerializeField] private Sprite goSprite;
+    //[SerializeField] private StudioEventEmitter[] countdownEmitters;
+    //[SerializeField] private StudioEventEmitter goEmitter;
 
     [Header("Events")]
     public UnityEvent OnCountdownStart;
     public UnityEvent onCountdownComplete;
 
     private Coroutine countdownCoroutine;
-    public string countDownEndText = "GO!";
+
     private void Start()
     {
         CameraHandler.Instance.onCinematicEnd.AddListener(StartCountdown);
+
+        if (countdownImage != null)
+            countdownImage.enabled = false;
     }
 
     public void StartCountdown()
     {
         CameraHandler.Instance.onCinematicEnd.RemoveListener(StartCountdown);
+
         OnCountdownStart?.Invoke();
 
         if (countdownCoroutine != null)
@@ -37,17 +47,32 @@ public class Countdown : MonoBehaviour
     {
         int currentCount = countdownTime;
 
+        countdownImage.enabled = true;
+
         while (currentCount > 0)
         {
-            countdownText.text = currentCount.ToString();
+            int spriteIndex = currentCount - 1;
+
+            if (spriteIndex >= 0 && spriteIndex < countdownSprites.Length)
+            {
+                countdownImage.sprite = countdownSprites[spriteIndex];
+                //countdownEmitters[spriteIndex].Play();
+            }
+
             yield return new WaitForSeconds(timeBetweenElements);
             currentCount--;
         }
 
-        countdownText.text = countDownEndText;
+        if (goSprite != null)
+        {
+            countdownImage.sprite = goSprite;
+            //goEmitter.Play();
+        }
+
         onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);
-        countdownText.text = "";
+
+        countdownImage.enabled = false;
     }
 }
