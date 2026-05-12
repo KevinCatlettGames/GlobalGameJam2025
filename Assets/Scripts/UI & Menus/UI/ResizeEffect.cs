@@ -2,7 +2,7 @@ using System.Collections;
 using UnityEngine;
 using FMODUnity;
 
-public class PointBubbleResizeEffect : MonoBehaviour
+public class ResizeEffect : MonoBehaviour
 {
     [Header("Scale Effect Settings")]
     [SerializeField] private float appearDuration = 0.3f;
@@ -12,16 +12,24 @@ public class PointBubbleResizeEffect : MonoBehaviour
 
     [Header("Sound Events")] [SerializeField]
     private StudioEventEmitter emitter;
-    [SerializeField] StudioEventEmitter sparkleEmitter;
+    [SerializeField] StudioEventEmitter endEmitter;
 
     public bool HasPerformedEffect { get; set; }
 
     private Vector3 startScale;
     private Coroutine resizeRoutine;
 
+    public bool playOnEnable = false;
+
     private void Awake()
     {
         startScale = transform.localScale;
+    }
+
+    private void OnEnable()
+    {
+        if (playOnEnable)
+            PlayEffect();
     }
 
     public void PlayEffect()

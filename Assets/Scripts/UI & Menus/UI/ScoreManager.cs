@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -8,58 +9,45 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private ScorePanel[] scorePanels;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
-    [SerializeField] private GameObject restarText;
+
+    [SerializeField] private GameObject restartText;
     [SerializeField] private GameObject scoreScreen;
     [SerializeField] private GameObject winScreen;
+
     private int[] pendingWins = new int[4];
     private int[] pendingKills = new int[4];
-    private int currentActivePlayers = 0;
+
+    private List<int> activePlayers = new List<int>();
 
     private bool scoresResolved = false;
-    public bool ScoresResolved {  get { return scoresResolved; } }
+    public bool ScoresResolved => scoresResolved;
 
     public bool showWinner = false;
-    
-    void Start()
+
+    void Awake()
     {
-        if (Instance == null)
-        {
-            Instance = this;
-        }
-        else
-        {
-            Destroy(this);
-        }
+        if (Instance == null) Instance = this;
+        else Destroy(gameObject);
     }
-    public void InitialiseScorePanel(int playerID, Sprite playerPortrait, Color playerColor)
+
+    public void InitialiseScorePanel(int playerID, Sprite portrait, Color color)
     {
-        currentActivePlayers++;
-        ScorePanel scorePanel = scorePanels[playerID];
-        scorePanel.gameObject.SetActive(true);
-        scorePanel.SetPortrait(playerPortrait, playerColor);
-        
-        for (int i = 0; i < currentActivePlayers; i++)
-        {
-            int kills = scores.KillScores[i];
-            int wins = scores.WinScores[i];
-            scorePanels[i].SetScores(wins, kills);
-        }
+        if (!activePlayers.Contains(playerID))
+            activePlayers.Add(playerID);
+
+        ScorePanel panel = scorePanels[playerID];
+        panel.gameObject.SetActive(true);
+        panel.SetPortrait(portrait, color);
     }
+
     public void AddPendingScore(int playerID, bool isWin)
     {
         scoresResolved = false;
+
         if (isWin)
         {
             pendingWins[playerID]++;
             scores.WinScores[playerID]++;
-
-            if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
-            {
-                if (playerID == 1)
-                    scores.WinScores[0]++;
-                else if (playerID == 2)
-                    scores.WinScores[3]++;
-            }
         }
         else
         {
@@ -67,42 +55,98 @@ public class ScoreManager : MonoBehaviour
             scores.KillScores[playerID]++;
         }
     }
+
+    private struct PlayerScoreEntry
+    {
+        public int playerID;
+        public int wins;
+        public int kills;
+    }
+
+    private List<PlayerScoreEntry> GetSortedScores()
+    {
+        List<PlayerScoreEntry> list = new List<PlayerScoreEntry>();
+
+        foreach (int id in activePlayers)
+        {
+            list.Add(new PlayerScoreEntry
+            {
+                playerID = id,
+                wins = scores.WinScores[id],
+                kills = scores.KillScores[id]
+            });
+        }
+
+        list.Sort((a, b) =>
+        {
+            int result = b.wins.CompareTo(a.wins);
+            if (result != 0) return result;
+            return b.kills.CompareTo(a.kills);
+        });
+
+        return list;
+    }
+
     public void ResolveScores()
     {
         StartCoroutine(ResolveScoresCoroutine());
     }
-    public IEnumerator ResolveScoresCoroutine()
+
+    private IEnumerator ResolveScoresCoroutine()
     {
-        if(currentActivePlayers <= 0 || currentActivePlayers > 4) yield break;
-        restarText.SetActive(false);
-        for (int i = 0; i < currentActivePlayers; i++)
+        if (activePlayers.Count == 0 || activePlayers.Count > 4)
+            yield break;
+
+        restartText.SetActive(false);
+
+        for (int i = 0; i < scorePanels.Length; i++)
+            scorePanels[i].gameObject.SetActive(false);
+
+        var sorted = GetSortedScores();
+
+        yield return new WaitForSeconds(0.2f);
+
+        for (int i = 0; i < sorted.Count; i++)
         {
-            int kills = scores.KillScores[i] - pendingKills[i];
-            int wins = scores.WinScores[i] - pendingWins[i];
-            scorePanels[i].SetScores(wins, kills);
-        }
-        yield return new WaitForSeconds(.2f);
-        for (int i = 0; i < currentActivePlayers; i++)
-        {
-            for (int w = 0; w < pendingWins[i]; w++)
+            var entry = sorted[i];
+
+            ScorePanel panel = scorePanels[i];
+            panel.gameObject.SetActive(true);
+
+            panel.SetPortrait(
+                playerHUDs[entry.playerID].Skin.GameSprites[0],
+                playerHUDs[entry.playerID].Skin.Color
+            );
+
+            int wins = entry.wins - pendingWins[entry.playerID];
+            int kills = entry.kills - pendingKills[entry.playerID];
+
+            panel.SetScores(wins, kills);
+
+            yield return new WaitForSeconds(0.1f);
+
+            for (int w = 0; w < pendingWins[entry.playerID]; w++)
             {
-                scorePanels[i].AddWin();
-                yield return new WaitForSeconds(.1f);
+                panel.AddWin();
+                yield return new WaitForSeconds(0.1f);
             }
-            for (int k = 0; k < pendingKills[i]; k++)
+
+            for (int k = 0; k < pendingKills[entry.playerID]; k++)
             {
-                scorePanels[i].AddKill();
-                yield return new WaitForSeconds(.1f);
+                panel.AddKill();
+                yield return new WaitForSeconds(0.1f);
             }
-            yield return new WaitForSeconds(.2f);
+
+            yield return new WaitForSeconds(0.2f);
         }
+
         yield return new WaitForSeconds(2f);
 
         if (!GameManager.Instance.playEndless && LobbyManager.instance)
         {
-            foreach (int score in scores.WinScores)
+            foreach (var p in activePlayers)
             {
-                if (score >= LobbyManager.instance.winsNeededToWin)
+                if (scores.WinScores[p] >= LobbyManager.instance.winsNeededToWin)
                 {
                     showWinner = true;
                     break;
@@ -112,31 +156,33 @@ public class ScoreManager : MonoBehaviour
 
         if (showWinner)
         {
-            restarText.SetActive(false);
+            restartText.SetActive(false);
             winScreen.SetActive(true);
             scoreScreen.SetActive(false);
         }
         else
         {
-            pendingKills = new int[4];
             pendingWins = new int[4];
-            restarText.SetActive(true);
+            pendingKills = new int[4];
+            restartText.SetActive(true);
         }
 
         scoresResolved = true;
     }
+
     public void ResetScores()
     {
         scores.ResetWins();
         scores.ResetKills();
     }
-    public int[] GetKillScores()
-    {
-        return scores.KillScores;
-    }
-    
+
     private void OnApplicationQuit()
     {
         ResetScores();
+    }
+
+    public int[] GetKillScores()
+    {
+        return scores.KillScores;
     }
 }

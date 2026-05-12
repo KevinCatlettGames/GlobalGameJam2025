@@ -162,7 +162,7 @@ public class ScorePanel : MonoBehaviour
         for (int i = 0; i < pointBubbles.Length; i++)
         {
             var bubble = pointBubbles[i];
-            var effect = bubble.GetComponent<PointBubbleResizeEffect>();
+            var effect = bubble.GetComponent<ResizeEffect>();
 
             bubble.enabled = i < visibleWins;
 

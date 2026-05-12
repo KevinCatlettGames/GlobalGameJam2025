@@ -39,6 +39,8 @@ public class PlayerHUD : NetworkBehaviour
     [Header("UI Elements")]
     [SerializeField] private Image portrait;
     [SerializeField] private Color deathColor;
+    [SerializeField] private SkinSO skin;
+    public SkinSO Skin { get { return skin; } }
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
     [SerializeField] private Slider ultSlider;
@@ -93,7 +95,8 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void InitialisePlayerHUD(int playerID)
     {
-        SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
+        skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
+        
         foreach (var uiElement in coloredUI)
         {
             uiElement.color = skin.Color;
