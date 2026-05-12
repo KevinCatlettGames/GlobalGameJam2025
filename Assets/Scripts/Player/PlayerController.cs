@@ -17,6 +17,7 @@ public class PlayerController : NetworkBehaviour
     [Header("Sound Events")] 
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference tickDamageEvent;
+    [SerializeField] private EventReference vulnerableDamageEvent;
     [SerializeField] string knockBackEventIntensityParam;
     [SerializeField] int knockBackEventMaxIntensity = 100; 
     [SerializeField] private EventReference dashEvent;
@@ -924,6 +925,12 @@ public class PlayerController : NetworkBehaviour
                 vulnerableHitEffect.Play();
             dmg *= vulnerableFactor;
             force *= vulnerableFactor;
+
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(vulnerableDamageEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.start();
+            fmodEvent.release();
+
             StopVulnerable();
         }
 
@@ -996,6 +1003,12 @@ public class PlayerController : NetworkBehaviour
                 vulnerableHitEffect.Play();
             dmg *= vulnerableFactor;
             force *= vulnerableFactor;
+
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(vulnerableDamageEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.start();
+            fmodEvent.release();
+
             StopVulnerable();
         }
 

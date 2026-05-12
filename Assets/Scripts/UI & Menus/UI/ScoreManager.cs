@@ -98,7 +98,7 @@ public class ScoreManager : MonoBehaviour
         }
         yield return new WaitForSeconds(2f);
 
-        if (!GameManager.Instance.playEndless || !LobbyManager.instance)
+        if (!GameManager.Instance.playEndless && LobbyManager.instance)
         {
             foreach (int score in scores.WinScores)
             {

@@ -71,4 +71,9 @@ public class SelectableTextScaler : MonoBehaviour, ISelectHandler, IDeselectHand
         if (targetText != null && changeFontSize)
             targetText.fontSize = normalFontSize;
     }
+
+    public void ToggleFocus(bool toggle)
+    {
+        forceSelectOnEnable = toggle;
+    }
 }

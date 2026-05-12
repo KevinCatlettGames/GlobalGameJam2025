@@ -209,9 +209,14 @@ public class PlayerHUD : NetworkBehaviour
     {
         if (damageText != null)
         {
-            damageTypewriter.ShowText(damage.ToString());
+            if(damageTypewriter.enabled)
+                damageTypewriter.ShowText(damage.ToString());
+            else
+                damageText.text = damage.ToString();
+
             float colorValue = damage * gradientEvaluateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
+            damageTypewriter.enabled = true;
         }
         if (damage >= 100 && currentPortraitIndex != 2)
         {
@@ -241,6 +246,7 @@ public class PlayerHUD : NetworkBehaviour
     {
         portrait.color = Color.white;
         UICover.SetActive(false);
+        damageTypewriter.enabled = false;
         UpdateDamageText(0);
         SetPortrait(0);
         ChargeUlt(false);

@@ -79,7 +79,8 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private GameObject matchSettingsSelection;
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
-    public LobbyPlayerInput lobbyInput; 
+    public LobbyPlayerInput lobbyInput;
+
     #endregion
 
     #region Player Settings

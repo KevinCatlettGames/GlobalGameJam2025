@@ -47,7 +47,7 @@ public class VortexDeathZone : MonoBehaviour
             PlayerController player = other.GetComponent<PlayerController>();
             player.SetDoomed(false);
             timeInZone[player.PlayerID] = 0f;
-            playersInRange.Remove(player);
+            playersInRange.Remove(player);           
         }
     }
     public void ResetDeathZone()

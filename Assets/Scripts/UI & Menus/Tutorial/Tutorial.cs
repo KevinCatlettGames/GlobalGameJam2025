@@ -32,8 +32,13 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
     [SerializeField] private TextMeshProUGUI itemHeaderText;
-    [SerializeField] private TextMeshProUGUI itemDescriptionText;
+    [SerializeField] private TextMeshProUGUI itemShortDescriptionText;
+    [SerializeField] private TextMeshProUGUI itemLongDescriptionText;
     [SerializeField] private Button itemButton;
+    [SerializeField] private TextMeshProUGUI itemStatsText;
+    [SerializeField] private Image[] knockBackStatsImages;
+    [SerializeField] private Image[] damageStatsImages;
+    [SerializeField] private Image[] cooldownStatImages;
 
     [Header("Item Data Sets")]
     [SerializeField] private TutorialItemSO[] generalItems;
@@ -105,7 +110,8 @@ public class Tutorial : MonoBehaviour
         itemRawImage.enabled = false;
         itemSpriteImage.enabled = false;
         itemHeaderText.enabled = false;
-        itemDescriptionText.enabled = false;
+        itemShortDescriptionText.enabled = false;
+        itemLongDescriptionText.enabled = false;
     }
 
     private void OnCloseHowToPlay(InputAction.CallbackContext ctx)
@@ -269,8 +275,27 @@ public class Tutorial : MonoBehaviour
         itemHeaderText.text = hasTitle ? item.ItemName : string.Empty;
 
         bool hasDescription = !string.IsNullOrWhiteSpace(item.ItemDescription);
-        itemDescriptionText.enabled = hasDescription;
-        itemDescriptionText.text = hasDescription ? item.ItemDescription : string.Empty;
+
+        if (hasDescription)
+        {
+            if (currentTab == Tab.Weapons)
+            {
+                itemShortDescriptionText.enabled = hasDescription;
+                itemLongDescriptionText.enabled = false;
+                itemShortDescriptionText.text = item.ItemDescription;
+            }
+            else
+            {
+                itemLongDescriptionText.enabled = hasDescription;
+                itemShortDescriptionText.enabled = false;
+                itemLongDescriptionText.text = item.ItemDescription;
+            }
+        }
+        else
+        {
+            itemLongDescriptionText.text = string.Empty;
+            itemShortDescriptionText.text = string.Empty;
+        }
 
         bool useButton = item.UseButton;
         if (useButton)
@@ -282,6 +307,41 @@ public class Tutorial : MonoBehaviour
         {
             itemButton.onClick.RemoveAllListeners();
             itemButton.gameObject.SetActive(false);
+        }
+
+        if (currentTab == Tab.Weapons)
+        {
+            itemStatsText.enabled = true;
+
+            UpdateStatImages(knockBackStatsImages, item.Stats[0]);
+            UpdateStatImages(damageStatsImages, item.Stats[1]);
+            UpdateStatImages(cooldownStatImages, item.Stats[2]);
+        }
+        else
+        {
+            itemStatsText.enabled = false;
+
+            DisableImages(knockBackStatsImages);
+            DisableImages(damageStatsImages);
+            DisableImages(cooldownStatImages);
+        }
+    }
+
+    private void UpdateStatImages(Image[] images, int activeCount)
+    {
+        DisableImages(images);
+
+        for (int i = 0; i < activeCount && i < images.Length; i++)
+        {
+            images[i].enabled = true;
+        }
+    }
+
+    private void DisableImages(Image[] images)
+    {
+        foreach (var image in images)
+        {
+            image.enabled = false;
         }
     }
 

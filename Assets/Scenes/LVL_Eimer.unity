@@ -3479,6 +3479,7 @@ GameObject:
   - component: {fileID: 1171026280}
   - component: {fileID: 1171026279}
   - component: {fileID: 1171026281}
+  - component: {fileID: 1171026282}
   m_Layer: 0
   m_Name: Vortex
   m_TagString: Untagged
@@ -3621,6 +3622,38 @@ MonoBehaviour:
   maxSize: 1.3
   startSize: 0.4
   pauseTime: 8
+  skateEvent: {fileID: 1171026282}
+--- !u!114 &1171026282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1171026278}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -2051880855
+      Data2: 1325811478
+      Data3: -438519887
+      Data4: 1563030510
+    Path: event:/sfx/map/vortex_skate
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!114 &1248164015 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1644636251588708742, guid: ef310da78073cd04982db8f49e852300,
@@ -4495,11 +4528,11 @@ MonoBehaviour:
   timeToDeath: 0.75
   deathEvent:
     Guid:
-      Data1: 0
-      Data2: 0
-      Data3: 0
-      Data4: 0
-    Path: 
+      Data1: 156137204
+      Data2: 1176647967
+      Data3: -888949112
+      Data4: -1575168173
+    Path: event:/sfx/map/vortex_swallow
 --- !u!4 &1861111657 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3258381205629498486, guid: 911b24a023c9b7b4d9082940e063c280,

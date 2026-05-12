@@ -169,6 +169,7 @@ public class PlayerManager : NetworkBehaviour
             }
         }
         ItemSpawner.Instance.InitialSpawn();
+        playerInputManager.enabled = false;
     }
 
     #region Player Joining and Initialization

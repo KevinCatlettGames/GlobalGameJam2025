@@ -29,6 +29,14 @@ public class TutorialItemSO : ScriptableObject
         set => itemSprite = value;
     }
 
+    [Header("Stats")]
+    [SerializeField] int[] stats;
+    public int[] Stats
+    {
+        get => stats;
+        set => stats = value;
+    }
+
     [Header("Text")]
     [SerializeField] private string itemName;
     public string ItemName
