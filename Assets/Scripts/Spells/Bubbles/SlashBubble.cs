@@ -44,7 +44,7 @@ public class SlashBubble : BasicBubble
 		
 		float roatation = 0f;
 		float angle = 0f;
-		while (roatation < range)
+		while (Mathf.Abs(roatation) < range)
 		{
 			angle = speed * Time.deltaTime;
 			transform.Rotate(Vector3.up * (angle));
@@ -57,6 +57,12 @@ public class SlashBubble : BasicBubble
 	public void SlasherHit(Vector3 slasherDir, GameObject other)
 	{
 		direction = slasherDir;
+        if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
+        {
+            OwnerID = reflector.OwnerID;
+            Reflect(Vector3.zero);
+            return;
+        }
 		if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble bubble))
 		{
 			if (bubble.OwnerID != OwnerID)
@@ -64,6 +70,16 @@ public class SlashBubble : BasicBubble
 				bubble.BubbleCollision(gameObject);
 			}
 		}
-		BubbleCollision(other);
+        BubbleCollision(other);
 	}
+
+    protected override void Reflect(Vector3 normal)
+    {
+		isReflected = !isReflected;
+		speed *= -1f;
+        if (rangeCoroutine != null)
+            StopCoroutine(rangeCoroutine);
+
+        rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+    }
 }
