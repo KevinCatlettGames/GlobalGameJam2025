@@ -8,6 +8,7 @@ using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using FMODUnity;
 using TMPro;
+using UnityEngine.InputSystem;
 
 /// <summary>
 /// Handles the multiplayer lobby including:
@@ -80,6 +81,8 @@ public class LobbyManager : NetworkBehaviour
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
     public LobbyPlayerInput lobbyInput;
+
+    public UnityEvent OnLeavingLobby;
 
     #endregion
 
@@ -176,15 +179,6 @@ public class LobbyManager : NetworkBehaviour
 
     [Header("Audio Emitters")]
 
-    [Tooltip("Played when a player joins.")]
-    [SerializeField] private StudioEventEmitter joinEmitter;
-
-    [Tooltip("Played when selecting ready.")]
-    [SerializeField] private StudioEventEmitter selectEmitter;
-
-    [Tooltip("Played when unselecting ready.")]
-    [SerializeField] private StudioEventEmitter unselectEmitter;
-
     [Tooltip("Played when starting the game.")]
     [SerializeField] private StudioEventEmitter playerStartEmitter;
 
@@ -243,6 +237,9 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDestroy()
     {
+
+        OnLeavingLobby?.Invoke();
+
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged -= OnPlayersListChanged;
 
@@ -299,7 +296,6 @@ public class LobbyManager : NetworkBehaviour
             players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
             CheckAllReady();
             UpdatePlayerUI();
-            joinEmitter.Play();
             return;
         }
 
@@ -316,11 +312,7 @@ public class LobbyManager : NetworkBehaviour
 
             OnReadyStateUpdated?.Invoke((ulong)playerIndex);
             CheckAllReady();
-            UpdatePlayerUI();
-            if (player.IsReady)
-                selectEmitter.Play();
-            else
-                unselectEmitter.Play();
+            UpdatePlayerUI();         
         }
     }
 
@@ -342,7 +334,6 @@ public class LobbyManager : NetworkBehaviour
         {
             players.Add(new PlayerLobbyState { ClientId = clientID, IsReady = false });
             AddNewPlayerValuesClientRpc((int)clientID);
-            EmitSoundServerRpc(0);
             index = players.Count - 1;
         }
         else
@@ -361,22 +352,7 @@ public class LobbyManager : NetworkBehaviour
             }
         }
 
-        EmitSoundServerRpc(players[index].IsReady ? 1 : 2);      
         CheckAllReady();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    private void EmitSoundServerRpc(int emitterIndex)
-    {
-        EmitSoundClientRpc(emitterIndex);
-    }
-
-    [ClientRpc]
-    private void EmitSoundClientRpc(int emitterIndex)
-    {
-        if (emitterIndex == 0) joinEmitter.Play();
-        if (emitterIndex == 1) selectEmitter.Play();
-        if (emitterIndex == 2) unselectEmitter.Play();
     }
 
     [ClientRpc]
@@ -445,14 +421,13 @@ public class LobbyManager : NetworkBehaviour
     {
         PlayStartSFXClientRpc();
         uiParent.SetActive(false);
+        GetComponent<PlayerInputManager>().enabled = false;
         yield return new WaitForSeconds(1f);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
-      
-        lobbyInput.enabled = false;
     }
 
     private void ChangeStartButtonState(bool enable)

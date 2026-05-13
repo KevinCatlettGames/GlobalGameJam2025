@@ -1,278 +1,181 @@
+using FMOD.Studio;
+using FMODUnity;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-using Unity.Netcode;
-using UnityEngine.Rendering;
-using FMODUnity;
 
-public class LobbyPlayerInput : NetworkBehaviour
+public class LobbyPlayerInput : MonoBehaviour
 {
-    public InputActionProperty readyAction;
-    public InputActionProperty unreadyAction;
-
-    public InputActionProperty skinChange;
-    public StudioEventEmitter skinChangeEmitter;
-    public StudioEventEmitter unreadyEmitter;
-    public InputActionProperty rightTeamChange;
-    public InputActionProperty leftTeamChange;
-    public LobbyButtons lobbyButtons;
-    public int playerIndex;
-    private Dictionary<InputDevice, float> readyActionStartTimes = new();
-    private float onlineHostReadyStartTime = 0;
-    private InputAction.CallbackContext currentContext;
-    
     LobbyManager lobbyManager;
+    LobbyButtons lobbyButtons;
+    //LobbyPlayerValues lobbyPlayerValues;
+    private PlayerInput playerInput;
+
+    [SerializeField] EventReference skinChangeReference;
+    [SerializeField] EventReference joinReference;
+    [SerializeField] EventReference readyReference;
+    [SerializeField] EventReference unreadyReference;
+
+    private bool isQuitting;
 
     private void OnEnable()
     {
-        lobbyManager = LobbyManager.instance; 
-        
-        readyAction.action.started += OnReadyStarted;
-        readyAction.action.performed += OnReadyPerformed;
-        readyAction.action.Enable();
+        playerInput = GetComponent<PlayerInput>();
+        lobbyManager = LobbyManager.instance;
+        lobbyButtons = LobbyManager.instance.GetComponent<LobbyButtons>();
+        //lobbyPlayerValues = LobbyManager.instance.GetComponent <LobbyPlayerValues>();
 
-        unreadyAction.action.performed += OnUnreadyPerformed;
-        unreadyAction.action.Enable();
-
-        skinChange.action.started += OnSkinChange;
-        skinChange.action.Enable();
-
-        rightTeamChange.action.performed += OnRightTeamChange;
-        rightTeamChange.action.Enable();
-
-        leftTeamChange.action.performed += OnLeftTeamChange;
-        leftTeamChange.action.Enable();
-
-        SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
+        lobbyManager.OnLeavingLobby.AddListener(DestroySelf);
     }
-    
-    private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)
-    {
-        if (scene.name == "UI_Lobby") return;
 
-        readyAction.action.started -= OnReadyStarted;
-        readyAction.action.performed -= OnReadyPerformed;
-        readyAction.action.Disable();
-
-        unreadyAction.action.performed -= OnUnreadyPerformed;
-        unreadyAction.action.Disable();
-
-        skinChange.action.started -= OnSkinChange;
-        skinChange.action.Disable();
-
-        rightTeamChange.action.performed -= OnRightTeamChange;
-        rightTeamChange.action.Disable();
-
-        leftTeamChange.action.performed -= OnLeftTeamChange;
-        leftTeamChange.action.Disable();
-
-        SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
-    }
-    
     private void OnDisable()
     {
-        readyAction.action.started -= OnReadyStarted;
-        readyAction.action.performed -= OnReadyPerformed;
-        readyAction.action.Disable();
-
-        unreadyAction.action.performed -= OnUnreadyPerformed;
-        unreadyAction.action.Disable();
-
-        skinChange.action.performed -= OnSkinChange;
-        skinChange.action.Disable();
-
-        rightTeamChange.action.performed -= OnRightTeamChange;
-        rightTeamChange.action.Disable();
-
-        leftTeamChange.action.performed -= OnLeftTeamChange;
-        leftTeamChange.action.Disable();
+        if (lobbyManager != null)
+            lobbyManager.OnLeavingLobby.RemoveListener(DestroySelf);
     }
 
-    private void OnReadyStarted(InputAction.CallbackContext context)
+    private void DestroySelf()
     {
-        if (TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (!NetworkManager.Singleton.IsServer) return;
-            onlineHostReadyStartTime = Time.time;
-        }
-        else
-        {
-            InputDevice device = context.control.device;
-            readyActionStartTimes[device] = Time.time;
-        }
+        isQuitting = true;
+
+        if (playerInput != null)
+            playerInput.enabled = false;
+
+        StartCoroutine(DestroyNextFrame());
     }
-    
-    private void OnReadyPerformed(InputAction.CallbackContext context)
+
+    private IEnumerator DestroyNextFrame()
     {
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
-            return;    
+        yield return null;
+        Destroy(gameObject);
+    }
 
-        if (TransportSwitcher.Instance.isUsingRelay)
+    private void Start()
+    {
+        lobbyManager.ToggleReady(playerInput.playerIndex);
+        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerInput.playerIndex, playerInput.devices[0]);
+
+        foreach (GameObject playerContainer in lobbyManager.playerContainers)
+            playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+
+        PlaySFX(joinReference);
+    }
+
+    public void OnConfirmed(InputAction.CallbackContext context)
+    {
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
+
+        if (lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+            return;
+
+        if (context.performed && !LobbyManager.instance.players[playerInput.playerIndex].IsReady)
         {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                float duration = Time.time - onlineHostReadyStartTime;
-                if (!lobbyManager.players[(int)NetworkManager.Singleton.LocalClientId].IsReady)
-                {
-                    lobbyManager.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
-                    onlineHostReadyStartTime = 0; 
-                }
-                
-                foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                {
-                    if(playerContainer) 
-                        playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
-                }
-            }
-            else
-            {
-                if (lobbyManager.players[(int)NetworkManager.Singleton.LocalClientId].IsReady) return;
+            lobbyManager.ToggleReady(playerInput.playerIndex);
 
-                lobbyManager.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
-                foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
-            }
-        }
-        else
-        {
-            InputDevice device = context.control.device;
-
-            if (!readyActionStartTimes.TryGetValue(device, out float startTime))
-                return;
-
-            float duration = Time.time - startTime;
-
-            int playerIndex = LobbyPlayerValues.Instance.AssignDeviceToNextFreePlayer(device);
-            if (playerIndex == -1) return;
-
-            if (lobbyButtons.confirmationPromptActive)
-            {
-                lobbyButtons.OnBackPressed(playerIndex);
-                return;
-            }
-
-            lobbyManager.ToggleReady(playerIndex);
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
-            {
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
-            }
-            readyActionStartTimes.Remove(device);
-        }
+
+            PlaySFX(readyReference);
+        }     
     }
 
-    private void OnUnreadyPerformed(InputAction.CallbackContext context)
+    public void OnCancelled(InputAction.CallbackContext context)
     {
-        bool deviceRegistered = false;
-        foreach(LobbyPlayerValues.PlayerValues playerValues in LobbyPlayerValues.Instance.playerValuesList)
-        {
-            if(context.control.device == playerValues.Device)
-            {
-                deviceRegistered = true;
-            }
-        }
-        if (!deviceRegistered) return;
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
 
-        if (TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                if (!LobbyManager.instance.players[(int)NetworkManager.Singleton.LocalClientId].IsReady) return;
-                lobbyManager.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);    
+        if (lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+            return;
 
-                foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                {
-                    if (playerContainer)
-                        playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
-                }
-            }
-            else
-            {
-                if (!LobbyManager.instance.players[(int)NetworkManager.Singleton.LocalClientId].IsReady) return;
-                lobbyManager.ToggleReadyServerRpc(NetworkManager.Singleton.LocalClientId);
-                foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkinServerRpc();
-            }
-        }
-        else
+        if (context.started && !lobbyManager.players[playerInput.playerIndex].IsReady)
         {
-            InputDevice device = context.control.device;      
-            int playerIndex = LobbyPlayerValues.Instance.AssignDeviceToNextFreePlayer(device);
-            if (playerIndex == -1) return;
-            if (!LobbyManager.instance.players[playerIndex].IsReady)
-            {
-                lobbyButtons.OnBackPressed(playerIndex);
-                return;
-            }
-            lobbyManager.ToggleReady(playerIndex);
-            foreach (GameObject playerContainer in lobbyManager.playerContainers)
-            {
-                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
-            }
-            unreadyEmitter.Play();
+            lobbyButtons.HandleMainMenuInput(playerInput.playerIndex);
+            return;
         }
+
+        lobbyManager.ToggleReady(playerInput.playerIndex);
+        foreach (GameObject playerContainer in lobbyManager.playerContainers)
+            playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+
+        PlaySFX(unreadyReference);
     }
 
-    private void OnSkinChange(InputAction.CallbackContext context)
+    private bool canNavigate = true;
+
+    public void OnSkinChange(InputAction.CallbackContext context)
     {
-        if (lobbyButtons.confirmationPromptActive)
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
+
+        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
             return;
 
-        if ((TransportSwitcher.Instance.isUsingRelay && IsHost) || !TransportSwitcher.Instance.isUsingRelay)
+        Vector2 input = context.ReadValue<Vector2>();
+
+        if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)
         {
-            if (lobbyManager.MatchSettingsSelection.activeSelf)
-                return;
+            canNavigate = true;
+            return;
         }
 
-        if (lobbyManager.playerContainers.Length <= 0)
+        if (!canNavigate)
             return;
 
-        int playerIndex = LobbyPlayerValues.Instance.GetPlayerIndex(context.control.device);
+        canNavigate = false;
+        lobbyManager.playerContainers[GetComponent<PlayerInput>().playerIndex]
+                .GetComponent<PlayerContainerSkinChange>()
+                .ChangeSkin(context.ReadValue<Vector2>());
 
-        if (playerIndex < 0 || playerIndex >= lobbyManager.players.Count)
-            return;
-
-        if (lobbyManager.players[playerIndex].IsReady)
-            return;
-
-        lobbyManager.playerContainers[playerIndex]
-            .GetComponent<PlayerContainerSkinChange>()
-            .ChangeSkin(context.ReadValue<Vector2>());
-
-        skinChangeEmitter.Play();
+        PlaySFX(skinChangeReference);
     }
 
-    private void OnRightTeamChange(InputAction.CallbackContext context)
+    public void OnRightTeamChange(InputAction.CallbackContext context)
     {
-        if (TransportSwitcher.Instance.isUsingRelay && IsHost || !TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (lobbyManager.MatchSettingsSelection.activeSelf)
-                return;
-        }
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
+        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+            return;
 
         if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
         
-        int playerIndex = LobbyPlayerValues.Instance.GetPlayerIndex(context.control.device);
-
-        lobbyManager.playerContainers[playerIndex]
+        lobbyManager.playerContainers[playerInput.playerIndex]
             .GetComponentInChildren<TeamSelection>()
             .ChangeTeam();
     }
-    
-    private void OnLeftTeamChange(InputAction.CallbackContext context)
+
+    public void OnLeftTeamChange(InputAction.CallbackContext context)
     {
-        if (TransportSwitcher.Instance.isUsingRelay && IsHost || !TransportSwitcher.Instance.isUsingRelay)
-        {
-            if (lobbyManager.MatchSettingsSelection.activeSelf)
-                return;
-        }
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
+        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+            return;
 
         if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
         
-        int playerIndex = LobbyPlayerValues.Instance.GetPlayerIndex(context.control.device);
-
-            lobbyManager.playerContainers[playerIndex]
+            lobbyManager.playerContainers[playerInput.playerIndex]
                 .GetComponentInChildren<TeamSelection>()
                 .ChangeTeam();
+    }
+
+    private void PlaySFX(EventReference eventReference)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReference);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+        fmodEvent.start();
+        fmodEvent.release();
+    }
+
+    public void OnStartGame(InputAction.CallbackContext context)
+    {
+        if (isQuitting) return;
+        if (!isActiveAndEnabled) return;
+
+        if (context.started)
+            lobbyButtons.StartGameHold(playerInput.playerIndex);
+
+        if (context.canceled)
+            lobbyButtons.StopStartGameHold(playerInput.playerIndex);
     }
 }

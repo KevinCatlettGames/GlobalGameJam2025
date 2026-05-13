@@ -1462,7 +1462,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 8911304281282494595}
   blurImage: {fileID: 3129291050046059704}
   blurImageAlpha: 0.25
-  cycleEmitter: {fileID: 4433513860060701328}
+  cycleEmitter: {fileID: 0}
   currentColorIndex: 0
   playerIndex: 0
   currentlyOnLocked: 0
@@ -6529,7 +6529,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 4782635472899903026}
   blurImage: {fileID: 7130519346136228906}
   blurImageAlpha: 0.25
-  cycleEmitter: {fileID: 4433513860060701328}
+  cycleEmitter: {fileID: 0}
   currentColorIndex: 3
   playerIndex: 3
   currentlyOnLocked: 0
@@ -11884,69 +11884,6 @@ RectTransform:
   m_AnchoredPosition: {x: 613, y: 196}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!1 &2302501734941846621
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 8796992878556323289}
-  - component: {fileID: 2251313724405828953}
-  m_Layer: 0
-  m_Name: Unselect
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &8796992878556323289
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2302501734941846621}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4396331163522390231}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2251313724405828953
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2302501734941846621}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -1606528762
-      Data2: 1247681241
-      Data3: 260056209
-      Data4: -2075102111
-    Path: event:/ui/ui_hover
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 2
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!1 &2308175044881037453
 GameObject:
   m_ObjectHideFlags: 0
@@ -19791,7 +19728,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 5083146442530835920}
   blurImage: {fileID: 3571072936515162405}
   blurImageAlpha: 0.25
-  cycleEmitter: {fileID: 4433513860060701328}
+  cycleEmitter: {fileID: 0}
   currentColorIndex: 1
   playerIndex: 1
   currentlyOnLocked: 0
@@ -29250,69 +29187,6 @@ MonoBehaviour:
   m_EffectColor: {r: 0, g: 1, b: 0.097765446, a: 1}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 0
---- !u!1 &6230273100300873545
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 1158139094171835694}
-  - component: {fileID: 6416186624595989362}
-  m_Layer: 0
-  m_Name: Select
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &1158139094171835694
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6230273100300873545}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4396331163522390231}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &6416186624595989362
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6230273100300873545}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: 14679801
-      Data2: 1282792875
-      Data3: 1190351295
-      Data4: 1501045586
-    Path: event:/ui/ui_player_select
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 2
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!1 &6230405583093245037
 GameObject:
   m_ObjectHideFlags: 0
@@ -31092,9 +30966,9 @@ GameObject:
   - component: {fileID: 955251869525065594}
   - component: {fileID: 1079216658375296263}
   - component: {fileID: 3927634634976018721}
-  - component: {fileID: 5066298144117224034}
   - component: {fileID: 7997720788000802073}
   - component: {fileID: 1556331336544241567}
+  - component: {fileID: 1491461088529193225}
   m_Layer: 0
   m_Name: Lobby Handling
   m_TagString: Untagged
@@ -31183,7 +31057,7 @@ MonoBehaviour:
   playEndless: 0
   playedRounds: 0
   matchSettingsSelection: {fileID: 8867986297261049895}
-  lobbyInput: {fileID: 5066298144117224034}
+  lobbyInput: {fileID: 0}
   maxLocalPlayers: 4
   minPlayers: 1
   possibleSkins:
@@ -31263,234 +31137,8 @@ MonoBehaviour:
   - {fileID: 1775877038776013551}
   gameModeTypeText: {fileID: 1400079685403914393}
   startButtonColorWhenEnabled: {r: 0.13333334, g: 0.91764706, b: 0, a: 1}
-  joinEmitter: {fileID: 7260819897508359906}
-  selectEmitter: {fileID: 6416186624595989362}
-  unselectEmitter: {fileID: 2251313724405828953}
   playerStartEmitter: {fileID: 4759499024314423187}
   buttonOnClickEmitter: {fileID: 8578666878580452742}
---- !u!114 &5066298144117224034
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6561438051348666122}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7df8e1e1b3510a64a97bbb584cc94c19, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  readyAction:
-    m_UseReference: 1
-    m_Action:
-      m_Name: Ready
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 8650c0e6-5a9b-41b8-9f4e-332ec8987656
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: 84fe9fed-88a1-48a8-8461-4d40f3604f3e
-        m_Path: <Keyboard>/enter
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Ready
-        m_Flags: 0
-      - m_Name: 
-        m_Id: d9496c58-4bb6-4c32-93b8-fbf53a3f1192
-        m_Path: <Gamepad>/buttonSouth
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Ready
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
-      type: 3}
-  unreadyAction:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Go To Main Menu Input
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 6a62f3ad-c773-4a82-9f7f-60baba3d58ba
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: b51a2b36-a3d7-440e-9823-50c7e4763e3a
-        m_Path: <Gamepad>/buttonEast
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Go To Main Menu Input
-        m_Flags: 0
-      - m_Name: 
-        m_Id: 282d1100-5da2-45d8-8eb5-c04e172b6ac2
-        m_Path: <Keyboard>/escape
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Go To Main Menu Input
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  skinChange:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Skin Change
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: 432942c7-3e67-4473-a35d-99d0dadcf994
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 2D Vector
-        m_Id: 358ed0e4-fb9e-4db6-b0c8-2cf0f07fb8d3
-        m_Path: 2DVector
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 4
-      - m_Name: up
-        m_Id: 94a2124b-34f4-476b-8c74-c2d73c2b5239
-        m_Path: <Keyboard>/upArrow
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: down
-        m_Id: 1b045c6f-29b4-41f8-b314-e58fcb878bcb
-        m_Path: <Keyboard>/downArrow
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: left
-        m_Id: 70020f70-87f2-49fd-923d-e77829357042
-        m_Path: <Keyboard>/leftArrow
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: right
-        m_Id: e8ac8b44-ce97-40ec-b2c4-c74fae9b5b00
-        m_Path: <Keyboard>/rightArrow
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: 2D Vector
-        m_Id: c8dd13d8-30d5-4560-9d85-e121e96a8fbe
-        m_Path: 2DVector
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 4
-      - m_Name: up
-        m_Id: ffb63992-e10a-4c5b-8a6d-ed2707d755e2
-        m_Path: <Gamepad>/leftStick/up
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: down
-        m_Id: c455ec33-8ed0-4f91-946f-f282360f8ee5
-        m_Path: <Gamepad>/leftStick/down
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: left
-        m_Id: 346e1e77-7ac4-4eee-8f10-f71e36bfc83c
-        m_Path: <Gamepad>/leftStick/left
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      - m_Name: right
-        m_Id: 3ff9be7d-d690-43e6-bd08-72740886b660
-        m_Path: <Gamepad>/leftStick/right
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Skin Change
-        m_Flags: 8
-      m_Flags: 0
-    m_Reference: {fileID: 3627369705847228881, guid: dfa62059069876143a5ec771652f3d1f,
-      type: 3}
-  skinChangeEmitter: {fileID: 4433513860060701328}
-  unreadyEmitter: {fileID: 2251313724405828953}
-  rightTeamChange:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Right Team Change
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: d061b18a-f10d-4c35-abd8-877cd7f30204
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: df91960d-e6d0-46ce-913a-fab3542a0233
-        m_Path: <Gamepad>/rightStick/right
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Right Team Change
-        m_Flags: 0
-      - m_Name: 
-        m_Id: da2d27e5-650f-44b9-b557-3671502a0321
-        m_Path: <Keyboard>/l
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Right Team Change
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  leftTeamChange:
-    m_UseReference: 0
-    m_Action:
-      m_Name: Left Team Change
-      m_Type: 0
-      m_ExpectedControlType: 
-      m_Id: f026ef1d-4768-49c5-95ec-14fac9e4d46d
-      m_Processors: 
-      m_Interactions: 
-      m_SingletonActionBindings:
-      - m_Name: 
-        m_Id: 7dd62940-98f1-4c29-848a-6e728ad0c47c
-        m_Path: <Gamepad>/rightStick/left
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Left Team Change
-        m_Flags: 0
-      - m_Name: 
-        m_Id: eb3f1954-9997-48fd-8b99-181d00751792
-        m_Path: <Keyboard>/j
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Left Team Change
-        m_Flags: 0
-      m_Flags: 0
-    m_Reference: {fileID: 0}
-  lobbyButtons: {fileID: 1556331336544241567}
-  playerIndex: 0
 --- !u!114 &7997720788000802073
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31520,7 +31168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   toggleMatchSettingsInputAction:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Toggle Match Settings Input
       m_Type: 0
@@ -31546,10 +31194,10 @@ MonoBehaviour:
         m_Action: Toggle Match Settings Input
         m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: -7596506641252827383, guid: dfa62059069876143a5ec771652f3d1f,
+    m_Reference: {fileID: 8902897971709965046, guid: dfa62059069876143a5ec771652f3d1f,
       type: 3}
   goToMainMenuInputAction:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Go To Main Menu Input
       m_Type: 0
@@ -31575,10 +31223,10 @@ MonoBehaviour:
         m_Action: Go To Main Menu Input
         m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: 7735286102847409706, guid: dfa62059069876143a5ec771652f3d1f,
+    m_Reference: {fileID: 5806593577241922888, guid: dfa62059069876143a5ec771652f3d1f,
       type: 3}
   startGameInputAction:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Start Game Input
       m_Type: 0
@@ -31604,7 +31252,7 @@ MonoBehaviour:
         m_Action: Start Game Input
         m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
+    m_Reference: {fileID: -7354163224018345465, guid: dfa62059069876143a5ec771652f3d1f,
       type: 3}
   startGameRadialFillImage: {fileID: 8206326871303190962}
   mainMenuButton: {fileID: 2950627938238792306}
@@ -31615,6 +31263,52 @@ MonoBehaviour:
   mainMenuProgressEmitter: {fileID: 743372231228632235}
   buttonOnClickEmitter: {fileID: 8578666878580452742}
   lobbyParent: {fileID: 6757553819009465515}
+--- !u!114 &1491461088529193225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6561438051348666122}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 621567455fd1c4ceb811cc8a00b6a1a5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_NotificationBehavior: 0
+  m_MaxPlayerCount: -1
+  m_AllowJoining: 1
+  m_JoinBehavior: 1
+  m_PlayerJoinedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_PlayerLeftEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_JoinAction:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Join
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 1bdc1d81-0065-446e-b485-8ad05cf46e01
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings: []
+      m_Flags: 0
+    m_Reference: {fileID: 7887733750390353163, guid: dfa62059069876143a5ec771652f3d1f,
+      type: 3}
+  m_PlayerPrefab: {fileID: 135356343874261427, guid: 0fcff1e72e012954f9841f90bbd18a71,
+    type: 3}
+  m_SplitScreen: 0
+  m_MaintainAspectRatioInSplitScreen: 0
+  m_FixedNumberOfSplitScreens: -1
+  m_SplitScreenRect:
+    serializedVersion: 2
+    x: 0
+    y: 0
+    width: 1
+    height: 1
 --- !u!1 &6564361830479439324
 GameObject:
   m_ObjectHideFlags: 0
@@ -34671,7 +34365,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 6660152908666993929}
   blurImage: {fileID: 2558348567247197320}
   blurImageAlpha: 0.25
-  cycleEmitter: {fileID: 4433513860060701328}
+  cycleEmitter: {fileID: 0}
   currentColorIndex: 2
   playerIndex: 2
   currentlyOnLocked: 0
@@ -35733,69 +35427,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &7331064025013887931
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 3895290530378891759}
-  - component: {fileID: 7260819897508359906}
-  m_Layer: 0
-  m_Name: Join
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &3895290530378891759
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7331064025013887931}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4396331163522390231}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &7260819897508359906
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7331064025013887931}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -420396278
-      Data2: 1141655867
-      Data3: -2108305989
-      Data4: -2125732588
-    Path: event:/ui/ui_player_join
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 2
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!1 &7335787541189249784
 GameObject:
   m_ObjectHideFlags: 0
@@ -37322,13 +36953,9 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 3895290530378891759}
-  - {fileID: 1158139094171835694}
-  - {fileID: 8796992878556323289}
   - {fileID: 1600779819235727962}
   - {fileID: 8564731969479790814}
   - {fileID: 2864704335374584526}
-  - {fileID: 864225135999959629}
   m_Father: {fileID: 4363824109601332652}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8175694164466699444
@@ -37543,69 +37170,6 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
---- !u!1 &8181955079262974252
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 864225135999959629}
-  - component: {fileID: 4433513860060701328}
-  m_Layer: 0
-  m_Name: SkinCycle
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &864225135999959629
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8181955079262974252}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 4396331163522390231}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4433513860060701328
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8181955079262974252}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -2008000867
-      Data2: 1341945142
-      Data3: -412043858
-      Data4: 1601475257
-    Path: event:/ui/ui_player_cycle
-  Event: 
-  EventPlayTrigger: 0
-  EventStopTrigger: 2
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!1 &8235320332075336610
 GameObject:
   m_ObjectHideFlags: 0

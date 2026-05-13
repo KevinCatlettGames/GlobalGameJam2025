@@ -1,3 +1,5 @@
+using FMODUnity;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
 using Unity.Services.Authentication;
@@ -5,34 +7,27 @@ using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using FMODUnity;
+using static LobbyPlayerValues;
 
 public class LobbyButtons : MonoBehaviour
 {
     [Tooltip("Input action used to toggle match settings")]
     public InputActionProperty toggleMatchSettingsInputAction;
 
-    [Tooltip("Input action used to return to the main menu")]
-    public InputActionProperty goToMainMenuInputAction;
-
-    [Tooltip("Input action used to start the game")]
-    public InputActionProperty startGameInputAction;
-
     [Tooltip("Radial fill image for the start game hold progress")]
     public Image startGameRadialFillImage;
 
     public GameObject mainMenuButton;
     public GameObject mainMenuConfirmationPrompt;
-    public bool confirmationPromptActive = false; 
+    public bool confirmationPromptActive = false;
 
     [SerializeField] private float startGameHoldDuration = 1f;
 
     private float startGamePressTime;
-    private bool isPressingStartGame;
+    private HashSet<int> playersHoldingStart = new(); 
     private bool gameStarting;
 
     private bool startEmitting;
-    private bool menuEmitting;
 
     [Tooltip("Audio emitter for start game hold progress")]
     public StudioEventEmitter startProgressEmitter;
@@ -54,14 +49,7 @@ public class LobbyButtons : MonoBehaviour
 
         toggleMatchSettingsInputAction.action.performed += OnToggleMatchSettingsSelection;
 
-        goToMainMenuInputAction.action.started += OnMainMenuPressed;
-
-        startGameInputAction.action.started += OnStartGamePressed;
-        startGameInputAction.action.canceled += OnStartGameReleased;
-
         toggleMatchSettingsInputAction.action.Enable();
-        goToMainMenuInputAction.action.Enable();
-        startGameInputAction.action.Enable();
 
         ResetStartRadial();
 
@@ -69,28 +57,11 @@ public class LobbyButtons : MonoBehaviour
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
     }
 
-    private void OnMainMenuPressed(InputAction.CallbackContext context)
-    {
-        foreach(LobbyPlayerValues.PlayerValues playerValues in LobbyPlayerValues.Instance.playerValuesList)
-        {
-            if (playerValues.Device == context.control.device) return;
-        }
-
-        ToggleBackPrompt();
-    }
-
     private void OnDisable()
     {
         toggleMatchSettingsInputAction.action.performed -= OnToggleMatchSettingsSelection;
 
-        goToMainMenuInputAction.action.started -= OnMainMenuPressed;
-
-        startGameInputAction.action.started -= OnStartGamePressed;
-        startGameInputAction.action.canceled -= OnStartGameReleased;
-
         toggleMatchSettingsInputAction.action.Disable();
-        goToMainMenuInputAction.action.Disable();
-        startGameInputAction.action.Disable();
 
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
@@ -103,7 +74,8 @@ public class LobbyButtons : MonoBehaviour
 
     private void HandleStartGameHold()
     {
-        if (!isPressingStartGame || gameStarting) return;
+        if (playersHoldingStart.Count == 0 || gameStarting)
+            return;
 
         float heldTime = Time.time - startGamePressTime;
         float progress = Mathf.Clamp01(heldTime / startGameHoldDuration);
@@ -133,36 +105,10 @@ public class LobbyButtons : MonoBehaviour
         startProgressEmitter.Stop();
     }
 
-    private void OnToggleGameModeSelection(InputAction.CallbackContext context)
-    {
-        if (IsHost())
-            ToggleGameMode();
-    }
-
     private void OnToggleMatchSettingsSelection(InputAction.CallbackContext context)
     {
         if (IsHost())
             ToggleMatchSettings();
-    }
-
-    private void OnStartGamePressed(InputAction.CallbackContext context)
-    {
-        StartGameHold();
-    }
-
-    private void OnStartGameReleased(InputAction.CallbackContext context)
-    {
-        StopStartGameHold();
-    }
-
-    public void OnBackPressed(int playerIndex)
-    {
-        if (LobbyManager.instance.players[playerIndex].IsReady) return; 
-
-        if (mainMenuButton.activeSelf)
-            ToggleBackPrompt();
-        else
-            LeaveToMainMenu();
     }
 
     public void ToggleBackPrompt()
@@ -171,34 +117,44 @@ public class LobbyButtons : MonoBehaviour
         mainMenuButton.SetActive(!mainMenuButton.activeSelf);
         mainMenuConfirmationPrompt.SetActive(!mainMenuConfirmationPrompt.activeSelf);
     }
-    public void OnStartGameButtonDown() => StartGameHold();
-    public void OnStartGameButtonUp() => StopStartGameHold();
+    public void OnStartGameButtonDown() => StartGameHold(0);
+    public void OnStartGameButtonUp() => StopStartGameHold(0);
 
-    private void StartGameHold()
+    public void StartGameHold(int playerIndex)
     {
-        if (TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer)
+        if (!LobbyManager.instance.allPlayersReady ||
+            LobbyManager.instance.players.Count <= 0)
             return;
 
-        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0)
+        if (gameStarting)
             return;
 
-        if (confirmationPromptActive)
-            ToggleBackPrompt();
+        if (playersHoldingStart.Contains(playerIndex))
+            return;
 
-        isPressingStartGame = true;
-        startGamePressTime = Time.time;
-        gameStarting = false;
+        playersHoldingStart.Add(playerIndex);
 
-        ResetStartRadial();
+        if (playersHoldingStart.Count == 1)
+        {
+            if (confirmationPromptActive)
+                ToggleBackPrompt();
+
+            startGamePressTime = Time.time;
+            ResetStartRadial();
+        }
     }
 
-    private void StopStartGameHold()
+    public void StopStartGameHold(int playerIndex)
     {
-        isPressingStartGame = false;
-        startGamePressTime = 0f;
+        playersHoldingStart.Remove(playerIndex);
 
-        if (!gameStarting)
-            ResetStartRadial();
+        if (playersHoldingStart.Count <= 0)
+        {
+            startGamePressTime = 0f;
+
+            if (!gameStarting)
+                ResetStartRadial();
+        }
     }
 
     private void OnClientDisconnect(ulong clientId)
@@ -262,14 +218,6 @@ public class LobbyButtons : MonoBehaviour
 
     private bool IsHost() => NetworkManager.Singleton.IsHost;
 
-    public void ToggleGameMode()
-    {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-            !NetworkManager.Singleton.IsServer) return;
-
-        buttonOnClickEmitter.Play();
-    }
-
     public void ToggleMatchSettings()
     {
         if (!SteamIntegration.instance.IsFullVersion) return;
@@ -284,5 +232,27 @@ public class LobbyButtons : MonoBehaviour
 
         buttonOnClickEmitter.Play();
 
+    }
+
+    public void HandleMainMenuInput(int playerIndex)
+    {
+        if (lobbyManager.players[playerIndex].IsReady)
+            return;
+
+        if (!confirmationPromptActive)
+        {
+            ToggleBackPrompt();
+            return;
+        }
+
+        GoToMainMenu();
+    }
+
+    public void CancelMainMenuPrompt()
+    {
+        if (!confirmationPromptActive)
+            return;
+
+        ToggleBackPrompt();
     }
 }

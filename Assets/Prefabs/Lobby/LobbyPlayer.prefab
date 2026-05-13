@@ -1,0 +1,226 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &135356343874261427
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2594674741587604509}
+  - component: {fileID: 9096280610690808682}
+  - component: {fileID: 7475973165249436933}
+  m_Layer: 0
+  m_Name: LobbyPlayer
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2594674741587604509
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135356343874261427}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9096280610690808682
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135356343874261427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62899f850307741f2a39c98a8b639597, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Actions: {fileID: -944628639613478452, guid: dfa62059069876143a5ec771652f3d1f,
+    type: 3}
+  m_NotificationBehavior: 2
+  m_UIInputModule: {fileID: 0}
+  m_DeviceLostEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_DeviceRegainedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ControlsChangedEvent:
+    m_PersistentCalls:
+      m_Calls: []
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4b2e685a-02cf-43c0-9c9e-e016f3042ddc
+    m_ActionName: 'Player/Movement[/XInputControllerWindows/leftStick,/Mouse/delta]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2f7e5864-ef78-49c2-a4b1-cbb38a6d8ac5
+    m_ActionName: 'Player/FirstSpell[/Mouse/leftButton,/XInputControllerWindows/leftTrigger,/XInputControllerWindows/buttonWest]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2dac245d-5654-48ca-aa38-b721e36750e2
+    m_ActionName: 'Player/SecondSpell[/Mouse/rightButton,/XInputControllerWindows/rightTrigger,/XInputControllerWindows/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 9ad28cf6-bc2d-423c-8416-935545e8b051
+    m_ActionName: 'Player/FistSpellEquip[/Keyboard/q,/XInputControllerWindows/leftShoulder]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 7c11e2ba-bff6-4cf5-8533-14a3e235c25e
+    m_ActionName: 'Player/SecondSpellEquip[/Keyboard/e,/XInputControllerWindows/rightShoulder]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 08fa6a97-86cd-4420-aa2b-f89193e1b275
+    m_ActionName: 'Player/JoinAction[/Keyboard/enter,/XInputControllerWindows/start,/XInputControllerWindows/buttonSouth]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 58ed049e-d8f8-494b-9bc4-1479ddbb262f
+    m_ActionName: 'Player/Sprint[/Keyboard/space,/XInputControllerWindows/buttonSouth]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 2030e804-b783-43cc-9778-8646289cdc02
+    m_ActionName: 'Player/Emote[/XInputControllerWindows/dpad/up,/XInputControllerWindows/dpad/down,/XInputControllerWindows/dpad/left,/XInputControllerWindows/dpad/right]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 4abfddce-3596-4e01-993b-3f0e770d569d
+    m_ActionName: 'Player/GamepadNorth[/XInputControllerWindows/buttonNorth]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 9c29ec29-5cbb-4811-aac6-72dc5e557f84
+    m_ActionName: 'Player/LeftInput[/Keyboard/leftArrow,/XInputControllerWindows/leftStick/left]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: c34c7e32-3a06-43ab-963e-6172033fd7e3
+    m_ActionName: 'Player/RightInput[/Keyboard/rightArrow,/XInputControllerWindows/leftStick/right]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: e6c9b769-17bc-4047-850d-1bf421588989
+    m_ActionName: 'Player/LeftInput02[/Keyboard/a,/XInputControllerWindows/rightStick/left]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a37fc4a3-6a2f-4f7f-af76-ea181539eb2e
+    m_ActionName: 'Player/RightInput02[/Keyboard/d,/XInputControllerWindows/rightStick/right]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: d1292751-3a19-4f10-86e2-1b108ca208a2
+    m_ActionName: 'Player/ChargeUlt[/XInputControllerWindows/buttonNorth,/Keyboard/w]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnConfirmed
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnStartGame
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 0ebf1cc8-5b94-41b0-9244-777777361216
+    m_ActionName: 'UI/UIJoin[/Keyboard/enter,/XInputControllerWindows/start,/XInputControllerWindows/buttonSouth]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnSkinChange
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 4fa21e01-42c7-4bb7-86e8-8f7a01e18216
+    m_ActionName: 'UI/UINavigation[/Keyboard/upArrow,/Keyboard/downArrow,/Keyboard/leftArrow,/Keyboard/rightArrow]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnCancelled
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 3e51541a-4b71-4926-bf9a-ad305f965705
+    m_ActionName: 'UI/UICancel[/Keyboard/backspace,/Keyboard/escape,/XInputControllerWindows/buttonEast]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 672a5f42-ddaa-45b2-a0c8-4e43ce44d06b
+    m_ActionName: 'UI/UIMatchSettingsToggle[/Keyboard/m]'
+  m_NeverAutoSwitchControlSchemes: 1
+  m_DefaultControlScheme: 
+  m_DefaultActionMap: UI
+  m_SplitScreenIndex: -1
+  m_Camera: {fileID: 0}
+--- !u!114 &7475973165249436933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 135356343874261427}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7df8e1e1b3510a64a97bbb584cc94c19, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinChangeReference:
+    Guid:
+      Data1: -2008000867
+      Data2: 1341945142
+      Data3: -412043858
+      Data4: 1601475257
+    Path: event:/ui/ui_player_cycle
+  joinReference:
+    Guid:
+      Data1: -420396278
+      Data2: 1141655867
+      Data3: -2108305989
+      Data4: -2125732588
+    Path: event:/ui/ui_player_join
+  readyReference:
+    Guid:
+      Data1: 14679801
+      Data2: 1282792875
+      Data3: 1190351295
+      Data4: 1501045586
+    Path: event:/ui/ui_player_select
+  unreadyReference:
+    Guid:
+      Data1: -1606528762
+      Data2: 1247681241
+      Data3: 260056209
+      Data4: -2075102111
+    Path: event:/ui/ui_hover
