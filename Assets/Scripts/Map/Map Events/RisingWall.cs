@@ -7,7 +7,6 @@ public class RisingWall : MonoBehaviour
     private Animator animator;
     [SerializeField] private float riseDelay = 2.0f;
     [SerializeField] private float randomDelay = .3f;
-    [SerializeField] private GameObject abschieber;
     [SerializeField] private ParticleSystem bubblingParticle;
     [SerializeField] private ParticleSystem riseParticle;
     [SerializeField] private ParticleSystem idleParticle;
@@ -20,8 +19,6 @@ public class RisingWall : MonoBehaviour
     void Start()
     {
         animator = GetComponent<Animator>();
-
-        //animator.Play("Sink", 0, 1);
         gameObject.SetActive(false);
     }
 
@@ -50,8 +47,6 @@ public class RisingWall : MonoBehaviour
         riseParticle?.Play();
         idleParticle?.Play();
         idleEvent?.Play();
-        if (abschieber != null)
-            abschieber.SetActive(true);
         bubblingParticle?.Stop();
     }
     private IEnumerator SinkCoroutine(bool instant)
@@ -70,11 +65,6 @@ public class RisingWall : MonoBehaviour
         idleParticle?.Stop();
         idleEvent?.Stop();
         sinkParticle?.Play();
-        //yield return null;
-        //AnimatorStateInfo animatorStateInfo = animator.GetCurrentAnimatorStateInfo(0);
-        //float animationLengh = animatorStateInfo.length;
-        if (abschieber != null)
-            abschieber.SetActive(false);
         yield return new WaitForSeconds(2f);
         animator.speed = 1;
         gameObject.SetActive(false);

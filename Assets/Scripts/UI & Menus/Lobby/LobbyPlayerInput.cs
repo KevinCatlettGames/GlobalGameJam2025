@@ -157,6 +157,8 @@ public class LobbyPlayerInput : MonoBehaviour
         lobbyManager.playerContainers[playerInput.playerIndex]
                  .GetComponentInChildren<TeamSelection>()
                  .ChangeTeam();
+
+        PlaySFX(skinChangeReference);
     }
 
     private void PlaySFX(EventReference eventReference)
