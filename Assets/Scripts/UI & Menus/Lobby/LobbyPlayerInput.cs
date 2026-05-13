@@ -102,7 +102,7 @@ public class LobbyPlayerInput : MonoBehaviour
         PlaySFX(unreadyReference);
     }
 
-    private bool canNavigate = true;
+    private bool canNavigateSkins = true;
 
     public void OnSkinChange(InputAction.CallbackContext context)
     {
@@ -116,14 +116,14 @@ public class LobbyPlayerInput : MonoBehaviour
 
         if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)
         {
-            canNavigate = true;
+            canNavigateSkins = true;
             return;
         }
 
-        if (!canNavigate)
+        if (!canNavigateSkins)
             return;
 
-        canNavigate = false;
+        canNavigateSkins = false;
         lobbyManager.playerContainers[GetComponent<PlayerInput>().playerIndex]
                 .GetComponent<PlayerContainerSkinChange>()
                 .ChangeSkin(context.ReadValue<Vector2>());
@@ -131,32 +131,32 @@ public class LobbyPlayerInput : MonoBehaviour
         PlaySFX(skinChangeReference);
     }
 
-    public void OnRightTeamChange(InputAction.CallbackContext context)
+    private bool canNavigateTeam = true;
+
+    public void OnTeamNavigation(InputAction.CallbackContext context)
     {
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
         if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
             return;
+        if(LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
 
-        if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
-        
+        Vector2 input = context.ReadValue<Vector2>();
+
+        if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)
+        {
+            canNavigateTeam = true;
+            return;
+        }
+
+        if (!canNavigateTeam)
+            return;
+
+        canNavigateTeam = false;
+
         lobbyManager.playerContainers[playerInput.playerIndex]
-            .GetComponentInChildren<TeamSelection>()
-            .ChangeTeam();
-    }
-
-    public void OnLeftTeamChange(InputAction.CallbackContext context)
-    {
-        if (isQuitting) return;
-        if (!isActiveAndEnabled) return;
-        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
-            return;
-
-        if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
-        
-            lobbyManager.playerContainers[playerInput.playerIndex]
-                .GetComponentInChildren<TeamSelection>()
-                .ChangeTeam();
+                 .GetComponentInChildren<TeamSelection>()
+                 .ChangeTeam();
     }
 
     private void PlaySFX(EventReference eventReference)

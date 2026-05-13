@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using EditorAttributes;
+using TMPro;
 
 public class TeamSelection : MonoBehaviour
 {
@@ -10,8 +11,8 @@ public class TeamSelection : MonoBehaviour
     [SerializeField, ReadOnly] private int currentTeamIndex;
     [SerializeField] private LobbyPlayerValues lobbyPlayerHandler;
 
+    [SerializeField] private TextMeshProUGUI teamText;
     [SerializeField] private Image teamImage;
-    [SerializeField] private Sprite[] teamSprites;
     [SerializeField] private Color teamAColor;
     [SerializeField] private Color teamBColor;
 
@@ -68,11 +69,13 @@ public class TeamSelection : MonoBehaviour
     {
         if (currentTeamIndex == 1)
         {
-            teamImage.sprite = teamSprites[0];
+            teamImage.color = teamAColor;
+            teamText.text = "T1";
         }
         else if (currentTeamIndex == 2)
         {
-            teamImage.sprite = teamSprites[1];
+            teamImage.color = teamBColor;
+            teamText.text = "T2";
         }
     }
 
