@@ -1,10 +1,8 @@
 using FMOD.Studio;
 using FMODUnity;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using static UnityEditor.Profiling.RawFrameDataView;
 
 public class Vortex : MapEvent
 {
