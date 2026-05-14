@@ -3297,15 +3297,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   statusSprites:
   - {fileID: 0}
-  - {fileID: 21300000, guid: 0341a5612ee12054b9c19161eb9be5e6, type: 3}
-  - {fileID: 21300000, guid: 616aae3f969393947bf451ed3ea4dde4, type: 3}
-  - {fileID: 21300000, guid: 1fc48abf51ab14c4bb298834a8c0d14e, type: 3}
+  - {fileID: 21300000, guid: 2e181f0626fd81e4fa2a4b3858b3e835, type: 3}
+  - {fileID: 21300000, guid: 6fdf75c2aed194b4a91a52f514a2636f, type: 3}
+  - {fileID: 21300000, guid: 51bffa71934fb5e4881a656e2df9d816, type: 3}
   - {fileID: 21300000, guid: 81d475fac75efd648a21cd005bd659d2, type: 3}
   statusColores:
   - {r: 1, g: 1, b: 1, a: 1}
-  - {r: 0, g: 0.08086133, b: 1, a: 1}
-  - {r: 1, g: 0.10602394, b: 0, a: 1}
-  - {r: 1, g: 0, b: 0.85837364, a: 1}
+  - {r: 0.35000002, g: 0.6603226, b: 1, a: 1}
+  - {r: 1, g: 0.541068, b: 0.39999998, a: 1}
+  - {r: 1, g: 0.7, b: 0.96101683, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
 --- !u!4 &175494933560158572
 Transform:
@@ -13686,6 +13686,7 @@ MonoBehaviour:
   maxGameRounds: 7
   playEndless: 1
   gameSettings: {fileID: 11400000, guid: 0d3e08fb5cee10e4fb4b717d4c05c4cc, type: 2}
+  mapEvent: {fileID: 0}
   playerInputManager: {fileID: 1608606915266651744}
   PlayingLocal: 0
   countdown: {fileID: 1939145951}
@@ -51376,7 +51377,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!1 &6035915478296695576
 GameObject:
   m_ObjectHideFlags: 0
@@ -61639,6 +61640,13 @@ MonoBehaviour:
       Data3: -998466633
       Data4: -294722646
     Path: event:/sfx/player/player_bleed_tick
+  vulnerableDamageEvent:
+    Guid:
+      Data1: 0
+      Data2: 0
+      Data3: 0
+      Data4: 0
+    Path: 
   knockBackEventIntensityParam: SFXIntensity
   knockBackEventMaxIntensity: 100
   dashEvent:
@@ -61675,7 +61683,7 @@ MonoBehaviour:
   hitStunFactor: 0.1
   maxHitStunDuration: 0.35
   vulnerableFactor: 1.5
-  slipperyModifier: 2
+  slipperyModifier: 1.5
   slowFactor: 0.7
   dashDisabledUI: {fileID: 8435244653213296778}
   dmgTakenUltFactor: 0.5

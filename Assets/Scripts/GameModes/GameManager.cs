@@ -98,15 +98,9 @@ public class GameManager : NetworkBehaviour
             hitReferences[i].playerHitID = -1;
         }
 
-        if (mapEvent != null)
-        {
+        if (mapEvent != null)     
             mapEvent?.InitialiseMapEvent();
-            Debug.Log("Starting Map event");
-        }
-        else
-        {
-            Debug.Log("MapEvent == null");
-        }
+        
     }
 
     private void OnDisable()
