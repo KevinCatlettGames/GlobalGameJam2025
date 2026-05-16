@@ -14,6 +14,20 @@ public class TutorialItemSO : ScriptableObject
         set => itemClip = value;
     }
 
+    [SerializeField] private Color clipOutlineColor;
+    public Color ClipOutlineColor
+    {
+        get => clipOutlineColor;
+        set => clipOutlineColor = value;
+    }
+
+    [SerializeField] private bool showClipOutline;
+    public bool ShowClipOutline
+    {
+        get => showClipOutline;
+        set => showClipOutline = value;
+    }
+
     [Header("Images")]
     [SerializeField] private Sprite itemMainImage;
     public Sprite ItemMainImage
@@ -37,14 +51,37 @@ public class TutorialItemSO : ScriptableObject
         set => stats = value;
     }
 
-    [Header("Text")]
-    [SerializeField] private string itemName;
-    public string ItemName
+    [Header("Name Text")]
+    [SerializeField] private string itemNameText;
+    public string ItemNameText
     {
-        get => itemName;
-        set => itemName = value;
+        get => itemNameText;
+        set => itemNameText = value;
     }
 
+    [SerializeField] private bool showitemNameText;
+    public bool ShowItemNameText
+    {
+        get => showitemNameText;
+        set => showitemNameText = value;
+    }
+
+    [Header("Name Image")]
+    [SerializeField] private Sprite itemNameImage;
+    public Sprite ItemNameImage
+    {
+        get => itemNameImage;
+        set => itemNameImage = value;
+    }
+
+    [SerializeField] private bool showitemNameImage;
+    public bool ShowItemNameImage
+    {
+        get => showitemNameImage;
+        set => showitemNameImage = value;
+    }
+
+    [Header("Description")]
     [TextArea]
     [SerializeField] private string itemDescription;
     public string ItemDescription
