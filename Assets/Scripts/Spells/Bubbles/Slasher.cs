@@ -1,18 +1,21 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using static UnityEditor.PlayerSettings;
 
 public class Slasher : MonoBehaviour
 {
     [SerializeField] private SlashBubble slasherBubble;
     private bool inflated = false;
-    private List<PlayerController> team;
     private List<Collider> ignoredColliders = new List<Collider>();
+    [SerializeField] private Collider collider;
+    [SerializeField] private GameObject slasherParent;
+    [SerializeField] private GameObject popEffect;
+    private bool hasPopped = false;
 
     public void SetInflated(Collider playerCollider, int ID)
     {
-        SphereCollider sphereCollider = GetComponent<SphereCollider>();
-        if (sphereCollider != null)
+        if (collider != null)
         {
             List<PlayerController> team = GameManager.Instance.GetTeam(ID);
             if (team != null)
@@ -31,7 +34,7 @@ public class Slasher : MonoBehaviour
 
             foreach (Collider col in ignoredColliders)
             {
-                Physics.IgnoreCollision(sphereCollider, col);
+                Physics.IgnoreCollision(collider, col);
             }
         } 
         inflated = true;
@@ -43,10 +46,25 @@ public class Slasher : MonoBehaviour
             return;
         if(other.CompareTag("Wall"))
         {
-            gameObject.SetActive(false);
+            SpawnPopEffect();
+            slasherParent.SetActive(false);
             return;
         }
         if(other.gameObject != null)
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
+    }
+
+    public void SpawnPopEffect()
+    {
+        if (popEffect && !hasPopped)
+        {
+            hasPopped = true;
+            Instantiate(popEffect, collider.transform.position, Quaternion.identity);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        SpawnPopEffect();
     }
 }

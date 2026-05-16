@@ -29,9 +29,11 @@ public class Tutorial : MonoBehaviour
     [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage itemRawImage;
+    [SerializeField] private Image videoOutline;
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
     [SerializeField] private TextMeshProUGUI itemHeaderText;
+    [SerializeField] private Image itemHeaderImage;
     [SerializeField] private TextMeshProUGUI itemShortDescriptionText;
     [SerializeField] private TextMeshProUGUI itemLongDescriptionText;
     [SerializeField] private Button itemButton;
@@ -108,8 +110,10 @@ public class Tutorial : MonoBehaviour
 
         mainMenuButtons.SetActive(true);
         itemRawImage.enabled = false;
+        videoOutline.enabled = false;
         itemSpriteImage.enabled = false;
         itemHeaderText.enabled = false;
+        itemHeaderImage.enabled = false;
         itemShortDescriptionText.enabled = false;
         itemLongDescriptionText.enabled = false;
     }
@@ -253,6 +257,15 @@ public class Tutorial : MonoBehaviour
         bool hasVideo = item.ItemClip != null;
         itemRawImage.enabled = hasVideo;
 
+        if(hasVideo && item.ShowClipOutline)
+        {
+            videoOutline.enabled = true;
+            videoOutline.color = item.ClipOutlineColor;
+        }
+        else
+            videoOutline.enabled = false;
+
+            videoOutline.color = item.ClipOutlineColor;
         videoPlayer.Stop();
         videoPlayer.clip = item.ItemClip;
 
@@ -270,9 +283,20 @@ public class Tutorial : MonoBehaviour
         itemSpriteImage.enabled = hasSprite;
         itemSpriteImage.sprite = hasSprite ? item.ItemSprite : null;
 
-        bool hasTitle = !string.IsNullOrWhiteSpace(item.ItemName);
-        itemHeaderText.enabled = hasTitle;
-        itemHeaderText.text = hasTitle ? item.ItemName : string.Empty;
+        bool hasTitle = !string.IsNullOrWhiteSpace(item.ItemNameText);
+
+        if (hasTitle && item.ShowItemNameText)
+        {
+            itemHeaderText.enabled = true;
+            itemHeaderText.text = hasTitle ? item.ItemNameText : string.Empty;
+            itemHeaderImage.enabled = false;
+        }
+        else if(item.ItemNameImage != null && item.ShowItemNameImage)
+        {
+            itemHeaderImage.enabled = true;
+            itemHeaderImage.sprite = item.ItemNameImage;
+            itemHeaderText.enabled = false;
+        }
 
         bool hasDescription = !string.IsNullOrWhiteSpace(item.ItemDescription);
 
