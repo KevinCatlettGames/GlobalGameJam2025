@@ -364,7 +364,11 @@ public class PlayerManager : NetworkBehaviour
         if (LobbyPlayerValues.Instance)
         {
             playerHUDs[playerID].InitialisePlayerHUD(playerID);
-            ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.Color);
+
+            if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
+                ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.Color);
+            else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+                ScoreManager.Instance.InitialiseTeamScorePanel(GameManager.Instance.TeamIDs[playerID], playerID);
         }
         else
         {

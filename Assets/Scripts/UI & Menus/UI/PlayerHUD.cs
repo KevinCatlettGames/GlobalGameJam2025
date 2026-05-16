@@ -96,11 +96,26 @@ public class PlayerHUD : NetworkBehaviour
     public void InitialisePlayerHUD(int playerID)
     {
         skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
-        
-        foreach (var uiElement in coloredUI)
+
+        if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
         {
-            uiElement.color = skin.Color;
+            if(LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
+            {
+                foreach (var uiElement in coloredUI)
+                    uiElement.color = LobbyManager.instance.TeamColors[0];
+            }
+            else if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 2)
+            {
+                foreach (var uiElement in coloredUI)
+                    uiElement.color = LobbyManager.instance.TeamColors[1];
+            }
         }
+        else
+        {
+            foreach (var uiElement in coloredUI)
+                uiElement.color = skin.Color;
+        }
+
         portraitSprites = skin.GameSprites;
         SetPortrait(0);
     }

@@ -40,83 +40,117 @@ public class WinScreenManager : MonoBehaviour
 
     public void ShowWinnerUsingWinScore()
     {
-        int highestScore = -1;
-        List<int> winnerPlayerIDs = new();
+        foreach (var panel in winPanels)
+            panel.SetActive(false);
 
-        for (int i = 0; i < scores.WinScores.Length; i++)
+        List<int> winnerPlayerIDs =
+            GameManager.Instance.GameMode ==
+            GameManager.GameModeType.Standard
+            ? GetStandardWinners()
+            : GetTeamWinners();
+
+        int winnerCount = winnerPlayerIDs.Count;
+
+        for (int i = 0; i < winnerCount; i++)
+        {
+            int playerID = winnerPlayerIDs[i];
+
+            winPanels[i].SetActive(true);
+
+            outlines[i].effectColor =
+                LobbyPlayerValues.Instance
+                .playerValuesList[playerID]
+                .Skin.Color;
+
+            RectTransform rectTransform =
+                winPanels[i].GetComponent<RectTransform>();
+
+            float xPosition =
+                (i - (winnerCount - 1) / 2f)
+                * panelSpacing;
+
+            rectTransform.anchoredPosition =
+                new Vector2(
+                    xPosition,
+                    rectTransform.anchoredPosition.y
+                );
+
+            playerImages[i].sprite =
+                LobbyPlayerValues.Instance
+                .playerValuesList[playerID]
+                .Skin.LobbySprite;
+
+            killCounts[i].text =
+                scores.KillScores[playerID]
+                .ToString();
+        }
+
+        emitter.Play();
+    }
+
+    private List<int> GetStandardWinners()
+    {
+        List<int> winners = new();
+
+        int highestScore = -1;
+
+        for (int i = 0;
+             i < scores.WinScores.Length;
+             i++)
         {
             int score = scores.WinScores[i];
 
             if (score > highestScore)
             {
                 highestScore = score;
-                winnerPlayerIDs.Clear();
-                AddPlayerOrTeamToWinners(i, winnerPlayerIDs);
+                winners.Clear();
+                winners.Add(i);
             }
             else if (score == highestScore)
             {
-                AddPlayerOrTeamToWinners(i, winnerPlayerIDs);
+                winners.Add(i);
             }
         }
 
-        foreach (var panel in winPanels)
-            panel.SetActive(false);
-        
-        int winnerCount = winnerPlayerIDs.Count;
-        for (int i = 0; i < winnerCount; i++)
-        {
-            winPanels[i].SetActive(true);
-            outlines[i].effectColor = LobbyPlayerValues.Instance.playerValuesList[i].Skin.Color;
-            RectTransform rectTransform = winPanels[i].GetComponent<RectTransform>();
-            float xPosition = (i - (winnerCount - 1) / 2f) * panelSpacing;
-            rectTransform.anchoredPosition = new Vector2(xPosition, rectTransform.anchoredPosition.y);
-
-            int playerID = winnerPlayerIDs[i];
-
-            playerImages[i].sprite = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.LobbySprite;
-            killCounts[i].text = scores.KillScores[playerID].ToString();
-        }
-
-        emitter.Play();
+        return winners;
     }
-    
-    private void AddPlayerOrTeamToWinners(int winScoreIndex, List<int> winnerPlayerIDs)
+
+    private List<int> GetTeamWinners()
     {
-        if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+        List<int> winners = new();
+
+        int highestScore = -1;
+        List<int> winningTeams = new();
+
+        for (int team = 0; team < 2; team++)
         {
-            // Step 1: Find which team has the player whose WinScore is at winScoreIndex
-            for (int t = 0; t < 2; t++)
+            int score = scores.WinScores[team];
+
+            if (score > highestScore)
             {
-                List<PlayerController> teamPlayers = GameManager.Instance.GetTeam(t);
-
-                // Look for any player in this team whose WinScore matches the one at winScoreIndex
-                bool teamHasWinner = false;
-                foreach (var player in teamPlayers)
-                {
-                    if (scores.WinScores[player.PlayerID] == scores.WinScores[winScoreIndex])
-                    {
-                        teamHasWinner = true;
-                        break;
-                    }
-                }
-
-                if (teamHasWinner)
-                {
-                    // Add all players from this team to winnerPlayerIDs
-                    foreach (var player in teamPlayers)
-                    {
-                        if (!winnerPlayerIDs.Contains(player.PlayerID))
-                            winnerPlayerIDs.Add(player.PlayerID);
-                    }
-                    break; // team found, stop looking further
-                }
+                highestScore = score;
+                winningTeams.Clear();
+                winningTeams.Add(team);
+            }
+            else if (score == highestScore)
+            {
+                winningTeams.Add(team);
             }
         }
-        else
+
+        foreach (int teamID in winningTeams)
         {
-            // Free-for-all: just the player at winScoreIndex
-            if (!winnerPlayerIDs.Contains(winScoreIndex))
-                winnerPlayerIDs.Add(winScoreIndex);
+            List<PlayerController> teamPlayers =
+                teamID == 0
+                ? GameManager.Instance.TeamA
+                : GameManager.Instance.TeamB;
+
+            foreach (var player in teamPlayers)
+            {
+                winners.Add(player.PlayerID);
+            }
         }
+
+        return winners;
     }
 }

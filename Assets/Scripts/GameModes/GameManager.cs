@@ -27,7 +27,6 @@ public class GameManager : NetworkBehaviour
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
-    public int maxGameRounds = 7;
     public bool playEndless = true;
     protected int finishedRoundCount = 0;
     public Action OnGameEnded;
@@ -68,7 +67,6 @@ public class GameManager : NetworkBehaviour
         if (LobbyManager.instance)
         {
             gameModeType = LobbyManager.instance.SelectedGameMode;
-            maxGameRounds = LobbyManager.instance.maxGameRounds;
             playEndless = LobbyManager.instance.playEndless;
         }
 
@@ -192,14 +190,7 @@ public class GameManager : NetworkBehaviour
         UIManager.Instance.SetScoreScreenActive(true);
         finishedRoundCount++;
         if (LobbyManager.instance)
-        {
             LobbyManager.instance.playedRounds++;
-            if (LobbyManager.instance.playedRounds >= maxGameRounds && !playEndless)
-            {
-                if (ScoreManager.Instance)
-                    ScoreManager.Instance.showWinner = true;
-            }
-        }
 
         ScoreManager.Instance.ResolveScores();
         
@@ -211,7 +202,7 @@ public class GameManager : NetworkBehaviour
             hitReference.wasReflected = false;
         }
 
-        if (LobbyManager.instance && LobbyManager.instance.playedRounds < maxGameRounds || playEndless)
+        if (playEndless)
         {
             isReadyToRestart = true;
         }
@@ -282,7 +273,10 @@ public class GameManager : NetworkBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ScoreManager.Instance.AddPendingScore(killCredit, false);
+            if (gameModeType == GameModeType.Standard)
+                ScoreManager.Instance.AddPendingScore(killCredit, false);
+            else if (gameModeType == GameModeType.Team)
+                ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
 
         if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
@@ -300,7 +294,10 @@ public class GameManager : NetworkBehaviour
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
-            ScoreManager.Instance.AddPendingScore(killCredit, false);
+            if (gameModeType == GameModeType.Standard)
+                ScoreManager.Instance.AddPendingScore(killCredit, false);
+            else if (gameModeType == GameModeType.Team)
+                ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
         
         if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)

@@ -76,6 +76,7 @@ public class Settings : MonoBehaviour
     #region UI
     [Header("UI")]
     [SerializeField] private GameObject selectedObject;
+    [SerializeField] private Button applyButton;
     [SerializeField] private Button backButton;
     #endregion
 
@@ -84,7 +85,6 @@ public class Settings : MonoBehaviour
     public Tab currentTab = Tab.Video;
     private bool tabTogglingEnabled;
 
-    #region Unity Lifecycle
     private void OnEnable()
     {
         if (exitSettingsAction.action != null)
@@ -100,6 +100,8 @@ public class Settings : MonoBehaviour
         ApplyAudioRuntime();
 
         SetTab(Tab.Video);
+
+        UpdateApplyButton();
     }
 
     private void OnDisable()
@@ -118,9 +120,7 @@ public class Settings : MonoBehaviour
         InitialiseAudio();
         InitialiseVideo();
     }
-    #endregion
 
-    #region Initialisation
     private void InitialiseAudio()
     {
         masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Master");
@@ -136,15 +136,15 @@ public class Settings : MonoBehaviour
         pendingResolution = PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION);
         pendingQuality = QualitySettings.GetQualityLevel();
     }
-    #endregion
 
-    #region Video Controls (LIVE PREVIEW)
     public void SetFullscreen(bool isFullScreen)
     {
         pendingFullscreen = isFullScreen;
 
         Screen.fullScreen = isFullScreen;
         resolutionDropdown.interactable = !isFullScreen;
+
+        UpdateApplyButton();
     }
 
     public void SetResolution(int option)
@@ -156,6 +156,8 @@ public class Settings : MonoBehaviour
             resolutionsHeight[pendingResolution],
             pendingFullscreen
         );
+
+        UpdateApplyButton();
     }
 
     public void SetGraphicsQuality(int option)
@@ -164,6 +166,8 @@ public class Settings : MonoBehaviour
 
         QualitySettings.SetQualityLevel(option);
         Application.targetFrameRate = option == 0 ? 60 : -1;
+
+        UpdateApplyButton();
     }
 
     private void InitialiseResolutions()
@@ -186,15 +190,15 @@ public class Settings : MonoBehaviour
         resolutionDropdown.RefreshShownValue();
         resolutionDropdown.interactable = !Screen.fullScreen;
     }
-    #endregion
 
-    #region Audio Controls (LIVE PREVIEW)
     public void SetMasterVolume(float volume)
     {
         pendingMaster = volume * 0.01f;
         masterValueText.text = Mathf.RoundToInt(volume).ToString();
 
         masterVCA.setVolume(pendingMaster);
+
+        UpdateApplyButton();
     }
 
     public void SetSFXVolume(float volume)
@@ -203,6 +207,8 @@ public class Settings : MonoBehaviour
         sfxValueText.text = Mathf.RoundToInt(volume).ToString();
 
         sfxVCA.setVolume(pendingSfx);
+
+        UpdateApplyButton();
     }
 
     public void SetMusicVolume(float volume)
@@ -211,10 +217,10 @@ public class Settings : MonoBehaviour
         musicValueText.text = Mathf.RoundToInt(volume).ToString();
 
         musicVCA.setVolume(pendingMusic);
-    }
-    #endregion
 
-    #region Input Handling
+        UpdateApplyButton();
+    }
+
     private void OnLeftTabSwitch(InputAction.CallbackContext ctx)
     {
         if (!ctx.canceled) ChangeTab(false);
@@ -263,9 +269,7 @@ public class Settings : MonoBehaviour
     {
         backButton.onClick?.Invoke();
     }
-    #endregion
 
-    #region Tabs
     public void SetTab(Tab tab)
     {
         if (!useGameTab && tab == Tab.Game)
@@ -312,16 +316,12 @@ public class Settings : MonoBehaviour
         gameTab.SetActive(tab == Tab.Game);
         gameTabFrame.SetActive(tab == Tab.Game);
     }
-    #endregion
 
-    #region UI Helpers
     public void SetSelected()
     {
         EventSystem.current.SetSelectedGameObject(selectedObject);
     }
-    #endregion
 
-    #region Apply / Cancel / Reset
     private void LoadSavedIntoPending()
     {
         pendingMaster = PlayerPrefs.GetFloat(SettingsInitialiser.MasterVolKey, DEFAULT_MASTER);
@@ -354,6 +354,36 @@ public class Settings : MonoBehaviour
         resolutionDropdown.interactable = !pendingFullscreen;
     }
 
+    private void UpdateApplyButton()
+    {
+        bool hasChanges =
+            !Mathf.Approximately(
+                pendingMaster,
+                PlayerPrefs.GetFloat(SettingsInitialiser.MasterVolKey, DEFAULT_MASTER)
+            )
+            ||
+            !Mathf.Approximately(
+                pendingSfx,
+                PlayerPrefs.GetFloat(SettingsInitialiser.SfxVolKey, DEFAULT_SFX)
+            )
+            ||
+            !Mathf.Approximately(
+                pendingMusic,
+                PlayerPrefs.GetFloat(SettingsInitialiser.MusicVolKey, DEFAULT_MUSIC)
+            )
+            ||
+            pendingFullscreen !=
+            (PlayerPrefs.GetInt("Fullscreen", DEFAULT_FULLSCREEN ? 1 : 0) == 1)
+            ||
+            pendingResolution !=
+            PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION)
+            ||
+            pendingQuality !=
+            PlayerPrefs.GetInt("QualityLevel", DEFAULT_QUALITY);
+
+        applyButton.interactable = hasChanges;
+    }
+
     public void ApplySettings()
     {
         PlayerPrefs.SetFloat(SettingsInitialiser.MasterVolKey, pendingMaster);
@@ -365,6 +395,8 @@ public class Settings : MonoBehaviour
         PlayerPrefs.SetInt("QualityLevel", pendingQuality);
 
         PlayerPrefs.Save();
+
+        UpdateApplyButton();
     }
 
     public void CancelSettings()
@@ -374,6 +406,8 @@ public class Settings : MonoBehaviour
         ApplyPendingToUI();
         ApplyVideoRuntime();
         ApplyAudioRuntime();
+
+        UpdateApplyButton();
     }
 
     public void ResetSettings()
@@ -389,7 +423,10 @@ public class Settings : MonoBehaviour
         ApplyPendingToUI();
         ApplyVideoRuntime();
         ApplyAudioRuntime();
+
         ApplySettings();
+
+        UpdateApplyButton();
     }
 
     private void ApplyVideoRuntime()
@@ -412,7 +449,6 @@ public class Settings : MonoBehaviour
         sfxVCA.setVolume(pendingSfx);
         musicVCA.setVolume(pendingMusic);
     }
-    #endregion
 
     public void OpenVideoTab() => SetTab(Tab.Video);
     public void OpenAudioTab() => SetTab(Tab.Audio);

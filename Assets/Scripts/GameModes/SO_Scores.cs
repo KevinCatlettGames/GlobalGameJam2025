@@ -4,11 +4,13 @@ using UnityEngine;
 public class SO_Scores : ScriptableObject
 {
     public int[] WinScores = new int[4];
+    public int[] teamWinScores = new int[2];
     public int[] KillScores = new int[4];
 
     public void ResetWins()
     {
         WinScores = new int[4];
+        teamWinScores = new int[2];
     }
     public void ResetKills()
     {

@@ -9,80 +9,76 @@ public class ScorePanel : MonoBehaviour
     [Header("Score")]
     [SerializeField] private TypewriterByWord winsTypewriter;
     [SerializeField] private TypewriterByWord killsTypewriter;
-    [SerializeField] private TypewriterByWord teamAKillsTypewriter;
-    [SerializeField] private TypewriterByWord teamBKillsTypewriter;
 
     [SerializeField] private TextMeshProUGUI winsText;
-    [SerializeField] private TextMeshProUGUI killsText;
-    [SerializeField] private TextMeshProUGUI teamAKillsText;
-    [SerializeField] private TextMeshProUGUI teamBKillsText;
+    [SerializeField] private TextMeshProUGUI[] killsTexts;
 
-    [SerializeField] private Image winsImage;
-    [SerializeField] private Image killsImage;
-    [SerializeField] private Image teamAKillsImage;
-    [SerializeField] private Image teamBKillsImage;
-
-    [SerializeField] private Image portrait;
+    [SerializeField] private Image[] killsIcons;
+    [SerializeField] private Image[] portraits;
     [SerializeField] private Image[] pointBubbles;
     [SerializeField] private Image frame;
     [SerializeField] private Color colorShift;
 
-    [SerializeField] private bool hideElementsOnTeamMode;
-    [SerializeField] private bool useAsSecondTeamMember;
-    [SerializeField] private int scorePanelOffset = 0;
-    [SerializeField] private float scoreOffset = 0;
     [SerializeField] private int playerID = -1;
-    [SerializeField] public int teamIndex = -1;
 
+    private int portraitsSet = 0;
     private bool initialSet = false;
     private int kills = 0;
     private int wins = 0;
 
     private void OnEnable()
     {
-        if (GameManager.Instance.GameMode != GameManager.GameModeType.Team || initialSet)
+        if (initialSet)
             return;
 
         initialSet = true;
 
-        teamIndex = GameManager.Instance.TeamIDs[playerID];
-        portrait.enabled = false;
+        foreach (Image image in portraits)
+            image.enabled = false;
 
-        if (hideElementsOnTeamMode)
+        if (GameManager.Instance.GameMode ==
+            GameManager.GameModeType.Team)
         {
-            killsImage.enabled = false;
-            killsText.enabled = false;
-            winsText.enabled = false;
-            winsImage.enabled = false;
-            frame.enabled = false;
+            if (playerID == 1)
+            {
+                for (int i = 0;
+                     i < GameManager.Instance.TeamB.Count;
+                     i++)
+                {
+                    portraits[i].enabled = true;
+                }
+            }
+            else if (playerID == 2)
+            {
+                for (int i = 0;
+                     i < GameManager.Instance.TeamA.Count;
+                     i++)
+                {
+                    portraits[i].enabled = true;
+                }
+            }
 
-            foreach (Image image in pointBubbles)
+            foreach (Image image in killsIcons)
                 image.enabled = false;
 
-            return;
+            foreach (TextMeshProUGUI text in killsTexts)
+                text.enabled = false;
         }
-
-        OffsetUI();
     }
 
-    private void OffsetUI()
+    public void SetPortrait(
+        Sprite playerPortrait,
+        Color playerColor)
     {
-        Vector3 offset = new Vector3(0, scoreOffset, 0);
-
-        killsImage.rectTransform.position += offset;
-        killsText.rectTransform.position += offset;
-        winsImage.rectTransform.position += offset;
-        winsText.rectTransform.position += offset;
-
-        transform.position += new Vector3(0, scorePanelOffset, 0);
-    }
-
-    public void SetPortrait(Sprite playerPortrait, Color playerColor)
-    {
-        portrait.sprite = playerPortrait;
-
-        if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+        if (GameManager.Instance.GameMode ==
+            GameManager.GameModeType.Team)
             return;
+
+        foreach (Image image in portraits)
+        {
+            image.enabled = true;
+            image.sprite = playerPortrait;
+        }
 
         foreach (Image image in pointBubbles)
         {
@@ -93,86 +89,174 @@ public class ScorePanel : MonoBehaviour
         frame.color = playerColor - colorShift;
     }
 
+    public void SetTeamPortraits(
+        Sprite playerPortrait)
+    {
+        if (portraitsSet >= portraits.Length)
+            return;
+
+        portraits[portraitsSet].sprite =
+            playerPortrait;
+
+        portraits[portraitsSet].enabled =
+            true;
+
+        portraitsSet++;
+    }
+
     public void AddWin()
     {
         wins++;
 
-        winsTypewriter.ShowText(wins.ToString());
+        winsTypewriter.ShowText(
+            wins.ToString());
+
         winsTypewriter.SkipTypewriter();
 
-        int visibleWins = GetVisibleWins(wins, pointBubbles.Length);
+        int visibleWins =
+            GetVisibleWins(
+                wins,
+                pointBubbles.Length
+            );
 
-        UpdateBubbles(visibleWins, playEffect: true);
+        UpdateBubbles(
+            visibleWins,
+            playEffect: true
+        );
     }
 
     public void AddKill()
     {
         kills++;
 
-        killsTypewriter.ShowText(kills.ToString());
-        killsTypewriter.SkipTypewriter();
+        killsTypewriter.ShowText(
+            kills.ToString());
 
-        if (useAsSecondTeamMember)
-        {
-            if (teamIndex == 1 && teamAKillsText.gameObject.activeSelf)
-            {
-                teamAKillsTypewriter.ShowText(kills.ToString());
-                teamAKillsTypewriter.SkipTypewriter();
-            }
-            else if (teamIndex == 2 && teamBKillsText.gameObject.activeSelf)
-            {
-                teamBKillsTypewriter.ShowText(kills.ToString());
-                teamBKillsTypewriter.SkipTypewriter();
-            }
-        }
+        killsTypewriter.SkipTypewriter();
     }
 
-    public void SetScores(int _wins, int _kills)
+    public void SetScores(
+        int _wins,
+        int _kills)
     {
         wins = _wins;
         kills = _kills;
 
-        winsText.text = wins.ToString();
-        killsText.text = kills.ToString();
+        winsText.text =
+            wins.ToString();
 
-        if (useAsSecondTeamMember)
+        if (killsTexts.Length > 0)
         {
-            if (teamIndex == 1)
-                teamAKillsText.text = kills.ToString();
-            else if (teamIndex == 2)
-                teamBKillsText.text = kills.ToString();
+            killsTexts[0].text =
+                kills.ToString();
+
+            killsTexts[0].enabled = true;
         }
 
-        int visibleWins = GetVisibleWins(wins, pointBubbles.Length);
+        if (killsIcons.Length > 0)
+            killsIcons[0].enabled = true;
 
-        UpdateBubbles(visibleWins, playEffect: false);
+        int visibleWins =
+            GetVisibleWins(
+                wins,
+                pointBubbles.Length
+            );
+
+        UpdateBubbles(
+            visibleWins,
+            playEffect: false
+        );
     }
 
-    private int GetVisibleWins(int wins, int bubbleCount)
+    public void SetTeamScores(
+     int _wins,
+     int[] playerKills)
+    {
+        wins = _wins;
+
+        winsText.text =
+            wins.ToString();
+
+        for (int i = 0;
+             i < killsTexts.Length;
+             i++)
+        {
+            bool playerExists =
+                i < playerKills.Length;
+
+            killsTexts[i].enabled =
+                playerExists;
+
+            if (i < killsIcons.Length)
+            {
+                killsIcons[i].enabled =
+                    playerExists;
+            }
+
+            if (playerExists)
+            {
+                killsTexts[i].text =
+                    playerKills[i]
+                    .ToString();
+            }
+        }
+
+        int visibleWins =
+            GetVisibleWins(
+                wins,
+                pointBubbles.Length
+            );
+
+        UpdateBubbles(
+            visibleWins,
+            playEffect: false
+        );
+    }
+
+    private int GetVisibleWins(
+        int wins,
+        int bubbleCount)
     {
         if (wins <= 0)
             return 0;
 
-        int result = wins % bubbleCount;
-        return result == 0 ? bubbleCount : result;
+        int result =
+            wins % bubbleCount;
+
+        return result == 0
+            ? bubbleCount
+            : result;
     }
 
-    private void UpdateBubbles(int visibleWins, bool playEffect)
+    private void UpdateBubbles(
+        int visibleWins,
+        bool playEffect)
     {
-        for (int i = 0; i < pointBubbles.Length; i++)
+        for (int i = 0;
+             i < pointBubbles.Length;
+             i++)
         {
-            var bubble = pointBubbles[i];
-            var effect = bubble.GetComponent<ResizeEffect>();
+            var bubble =
+                pointBubbles[i];
 
-            bubble.enabled = i < visibleWins;
+            var effect =
+                bubble.GetComponent
+                <ResizeEffect>();
+
+            bubble.enabled =
+                i < visibleWins;
 
             if (effect != null)
             {
-                effect.HasPerformedEffect = !playEffect;
+                effect.HasPerformedEffect =
+                    !playEffect;
 
-                if (playEffect && i == visibleWins - 1)
+                if (playEffect &&
+                    i == visibleWins - 1)
                 {
-                    effect.HasPerformedEffect = false;
+                    effect.HasPerformedEffect =
+                        false;
+
                     effect.PlayEffect();
                 }
             }

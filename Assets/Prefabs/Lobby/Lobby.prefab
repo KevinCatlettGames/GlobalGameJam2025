@@ -240,8 +240,6 @@ MonoBehaviour:
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 5344715964913292182}
   teamImage: {fileID: 5890917417208048964}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &446453945492821789
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -1507,11 +1505,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 266335022393993489}
   m_Father: {fileID: 7810664190626712537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.75, y: 0}
+  m_AnchorMax: {x: 0.75, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3588,16 +3587,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 786681311880012892}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9023032098589660156}
+  m_Father: {fileID: 4075499437360977374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.6902, y: -1.7466}
+  m_AnchoredPosition: {x: -0.2, y: 0.1}
   m_SizeDelta: {x: 140.62, y: 16.507}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7548414433258576671
@@ -3628,7 +3627,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 6
+  m_text: 8
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
   m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
@@ -8150,7 +8149,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Score to win
+  m_text: 'Score To Win
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
   m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
@@ -8320,8 +8321,6 @@ MonoBehaviour:
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 5476841380687926980}
   teamImage: {fileID: 6399194114551010596}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7515413203135908382
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -9952,7 +9951,7 @@ GameObject:
   - component: {fileID: 5565057635660680898}
   - component: {fileID: 8004154512942767569}
   m_Layer: 5
-  m_Name: RoundAmountSlider
+  m_Name: WinsNeededSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9973,7 +9972,6 @@ RectTransform:
   - {fileID: 3095305985341061326}
   - {fileID: 9000124681518997268}
   - {fileID: 7810664190626712537}
-  - {fileID: 266335022393993489}
   - {fileID: 7882435125311555289}
   m_Father: {fileID: 387919290046901667}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10026,10 +10024,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 4381032032329189033}
   m_HandleRect: {fileID: 4075499437360977374}
   m_Direction: 0
-  m_MinValue: 2
-  m_MaxValue: 10
+  m_MinValue: 1
+  m_MaxValue: 8
   m_WholeNumbers: 1
-  m_Value: 6
+  m_Value: 8
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -10059,7 +10057,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 3927634634976018721}
         m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
-        m_MethodName: SetMaxRounds
+        m_MethodName: SetWinsNeeded
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11262,7 +11260,7 @@ RectTransform:
   m_Father: {fileID: 9000124681518997268}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.75, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -24846,8 +24844,6 @@ MonoBehaviour:
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 2747235756448600451}
   teamImage: {fileID: 1500282345432969163}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7135915572268100901
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -26239,8 +26235,6 @@ MonoBehaviour:
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 1664139238738039089}
   teamImage: {fileID: 4094110262286293723}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7746681861184509006
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -30773,8 +30767,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6fa5c977ceb7d2948ba3ce89ed219b56, type: 2}
   uiParent: {fileID: 6819464444633560081}
   selectedGameMode: 0
-  maxGameRounds: 16
-  winsNeededToWin: 8
+  winsNeeded: 8
   playEndless: 0
   playedRounds: 0
   matchSettingsSelection: {fileID: 8867986297261049895}
@@ -30861,6 +30854,9 @@ MonoBehaviour:
   - {fileID: 1775877038776013551}
   gameModeTypeText: {fileID: 1400079685403914393}
   startButtonColorWhenEnabled: {r: 0.13333334, g: 0.91764706, b: 0, a: 1}
+  teamColors:
+  - {r: 0.13333334, g: 0.91764706, b: 0, a: 1}
+  - {r: 1, g: 0, b: 0, a: 1}
   playerStartEmitter: {fileID: 4759499024314423187}
   buttonOnClickEmitter: {fileID: 8578666878580452742}
 --- !u!114 &7997720788000802073

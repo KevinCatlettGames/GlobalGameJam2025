@@ -13,14 +13,9 @@ public class TeamSelection : MonoBehaviour
 
     [SerializeField] private TextMeshProUGUI teamText;
     [SerializeField] private Image teamImage;
-    [SerializeField] private Color teamAColor;
-    [SerializeField] private Color teamBColor;
 
     private int maxTeamSize = 2;
     private bool initialSet = false;
-
-    private bool setTeamIsValid = true;
-    public bool SetTeamIsValid { get { return setTeamIsValid; } }
 
     private void OnEnable()
     {
@@ -35,8 +30,7 @@ public class TeamSelection : MonoBehaviour
 
             currentTeamIndex = playerIndex <= 1 ? 1 : 2;
 
-            SetTeamUI();
-            Invoke(nameof(HandleTeamValidity), 0.1f);
+            SetTeam();
         }
 
         UpdateTeamIndex((ulong)playerIndex);
@@ -60,32 +54,25 @@ public class TeamSelection : MonoBehaviour
             return;
 
         currentTeamIndex = currentTeamIndex == 1 ? 2 : 1;
-
-        Invoke(nameof(HandleTeamValidity), 0.1f);
-        SetTeamUI();
+        SetTeam();
     }
 
-    private void SetTeamUI()
+    private void SetTeam()
     {
         if (currentTeamIndex == 1)
         {
-            teamImage.color = teamAColor;
+            teamImage.color = LobbyManager.instance.TeamColors[0];
             teamText.text = "T1";
         }
         else if (currentTeamIndex == 2)
         {
-            teamImage.color = teamBColor;
+            teamImage.color = LobbyManager.instance.TeamColors[1];
             teamText.text = "T2";
         }
     }
 
     private void UpdateTeamIndex(ulong playerID)
     {
-        if (!LobbyManager.instance.players[playerIndex].IsReady)
-        {
-            Invoke(nameof(HandleTeamValidity), 0.1f);
-        }
-
         if (playerID != (ulong)playerIndex)
             return;
 
@@ -99,35 +86,7 @@ public class TeamSelection : MonoBehaviour
         else
         {
             lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex = -1;
-            SetTeamUI();
-            Invoke(nameof(HandleTeamValidity), 0.1f);
-        }
-    }
-
-    public void HandleTeamValidity()
-    {
-        int currentTeamAmount = 0;
-
-        foreach (LobbyPlayerValues.PlayerValues player in lobbyPlayerHandler.playerValuesList)
-        {
-            if (player.TeamIndex == currentTeamIndex)
-                currentTeamAmount++;
-        }
-
-        if (currentTeamAmount >= maxTeamSize)
-        {
-            setTeamIsValid = false;
-            teamImage.color = Color.red;
-        }
-        else if (currentTeamIndex == 1)
-        {
-            setTeamIsValid = true;
-            teamImage.color = teamAColor;
-        }
-        else if (currentTeamIndex == 2)
-        {
-            setTeamIsValid = true;
-            teamImage.color = teamBColor;
+            SetTeam();
         }
     }
 }

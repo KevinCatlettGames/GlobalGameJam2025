@@ -115,18 +115,13 @@ public class PauseManager : MonoBehaviour
         scores.ResetKills();
         scores.ResetWins();
         
-        if (LobbyManager.instance)
-            LobbyManager.instance.playedRounds = 0;
-        
         if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
             NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
         }
         else
-        {
             RestartGameServerRpc();
-        }
     }
 
     [ServerRpc(RequireOwnership = false)]
