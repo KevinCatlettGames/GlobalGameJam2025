@@ -13,7 +13,10 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private SO_Scores scores;
     [SerializeField] private GameObject[] winPanels;
     [SerializeField] private Outline[] outlines;
+    [SerializeField] private Image[] killImages;
     [SerializeField] private TextMeshProUGUI[] killCounts;
+    [SerializeField] private Image teamImage;
+    [SerializeField] private TextMeshProUGUI teamKillText;
     [SerializeField] private Image[] playerImages;
     [SerializeField] private StudioEventEmitter emitter;
     [SerializeField] private EventSystem eventSystem;
@@ -80,9 +83,21 @@ public class WinScreenManager : MonoBehaviour
                 .playerValuesList[playerID]
                 .Skin.LobbySprite;
 
-            killCounts[i].text =
-                scores.KillScores[playerID]
-                .ToString();
+            if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
+            {
+                killCounts[i].text =
+                    scores.KillScores[playerID]
+                    .ToString();
+            }
+            else
+            {
+                killCounts[i].enabled = false;
+                killImages[i].enabled = false;
+                if (scores.KillScores[playerID] == 0) return;
+                teamImage.enabled = true;
+                teamKillText.enabled = true;
+                teamKillText.text = scores.KillScores[playerID].ToString();
+            }
         }
 
         emitter.Play();

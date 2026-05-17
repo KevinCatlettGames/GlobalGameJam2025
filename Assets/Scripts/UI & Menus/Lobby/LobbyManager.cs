@@ -74,7 +74,7 @@ public class LobbyManager : NetworkBehaviour
     public int playedRounds;
 
     [Tooltip("UI panel for match settings.")]
-    [SerializeField] private GameObject matchSettingsSelection;
+    [SerializeField] public GameObject matchSettingsSelection;
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
     public LobbyPlayerInput lobbyInput;

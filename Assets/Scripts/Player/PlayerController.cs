@@ -1,5 +1,6 @@
 using FMOD.Studio;
 using FMODUnity;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,11 +167,16 @@ public class PlayerController : NetworkBehaviour
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     private PlayerStateHandler playerStateHandler;
+    private SkinSO currentSkinSO;
+    public SkinSO CurrentSkinSO
+    {
+        get { return currentSkinSO; }
+    }
 
     #endregion
-    
+
     #region Achievements
-    
+
     [Header("Achievement Values")]
     [SerializeField] private LayerMask groundMask;
     private float groundCheckDistance = 20f;
@@ -1390,6 +1396,7 @@ public class PlayerController : NetworkBehaviour
 
     public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
     {
+        currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 

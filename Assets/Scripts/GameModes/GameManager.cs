@@ -60,7 +60,7 @@ public class GameManager : NetworkBehaviour
     [SerializeField] private float multiKillTimeWindow = 3f;
     private Dictionary<int, List<float>> playerKillTimestamps  = new Dictionary<int, List<float>>();
     [SerializeField] private int damageAmountForAchievement = 300;
-    [SerializeField] private bool enableArchievents = true;
+    [SerializeField] private bool enableAchivements = true;
     
     private void Awake()
     {
@@ -279,7 +279,7 @@ public class GameManager : NetworkBehaviour
                 ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
 
-        if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
@@ -300,7 +300,7 @@ public class GameManager : NetworkBehaviour
                 ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
         
-        if (enableArchievents && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
@@ -351,7 +351,7 @@ public class GameManager : NetworkBehaviour
     
     protected void UnlockRoundEndWithZeroDamageAchievement(int winnerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage > 0
             || !SteamIntegration.instance) return;
@@ -362,7 +362,7 @@ public class GameManager : NetworkBehaviour
 
     protected void UnlockRoundEndWithXDamageAchievement(int winnerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage < damageAmountForAchievement
             || !SteamIntegration.instance) return;
@@ -373,7 +373,7 @@ public class GameManager : NetworkBehaviour
 
     private void IncrementSmallerGiantBubbleKillAchievement(int playerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
             || hitReferences[playerID].spellType != BasicBubble.SpellType.SmallerGiant
             || !SteamIntegration.instance) return;
@@ -387,7 +387,7 @@ public class GameManager : NetworkBehaviour
     
     private void UnlockMultiKillAchievements(int killerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance) return;
         
@@ -408,7 +408,7 @@ public class GameManager : NetworkBehaviour
 
     private void IncrementSlipperyKillAchievement(int killerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance 
             || !hitReferences[killerID].wasSlippery) return;
@@ -422,7 +422,7 @@ public class GameManager : NetworkBehaviour
     
     private void IncrementReflectedKillAchievement(int killerID)
     {
-        if (!enableArchievents) return;
+        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
             || !SteamIntegration.instance 
             || !hitReferences[killerID].wasReflected) return;

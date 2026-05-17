@@ -101,7 +101,7 @@ public class SingleEliminationGM : GameManager
 
     private void Update()
     {
-        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
+        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && !WinScreenManager.Instance && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(finishedRoundCount))
             {
@@ -148,8 +148,8 @@ public class SingleEliminationGM : GameManager
                 {
                     winnerID = teamIDs[i];
                     players[i].Victory();
-                    UnlockRoundEndWithZeroDamageAchievement(winnerID);
-                    UnlockRoundEndWithXDamageAchievement(winnerID);
+                    //UnlockRoundEndWithZeroDamageAchievement(winnerID);
+                    //UnlockRoundEndWithXDamageAchievement(winnerID);
                 }
             }
             if (winnerID != -1)
