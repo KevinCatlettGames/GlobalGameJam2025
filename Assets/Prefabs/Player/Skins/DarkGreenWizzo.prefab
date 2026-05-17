@@ -387,6 +387,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1778132147002192404}
   - component: {fileID: 1049303647441994089}
+  - component: {fileID: 6856697414118878318}
+  - component: {fileID: 3588874984483378971}
   m_Layer: 0
   m_Name: WizzoBody.001
   m_TagString: Untagged
@@ -547,6 +549,36 @@ SkinnedMeshRenderer:
     m_Center: {x: -0.0001251495, y: -0.00050837174, z: -0.0070884367}
     m_Extent: {x: 0.0035611074, y: 0.0041101654, z: 0.00400855}
   m_DirtyAABB: 0
+--- !u!114 &6856697414118878318
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631652213817566315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b13e661570a1c4eaa293c955b3efdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialSwapID: 1
+  teamAMaterial: {fileID: 2100000, guid: 3e4f78ccd44da5d47a3220f4900aec13, type: 2}
+  teamBMaterial: {fileID: 2100000, guid: ce3dde68845d36b499cf5bdf20aba70a, type: 2}
+--- !u!114 &3588874984483378971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1631652213817566315}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b13e661570a1c4eaa293c955b3efdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialSwapID: 0
+  teamAMaterial: {fileID: 2100000, guid: 6a675b599f36d8f419d55d18c9b9432f, type: 2}
+  teamBMaterial: {fileID: 2100000, guid: c4caf3086a4ee9741a2a8ebcf0418ab2, type: 2}
 --- !u!1 &1753011732696719655
 GameObject:
   m_ObjectHideFlags: 0
@@ -1924,6 +1956,7 @@ GameObject:
   - component: {fileID: 4026006464547214364}
   - component: {fileID: 7539317562510404618}
   - component: {fileID: 6883433653035549711}
+  - component: {fileID: 85995344822883244}
   m_Layer: 0
   m_Name: WizzoBody
   m_TagString: Untagged
@@ -2097,6 +2130,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   materialElementID: 0
+--- !u!114 &85995344822883244
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5386449982907373999}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e4b13e661570a1c4eaa293c955b3efdd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  materialSwapID: 1
+  teamAMaterial: {fileID: 2100000, guid: 3e4f78ccd44da5d47a3220f4900aec13, type: 2}
+  teamBMaterial: {fileID: 2100000, guid: ce3dde68845d36b499cf5bdf20aba70a, type: 2}
 --- !u!1 &5421131064704344501
 GameObject:
   m_ObjectHideFlags: 0

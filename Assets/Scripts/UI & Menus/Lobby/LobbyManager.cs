@@ -65,10 +65,7 @@ public class LobbyManager : NetworkBehaviour
         set => ChangeSelectedGameModeClientRpc(value);
     }
 
-    [Tooltip("Maximum number of rounds before game ends.")]
-    public int maxGameRounds = 7;
-
-    public int winsNeededToWin = 8;
+    public int winsNeeded = 8;
 
     [Tooltip("If enabled, the game runs endlessly.")]
     public bool playEndless;
@@ -77,7 +74,7 @@ public class LobbyManager : NetworkBehaviour
     public int playedRounds;
 
     [Tooltip("UI panel for match settings.")]
-    [SerializeField] private GameObject matchSettingsSelection;
+    [SerializeField] public GameObject matchSettingsSelection;
     public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
     public LobbyPlayerInput lobbyInput;
@@ -172,6 +169,9 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Button color when enabled.")]
     [SerializeField] private Color startButtonColorWhenEnabled;
+
+    [SerializeField] private Color[] teamColors;
+    public Color[] TeamColors { get { return teamColors; } }
 
     #endregion
 
@@ -304,9 +304,7 @@ public class LobbyManager : NetworkBehaviour
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
         if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-        {
-            if (selectedGameMode == GameManager.GameModeType.Team && !teamSelection.SetTeamIsValid) return; 
-            
+        {           
             player.IsReady = !player.IsReady;
             players[index] = player;
 
@@ -343,9 +341,7 @@ public class LobbyManager : NetworkBehaviour
             TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
             
             if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-            {
-                if (selectedGameMode == GameManager.GameModeType.Team && !teamSelection.SetTeamIsValid) return; 
-                
+            {                
                 player.IsReady = !player.IsReady;
                 players[index] = player;
                 InvokeOnReadyStateUpdatedClientRpc(clientID);
@@ -599,9 +595,9 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    public void SetMaxRounds(float value)
+    public void SetWinsNeeded(float value)
     {
-        maxGameRounds = (int)value;
+        winsNeeded = (int)value;
     }
 
     public void ToggleEndless(bool toggle)

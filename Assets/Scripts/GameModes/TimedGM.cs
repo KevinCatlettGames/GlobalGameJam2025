@@ -61,7 +61,10 @@ public class TimedGM : GameManager
             }
         }
         if (winnerID != -1)
-            ScoreManager.Instance.AddPendingScore(winnerID, true);
+            if (gameModeType == GameModeType.Standard)
+                ScoreManager.Instance.AddPendingScore(winnerID, true);
+            else if (gameModeType == GameModeType.Team)
+                ScoreManager.Instance.AddPendingTeamScore(teamIDs[winnerID], true);
 
         if (winnerID >= 0 && winnerID < playerHUDs.Length)
         {

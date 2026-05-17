@@ -236,12 +236,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIndex: 2
   playerContainerManager: {fileID: 4108606274338047152}
+  playerContainerSkinChange: {fileID: 8162762353768506763}
   currentTeamIndex: 0
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 5344715964913292182}
   teamImage: {fileID: 5890917417208048964}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &446453945492821789
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -257,13 +256,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 81987728632263713}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5411765, g: 0.73333335, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1462,6 +1461,7 @@ MonoBehaviour:
   currentColorIndex: 0
   playerIndex: 0
   currentlyOnLocked: 0
+  teamSelection: {fileID: 6499347763727716923}
   allSkinSelections:
   - {fileID: 6157429728834435102}
   - {fileID: 1173935743762039420}
@@ -1507,11 +1507,12 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 266335022393993489}
   m_Father: {fileID: 7810664190626712537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMin: {x: 0.75, y: 0}
+  m_AnchorMax: {x: 0.75, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3606,16 +3607,16 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 786681311880012892}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 9023032098589660156}
+  m_Father: {fileID: 4075499437360977374}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -9.6902, y: -1.7466}
+  m_AnchoredPosition: {x: -0.2, y: 0.1}
   m_SizeDelta: {x: 140.62, y: 16.507}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7548414433258576671
@@ -3646,7 +3647,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 6
+  m_text: 8
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
   m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
@@ -6026,7 +6027,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1157670926256828420}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -6461,6 +6462,7 @@ MonoBehaviour:
   currentColorIndex: 3
   playerIndex: 3
   currentlyOnLocked: 0
+  teamSelection: {fileID: 7530315202869633640}
   allSkinSelections:
   - {fileID: 6157429728834435102}
   - {fileID: 1173935743762039420}
@@ -8168,7 +8170,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Score to win
+  m_text: 'Score To Win
+
+'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
   m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
@@ -8334,12 +8338,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIndex: 1
   playerContainerManager: {fileID: 6981371207434763050}
+  playerContainerSkinChange: {fileID: 2927786848280910353}
   currentTeamIndex: 0
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 5476841380687926980}
   teamImage: {fileID: 6399194114551010596}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7515413203135908382
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -8355,13 +8358,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1577812659772725299}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5058824, g: 1, b: 0.5686275, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -9970,7 +9973,7 @@ GameObject:
   - component: {fileID: 5565057635660680898}
   - component: {fileID: 8004154512942767569}
   m_Layer: 5
-  m_Name: RoundAmountSlider
+  m_Name: WinsNeededSlider
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9991,7 +9994,6 @@ RectTransform:
   - {fileID: 3095305985341061326}
   - {fileID: 9000124681518997268}
   - {fileID: 7810664190626712537}
-  - {fileID: 266335022393993489}
   - {fileID: 7882435125311555289}
   m_Father: {fileID: 387919290046901667}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -10044,10 +10046,10 @@ MonoBehaviour:
   m_FillRect: {fileID: 4381032032329189033}
   m_HandleRect: {fileID: 4075499437360977374}
   m_Direction: 0
-  m_MinValue: 2
-  m_MaxValue: 10
+  m_MinValue: 1
+  m_MaxValue: 8
   m_WholeNumbers: 1
-  m_Value: 6
+  m_Value: 8
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
@@ -10077,7 +10079,7 @@ MonoBehaviour:
         m_CallState: 2
       - m_Target: {fileID: 3927634634976018721}
         m_TargetAssemblyTypeName: LobbyManager, Assembly-CSharp
-        m_MethodName: SetMaxRounds
+        m_MethodName: SetWinsNeeded
         m_Mode: 0
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -11280,7 +11282,7 @@ RectTransform:
   m_Father: {fileID: 9000124681518997268}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0, y: 0}
+  m_AnchorMax: {x: 0.75, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -19508,6 +19510,7 @@ MonoBehaviour:
   currentColorIndex: 1
   playerIndex: 1
   currentlyOnLocked: 0
+  teamSelection: {fileID: 2395260315479266996}
   allSkinSelections:
   - {fileID: 6157429728834435102}
   - {fileID: 1173935743762039420}
@@ -20726,7 +20729,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4371240990466525669}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -24878,12 +24881,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIndex: 3
   playerContainerManager: {fileID: 5407521930114273068}
+  playerContainerSkinChange: {fileID: 236480985251278359}
   currentTeamIndex: 0
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 2747235756448600451}
   teamImage: {fileID: 1500282345432969163}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7135915572268100901
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -24899,13 +24901,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5399162474820396968}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5411765, g: 0.73333335, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -26271,12 +26273,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerIndex: 0
   playerContainerManager: {fileID: 6898372643355871554}
+  playerContainerSkinChange: {fileID: 1727332635080796281}
   currentTeamIndex: 0
   lobbyPlayerHandler: {fileID: 7997720788000802073}
   teamText: {fileID: 1664139238738039089}
   teamImage: {fileID: 4094110262286293723}
-  teamAColor: {r: 0.504717, g: 1, b: 0.5690925, a: 1}
-  teamBColor: {r: 0.5424528, g: 0.7341056, b: 1, a: 1}
 --- !u!222 &7746681861184509006
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -26292,13 +26293,13 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 5758538881065218628}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.5058824, g: 1, b: 0.5686275, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -30809,8 +30810,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 6fa5c977ceb7d2948ba3ce89ed219b56, type: 2}
   uiParent: {fileID: 6819464444633560081}
   selectedGameMode: 0
-  maxGameRounds: 16
-  winsNeededToWin: 8
+  winsNeeded: 8
   playEndless: 0
   playedRounds: 0
   matchSettingsSelection: {fileID: 8867986297261049895}
@@ -30897,6 +30897,9 @@ MonoBehaviour:
   - {fileID: 1775877038776013551}
   gameModeTypeText: {fileID: 1400079685403914393}
   startButtonColorWhenEnabled: {r: 0.13333334, g: 0.91764706, b: 0, a: 1}
+  teamColors:
+  - {r: 0.32672155, g: 1, b: 0.21226418, a: 1}
+  - {r: 0.2117647, g: 0.52904755, b: 1, a: 1}
   playerStartEmitter: {fileID: 4759499024314423187}
   buttonOnClickEmitter: {fileID: 8578666878580452742}
 --- !u!114 &7997720788000802073
@@ -33034,7 +33037,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6922097081539196206}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 
@@ -34060,6 +34063,7 @@ MonoBehaviour:
   currentColorIndex: 2
   playerIndex: 2
   currentlyOnLocked: 0
+  teamSelection: {fileID: 5065815452310012212}
   allSkinSelections:
   - {fileID: 6157429728834435102}
   - {fileID: 1173935743762039420}
@@ -38228,7 +38232,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8557174127973030520}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
   m_Name: 

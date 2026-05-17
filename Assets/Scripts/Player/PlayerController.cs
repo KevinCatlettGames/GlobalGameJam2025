@@ -1,5 +1,6 @@
 using FMOD.Studio;
 using FMODUnity;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -166,11 +167,16 @@ public class PlayerController : NetworkBehaviour
     public Animator mainAnimator;
     private PlayerShaderManager shaderManager;
     private PlayerStateHandler playerStateHandler;
+    private SkinSO currentSkinSO;
+    public SkinSO CurrentSkinSO
+    {
+        get { return currentSkinSO; }
+    }
 
     #endregion
-    
+
     #region Achievements
-    
+
     [Header("Achievement Values")]
     [SerializeField] private LayerMask groundMask;
     private float groundCheckDistance = 20f;
@@ -1390,6 +1396,7 @@ public class PlayerController : NetworkBehaviour
 
     public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
     {
+        currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 
@@ -1397,8 +1404,24 @@ public class PlayerController : NetworkBehaviour
         
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            foreach (var element in coloredElements)
-                element.color = skinObject.Color;
+            if(LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+            {
+                if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = LobbyManager.instance.TeamColors[0];
+                }
+                else if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 2)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = LobbyManager.instance.TeamColors[1];
+                }
+            }
+            else 
+            {
+                foreach (var element in coloredElements)
+                    element.color = skinObject.Color;
+            }       
 
             ActivateCorrectColorServerRpc(skinObject.Index);
             mainAnimator = skin.GetComponent<Animator>();
@@ -1406,8 +1429,29 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            foreach (var element in coloredElements)
-                element.color = skinObject.Color;
+            if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+            {
+                if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = LobbyManager.instance.TeamColors[0];
+
+                    ScoreManager.Instance.teamModeScorePanels[0].SetTeamPortraits(skinObject.GameSprites[0]);
+                }
+                else if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 2)
+                {
+                    foreach (var element in coloredElements)
+                        element.color = LobbyManager.instance.TeamColors[1];
+
+                    ScoreManager.Instance.teamModeScorePanels[1].SetTeamPortraits(skinObject.GameSprites[0]);
+                }
+            }
+            else
+            {
+                foreach (var element in coloredElements)
+                    element.color = skinObject.Color;
+            }
+
             mainAnimator = skin.GetComponent<Animator>();
             shaderManager = skin.GetComponentInChildren<PlayerShaderManager>(); 
         }

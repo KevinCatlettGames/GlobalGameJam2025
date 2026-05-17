@@ -16,7 +16,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     public int currentColorIndex;
     public int playerIndex = 0;
     public bool currentlyOnLocked;
-
+    [SerializeField] private TeamSelection teamSelection;
     public SkinButtonHandler[] allSkinSelections;
     public SkinButtonHandler currentSkinSelection;
     bool init;
@@ -56,10 +56,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.TogglePlayerIcon(true, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
-            blurImage.enabled = true;
-            Color c = currentSkinSelection.skinSo.Color;
-            c.a = blurImageAlpha;
-            blurImage.color = c;
+            UpdateBlur();
             UpdateSkin();
             wasInit = true;
         }
@@ -105,10 +102,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.isSelected = true;
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
-            blurImage.enabled = true;
-            Color color = currentSkinSelection.skinSo.Color;
-            color.a = blurImageAlpha;
-            blurImage.color = color;
+            UpdateBlur();
             UpdateSkin();
         }
         else if (skinChangeInput.x > 0)
@@ -264,10 +258,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentSkinSelection.isSelected = true;
         currentColorIndex = currentSkinSelection.skinSo.Index;
         avatar.GetComponent<ScaleToCorrectSize>().Play();
-        blurImage.enabled = true;
-        Color c = currentSkinSelection.skinSo.Color;
-        c.a = blurImageAlpha;
-        blurImage.color = c;
+        UpdateBlur();
         UpdateSkin();
     }
 
@@ -337,5 +328,24 @@ public class PlayerContainerSkinChange : NetworkBehaviour
                 currentSkinSelection.TogglePlayerIcon(true, playerIndex);
             }
         }     
+    }
+
+    public void UpdateBlur()
+    {
+        blurImage.enabled = true;
+        Color c = Color.white;
+
+        if (LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Standard)
+            c = currentSkinSelection.skinSo.Color;
+        else if (LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+        {
+            if (teamSelection.CurrentTeamIndex == 1)
+                c = LobbyManager.instance.TeamColors[0];
+            else if (teamSelection.CurrentTeamIndex == 2)
+                c = LobbyManager.instance.TeamColors[1];
+        }
+
+        c.a = blurImageAlpha;
+        blurImage.color = c;
     }
 }

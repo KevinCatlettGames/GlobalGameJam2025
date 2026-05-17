@@ -2,47 +2,30 @@ using UnityEngine;
 using UnityEngine.UI;
 using EditorAttributes;
 using TMPro;
+using Unity.VisualScripting;
 
 public class TeamSelection : MonoBehaviour
 {
     [SerializeField] private int playerIndex;
     public PlayerContainerManager playerContainerManager;
+    public PlayerContainerSkinChange playerContainerSkinChange;
 
     [SerializeField, ReadOnly] private int currentTeamIndex;
+    public int CurrentTeamIndex
+    {  get { return currentTeamIndex; } }
+
     [SerializeField] private LobbyPlayerValues lobbyPlayerHandler;
 
     [SerializeField] private TextMeshProUGUI teamText;
     [SerializeField] private Image teamImage;
-    [SerializeField] private Color teamAColor;
-    [SerializeField] private Color teamBColor;
 
     private int maxTeamSize = 2;
     private bool initialSet = false;
-
-    private bool setTeamIsValid = true;
-    public bool SetTeamIsValid { get { return setTeamIsValid; } }
 
     private void OnEnable()
     {
         Invoke(nameof(Init), 0.2f);
     }
-
-    private void Init()
-    {
-        if (!initialSet)
-        {
-            initialSet = true;
-
-            currentTeamIndex = playerIndex <= 1 ? 1 : 2;
-
-            SetTeamUI();
-            Invoke(nameof(HandleTeamValidity), 0.1f);
-        }
-
-        UpdateTeamIndex((ulong)playerIndex);
-        LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
-    }
-
     private void OnDisable()
     {
         if (LobbyManager.instance != null &&
@@ -52,6 +35,44 @@ public class TeamSelection : MonoBehaviour
         }
 
         LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
+        playerContainerSkinChange.UpdateBlur();
+    }
+
+    private void Init()
+    {
+        if (!initialSet)
+        {
+            initialSet = true;
+
+            int playersInTeamA = 0;
+            int playersInTeamB = 0;
+
+            foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+            {
+                if (teamSelection == gameObject) continue;
+                if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 1)
+                    playersInTeamA++;
+            }
+
+            foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+            {
+                if (teamSelection == gameObject) continue;
+                if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 2)
+                    playersInTeamB++;
+            }
+
+            if(playersInTeamA < playersInTeamB)
+                currentTeamIndex = 1;
+            else if(playersInTeamB < playersInTeamA)
+                currentTeamIndex = 2;
+            else if(playersInTeamA ==  playersInTeamB)
+                currentTeamIndex = 1;
+
+            SetTeam();
+        }
+
+        UpdateTeamIndex((ulong)playerIndex);
+        LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
     }
 
     public void ChangeTeam()
@@ -59,33 +80,48 @@ public class TeamSelection : MonoBehaviour
         if (playerContainerManager.isReady)
             return;
 
-        currentTeamIndex = currentTeamIndex == 1 ? 2 : 1;
+        int potentialNewTeamID = -1;
+        if (currentTeamIndex == 1)
+            potentialNewTeamID = 2;
+        else if (currentTeamIndex == 2)
+            potentialNewTeamID = 1;
 
-        Invoke(nameof(HandleTeamValidity), 0.1f);
-        SetTeamUI();
+        int playersInPotentialTeam = 0;
+
+        foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+        {
+            if (teamSelection == gameObject) continue;
+            if(teamSelection.GetComponent<TeamSelection>().currentTeamIndex == potentialNewTeamID)
+                playersInPotentialTeam++;
+        }
+
+        if (playersInPotentialTeam > 2)
+            return;
+
+        currentTeamIndex = currentTeamIndex == 1 ? 2 : 1;
+        SetTeam();
     }
 
-    private void SetTeamUI()
+    private void SetTeam()
     {
+        teamImage.enabled = true;
+        teamText.enabled = true;
+
         if (currentTeamIndex == 1)
         {
-            teamImage.color = teamAColor;
+            teamImage.color = LobbyManager.instance.TeamColors[0];
             teamText.text = "T1";
         }
         else if (currentTeamIndex == 2)
         {
-            teamImage.color = teamBColor;
+            teamImage.color = LobbyManager.instance.TeamColors[1];
             teamText.text = "T2";
         }
+        playerContainerSkinChange.UpdateBlur();
     }
 
     private void UpdateTeamIndex(ulong playerID)
     {
-        if (!LobbyManager.instance.players[playerIndex].IsReady)
-        {
-            Invoke(nameof(HandleTeamValidity), 0.1f);
-        }
-
         if (playerID != (ulong)playerIndex)
             return;
 
@@ -99,35 +135,7 @@ public class TeamSelection : MonoBehaviour
         else
         {
             lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex = -1;
-            SetTeamUI();
-            Invoke(nameof(HandleTeamValidity), 0.1f);
-        }
-    }
-
-    public void HandleTeamValidity()
-    {
-        int currentTeamAmount = 0;
-
-        foreach (LobbyPlayerValues.PlayerValues player in lobbyPlayerHandler.playerValuesList)
-        {
-            if (player.TeamIndex == currentTeamIndex)
-                currentTeamAmount++;
-        }
-
-        if (currentTeamAmount >= maxTeamSize)
-        {
-            setTeamIsValid = false;
-            teamImage.color = Color.red;
-        }
-        else if (currentTeamIndex == 1)
-        {
-            setTeamIsValid = true;
-            teamImage.color = teamAColor;
-        }
-        else if (currentTeamIndex == 2)
-        {
-            setTeamIsValid = true;
-            teamImage.color = teamBColor;
+            SetTeam();
         }
     }
 }

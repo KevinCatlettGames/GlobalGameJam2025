@@ -21,6 +21,10 @@ public class RisingWall : MonoBehaviour
         animator = GetComponent<Animator>();
         gameObject.SetActive(false);
     }
+    void OnDestroy()
+    {
+      idleEvent?.Stop();
+    }
 
     public virtual void Rise()
     {
