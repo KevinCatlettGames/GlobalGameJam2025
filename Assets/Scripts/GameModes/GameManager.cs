@@ -36,6 +36,7 @@ public class GameManager : NetworkBehaviour
     public Action OnGameStarted;
 
     [SerializeField] protected SO_GameSettings gameSettings;
+    [SerializeField] protected MapEvent mapEvent;
 
     protected PlayerController[] players = new PlayerController[maxPlayers];
     public PlayerController[] Players {get{return players;}}
@@ -97,6 +98,10 @@ public class GameManager : NetworkBehaviour
             hitReferences[i] = new HitReference(); 
             hitReferences[i].playerHitID = -1;
         }
+
+        if (mapEvent != null)     
+            mapEvent?.InitialiseMapEvent();
+        
     }
 
     private void OnDisable()

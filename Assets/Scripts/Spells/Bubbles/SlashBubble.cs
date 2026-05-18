@@ -75,6 +75,7 @@ public class SlashBubble : BasicBubble
 
     protected override void Reflect(Vector3 normal)
     {
+		if (isReflected) return;
 		isReflected = !isReflected;
 		speed *= -1f;
         if (rangeCoroutine != null)

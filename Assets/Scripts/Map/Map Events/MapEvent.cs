@@ -5,7 +5,7 @@ public abstract class MapEvent : MonoBehaviour
 {
     [SerializeField] private float firstStartDelay = 5f;
     [SerializeField] private int mapID = 0;
-    void Awake()
+    public void InitialiseMapEvent()
     {
         bool isMapEventEnabled = true;
         if (LobbyManager.instance)
@@ -25,6 +25,17 @@ public abstract class MapEvent : MonoBehaviour
             GameManager.Instance.OnGameEnded += StopEvent;
             Invoke(nameof(StartEvent), firstStartDelay);
         }
+
+        //if (GameManager.Instance)
+        //{
+        //    GameManager.Instance.OnGameStarted += StartEvent;
+        //    GameManager.Instance.OnGameEnded += StopEvent;
+        //    StartEvent();
+        //}
+        //else
+        //{
+        //    Debug.Log("Map Event Start Error: no Game Manager");
+        //}
     }
 
     protected abstract void StartEvent();

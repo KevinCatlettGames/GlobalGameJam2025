@@ -67,9 +67,6 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float damageModifier = 0.05f;
     [SerializeField] private float rumbleDurationFactor = 0.01f;
     [SerializeField] private float knockbackDecaySpeed = 5f;
-    [SerializeField] private float hitStunThreshold = 100f;
-    [SerializeField] private float hitStunFactor = .1f;
-    [SerializeField] private float maxHitStunDuration = .35f;
     private float damage = 0;
     public float Damage { get { return damage; } }
     
@@ -79,6 +76,7 @@ public class PlayerController : NetworkBehaviour
     private bool isDead = false;
     private float hitStunDuration = 0;
     private bool canBeBoneFished = true;
+    private DmgGenerator damageGenerator;
 
     #endregion
 
@@ -235,6 +233,7 @@ public class PlayerController : NetworkBehaviour
     protected void Start()
     {
         currentPlayerSpeed = playerBaseSpeed;
+        damageGenerator = GetComponent<DmgGenerator>();
     }
     protected void Update()
     {
@@ -966,8 +965,9 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += knockback;
         damage += dmg;
 
-        if(damage > 0)
+        if(dmg > 0)
         {
+            damageGenerator?.SpawnDamagePopup((int)dmg);
             playerHUD.UpdateDamageText((int)damage);
             damagedEffect.UpdateParticleSystem(damage);
             damageParticleSystem.Play();
@@ -1044,8 +1044,9 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += knockback;
         damage += dmg;
 
-        if (damage > 0)
+        if (dmg > 0)
         {
+            damageGenerator?.SpawnDamagePopup((int)dmg);
             playerHUD.UpdateDamageText((int)damage);
             damageParticleSystem.Play();
             damagedEffect.UpdateParticleSystem(damage);
