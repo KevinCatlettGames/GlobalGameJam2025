@@ -5,14 +5,14 @@ using UnityEngine.UI;
 public class PlayerContainerManager : MonoBehaviour
 {
     [Header("Player Settings")]
-    [SerializeField] private int uiIndex;
+    public int uiIndex;
     public GameObject readyObject; 
     [SerializeField] private Image readyImage;
     [SerializeField] private TextMeshProUGUI unreadyText;
     [SerializeField] private TextMeshProUGUI readyText;
 
     public bool isReady = false;
-
+    public bool occupied = false;
     private void OnEnable()
     {
         if (LobbyManager.instance != null)

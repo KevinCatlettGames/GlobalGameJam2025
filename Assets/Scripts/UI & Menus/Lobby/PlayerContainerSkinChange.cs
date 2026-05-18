@@ -290,6 +290,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void UpdateSkin()
     {
+        if(!gameObject.activeSelf) return;
+
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         bool skinLocked = false;
 

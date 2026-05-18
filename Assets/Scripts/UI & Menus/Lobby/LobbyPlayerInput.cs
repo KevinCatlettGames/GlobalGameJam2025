@@ -62,26 +62,30 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnJoined(InputAction.CallbackContext context)
     {
         if (joined) return;
-
-        if (firstJoined)
+        lobbyPlayerInputIndex = -1;
+        foreach (GameObject go in lobbyManager.playerContainers)
         {
-            firstJoined = false;
-            int amountJoined = 0;
-
-            foreach (LobbyPlayerInput lobbyPlayerInput in lobbyManager.allLobbyPlayerInputs)
+            if (go.activeSelf)
+                continue;
+            else
             {
-                if (lobbyPlayerInput.joined)
-                    amountJoined++;
+                lobbyPlayerInputIndex = go.GetComponent<PlayerContainerManager>().uiIndex;
+                go.GetComponent<PlayerContainerManager>().occupied = true;
+                break;
             }
-
-            lobbyPlayerInputIndex = amountJoined;      
         }
+
+        if (lobbyPlayerInputIndex == -1)
+            return;
 
         lobbyManager.SetReady(lobbyPlayerInputIndex, false);
         LobbyPlayerValues.Instance.AssignDeviceToPlayer(lobbyPlayerInputIndex, playerInput.devices[0]);
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
-            playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+        {
+            if(playerContainer.GetComponent<PlayerContainerManager>().occupied)
+                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+        }
 
         PlaySFX(joinReference);
         joined = true;
@@ -131,8 +135,11 @@ public class LobbyPlayerInput : MonoBehaviour
             {
                 // remove here
                 lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
+                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;
                 lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
-                joined = false;          
+                joined = false;
+                lobbyManager.CheckAllReady();
+                LobbyPlayerValues.Instance.playerValuesList[lobbyPlayerInputIndex].Device = null;
             }
             return;
         }

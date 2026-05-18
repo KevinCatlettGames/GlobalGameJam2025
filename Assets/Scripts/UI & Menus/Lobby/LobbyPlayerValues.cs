@@ -1,3 +1,4 @@
+using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -59,6 +60,18 @@ public class LobbyPlayerValues : NetworkBehaviour
     {
         if (scene.buildIndex == 0)
             Destroy(gameObject);
+
+        List<PlayerValues> playersToRemove = new List<PlayerValues>();
+
+
+        foreach(PlayerValues playerValues in playerValuesList)
+            if(playerValues.Device == null)
+                playersToRemove.Add(playerValues);
+
+        foreach (PlayerValues p in playersToRemove)
+            playerValuesList.Remove(p);
+
+        playersToRemove.Clear();
     }
 
     private void OnClientConnectedCallback(ulong clientId)
@@ -136,10 +149,6 @@ public class LobbyPlayerValues : NetworkBehaviour
             return;
 
         if (device == null)
-            return;
-
-        var existingDevice = playerValuesList.Find(pd => pd.Device == device);
-        if (existingDevice != null)
             return;
 
         var existingPlayer = playerValuesList.Find(pd => pd.PlayerIndex == playerIndex);

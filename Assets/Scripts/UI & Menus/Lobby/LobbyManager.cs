@@ -445,7 +445,7 @@ public class LobbyManager : NetworkBehaviour
         OnReadyStateUpdated?.Invoke(clientID, state);
     }
 
-    private void CheckAllReady()
+    public void CheckAllReady()
     {
         if (players.Count == 0)
         {
@@ -454,14 +454,29 @@ public class LobbyManager : NetworkBehaviour
             return;
         }
 
-        foreach (var player in players)
+        for (int i = 0; i < players.Count; i++) 
         {
-            if (!player.IsReady)
+            if(!players[i].IsReady && playerContainers[i].GetComponent<PlayerContainerManager>().occupied)
             {
                 allPlayersReady = false;
                 ChangeStartButtonState(false);
                 return;
             }
+        }
+
+        int occupiedContainers = 0;
+        foreach(GameObject container in playerContainers)
+        {
+            if(container.GetComponent<PlayerContainerManager>().occupied)
+            {
+                occupiedContainers++;
+            }
+        }
+        if(occupiedContainers <= 0)
+        {
+            allPlayersReady = false;
+            ChangeStartButtonState(false);
+            return;
         }
 
         allPlayersReady = players.Count >= minPlayers;
@@ -485,8 +500,11 @@ public class LobbyManager : NetworkBehaviour
             int index = (int)player.ClientId;
             if (index >= 0 && index < playerContainers.Length)
             {
-                emptyPlayerContainers[index].SetActive(false);
-                playerContainers[index].SetActive(true);
+                if (playerContainers[index].GetComponent<PlayerContainerManager>().occupied)
+                {
+                    emptyPlayerContainers[index].SetActive(false);
+                    playerContainers[index].SetActive(true);
+                }
             }
         }
     }
