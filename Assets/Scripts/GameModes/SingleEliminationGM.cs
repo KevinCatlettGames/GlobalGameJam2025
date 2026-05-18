@@ -99,17 +99,6 @@ public class SingleEliminationGM : GameManager
         StartCoroutine(AwardVictory());
     }
 
-    private void Update()
-    {
-        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && !WinScreenManager.Instance && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
-        {
-            if (!MapRotationSystem.Instance.CheckForMapSwitch(finishedRoundCount))
-            {
-                RestartGame();
-            }
-        }
-    }
-
     private IEnumerator AwardVictory()
     {
         float danceTime = 1.5f;

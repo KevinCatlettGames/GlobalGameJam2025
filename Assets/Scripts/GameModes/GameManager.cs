@@ -27,8 +27,11 @@ public class GameManager : NetworkBehaviour
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
+    public bool IsReadyToRestart {get{return isReadyToRestart;}}
+
     public bool playEndless = true;
     protected int finishedRoundCount = 0;
+    public int FinishedRoundCount {get{return finishedRoundCount;}}
     public Action OnGameEnded;
     public Action OnGameStarted;
 

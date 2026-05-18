@@ -176,7 +176,19 @@ MonoBehaviour:
     m_ActionId: 3e51541a-4b71-4926-bf9a-ad305f965705
     m_ActionName: 'UI/UICancel[/Keyboard/backspace,/Keyboard/escape,/XInputControllerWindows/buttonEast]'
   - m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnToggleMatchSettings
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
     m_ActionId: 672a5f42-ddaa-45b2-a0c8-4e43ce44d06b
     m_ActionName: 'UI/UIMatchSettingsToggle[/Keyboard/m]'
   - m_PersistentCalls:
@@ -195,6 +207,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ddcc12b3-69ff-47a2-b65c-ea108f491139
     m_ActionName: 'UI/UITeamNavigation[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d,/XInputControllerWindows/rightStick/up,/XInputControllerWindows1/rightStick/up,/XInputControllerWindows/rightStick/down,/XInputControllerWindows1/rightStick/down,/XInputControllerWindows/rightStick/left,/XInputControllerWindows1/rightStick/left,/XInputControllerWindows/rightStick/right,/XInputControllerWindows1/rightStick/right]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7475973165249436933}
+        m_TargetAssemblyTypeName: LobbyPlayerInput, Assembly-CSharp
+        m_MethodName: OnJoined
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 5c482785-e082-4d98-a477-ce47b3a05891
+    m_ActionName: 'UI/UIJoinAction[/Keyboard/enter,/XInputControllerWindows1/start,/XInputControllerWindows/start,/XInputControllerWindows2/start,/XInputControllerWindows1/buttonSouth,/XInputControllerWindows/buttonSouth,/XInputControllerWindows2/buttonSouth]'
   m_NeverAutoSwitchControlSchemes: 1
   m_DefaultControlScheme: 
   m_DefaultActionMap: UI
@@ -240,3 +268,10 @@ MonoBehaviour:
       Data3: 260056209
       Data4: -2075102111
     Path: event:/ui/ui_hover
+  buttonReference:
+    Guid:
+      Data1: 1591094170
+      Data2: 1080478032
+      Data3: -1876677235
+      Data4: -1759031655
+    Path: event:/ui/ui_click

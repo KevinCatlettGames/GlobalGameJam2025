@@ -5,15 +5,35 @@ using System.Collections;
 
 public class CallUnityEventOnInputAction : MonoBehaviour
 {
-    [SerializeField] InputActionProperty inputActionProperty;
+    [SerializeField] private InputActionProperty inputActionProperty;
+
+    [Tooltip("Ignore input briefly after enable")]
+    public bool requireFreshPressOnEnable;
+
+    [SerializeField] private float freshPressBlockDuration = 0.2f;
+
     public UnityEvent OnInputActionPerformed;
+    bool initialFreshPress; 
     public bool oneTimeUsePerActivation = true;
 
     private Coroutine enableRoutine;
+    private bool canTrigger;
 
+    private void Awake()
+    {
+        initialFreshPress = requireFreshPressOnEnable;
+    }
     private void OnEnable()
     {
+        requireFreshPressOnEnable = initialFreshPress;
+        canTrigger = !requireFreshPressOnEnable;
+
         enableRoutine = StartCoroutine(EnableAfterDelay());
+
+        if (requireFreshPressOnEnable)
+        {
+            StartCoroutine(UnlockInputAfterDelay());
+        }
     }
 
     private IEnumerator EnableAfterDelay()
@@ -22,6 +42,14 @@ public class CallUnityEventOnInputAction : MonoBehaviour
 
         inputActionProperty.action.performed += InputActionPerformed;
         inputActionProperty.action.Enable();
+    }
+
+    private IEnumerator UnlockInputAfterDelay()
+    {
+        yield return new WaitForSeconds(freshPressBlockDuration);
+
+        canTrigger = true;
+        requireFreshPressOnEnable = false; // auto reset
     }
 
     private void OnDisable()
@@ -36,8 +64,11 @@ public class CallUnityEventOnInputAction : MonoBehaviour
         inputActionProperty.action.Disable();
     }
 
-    private void InputActionPerformed(InputAction.CallbackContext obj)
+    private void InputActionPerformed(InputAction.CallbackContext context)
     {
+        if (!canTrigger)
+            return;
+
         OnInputActionPerformed?.Invoke();
 
         if (oneTimeUsePerActivation)
@@ -45,5 +76,10 @@ public class CallUnityEventOnInputAction : MonoBehaviour
             inputActionProperty.action.performed -= InputActionPerformed;
             inputActionProperty.action.Disable();
         }
+    }
+
+    public void RequireFreshPress()
+    {
+        requireFreshPressOnEnable = true;
     }
 }

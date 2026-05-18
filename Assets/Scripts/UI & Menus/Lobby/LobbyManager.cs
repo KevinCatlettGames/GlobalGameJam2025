@@ -9,6 +9,7 @@ using UnityEngine.UI;
 using FMODUnity;
 using TMPro;
 using UnityEngine.InputSystem;
+using UnityEngine.iOS;
 
 /// <summary>
 /// Handles the multiplayer lobby including:
@@ -30,6 +31,12 @@ public class LobbyManager : NetworkBehaviour
     #endregion
 
     #region Game Mode Settings
+
+    public PlayerInputManager playerInputManager;
+    public GameObject playerInput;
+
+    public int connectedDevices;
+
 
     [Header("Game Mode Settings")]
 
@@ -58,6 +65,9 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Currently selected game mode.")]
     [SerializeField] private GameManager.GameModeType selectedGameMode = GameManager.GameModeType.Standard;
+
+    public List<LobbyPlayerInput> allLobbyPlayerInputs = new List<LobbyPlayerInput>();
+
 
     public GameManager.GameModeType SelectedGameMode
     {
@@ -115,7 +125,7 @@ public class LobbyManager : NetworkBehaviour
     /// <summary>
     /// Invoked when a player's ready state changes.
     /// </summary>
-    public UnityEvent<ulong> OnReadyStateUpdated;
+    public UnityEvent<ulong, bool> OnReadyStateUpdated;
 
     /// <summary>
     /// Invoked when all players finished loading a scene.
@@ -216,10 +226,18 @@ public class LobbyManager : NetworkBehaviour
 
         if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
             UpdateSelectedGameModeForNewClientServerRpc();
+
+        foreach (var device in InputSystem.devices)
+        {
+            PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+        }
     }
 
     private void OnEnable()
     {
+        InputSystem.onDeviceChange += OnDeviceChange;
+
+
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged += OnPlayersListChanged;
 
@@ -233,6 +251,34 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (SO_Spell spell in spells)
             spell.CanUse = true;
+    }
+
+    private void OnDisable()
+    {
+        InputSystem.onDeviceChange -= OnDeviceChange;
+    }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        switch (change)
+        {
+            case InputDeviceChange.Added:
+                Debug.Log($"Device added: {device.displayName}");
+                playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+                break;
+
+            case InputDeviceChange.Removed:
+                Debug.Log($"Device removed: {device.displayName}");
+                break;
+
+            case InputDeviceChange.Reconnected:
+                Debug.Log($"Device reconnected: {device.displayName}");
+                break;
+
+            case InputDeviceChange.Disconnected:
+                Debug.Log($"Device disconnected: {device.displayName}");
+                break;
+        }
     }
 
     private void OnDestroy()
@@ -278,7 +324,7 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    public void ToggleReady(int playerIndex)
+    public void SetReady(int playerIndex, bool value)
     {
         int index = -1;
 
@@ -303,19 +349,51 @@ public class LobbyManager : NetworkBehaviour
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
-        if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-        {           
-            player.IsReady = !player.IsReady;
+        //if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
+        //{           
+        //    player.IsReady = !player.IsReady;
+        //    players[index] = player;
+
+        //    OnReadyStateUpdated?.Invoke((ulong)playerIndex);
+        //    CheckAllReady();
+        //    UpdatePlayerUI();         
+        //}
+
+        if(value)
+        {
+            player.IsReady = true;
             players[index] = player;
 
-            OnReadyStateUpdated?.Invoke((ulong)playerIndex);
+            OnReadyStateUpdated?.Invoke((ulong)playerIndex, true);
             CheckAllReady();
-            UpdatePlayerUI();         
+            UpdatePlayerUI();
+        }
+        else
+        {
+            player.IsReady = false;
+            players[index] = player;
+
+            OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+            CheckAllReady();
+            UpdatePlayerUI();
         }
     }
 
+    public void RemovePlayer(int playerIndex)
+    {
+        PlayerLobbyState stateToChange; 
+        foreach (PlayerLobbyState state in players)
+        {
+            if (state.ClientId == (ulong)playerIndex)
+                stateToChange = state;
+        }
+
+        stateToChange.IsReady = false;
+        OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);     
+    }
+
     [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(ulong clientID)
+    public void ToggleReadyServerRpc(ulong clientID, bool state)
     {
         int index = -1;
 
@@ -342,9 +420,9 @@ public class LobbyManager : NetworkBehaviour
             
             if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
             {                
-                player.IsReady = !player.IsReady;
+                player.IsReady = state;
                 players[index] = player;
-                InvokeOnReadyStateUpdatedClientRpc(clientID);
+                InvokeOnReadyStateUpdatedClientRpc(clientID,state);
             }
         }
 
@@ -362,9 +440,9 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void InvokeOnReadyStateUpdatedClientRpc(ulong clientID)
+    private void InvokeOnReadyStateUpdatedClientRpc(ulong clientID, bool state)
     {
-        OnReadyStateUpdated?.Invoke(clientID);
+        OnReadyStateUpdated?.Invoke(clientID, state);
     }
 
     private void CheckAllReady()

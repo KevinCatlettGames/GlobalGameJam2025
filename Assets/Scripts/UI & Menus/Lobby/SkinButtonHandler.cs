@@ -1,3 +1,4 @@
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI; 
@@ -66,5 +67,17 @@ public class SkinButtonHandler : MonoBehaviour
             selectionimage.gameObject.SetActive(false);
             shineImage.enabled = true;
         }
+    }
+
+    public void ResetVisuals()
+    {
+        gameObject.GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
+        transform.localScale = originalScale;
+        GetComponent<Image>().color = standardImageColor;
+        selectionimage.enabled = false;
+        selectionimage.color = Color.white;
+        selectionText.enabled = false;
+        shineImage.enabled = false;
+        isSelected = false;
     }
 }

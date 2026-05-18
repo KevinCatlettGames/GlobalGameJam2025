@@ -399,6 +399,15 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public void OnGameContinue(InputAction.CallbackContext context)
+    {
+        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance)
+        {
+            if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
+                GameManager.Instance.RestartGame();
+        }
+    }
+
     #endregion
     
     #region Spell System

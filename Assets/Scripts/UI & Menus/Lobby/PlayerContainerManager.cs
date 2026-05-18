@@ -43,12 +43,23 @@ public class PlayerContainerManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void ReadyStateUpdated(ulong clientId)
+    public void ReadyStateUpdated(ulong clientId, bool state)
     {
-        if ((int)clientId != uiIndex) return;     
-        isReady = !isReady;
-        readyImage.enabled = isReady ? false : true;
-        unreadyText.enabled = isReady ? false : true;
-        readyText.enabled = isReady ? true : false;
+        if ((int)clientId != uiIndex) return;   
+
+        if(state)
+        {
+            isReady = true;
+            readyImage.enabled = false;
+            unreadyText.enabled = false;
+            readyText.enabled = true;
+        }
+        else
+        {
+            isReady = false;
+            readyImage.enabled = true;
+            unreadyText.enabled = true;
+            readyText.enabled = false;
+        }
     }
 }

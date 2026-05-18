@@ -2,11 +2,12 @@ using FMOD.Studio;
 using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class LobbyPlayerInput : MonoBehaviour
-{
+{  
     LobbyManager lobbyManager;
     LobbyButtons lobbyButtons;
     //LobbyPlayerValues lobbyPlayerValues;
@@ -16,17 +17,24 @@ public class LobbyPlayerInput : MonoBehaviour
     [SerializeField] EventReference joinReference;
     [SerializeField] EventReference readyReference;
     [SerializeField] EventReference unreadyReference;
-
+    [SerializeField] EventReference buttonReference;
+    bool firstJoined = true;
     private bool isQuitting;
+    bool joined = false;
+    int lobbyPlayerInputIndex = -1;
 
     private void OnEnable()
     {
         playerInput = GetComponent<PlayerInput>();
+      
         lobbyManager = LobbyManager.instance;
-        lobbyButtons = LobbyManager.instance.GetComponent<LobbyButtons>();
-        //lobbyPlayerValues = LobbyManager.instance.GetComponent <LobbyPlayerValues>();
+        if(!lobbyManager.allLobbyPlayerInputs.Contains(this))
+        {
+            lobbyManager.allLobbyPlayerInputs.Add(this);
+        }
 
-        lobbyManager.OnLeavingLobby.AddListener(DestroySelf);
+        lobbyButtons = LobbyManager.instance.GetComponent<LobbyButtons>();
+        lobbyManager.OnLeavingLobby.AddListener(DestroySelf);    
     }
 
     private void OnDisable()
@@ -51,28 +59,46 @@ public class LobbyPlayerInput : MonoBehaviour
         Destroy(gameObject);
     }
 
-    private void Start()
+    public void OnJoined(InputAction.CallbackContext context)
     {
-        lobbyManager.ToggleReady(playerInput.playerIndex);
-        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerInput.playerIndex, playerInput.devices[0]);
+        if (joined) return;
+
+        if (firstJoined)
+        {
+            firstJoined = false;
+            int amountJoined = 0;
+
+            foreach (LobbyPlayerInput lobbyPlayerInput in lobbyManager.allLobbyPlayerInputs)
+            {
+                if (lobbyPlayerInput.joined)
+                    amountJoined++;
+            }
+
+            lobbyPlayerInputIndex = amountJoined;      
+        }
+
+        lobbyManager.SetReady(lobbyPlayerInputIndex, false);
+        LobbyPlayerValues.Instance.AssignDeviceToPlayer(lobbyPlayerInputIndex, playerInput.devices[0]);
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
             playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
 
         PlaySFX(joinReference);
+        joined = true;
     }
 
     public void OnConfirmed(InputAction.CallbackContext context)
     {
+        if (!joined) return;
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
 
-        if (lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+        if (lobbyManager.MatchSettingsSelection.activeSelf)
             return;
 
-        if (context.performed && !LobbyManager.instance.players[playerInput.playerIndex].IsReady)
+        if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
-            lobbyManager.ToggleReady(playerInput.playerIndex);
+            lobbyManager.SetReady(lobbyPlayerInputIndex, true);
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
@@ -86,18 +112,41 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
 
-        if (lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
-            return;
-
-        if (context.started && !lobbyManager.players[playerInput.playerIndex].IsReady)
+        if (lobbyManager.MatchSettingsSelection.activeSelf)
         {
-            lobbyButtons.HandleMainMenuInput(playerInput.playerIndex);
+            PlaySFX(buttonReference);
+            lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
             return;
         }
 
-        lobbyManager.ToggleReady(playerInput.playerIndex);
-        foreach (GameObject playerContainer in lobbyManager.playerContainers)
-            playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+        if (joined && LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
+        {
+            lobbyManager.SetReady(lobbyPlayerInputIndex, false);
+            return;
+        }
+
+        if (joined && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
+        {
+            if (context.started)
+            {
+                // remove here
+                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
+                lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
+                joined = false;          
+            }
+            return;
+        }
+
+        if (!joined)
+        {
+            if (context.started)
+                lobbyButtons.OnBackToMenuButtonDown();
+            else if (context.canceled)
+                lobbyButtons.OnBackToMenuButtonUp();
+        }
+
+            foreach (GameObject playerContainer in lobbyManager.playerContainers)
+                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
 
         PlaySFX(unreadyReference);
     }
@@ -107,9 +156,10 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnSkinChange(InputAction.CallbackContext context)
     {
         if (isQuitting) return;
+        if (!joined) return;
         if (!isActiveAndEnabled) return;
 
-        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+        if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf)
             return;
 
         Vector2 input = context.ReadValue<Vector2>();
@@ -124,7 +174,7 @@ public class LobbyPlayerInput : MonoBehaviour
             return;
 
         canNavigateSkins = false;
-        lobbyManager.playerContainers[GetComponent<PlayerInput>().playerIndex]
+        lobbyManager.playerContainers[lobbyPlayerInputIndex]
                 .GetComponent<PlayerContainerSkinChange>()
                 .ChangeSkin(context.ReadValue<Vector2>());
 
@@ -136,8 +186,9 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnTeamNavigation(InputAction.CallbackContext context)
     {
         if (isQuitting) return;
+        if (!joined) return;
         if (!isActiveAndEnabled) return;
-        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf || lobbyButtons.confirmationPromptActive)
+        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf)
             return;
         if(LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
 
@@ -154,7 +205,7 @@ public class LobbyPlayerInput : MonoBehaviour
 
         canNavigateTeam = false;
 
-        lobbyManager.playerContainers[playerInput.playerIndex]
+        lobbyManager.playerContainers[lobbyPlayerInputIndex]
                  .GetComponentInChildren<TeamSelection>()
                  .ChangeTeam();
 
@@ -172,12 +223,27 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnStartGame(InputAction.CallbackContext context)
     {
         if (isQuitting) return;
+        if (!joined) return;
         if (!isActiveAndEnabled) return;
+        if (lobbyManager.MatchSettingsSelection.activeSelf) return;
 
         if (context.started)
-            lobbyButtons.StartGameHold(playerInput.playerIndex);
+            lobbyButtons.StartGameHold(lobbyPlayerInputIndex);
 
         if (context.canceled)
-            lobbyButtons.StopStartGameHold(playerInput.playerIndex);
+            lobbyButtons.StopStartGameHold(lobbyPlayerInputIndex);
+    }
+
+    public void OnToggleMatchSettings(InputAction.CallbackContext context)
+    {
+        if (isQuitting) return;
+        if (!joined) return;
+        if (!isActiveAndEnabled) return;
+        if (!SteamIntegration.instance.IsFullVersion) return;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+            !NetworkManager.Singleton.IsServer) return;
+
+        PlaySFX(buttonReference);
+        lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
     }
 }

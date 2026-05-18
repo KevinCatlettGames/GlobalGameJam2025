@@ -11,6 +11,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     [SerializeField] private Image playerTextImage;
     [SerializeField] private Image blurImage;
     [SerializeField] private float blurImageAlpha = .1f;
+    Color initialBlurColor;
     [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
@@ -20,18 +21,18 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     public SkinButtonHandler[] allSkinSelections;
     public SkinButtonHandler currentSkinSelection;
     bool init;
-    bool wasInit = false; 
+    bool wasInit = false;
+    public GameObject emptyPlayerContainer;
 
     private void OnDisable()
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+    }
 
-        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[playerIndex];
-       
-        avatar.sprite = skinToUse.LobbySprite;
-        avatar.color = Color.white;
-        gameObject.SetActive(false);
+    private void Awake()
+    {
+        initialBlurColor = blurImage.color;
     }
 
     private void OnEnable()
@@ -63,7 +64,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         init = true;
     }
 
-    public void ReadyStateUpdated(ulong clientId)
+    public void ReadyStateUpdated(ulong clientId, bool state)
     {
         if ((int)clientId != playerIndex) return;
         currentSkinSelection.ToggleReadyVisuals();
@@ -80,6 +81,17 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         UpdateSkin();
         cycleEmitter.Play();
+    }
+
+    public void ResetContainer()
+    {
+        currentSkinSelection.ResetVisuals();
+        currentSkinSelection = null;
+        blurImage.color = initialBlurColor;
+        emptyPlayerContainer.SetActive(true);
+        wasInit = false;
+        init = true;
+        gameObject.SetActive(false);
     }
 
     public void ChangeSkin(Vector2 skinChangeInput)

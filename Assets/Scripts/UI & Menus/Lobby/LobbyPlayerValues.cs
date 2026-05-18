@@ -121,7 +121,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         {
             LobbyManager.instance.playerContainers[playerIndex]
                 .GetComponent<PlayerContainerManager>()
-                .ReadyStateUpdated((ulong)playerIndex);
+                .ReadyStateUpdated((ulong)playerIndex, false);
         }
     }
 

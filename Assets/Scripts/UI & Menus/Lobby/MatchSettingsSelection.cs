@@ -45,17 +45,11 @@ public class MatchSettingsSelection : NetworkBehaviour
 
     private void OnEnable()
     {
-        exitMatchSettingsInputAction.action.performed += ExitMatchSettingsSelectionPerformed;
-        exitMatchSettingsInputAction.action.Enable();
-        
         SetTab(Tab.General);
     }
 
     private void OnDisable()
     {
-        exitMatchSettingsInputAction.action.performed -= ExitMatchSettingsSelectionPerformed;
-        exitMatchSettingsInputAction.action.Disable();
-        
         DisableTabToggling();
     }
     
@@ -108,11 +102,6 @@ public class MatchSettingsSelection : NetworkBehaviour
         SetTab(nextTab);
     }
     #endregion
-    
-    private void ExitMatchSettingsSelectionPerformed(InputAction.CallbackContext obj)
-    {
-        lobbyButtons.ToggleMatchSettings();
-    }
     
     public void SetTab(Tab tab)
     {

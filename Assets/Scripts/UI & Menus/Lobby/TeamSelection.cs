@@ -71,7 +71,7 @@ public class TeamSelection : MonoBehaviour
             SetTeam();
         }
 
-        UpdateTeamIndex((ulong)playerIndex);
+        UpdateTeamIndex((ulong)playerIndex, false);
         LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
     }
 
@@ -120,12 +120,12 @@ public class TeamSelection : MonoBehaviour
         playerContainerSkinChange.UpdateBlur();
     }
 
-    private void UpdateTeamIndex(ulong playerID)
+    private void UpdateTeamIndex(ulong playerID, bool state)
     {
         if (playerID != (ulong)playerIndex)
             return;
 
-        if (LobbyManager.instance.players[(int)playerID].IsReady)
+        if (state)
         {
             if (currentTeamIndex == 1 || currentTeamIndex == 2)
             {

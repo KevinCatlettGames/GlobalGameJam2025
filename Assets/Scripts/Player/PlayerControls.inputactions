@@ -547,6 +547,15 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "UIJoinAction",
+                    "type": "Button",
+                    "id": "5c482785-e082-4d98-a477-ce47b3a05891",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -855,6 +864,39 @@
                     "processors": "",
                     "groups": "",
                     "action": "UIMatchSettingsToggle",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "3b7f604f-b2ad-444b-bd53-8bb0af544d06",
+                    "path": "<Keyboard>/enter",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "",
+                    "action": "UIJoinAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "edbad9c7-97a9-435f-bfa5-f1a050003824",
+                    "path": "<Gamepad>/start",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": "Gamepad",
+                    "action": "UIJoinAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "620309ec-d8b4-4f7e-95a1-fedb5538fd46",
+                    "path": "<Gamepad>/buttonSouth",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": ";Gamepad",
+                    "action": "UIJoinAction",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
