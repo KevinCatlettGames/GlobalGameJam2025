@@ -42,19 +42,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (init && !wasInit)
         {
-            SkinButtonHandler availableSkin = null;
-
-            foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
-            {
-                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
-                {
-                    availableSkin = skinButtonHandler;
-                    break;
-                }
-            }
-            currentSkinSelection = availableSkin;
-            currentSkinSelection.isSelected = true;
-            currentSkinSelection.TogglePlayerIcon(true, playerIndex);
+            currentSkinSelection = allSkinSelections[playerIndex];
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateBlur();
@@ -85,7 +74,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void ResetContainer()
     {
-        currentSkinSelection.ResetVisuals();
         currentSkinSelection = null;
         blurImage.color = initialBlurColor;
         emptyPlayerContainer.SetActive(true);
@@ -102,16 +90,14 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         {
             foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
             {
-                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
+                if (skinButtonHandler != currentSkinSelection)
                 {
                     availableSkin = skinButtonHandler;
                     break;
                 }
             }
-            currentSkinSelection.isSelected = false;
-            currentSkinSelection.TogglePlayerIcon(false, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
             currentSkinSelection = availableSkin;
-            currentSkinSelection.isSelected = true;
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateBlur();
@@ -120,136 +106,143 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         else if (skinChangeInput.x > 0)
         {
             if (!currentSkinSelection.rightSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.rightSkinSelection.skinSo.AvailableInDemo) return;
-            currentSkinSelection.isSelected = false;
             SkinButtonHandler skinToCheck = currentSkinSelection.rightSkinSelection;
-            bool checkThroughNeighbor = true;
+            availableSkin = skinToCheck;
 
-            var visited = new HashSet<SkinButtonHandler>();
+            //bool checkThroughNeighbor = true;
 
-            while (checkThroughNeighbor)
-            {
-                if (visited.Contains(skinToCheck))
-                {
-                    break;
-                }
+            //var visited = new HashSet<SkinButtonHandler>();
 
-                if (skinToCheck.isSelected)
-                {
-                    if(skinToCheck.rightSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.rightSkinSelection.skinSo.AvailableInDemo) 
-                    {         
-                        checkThroughNeighbor = false;                      
-                    }
-                    else
-                    {
-                        skinToCheck = skinToCheck.rightSkinSelection;
-                    }
-                }
-                else
-                {
-                    availableSkin = skinToCheck;
-                    checkThroughNeighbor = false;
-                }
-            }
+            //while (checkThroughNeighbor)
+            //{
+            //    if (visited.Contains(skinToCheck))
+            //    {
+            //        break;
+            //    }
+
+            //    if (skinToCheck.isSelected)
+            //    {
+            //        if(skinToCheck.rightSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.rightSkinSelection.skinSo.AvailableInDemo) 
+            //        {         
+            //            checkThroughNeighbor = false;                      
+            //        }
+            //        else
+            //        {
+            //            skinToCheck = skinToCheck.rightSkinSelection;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        availableSkin = skinToCheck;
+            //        checkThroughNeighbor = false;
+            //    }
+            //}
         }
         else if (skinChangeInput.x < 0)
         {
             if (!currentSkinSelection.leftSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.leftSkinSelection.skinSo.AvailableInDemo) return;
-            currentSkinSelection.isSelected = false;
             SkinButtonHandler skinToCheck = currentSkinSelection.leftSkinSelection;
-            bool checkThroughNeighbor = true;
+            availableSkin = skinToCheck;
 
-            var visited = new HashSet<SkinButtonHandler>();
 
-            while (checkThroughNeighbor)
-            {
-                if (visited.Contains(skinToCheck))
-                {
-                    break;
-                }
+            //bool checkThroughNeighbor = true;
 
-                if (skinToCheck.isSelected)
-                {
-                    if (skinToCheck.leftSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.leftSkinSelection.skinSo.AvailableInDemo)
-                    {
-                        checkThroughNeighbor = false;
-                    }
-                    else
-                    {
-                        skinToCheck = skinToCheck.leftSkinSelection;
-                    }
-                }
-                else
-                {
-                    availableSkin = skinToCheck;
-                    checkThroughNeighbor = false;
-                }
-            }
+            //var visited = new HashSet<SkinButtonHandler>();
+
+            //while (checkThroughNeighbor)
+            //{
+            //    if (visited.Contains(skinToCheck))
+            //    {
+            //        break;
+            //    }
+
+            //    if (skinToCheck.isSelected)
+            //    {
+            //        if (skinToCheck.leftSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.leftSkinSelection.skinSo.AvailableInDemo)
+            //        {
+            //            checkThroughNeighbor = false;
+            //        }
+            //        else
+            //        {
+            //            skinToCheck = skinToCheck.leftSkinSelection;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        availableSkin = skinToCheck;
+            //        checkThroughNeighbor = false;
+            //    }
+            //}
         }
         else if (skinChangeInput.y > 0)
         {
             if (!currentSkinSelection.topSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.topSkinSelection.skinSo.AvailableInDemo) return;
-            currentSkinSelection.isSelected = false;
             SkinButtonHandler skinToCheck = currentSkinSelection.topSkinSelection;
-            bool checkThroughNeighbor = true;
+            availableSkin = skinToCheck;
 
-            var visited = new HashSet<SkinButtonHandler>();
 
-            while (checkThroughNeighbor)
-            {
-                if (visited.Contains(skinToCheck))
-                {
-                    break;
-                }
-                if (skinToCheck.isSelected)
-                {
-                    if (skinToCheck.topSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.topSkinSelection.skinSo.AvailableInDemo)
-                    {
-                        checkThroughNeighbor = false;
-                    }
-                    else
-                    {
-                        skinToCheck = skinToCheck.topSkinSelection;
-                    }
-                }
-                else
-                {
-                    availableSkin = skinToCheck;
-                    checkThroughNeighbor = false;
-                }
-            }
+            //bool checkThroughNeighbor = true;
+
+            //var visited = new HashSet<SkinButtonHandler>();
+
+            //while (checkThroughNeighbor)
+            //{
+            //    if (visited.Contains(skinToCheck))
+            //    {
+            //        break;
+            //    }
+            //    if (skinToCheck.isSelected)
+            //    {
+            //        if (skinToCheck.topSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.topSkinSelection.skinSo.AvailableInDemo)
+            //        {
+            //            checkThroughNeighbor = false;
+            //        }
+            //        else
+            //        {
+            //            skinToCheck = skinToCheck.topSkinSelection;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        availableSkin = skinToCheck;
+            //        checkThroughNeighbor = false;
+            //    }
+            //}
         }
         else if (skinChangeInput.y < 0)
         {
             if (!currentSkinSelection.bottomSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.bottomSkinSelection.skinSo.AvailableInDemo) return;
-            currentSkinSelection.isSelected = false;          
             SkinButtonHandler skinToCheck = currentSkinSelection.bottomSkinSelection;
-            bool checkThroughNeighbor = true;
+            availableSkin = skinToCheck;
 
-            var visited = new HashSet<SkinButtonHandler>();
 
-            while (checkThroughNeighbor)
-            {
-                if (visited.Contains(skinToCheck))
-                {
-                    break;
-                }
-                if (skinToCheck.isSelected)
-                {
-                    if (skinToCheck.bottomSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.bottomSkinSelection.skinSo.AvailableInDemo)
-                    {
-                        checkThroughNeighbor = false;
-                    }
-                    else
-                    {
-                        skinToCheck = skinToCheck.bottomSkinSelection;
-                    }
-                }
-                else
-                {
-                    availableSkin = skinToCheck;
-                    checkThroughNeighbor = false;
-                }
-            }                  
+            //bool checkThroughNeighbor = true;
+
+            //var visited = new HashSet<SkinButtonHandler>();
+
+            //while (checkThroughNeighbor)
+            //{
+            //    if (visited.Contains(skinToCheck))
+            //    {
+            //        break;
+            //    }
+            //    if (skinToCheck.isSelected)
+            //    {
+            //        if (skinToCheck.bottomSkinSelection == null || !SteamIntegration.instance.IsFullVersion && !skinToCheck.bottomSkinSelection.skinSo.AvailableInDemo)
+            //        {
+            //            checkThroughNeighbor = false;
+            //        }
+            //        else
+            //        {
+            //            skinToCheck = skinToCheck.bottomSkinSelection;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        availableSkin = skinToCheck;
+            //        checkThroughNeighbor = false;
+            //    }
+            //}                  
         }
 
         if (availableSkin == null)
@@ -257,7 +250,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             foreach (SkinButtonHandler skinButtonHandler in allSkinSelections)
             {
                 if (!SteamIntegration.instance.IsFullVersion && !skinButtonHandler.skinSo.AvailableInDemo) return;
-                if (skinButtonHandler != currentSkinSelection && !skinButtonHandler.isSelected)
+                if (skinButtonHandler != currentSkinSelection)
                 {
                     availableSkin = skinButtonHandler;
                 }
@@ -265,9 +258,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         if (availableSkin == null) return; 
 
-        currentSkinSelection.TogglePlayerIcon(false, playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
         currentSkinSelection = availableSkin;
-        currentSkinSelection.isSelected = true;
         currentColorIndex = currentSkinSelection.skinSo.Index;
         avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateBlur();
@@ -329,7 +321,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             avatar.sprite = skinToUse.LobbySprite;
             avatar.color = Color.gray;           
             if(currentSkinSelection)
-            currentSkinSelection.TogglePlayerIcon(false, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
         }
         else
         {
@@ -339,7 +331,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             avatar.color = Color.white;
             if (currentSkinSelection)
             {
-                currentSkinSelection.TogglePlayerIcon(true, playerIndex);
+                currentSkinSelection.ChangePlayerIcon(1, playerIndex);
             }
         }     
     }

@@ -1,7 +1,8 @@
-using System;
+﻿using System;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
 
 public class SkinButtonHandler : MonoBehaviour
 {
@@ -9,63 +10,124 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinButtonHandler leftSkinSelection;
     public SkinButtonHandler topSkinSelection;
     public SkinButtonHandler bottomSkinSelection;
-    public bool isSelected = false;
-    public Image selectionimage;
-    public TextMeshProUGUI selectionText;
+
+    public Image[] selectionimages;
+    public TextMeshProUGUI[] selectionTexts;
+
     public SkinSO skinSo;
     public Image skinImage;
     public Image shineImage;
+
     public Color standardImageColor = Color.gray;
-    public Color disabledColor = Color.red; 
+    public Color disabledColor = Color.red;
+
     public Vector3 originalScale;
     public float scaleMultiplier;
+
+    private int hoveredAmount = 0;
+    private bool[] isHovering;
+
+    private List<int> activePlayers = new List<int>();
 
     private void Awake()
     {
         originalScale = transform.localScale;
+        isHovering = new bool[selectionimages.Length];
     }
 
     private void OnEnable()
-    {      
+    {
+        foreach (Image image in selectionimages)
+        {
+            image.enabled = false;
+            image.color = Color.white;
+        }
+
+        foreach (TextMeshProUGUI text in selectionTexts)
+            text.enabled = false;
+
         if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
             GetComponent<Image>().color = disabledColor;
         else
             GetComponent<Image>().color = standardImageColor;
     }
 
-    public void TogglePlayerIcon(bool activate, int playerIndex)
+    public void ChangePlayerIcon(int amount, int playerIndex)
     {
-        selectionimage.enabled = activate;
-        selectionimage.color = skinSo.Color;
-        if (activate)
+        if (playerIndex < 0 || playerIndex >= selectionimages.Length)
+            return;
+
+        bool entering = amount > 0;
+
+        // ignore duplicate state changes
+        if (isHovering[playerIndex] == entering)
+            return;
+
+        isHovering[playerIndex] = entering;
+
+        if (entering)
         {
-            gameObject.GetComponent<Outline>().effectColor = skinSo.Color;
+            if (!activePlayers.Contains(playerIndex))
+                activePlayers.Add(playerIndex);
+        }
+        else
+        {
+            activePlayers.Remove(playerIndex);
+        }
+
+        hoveredAmount = activePlayers.Count;
+
+        RefreshUI();
+    }
+
+    private void RefreshUI()
+    {
+        // First hide everything
+        for (int i = 0; i < selectionimages.Length; i++)
+        {
+            selectionimages[i].enabled = false;
+            selectionTexts[i].enabled = false;
+        }
+
+        // Rebuild queue left → right
+        for (int slotIndex = 0; slotIndex < activePlayers.Count; slotIndex++)
+        {
+            int playerIndex = activePlayers[slotIndex];
+
+            selectionimages[slotIndex].enabled = true;
+            selectionimages[slotIndex].color = skinSo.Color;
+
+            selectionTexts[slotIndex].enabled = true;
+            selectionTexts[slotIndex].text = "P" + (playerIndex + 1);
+        }
+
+        bool hasHover = activePlayers.Count > 0;
+
+        if (hasHover)
+        {
+            GetComponent<Outline>().effectColor = skinSo.Color;
             transform.localScale = originalScale * scaleMultiplier;
         }
         else
         {
-            gameObject.GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
+            GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
             transform.localScale = originalScale;
         }
-
-        selectionText.enabled = activate;
-        selectionText.text = "P" + (playerIndex+1);
     }
 
     public void ToggleReadyVisuals()
     {
+        bool isSelectedNow = GetComponent<Image>().color != skinSo.Color;
 
-        if (GetComponent<Image>().color == skinSo.Color)
+        if (isSelectedNow)
         {
-            GetComponent<Image>().color = standardImageColor;
-            selectionimage.gameObject.SetActive(true);
-            shineImage.enabled = false;
+            GetComponent<Image>().color = skinSo.Color;
+            shineImage.enabled = true;
         }
         else
         {
-            GetComponent<Image>().color = skinSo.Color;
-            selectionimage.gameObject.SetActive(false);
-            shineImage.enabled = true;
+            GetComponent<Image>().color = standardImageColor;
+            shineImage.enabled = false;
         }
     }
 
@@ -74,10 +136,22 @@ public class SkinButtonHandler : MonoBehaviour
         gameObject.GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
         transform.localScale = originalScale;
         GetComponent<Image>().color = standardImageColor;
-        selectionimage.enabled = false;
-        selectionimage.color = Color.white;
-        selectionText.enabled = false;
+
+        foreach (Image image in selectionimages)
+        {
+            image.enabled = false;
+            image.color = Color.white;
+        }
+
+        foreach (TextMeshProUGUI text in selectionTexts)
+            text.enabled = false;
+
         shineImage.enabled = false;
-        isSelected = false;
+
+        activePlayers.Clear();
+        hoveredAmount = 0;
+
+        for (int i = 0; i < isHovering.Length; i++)
+            isHovering[i] = false;
     }
 }

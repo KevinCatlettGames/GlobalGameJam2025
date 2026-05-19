@@ -96,12 +96,17 @@ public class LobbyPlayerInput : MonoBehaviour
         if (!joined) return;
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
-
+        foreach (GameObject playerContainer in lobbyManager.playerContainers)
+        {
+            if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == lobbyPlayerInputIndex && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
+                return;
+        }
         if (lobbyManager.MatchSettingsSelection.activeSelf)
             return;
 
         if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
+
             lobbyManager.SetReady(lobbyPlayerInputIndex, true);
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
