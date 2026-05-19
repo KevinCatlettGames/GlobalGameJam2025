@@ -11869,14 +11869,14 @@ RectTransform:
   m_GameObject: {fileID: 2340717905774194587}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.24, y: 0.103, z: 0}
+  m_LocalScale: {x: 0.26546398, y: 0.113928296, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 8977196701456397583}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -56.107224, y: 0.14025879}
+  m_AnchoredPosition: {x: -56.107, y: 0.14025879}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8336725153287793473
@@ -14253,19 +14253,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3904763360946568576}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1556331336544241567}
-        m_TargetAssemblyTypeName: LobbyButtons, Assembly-CSharp
-        m_MethodName: ToggleBackPrompt
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &8158167349459447325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -14286,6 +14274,38 @@ MonoBehaviour:
         - m_Target: {fileID: 7966637192278562673}
           m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
           m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 2
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1556331336544241567}
+          m_TargetAssemblyTypeName: LobbyButtons, Assembly-CSharp
+          m_MethodName: OnBackToMenuButtonDown
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 3
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 1556331336544241567}
+          m_TargetAssemblyTypeName: LobbyButtons, Assembly-CSharp
+          m_MethodName: OnBackToMenuButtonUp
           m_Mode: 1
           m_Arguments:
             m_ObjectArgument: {fileID: 0}
