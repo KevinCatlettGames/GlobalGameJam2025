@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -59,7 +58,6 @@ public class SkinButtonHandler : MonoBehaviour
 
         bool entering = amount > 0;
 
-        // ignore duplicate state changes
         if (isHovering[playerIndex] == entering)
             return;
 
@@ -71,7 +69,7 @@ public class SkinButtonHandler : MonoBehaviour
                 activePlayers.Add(playerIndex);
         }
         else
-        {
+        {      
             activePlayers.Remove(playerIndex);
         }
 
@@ -82,14 +80,12 @@ public class SkinButtonHandler : MonoBehaviour
 
     private void RefreshUI()
     {
-        // First hide everything
         for (int i = 0; i < selectionimages.Length; i++)
         {
             selectionimages[i].enabled = false;
             selectionTexts[i].enabled = false;
         }
 
-        // Rebuild queue left → right
         for (int slotIndex = 0; slotIndex < activePlayers.Count; slotIndex++)
         {
             int playerIndex = activePlayers[slotIndex];

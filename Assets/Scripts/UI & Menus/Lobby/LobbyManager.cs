@@ -349,16 +349,6 @@ public class LobbyManager : NetworkBehaviour
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
-        //if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-        //{           
-        //    player.IsReady = !player.IsReady;
-        //    players[index] = player;
-
-        //    OnReadyStateUpdated?.Invoke((ulong)playerIndex);
-        //    CheckAllReady();
-        //    UpdatePlayerUI();         
-        //}
-
         if(value)
         {
             player.IsReady = true;

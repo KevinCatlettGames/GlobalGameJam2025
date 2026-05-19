@@ -1,7 +1,6 @@
 using FMOD.Studio;
 using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -10,7 +9,6 @@ public class LobbyPlayerInput : MonoBehaviour
 {  
     LobbyManager lobbyManager;
     LobbyButtons lobbyButtons;
-    //LobbyPlayerValues lobbyPlayerValues;
     private PlayerInput playerInput;
 
     [SerializeField] EventReference skinChangeReference;
@@ -138,7 +136,6 @@ public class LobbyPlayerInput : MonoBehaviour
         {
             if (context.started)
             {
-                // remove here
                 lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
                 lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;
                 lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
@@ -249,7 +246,6 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnToggleMatchSettings(InputAction.CallbackContext context)
     {
         if (isQuitting) return;
-        if (!joined) return;
         if (!isActiveAndEnabled) return;
         if (!SteamIntegration.instance.IsFullVersion) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
