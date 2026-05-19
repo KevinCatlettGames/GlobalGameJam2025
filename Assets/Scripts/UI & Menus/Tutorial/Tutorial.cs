@@ -37,10 +37,14 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private TextMeshProUGUI itemShortDescriptionText;
     [SerializeField] private TextMeshProUGUI itemLongDescriptionText;
     [SerializeField] private Button itemButton;
-    [SerializeField] private TextMeshProUGUI itemStatsText;
+    [SerializeField] private Image[] itemStatsImages;
     [SerializeField] private Image[] knockBackStatsImages;
     [SerializeField] private Image[] damageStatsImages;
     [SerializeField] private Image[] cooldownStatImages;
+    [SerializeField] private Sprite emptyStatImage;
+    [SerializeField] private Sprite filledStatImage;
+    [SerializeField] private Vector2 filledStatSize;
+    [SerializeField] private Vector2 emptyStatSize;
 
     [Header("Item Data Sets")]
     [SerializeField] private TutorialItemSO[] generalItems;
@@ -335,29 +339,40 @@ public class Tutorial : MonoBehaviour
 
         if (currentTab == Tab.Weapons)
         {
-            itemStatsText.enabled = true;
+            foreach (Image image in itemStatsImages)
+                image.enabled = true;
 
-            UpdateStatImages(knockBackStatsImages, item.Stats[0]);
-            UpdateStatImages(damageStatsImages, item.Stats[1]);
+            UpdateStatImages(damageStatsImages, item.Stats[0]);
+            UpdateStatImages(knockBackStatsImages, item.Stats[1]);
             UpdateStatImages(cooldownStatImages, item.Stats[2]);
         }
         else
         {
-            itemStatsText.enabled = false;
+            foreach (Image image in itemStatsImages)
+                image.enabled = false;
 
-            DisableImages(knockBackStatsImages);
             DisableImages(damageStatsImages);
+            DisableImages(knockBackStatsImages);
             DisableImages(cooldownStatImages);
         }
     }
 
     private void UpdateStatImages(Image[] images, int activeCount)
     {
-        DisableImages(images);
-
-        for (int i = 0; i < activeCount && i < images.Length; i++)
+        for (int i = 0; i < images.Length; i++)
         {
             images[i].enabled = true;
+
+            if (i < activeCount)
+            {
+                images[i].transform.localScale = filledStatSize;
+                images[i].sprite = filledStatImage;
+            }
+            else
+            {
+                images[i].transform.localScale = emptyStatSize; 
+                images[i].sprite = emptyStatImage;
+            }
         }
     }
 
