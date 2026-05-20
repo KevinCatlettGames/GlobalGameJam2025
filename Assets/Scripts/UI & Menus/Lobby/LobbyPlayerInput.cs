@@ -98,7 +98,10 @@ public class LobbyPlayerInput : MonoBehaviour
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
             if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == lobbyPlayerInputIndex && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
+            {
+                PlaySFX(buttonReference);
                 return;
+            }
         }
         if (lobbyManager.MatchSettingsSelection.activeSelf)
             return;
@@ -130,6 +133,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (joined && LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
             lobbyManager.SetReady(lobbyPlayerInputIndex, false);
+            PlaySFX(buttonReference);
             return;
         }
 
@@ -143,6 +147,7 @@ public class LobbyPlayerInput : MonoBehaviour
                 joined = false;
                 lobbyManager.CheckAllReady();
                 LobbyPlayerValues.Instance.playerValuesList[lobbyPlayerInputIndex].Device = null;
+                PlaySFX(buttonReference);
             }
             return;
         }
@@ -157,8 +162,6 @@ public class LobbyPlayerInput : MonoBehaviour
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
-
-        PlaySFX(unreadyReference);
     }
 
     private bool canNavigateSkins = true;
