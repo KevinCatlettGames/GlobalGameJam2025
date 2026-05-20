@@ -89,10 +89,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void ResetContainer()
     {
-        teamSelection.ResetTeam();
         currentSkinSelection.ChangePlayerIcon(-1,playerIndex);
         currentSkinSelection = null;
-        blurImage.color = initialBlurColor;
         emptyPlayerContainer.SetActive(true);
         wasInit = false;
         init = true;
@@ -241,6 +239,9 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         blurImage.enabled = true;
         Color c = Color.white;
+
+        Debug.Log(LobbyManager.instance.SelectedGameMode);
+        Debug.Log(teamSelection.CurrentTeamIndex);
 
         if (LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Standard)
             c = currentSkinSelection.skinSo.Color;

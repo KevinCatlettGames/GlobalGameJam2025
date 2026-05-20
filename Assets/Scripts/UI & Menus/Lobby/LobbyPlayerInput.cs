@@ -201,7 +201,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-        if (lobbyManager.players[playerInput.playerIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager.MatchSettingsSelection.activeSelf)
             return;
         if(LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
 

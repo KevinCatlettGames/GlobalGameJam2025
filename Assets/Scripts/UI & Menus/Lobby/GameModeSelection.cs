@@ -70,6 +70,11 @@ public class GameModeSelection : NetworkBehaviour
 
         foreach (GameObject teamSelection in teamSelections)
             teamSelection.SetActive(gameModeSoToUse.GameModeType == GameManager.GameModeType.Team);
+
+        foreach(GameObject skinChange in LobbyManager.instance.playerContainers)
+        {
+            skinChange.GetComponent<PlayerContainerSkinChange>().UpdateBlur();
+        }    
     }
 
     private void IncrementActionPerformed(InputAction.CallbackContext obj)
