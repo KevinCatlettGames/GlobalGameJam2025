@@ -26,7 +26,8 @@ public class BasicBubble : NetworkBehaviour
         Harpoon,
         Slasher,
         Zap,
-        Teleport
+        Teleport,
+        Cross
     };
 
     public SpellType spellType;
