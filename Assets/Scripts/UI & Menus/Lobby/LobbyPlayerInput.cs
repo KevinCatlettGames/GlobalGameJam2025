@@ -60,6 +60,7 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnJoined(InputAction.CallbackContext context)
     {
         if (joined) return;
+        if (lobbyManager.MatchSettingsSelection.activeSelf) return;
         lobbyPlayerInputIndex = -1;
         foreach (GameObject go in lobbyManager.playerContainers)
         {

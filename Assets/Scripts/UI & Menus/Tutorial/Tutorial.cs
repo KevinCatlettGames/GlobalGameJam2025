@@ -1,10 +1,12 @@
-using UnityEngine;
-using UnityEngine.UI;
-using TMPro;
-using UnityEngine.InputSystem;
-using UnityEngine.Video;
-using FMODUnity;
 using Cinemachine;
+using FMODUnity;
+using TMPro;
+using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class Tutorial : MonoBehaviour
 {
@@ -101,7 +103,7 @@ public class Tutorial : MonoBehaviour
         exitTutorialAction.action.performed += ExitTutorial;
         exitTutorialAction.action.Enable();
 
-        SetTab(Tab.General);
+        SetTab(Tab.General, true);
     }
 
     private void OnDisable()
@@ -172,7 +174,7 @@ public class Tutorial : MonoBehaviour
             : (currentTab == Tab.General ? Tab.Maps :
                currentTab == Tab.Maps ? Tab.Weapons : Tab.General);
 
-        SetTab(nextTab);
+        SetTab(nextTab, false);
     }
     #endregion
 
@@ -417,7 +419,7 @@ public class Tutorial : MonoBehaviour
     }
     #endregion
 
-    public void SetTab(Tab tab)
+    public void SetTab(Tab tab, bool initialSet)
     {
         currentTab = tab;
         mainMenuButtons.SetActive(false);
@@ -457,12 +459,13 @@ public class Tutorial : MonoBehaviour
                 break;
         }
 
-        tabSwitchEmitter.Play();
+        if(!initialSet)
+            tabSwitchEmitter.Play();
     }
 
-    public void OpenGeneralTab() => SetTab(Tab.General);
-    public void OpenWeaponsTab() => SetTab(Tab.Weapons);
-    public void OpenMapsTab() => SetTab(Tab.Maps);
+    public void OpenGeneralTab() => SetTab(Tab.General, false);
+    public void OpenWeaponsTab() => SetTab(Tab.Weapons, false);
+    public void OpenMapsTab() => SetTab(Tab.Maps, false);
 
     private void ExitTutorial(InputAction.CallbackContext obj)
     {
@@ -472,5 +475,11 @@ public class Tutorial : MonoBehaviour
             cam.Priority = 0; 
 
         gameObject.SetActive(false);    
+    }
+
+    public void LoadOfflineSceneUsingSceneManager(string sceneName)
+    {
+        Destroy(NetworkManager.Singleton.gameObject);
+        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 }

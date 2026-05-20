@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
+using FMODUnity;
 
 public class Settings : MonoBehaviour
 {
@@ -78,6 +79,7 @@ public class Settings : MonoBehaviour
     [SerializeField] private GameObject selectedObject;
     [SerializeField] private Button applyButton;
     [SerializeField] private Button backButton;
+    [SerializeField] private StudioEventEmitter emitter;
     #endregion
 
     public enum Tab { Video, Audio, Game }
@@ -99,7 +101,7 @@ public class Settings : MonoBehaviour
         ApplyVideoRuntime();
         ApplyAudioRuntime();
 
-        SetTab(Tab.Video);
+        SetTab(Tab.Video, true);
 
         UpdateApplyButton();
     }
@@ -270,7 +272,7 @@ public class Settings : MonoBehaviour
         backButton.onClick?.Invoke();
     }
 
-    public void SetTab(Tab tab)
+    public void SetTab(Tab tab, bool initialSet)
     {
         if (!useGameTab && tab == Tab.Game)
             tab = Tab.Video;
@@ -281,6 +283,9 @@ public class Settings : MonoBehaviour
             EnableTabToggling();
 
         UpdateTabVisibility(tab);
+
+        if (!initialSet)
+            emitter?.Play();
     }
 
     private void ChangeTab(bool forward)
@@ -302,7 +307,7 @@ public class Settings : MonoBehaviour
             nextTab = (currentTab == Tab.Video) ? Tab.Audio : Tab.Video;
         }
 
-        SetTab(nextTab);
+        SetTab(nextTab, false);
     }
 
     private void UpdateTabVisibility(Tab tab)
@@ -450,7 +455,7 @@ public class Settings : MonoBehaviour
         musicVCA.setVolume(pendingMusic);
     }
 
-    public void OpenVideoTab() => SetTab(Tab.Video);
-    public void OpenAudioTab() => SetTab(Tab.Audio);
-    public void OpenGameTab() => SetTab(Tab.Game);
+    public void OpenVideoTab() => SetTab(Tab.Video, false);
+    public void OpenAudioTab() => SetTab(Tab.Audio, false);
+    public void OpenGameTab() => SetTab(Tab.Game, false);
 }

@@ -1512,7 +1512,7 @@ RectTransform:
   m_GameObject: {fileID: 243334639121829230}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 2.14, y: 4.9441023, z: 3.4517639}
+  m_LocalScale: {x: 1.7453673, y: 4.032371, z: 2.8152316}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 2577276241254551464}
@@ -1521,7 +1521,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -529, y: 345}
+  m_AnchoredPosition: {x: -828.2, y: -455.3}
   m_SizeDelta: {x: 139.2, y: 14}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1497789880847414604
@@ -1583,11 +1583,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
-    m_HighlightedColor: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 1}
-    m_PressedColor: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
-    m_SelectedColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
-    m_DisabledColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_PressedColor: {r: 0.6666667, g: 0.20392157, b: 0.5803922, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -1602,14 +1602,14 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 5966271835035413761}
+  m_TargetGraphic: {fileID: 2051815665087990689}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1556331336544241567}
-        m_TargetAssemblyTypeName: LobbyButtons, Assembly-CSharp
-        m_MethodName: ToggleMatchSettings
-        m_Mode: 1
+      - m_Target: {fileID: 8867986297261049895}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2200,6 +2200,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 8911304281282494595}
   blurImage: {fileID: 3129291050046059704}
   blurImageAlpha: 0.25
+  initialBlurColor: {r: 0, g: 0, b: 0, a: 0}
   cycleEmitter: {fileID: 0}
   currentColorIndex: 0
   playerIndex: 0
@@ -2255,8 +2256,8 @@ RectTransform:
   - {fileID: 266335022393993489}
   m_Father: {fileID: 7810664190626712537}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.75, y: 0}
-  m_AnchorMax: {x: 0.75, y: 1}
+  m_AnchorMin: {x: 1, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -3896,7 +3897,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7836633825424375402}
-  - component: {fileID: 7850322524220180332}
   m_Layer: 5
   m_Name: Explosive
   m_TagString: Untagged
@@ -3925,23 +3925,6 @@ RectTransform:
   m_AnchoredPosition: {x: -5, y: 7}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &7850322524220180332
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 649749260335607111}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d777953ca5b36d04b85977fbb8e38d8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetText: {fileID: 0}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
-  forceSelectOnEnable: 1
 --- !u!1 &668568875020518483
 GameObject:
   m_ObjectHideFlags: 0
@@ -5854,11 +5837,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_PressedColor: {r: 0.6666667, g: 0.20392157, b: 0.5803922, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -5873,7 +5856,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 855992160769455745}
+  m_TargetGraphic: {fileID: 656384071746251091}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -7772,6 +7755,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 4782635472899903026}
   blurImage: {fileID: 7130519346136228906}
   blurImageAlpha: 0.25
+  initialBlurColor: {r: 0, g: 0, b: 0, a: 0}
   cycleEmitter: {fileID: 0}
   currentColorIndex: 3
   playerIndex: 3
@@ -13248,7 +13232,7 @@ RectTransform:
   m_Father: {fileID: 9000124681518997268}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.75, y: 1}
+  m_AnchorMax: {x: 1, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -23202,6 +23186,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 5083146442530835920}
   blurImage: {fileID: 3571072936515162405}
   blurImageAlpha: 0.25
+  initialBlurColor: {r: 0, g: 0, b: 0, a: 0}
   cycleEmitter: {fileID: 0}
   currentColorIndex: 1
   playerIndex: 1
@@ -40949,6 +40934,7 @@ MonoBehaviour:
   playerTextImage: {fileID: 6660152908666993929}
   blurImage: {fileID: 2558348567247197320}
   blurImageAlpha: 0.25
+  initialBlurColor: {r: 0, g: 0, b: 0, a: 0}
   cycleEmitter: {fileID: 0}
   currentColorIndex: 2
   playerIndex: 2
@@ -43504,9 +43490,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1556331336544241567}
-        m_TargetAssemblyTypeName: LobbyButtons, Assembly-CSharp
-        m_MethodName: ToggleMatchSettings
+      - m_Target: {fileID: 8578666878580452742}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -43514,7 +43500,19 @@ MonoBehaviour:
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
-          m_BoolArgument: 0
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 8867986297261049895}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
         m_CallState: 2
 --- !u!114 &350863702837773585
 MonoBehaviour:
@@ -45383,6 +45381,7 @@ GameObject:
   - component: {fileID: 7336776482209157908}
   - component: {fileID: 4886247587127627984}
   - component: {fileID: 2950353307949287930}
+  - component: {fileID: 1368564728450825272}
   m_Layer: 5
   m_Name: ExplosiveToggle
   m_TagString: Untagged
@@ -45614,6 +45613,23 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &1368564728450825272
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8301271962034559002}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d777953ca5b36d04b85977fbb8e38d8d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 0}
+  changeFontSize: 0
+  normalFontSize: 24
+  selectedFontSize: 32
+  forceSelectOnEnable: 1
 --- !u!1 &8301828992726720560
 GameObject:
   m_ObjectHideFlags: 0
@@ -46214,11 +46230,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_PressedColor: {r: 0.6666667, g: 0.20392157, b: 0.5803922, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -46233,7 +46249,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 5368624955120857084}
+  m_TargetGraphic: {fileID: 2335101586956276732}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -48578,6 +48594,7 @@ MonoBehaviour:
       m_Flags: 0
     m_Reference: {fileID: 0}
   lobbyButtons: {fileID: 1556331336544241567}
+  mainLobbyUI: {fileID: 4071225585447688213}
 --- !u!1 &8908314650218130792
 GameObject:
   m_ObjectHideFlags: 0
@@ -49552,11 +49569,11 @@ MonoBehaviour:
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_PressedColor: {r: 0.6666667, g: 0.20392157, b: 0.5803922, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -49571,7 +49588,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 5588380281588169996}
+  m_TargetGraphic: {fileID: 7959160605446363762}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:

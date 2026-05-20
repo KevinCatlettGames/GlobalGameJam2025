@@ -23,7 +23,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     private Lobby joinedLobby;
 
-    [SerializeField] private string lobbySceneName = "UI_Lobby";
+    [SerializeField] private string testSceneName = "UI_Lobby";
     public GameObject lobby;
 
     /// <summary>
@@ -56,7 +56,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
         NetworkManager.Singleton.StartHost();
         GlobalLobby.CurrentLobby = joinedLobby;
-        NetworkManager.Singleton.SceneManager.LoadScene(lobbySceneName, LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(testSceneName, LoadSceneMode.Single);
     }
 
     public async void StartSceneLocal(string sceneName)
@@ -76,7 +76,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     public void OpenLobby()
     {
-        SceneManager.LoadScene(lobbySceneName, LoadSceneMode.Single);
+        SceneManager.LoadScene(testSceneName, LoadSceneMode.Single);
     }
 
     /// <summary>
@@ -93,5 +93,11 @@ public class MainMenuLobbyCreator : MonoBehaviour
             await UnityServices.InitializeAsync(initializationOptions);
             await AuthenticationService.Instance.SignInAnonymouslyAsync();
         }
+    }
+
+    public void StartTestLevel()
+    {
+        Destroy(NetworkManager.Singleton.gameObject);
+        SceneManager.LoadScene(testSceneName, LoadSceneMode.Single);
     }
 }

@@ -1,8 +1,10 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UI; 
 
 public class MenuInputSystem : MonoBehaviour
 {
@@ -75,6 +77,9 @@ public class MenuInputSystem : MonoBehaviour
     {
         if (activeGameDevice == newDevice)
             return;
+
+        if(newDevice == GameDevice.Gamepad)
+            EventSystem.current.SetSelectedGameObject(FindFirstObjectByType<Button>().gameObject);
 
         activeGameDevice = newDevice;
         OnGameDeviceChanged?.Invoke(activeGameDevice);

@@ -9,7 +9,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     [SerializeField] private Image playerTextImage;
     [SerializeField] private Image blurImage;
     [SerializeField] private float blurImageAlpha = .1f;
-    Color initialBlurColor;
+    public Color initialBlurColor;
     [SerializeField] private StudioEventEmitter cycleEmitter;
 
     public int currentColorIndex;
@@ -89,6 +89,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void ResetContainer()
     {
+        teamSelection.ResetTeam();
         currentSkinSelection.ChangePlayerIcon(-1,playerIndex);
         currentSkinSelection = null;
         blurImage.color = initialBlurColor;

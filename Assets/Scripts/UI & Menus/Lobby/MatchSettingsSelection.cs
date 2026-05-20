@@ -37,6 +37,8 @@ public class MatchSettingsSelection : NetworkBehaviour
     [Header("Lobby Connection")] 
     [SerializeField] LobbyButtons lobbyButtons;
 
+    public GameObject mainLobbyUI; 
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
@@ -45,11 +47,13 @@ public class MatchSettingsSelection : NetworkBehaviour
 
     private void OnEnable()
     {
+        mainLobbyUI.SetActive(false);
         SetTab(Tab.General);
     }
 
     private void OnDisable()
     {
+        mainLobbyUI.SetActive(true);
         DisableTabToggling();
     }
     

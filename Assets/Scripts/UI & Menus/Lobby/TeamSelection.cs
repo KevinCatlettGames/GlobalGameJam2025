@@ -140,4 +140,9 @@ public class TeamSelection : MonoBehaviour
             SetTeam();
         }
     }
+
+    public void ResetTeam()
+    {
+        currentTeamIndex = -1; 
+    }
 }

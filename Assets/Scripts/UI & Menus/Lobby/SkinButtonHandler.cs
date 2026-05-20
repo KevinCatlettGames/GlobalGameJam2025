@@ -28,6 +28,8 @@ public class SkinButtonHandler : MonoBehaviour
 
     private List<int> activePlayers = new List<int>();
 
+    bool didFirstInit;
+
     private void Awake()
     {
         originalScale = transform.localScale;
@@ -36,6 +38,8 @@ public class SkinButtonHandler : MonoBehaviour
 
     private void OnEnable()
     {
+        if (didFirstInit) return; 
+
         foreach (Image image in selectionimages)
         {
             image.enabled = false;
@@ -49,6 +53,8 @@ public class SkinButtonHandler : MonoBehaviour
             GetComponent<Image>().color = disabledColor;
         else
             GetComponent<Image>().color = standardImageColor;
+
+        didFirstInit = true;
     }
 
     public void ChangePlayerIcon(int amount, int playerIndex)
