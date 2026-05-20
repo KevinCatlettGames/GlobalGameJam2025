@@ -78,8 +78,10 @@ public class MenuInputSystem : MonoBehaviour
         if (activeGameDevice == newDevice)
             return;
 
-        if(newDevice == GameDevice.Gamepad)
-            EventSystem.current.SetSelectedGameObject(FindFirstObjectByType<Button>().gameObject);
+        //if (newDevice == GameDevice.Gamepad)
+        //{
+        //    EventSystem.current.SetSelectedGameObject(FindFirstObjectByType<Button>().gameObject);
+        //}
 
         activeGameDevice = newDevice;
         OnGameDeviceChanged?.Invoke(activeGameDevice);
