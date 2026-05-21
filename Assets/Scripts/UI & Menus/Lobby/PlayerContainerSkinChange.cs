@@ -237,11 +237,9 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void UpdateBlur()
     {
+        if (!currentSkinSelection) return;
         blurImage.enabled = true;
         Color c = Color.white;
-
-        Debug.Log(LobbyManager.instance.SelectedGameMode);
-        Debug.Log(teamSelection.CurrentTeamIndex);
 
         if (LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Standard)
             c = currentSkinSelection.skinSo.Color;

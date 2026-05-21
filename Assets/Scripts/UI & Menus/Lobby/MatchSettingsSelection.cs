@@ -1,13 +1,13 @@
-using UnityEngine;
 using FMODUnity;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.InputSystem; 
 using UnityEngine.UI; 
 
 public class MatchSettingsSelection : NetworkBehaviour
 {
     public static MatchSettingsSelection Instance;
-    public enum Tab {General, Weapons, Maps}
+    public enum Tab {General, Spells, Maps}
     public Tab currentTab = Tab.General;
     
     [SerializeField] private Color activeColor;
@@ -15,14 +15,11 @@ public class MatchSettingsSelection : NetworkBehaviour
     [SerializeField] private GameObject generalTabFrame;
     [SerializeField] private GameObject generalTab;
 
-    [SerializeField] private GameObject weaponsTabFrame;
-    [SerializeField] private GameObject weaponsTab;
+    [SerializeField] private GameObject spellsTabFrame;
+    [SerializeField] private GameObject spellsTab;
 
     [SerializeField] private GameObject mapsTabFrame;
     [SerializeField] private GameObject mapsTab;
-
-    [SerializeField] private GameObject lbFrame;
-    [SerializeField] private GameObject rbFrame;
     
     [SerializeField] private InputActionProperty leftTabSwitchAction;
     [SerializeField] private InputActionProperty rightTabSwitchAction;
@@ -37,7 +34,20 @@ public class MatchSettingsSelection : NetworkBehaviour
     [Header("Lobby Connection")] 
     [SerializeField] LobbyButtons lobbyButtons;
 
-    public GameObject mainLobbyUI; 
+    public GameObject mainLobbyUI;
+
+
+    public Button generalButton;
+    public Button spellButton;
+    public Button mapsButton;
+    public Button backButton;
+    public Button gameModeButton;
+    public Toggle endlessToggle;
+    public Toggle explosionToggle;
+    public Toggle giantToggle;
+    public Toggle grenadeToggle;
+    public Toggle plateToggle;
+    public Slider bucketSlider; 
 
     private void Awake()
     {
@@ -49,6 +59,7 @@ public class MatchSettingsSelection : NetworkBehaviour
     {
         mainLobbyUI.SetActive(false);
         SetTab(Tab.General);
+        SetButtonNavigation(Tab.General);
     }
 
     private void OnDisable()
@@ -98,12 +109,13 @@ public class MatchSettingsSelection : NetworkBehaviour
         if (!tabTogglingEnabled) return;
 
         Tab nextTab = forward
-            ? (currentTab == Tab.General ? Tab.Weapons :
-                currentTab == Tab.Weapons ? Tab.Maps : Tab.General)
+            ? (currentTab == Tab.General ? Tab.Spells :
+                currentTab == Tab.Spells ? Tab.Maps : Tab.General)
             : (currentTab == Tab.General ? Tab.Maps :
-                currentTab == Tab.Maps ? Tab.Weapons : Tab.General);
+                currentTab == Tab.Maps ? Tab.Spells : Tab.General);
 
         SetTab(nextTab);
+        SetButtonNavigation(nextTab);
     }
     #endregion
     
@@ -114,37 +126,96 @@ public class MatchSettingsSelection : NetworkBehaviour
         if (!tabTogglingEnabled)
             EnableTabToggling();
         
-        generalTabFrame.GetComponent<Image>().color = (currentTab == Tab.General) ? inactiveColor : activeColor;
-        weaponsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Weapons) ? inactiveColor : activeColor;
-        mapsTabFrame.GetComponent<Image>().color = (currentTab == Tab.Maps) ? inactiveColor : activeColor;
-        generalTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.General;
-        weaponsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Weapons;
-        mapsTabFrame.GetComponent<Outline>().enabled = currentTab == Tab.Maps;
-        
         switch(tab)
         {
             case Tab.General:
-                generalTabFrame.transform.SetAsLastSibling();
+                generalTabFrame.SetActive(true);
+                spellsTabFrame.SetActive(false);
+                mapsTabFrame.SetActive(false);
                 generalTab.SetActive(true);
-                weaponsTab.SetActive(false);
+                spellsTab.SetActive(false);
                 mapsTab.SetActive(false);
                 break;
-            case Tab.Weapons:
-                weaponsTabFrame.transform.SetAsLastSibling();
+            case Tab.Spells:
+                generalTabFrame.SetActive(false);
+                spellsTabFrame.SetActive(true);
+                mapsTabFrame.SetActive(false);
                 generalTab.SetActive(false);
-                weaponsTab.SetActive(true);
+                spellsTab.SetActive(true);
                 mapsTab.SetActive(false);
                 break;
             case  Tab.Maps:
-                mapsTabFrame.transform.SetAsLastSibling();
+                generalTabFrame.SetActive(false);
+                spellsTabFrame.SetActive(false);
+                mapsTabFrame.SetActive(true);
                 generalTab.SetActive(false);
-                weaponsTab.SetActive(false);
+                spellsTab.SetActive(false);
                 mapsTab.SetActive(true);
                 break;
         }
     }
 
     public void OpenGeneralTab() => SetTab(Tab.General);
-    public void OpenWeaponsTab() => SetTab(Tab.Weapons);
+    public void OpenWeaponsTab() => SetTab(Tab.Spells);
     public void OpenMapsTab() => SetTab(Tab.Maps);
+
+    private void SetButtonNavigation(Tab tab)
+    {
+        Navigation newGeneralNav = new Navigation();
+        newGeneralNav.mode = Navigation.Mode.Explicit;
+        newGeneralNav.selectOnDown = generalButton.navigation.selectOnDown;
+        newGeneralNav.selectOnLeft = generalButton.navigation.selectOnLeft;
+        newGeneralNav.selectOnRight = generalButton.navigation.selectOnRight;
+
+        Navigation newSpellsNav = new Navigation();
+        newSpellsNav.mode = Navigation.Mode.Explicit;
+        newSpellsNav.selectOnDown = spellButton.navigation.selectOnDown;
+        newSpellsNav.selectOnLeft = spellButton.navigation.selectOnLeft;
+        newSpellsNav.selectOnRight = spellButton.navigation.selectOnRight;
+
+
+        Navigation newMapsNav = new Navigation();
+        newMapsNav.mode = Navigation.Mode.Explicit;
+        newMapsNav.selectOnUp = mapsButton.navigation.selectOnUp;
+        newMapsNav.selectOnLeft = mapsButton.navigation.selectOnLeft;
+        newMapsNav.selectOnRight = mapsButton.navigation.selectOnRight;
+
+        Navigation newBackNav = new Navigation();
+        newBackNav.mode = Navigation.Mode.Explicit;
+        newBackNav.selectOnUp = backButton.navigation.selectOnUp;
+        newBackNav.selectOnLeft = backButton.navigation.selectOnLeft;
+        newBackNav.selectOnRight = backButton.navigation.selectOnRight;
+
+        switch (tab)
+        {
+            case Tab.General:
+                newGeneralNav.selectOnDown = gameModeButton;
+                newSpellsNav.selectOnDown = gameModeButton;
+                newMapsNav.selectOnDown = gameModeButton;
+                newBackNav.selectOnUp = endlessToggle;
+                break;
+            case Tab.Spells:
+                newGeneralNav.selectOnDown = explosionToggle;
+                newSpellsNav.selectOnDown = giantToggle;
+                newMapsNav.selectOnDown = giantToggle;
+                newBackNav.selectOnUp = grenadeToggle;
+                break;
+            case Tab.Maps:
+                newGeneralNav.selectOnDown = plateToggle;
+                newSpellsNav.selectOnDown = plateToggle;
+                newMapsNav.selectOnDown = plateToggle;
+                newBackNav.selectOnUp = bucketSlider;
+                break;
+            default:
+                newGeneralNav.selectOnDown = backButton;
+                newSpellsNav.selectOnDown = backButton;
+                newMapsNav.selectOnDown = backButton;
+                newBackNav.selectOnUp = generalButton; 
+                break;
+        }
+        generalButton.navigation = newGeneralNav;
+        spellButton.navigation = newSpellsNav;
+        mapsButton.navigation = newMapsNav;
+        backButton.navigation = newBackNav;
+    }
 }
