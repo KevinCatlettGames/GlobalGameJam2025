@@ -26,6 +26,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        blurImage.color = initialBlurColor;
     }
 
     private void Awake()
