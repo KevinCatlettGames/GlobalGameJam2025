@@ -467,7 +467,7 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
-            RuntimeManager.PlayOneShotAttached(spell.SpellEventStruct, gameObject);
+            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
         }
         else
             SlapAnimServerRpc(isFirstSpell);
@@ -556,7 +556,7 @@ public class PlayerController : NetworkBehaviour
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
-            RuntimeManager.PlayOneShotAttached(spell.SpellEventStruct, gameObject);
+            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
     }
 
     #endregion

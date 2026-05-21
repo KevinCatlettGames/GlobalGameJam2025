@@ -11,14 +11,12 @@ public class CrossBubbler : BasicBubble
     [SerializeField] private GameObject crossBubble;
 
     private Vector3 crossPoint;
-    private EventReference soundEvent;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
         crossPoint = transform.position + (direction * crossPointOffset);
-        this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
         transform.position = playerCollider.transform.position;
 
@@ -38,7 +36,7 @@ public class CrossBubbler : BasicBubble
             netObj.Spawn();
 
         BasicBubble bubbleScript = bubble.GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(OwnerID, crossDirection, soundEvent, playerCollider);
+        bubbleScript.InitialiseBubble(OwnerID, crossDirection, playerCollider);
 
 
         // Spawn left
@@ -52,7 +50,7 @@ public class CrossBubbler : BasicBubble
             netObj.Spawn();
 
         bubbleScript = bubble.GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(OwnerID, crossDirection, soundEvent, playerCollider);
+        bubbleScript.InitialiseBubble(OwnerID, crossDirection, playerCollider);
 
         Destroy(gameObject);
     }

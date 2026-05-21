@@ -10,9 +10,9 @@ public class SlipBubble : BasicBubble
 
     private SlimeTrail slimeTrail;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider);
 
         if (IsServer)
         {

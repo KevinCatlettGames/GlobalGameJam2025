@@ -33,9 +33,8 @@ public class SO_Spell : ScriptableObject
     public Material[] ItemMaterials { get { return itemMaterials; } }
 
     [Header("Sound Events")]
-    [SerializeField] protected EventReference castEventStruct;
-    [SerializeField] protected EventReference spellEventStruct;
-    public EventReference SpellEventStruct { get { return spellEventStruct; } }
+    [SerializeField] protected EventReference spellVoiceEvent;
+    public EventReference SpellVoiceEvent { get { return spellVoiceEvent; } }
 
     protected BasicBubble bubbleScript;
     
@@ -58,7 +57,7 @@ public class SO_Spell : ScriptableObject
                 bubbleInstance = Instantiate(bubble, pos, Quaternion.LookRotation(dir));
 
             bubbleScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(ID, dir, castEventStruct, playerCollider);
+            bubbleScript.InitialiseBubble(ID, dir, playerCollider);
 
             bubbleInstance.GetComponent<NetworkObject>().Spawn();
         }

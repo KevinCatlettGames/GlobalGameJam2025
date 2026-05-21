@@ -12,9 +12,9 @@ public class BlastBubble : BasicBubble
     [SerializeField] private float shooterKnb = 8f;
     private const float raycastDistance = 5f;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider);
         transform.position += direction * extraOffset;
 
         if (GameManager.Instance.PlayingLocal)

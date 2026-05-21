@@ -13,15 +13,13 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private MeshRenderer revolverMesh;
    
     private int hitCount = 0;
-    private EventReference soundEvent;
     private Vector3 offset;
     
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
         offset = transform.position - playerCollider.transform.position;
-        this.soundEvent = soundEvent;
         this.playerCollider = playerCollider;
 
         StartCoroutine(EmptyBarrel());
@@ -51,7 +49,7 @@ public class RevolverBubble : BasicBubble
                 netObj.Spawn();
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, dir, soundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID, dir, playerCollider);
 
             yield return new WaitForSeconds(delayBetweenShots);
             rotation++;

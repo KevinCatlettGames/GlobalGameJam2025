@@ -10,8 +10,8 @@ public class SlashBubble : BasicBubble
 	[SerializeField] private GameObject slasherR;
 	[SerializeField] private Transform spinner;
 	
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider){
-		base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider){
+		base.InitialiseBubble(ID, dir, playerCollider);
 		canMiss = false;
 		StartCoroutine(StartSlashers());
     }

@@ -14,7 +14,7 @@ public class ZapBubble : BasicBubble
     private Vector3 offset;
     [SerializeField] private EventReference zapSoundEvent;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
@@ -39,7 +39,7 @@ public class ZapBubble : BasicBubble
                 netObj.Spawn();
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, direction, zapSoundEvent, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID, direction, playerCollider);
             
             yield return new WaitForSeconds(delayBetweenZaps);
         }

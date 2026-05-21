@@ -11,9 +11,9 @@ public class ExpandingBubble : BasicBubble
     private float damageRatio = 1f;
     private float maxSize = 1f;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider);
         maxSize = size;
         size = startSize;
         knockbackRatio = knockback / maxSize;

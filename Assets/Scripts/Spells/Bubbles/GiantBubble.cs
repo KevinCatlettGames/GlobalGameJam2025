@@ -19,9 +19,9 @@ public class GiantBubble : BasicBubble
 
     private bool isSmall = false;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dir, soundEvent, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider);
         transform.position += direction * extraOffset;
     }
     protected override void BubbleMovement()

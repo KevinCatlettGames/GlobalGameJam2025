@@ -27,7 +27,8 @@ public class BasicBubble : NetworkBehaviour
         Slasher,
         Zap,
         Teleport,
-        Cross
+        Cross,
+        Split
     };
 
     public SpellType spellType;
@@ -60,6 +61,7 @@ public class BasicBubble : NetworkBehaviour
     [Header("Effecs")]
     [SerializeField] protected GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
+    [SerializeField] protected EventReference soundEvent;
     private float soapSpeedAmp = 2f;
     private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
@@ -75,7 +77,7 @@ public class BasicBubble : NetworkBehaviour
         GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
-    public virtual void InitialiseBubble(int ID, Vector3 dir, EventReference soundEvent, Collider playerCollider)
+    public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
