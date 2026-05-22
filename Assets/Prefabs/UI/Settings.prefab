@@ -1930,7 +1930,6 @@ GameObject:
   - component: {fileID: 3953528919482681162}
   - component: {fileID: 621244220953006577}
   - component: {fileID: 910505471396253871}
-  - component: {fileID: 297873013813738497}
   m_Layer: 5
   m_Name: MusicText
   m_TagString: Untagged
@@ -2059,46 +2058,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &297873013813738497
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2789165733806504531}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StringReference:
-    m_TableReference:
-      m_TableCollectionName: GUID:04beeca5570025348a0c83c63ced5005
-    m_TableEntryReference:
-      m_KeyId: 298928971776
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  m_FormatArguments: []
-  m_UpdateString:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 910505471396253871}
-        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
-        m_MethodName: set_text
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  references:
-    version: 2
-    RefIds: []
 --- !u!1 &2869744955907415384
 GameObject:
   m_ObjectHideFlags: 0
@@ -2189,6 +2148,7 @@ GameObject:
   - component: {fileID: 7698938593269616102}
   - component: {fileID: 1076432683601507483}
   - component: {fileID: 4088423962292345762}
+  - component: {fileID: 2964273148010705449}
   m_Layer: 5
   m_Name: MasterVolume
   m_TagString: Untagged
@@ -2234,9 +2194,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 200716798915357473}
+    m_SelectOnUp: {fileID: 5813543912440163961}
     m_SelectOnDown: {fileID: 6859189533143802795}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
@@ -2379,13 +2339,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 8519956824976085055}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 3030077457710428337}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -2404,10 +2364,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetText: {fileID: 4081191507252120133}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
+  changeFontSize: 1
+  normalFontSize: 40
+  selectedFontSize: 45
   forceSelectOnEnable: 1
+--- !u!114 &2964273148010705449
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3030077457710428337}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da1d36fae1d0141bebff9e3ab037ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 4081191507252120133}
+  normalFontColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
 --- !u!1 &3116499379445924212
 GameObject:
   m_ObjectHideFlags: 0
@@ -2742,8 +2717,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 25
-  m_fontSizeBase: 25
+  m_fontSize: 21.59
+  m_fontSizeBase: 21.59
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -2878,7 +2853,6 @@ GameObject:
   - component: {fileID: 7097273829753804305}
   - component: {fileID: 4720390951208652367}
   - component: {fileID: 7029350847047110948}
-  - component: {fileID: 9192911283156975952}
   m_Layer: 5
   m_Name: ResolutionDropdown
   m_TagString: Untagged
@@ -2959,7 +2933,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 3667707869578940952}
     m_SelectOnDown: {fileID: 200716798915357473}
@@ -3137,36 +3111,7 @@ MonoBehaviour:
   - eventID: 0
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
-          m_Arguments:
-            m_ObjectArgument: {fileID: 3692120384967334527}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
---- !u!114 &9192911283156975952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3692120384967334527}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d777953ca5b36d04b85977fbb8e38d8d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  targetText: {fileID: 7531184927341830538}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
-  forceSelectOnEnable: 0
+        m_Calls: []
 --- !u!1 &3740710235286451168
 GameObject:
   m_ObjectHideFlags: 0
@@ -3180,6 +3125,7 @@ GameObject:
   - component: {fileID: 8056510094142087325}
   - component: {fileID: 2369241825234250394}
   - component: {fileID: 4075301021501950955}
+  - component: {fileID: 8664424035258858869}
   m_Layer: 5
   m_Name: Video_Button
   m_TagString: Untagged
@@ -3257,19 +3203,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnLeft: {fileID: 3667707869578940952}
+    m_SelectOnRight: {fileID: 5813543912440163961}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+    m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -3284,7 +3230,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 8056510094142087325}
+  m_TargetGraphic: {fileID: 1470057762247405596}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -3317,6 +3263,51 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &8664424035258858869
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3740710235286451168}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &3760815769431733109
 GameObject:
   m_ObjectHideFlags: 0
@@ -3804,6 +3795,9 @@ GameObject:
   - component: {fileID: 5351658499073840655}
   - component: {fileID: 4652883238734072916}
   - component: {fileID: 4610704784616273164}
+  - component: {fileID: 2872064762610575022}
+  - component: {fileID: 7552033347101027524}
+  - component: {fileID: 7062117792343998671}
   m_Layer: 5
   m_Name: Template
   m_TagString: Untagged
@@ -3899,6 +3893,58 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
+--- !u!223 &2872064762610575022
+Canvas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4748989783426507688}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_RenderMode: 2
+  m_Camera: {fileID: 0}
+  m_PlaneDistance: 100
+  m_PixelPerfect: 0
+  m_ReceivesEvents: 1
+  m_OverrideSorting: 1
+  m_OverridePixelPerfect: 0
+  m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
+  m_AdditionalShaderChannelsFlag: 25
+  m_UpdateRectTransformForStandalone: 0
+  m_SortingLayerID: 0
+  m_SortingOrder: 30000
+  m_TargetDisplay: 0
+--- !u!114 &7552033347101027524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4748989783426507688}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_IgnoreReversedGraphics: 1
+  m_BlockingObjects: 0
+  m_BlockingMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!225 &7062117792343998671
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4748989783426507688}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &4760057191923132032
 GameObject:
   m_ObjectHideFlags: 0
@@ -3948,6 +3994,7 @@ GameObject:
   - component: {fileID: 2095686582683437939}
   - component: {fileID: 5813543912440163961}
   - component: {fileID: 4358749061394848322}
+  - component: {fileID: 8867220264683136102}
   m_Layer: 5
   m_Name: Audio_Button
   m_TagString: Untagged
@@ -4025,19 +4072,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnLeft: {fileID: 2369241825234250394}
+    m_SelectOnRight: {fileID: 3667707869578940952}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+    m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -4052,7 +4099,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 2095686582683437939}
+  m_TargetGraphic: {fileID: 8530110527886216317}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -4085,6 +4132,51 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &8867220264683136102
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4775561909884442537}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &4884541177297870068
 GameObject:
   m_ObjectHideFlags: 0
@@ -4098,6 +4190,7 @@ GameObject:
   - component: {fileID: 2562128765210041284}
   - component: {fileID: 3667707869578940952}
   - component: {fileID: 6153326795591998157}
+  - component: {fileID: 3178643216440856969}
   m_Layer: 5
   m_Name: Game_Button
   m_TagString: Untagged
@@ -4175,19 +4268,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnLeft: {fileID: 5813543912440163961}
+    m_SelectOnRight: {fileID: 2369241825234250394}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
-    m_HighlightedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_PressedColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
-    m_SelectedColor: {r: 0.9607843, g: 0.9607843, b: 0.9607843, a: 0}
-    m_DisabledColor: {r: 0.78431374, g: 0.78431374, b: 0.78431374, a: 0}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+    m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -4202,7 +4295,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 2562128765210041284}
+  m_TargetGraphic: {fileID: 3294167399004930691}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -4235,6 +4328,51 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &3178643216440856969
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4884541177297870068}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &4907765999721534759
 GameObject:
   m_ObjectHideFlags: 0
@@ -4249,6 +4387,7 @@ GameObject:
   - component: {fileID: 73152958257316262}
   - component: {fileID: 8382764843746654496}
   - component: {fileID: 3862657236059599406}
+  - component: {fileID: 3786803695488299365}
   m_Layer: 5
   m_Name: Apply_Button
   m_TagString: Untagged
@@ -4327,19 +4466,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnDown: {fileID: 5544960541027663232}
+    m_SelectOnLeft: {fileID: 962763831481137152}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
     m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
-    m_SelectedColor: {r: 1, g: 0.3529412, b: 0.4, a: 1}
-    m_DisabledColor: {r: 0.6784314, g: 0.5568628, b: 0.7490196, a: 0.5019608}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -4354,13 +4493,25 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 6223749166640063303}
+  m_TargetGraphic: {fileID: 6116639110082984491}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7258448918411140027}
         m_TargetAssemblyTypeName: Settings, Assembly-CSharp
         m_MethodName: ApplySettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -4402,6 +4553,51 @@ MonoBehaviour:
   m_EffectColor: {r: 0.9960785, g: 0.8941177, b: 0, a: 1}
   m_EffectDistance: {x: 0.5, y: 0.5}
   m_UseGraphicAlpha: 1
+--- !u!114 &3786803695488299365
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4907765999721534759}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &4967475920177708805
 GameObject:
   m_ObjectHideFlags: 0
@@ -4583,6 +4779,7 @@ GameObject:
   - component: {fileID: 1863706074906031581}
   - component: {fileID: 558589940115030818}
   - component: {fileID: 4301781812118145394}
+  - component: {fileID: 1735967716956890152}
   m_Layer: 5
   m_Name: FullScreenToggle
   m_TagString: Untagged
@@ -4623,7 +4820,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 5813543912440163961}
     m_SelectOnDown: {fileID: 200716798915357473}
@@ -4776,19 +4973,7 @@ MonoBehaviour:
   - eventID: 0
     callback:
       m_PersistentCalls:
-        m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
-          m_Arguments:
-            m_ObjectArgument: {fileID: 5085816390107341125}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-            m_IntArgument: 0
-            m_FloatArgument: 0
-            m_StringArgument: 
-            m_BoolArgument: 0
-          m_CallState: 2
+        m_Calls: []
 --- !u!114 &4301781812118145394
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4802,10 +4987,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetText: {fileID: 3858615096443662376}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
+  changeFontSize: 1
+  normalFontSize: 50
+  selectedFontSize: 55
   forceSelectOnEnable: 1
+--- !u!114 &1735967716956890152
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5085816390107341125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da1d36fae1d0141bebff9e3ab037ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 3858615096443662376}
+  normalFontColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
 --- !u!1 &5144918413752116163
 GameObject:
   m_ObjectHideFlags: 0
@@ -4823,6 +5023,7 @@ GameObject:
   - component: {fileID: 2787187756968238963}
   - component: {fileID: 4630228519533574271}
   - component: {fileID: 2447028106566846227}
+  - component: {fileID: 7622770111357638310}
   m_Layer: 5
   m_Name: GraphicsDropdown
   m_TagString: Untagged
@@ -4903,10 +5104,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 5527122286523683875}
-    m_SelectOnDown: {fileID: 73152958257316262}
+    m_SelectOnDown: {fileID: 962763831481137152}
     m_SelectOnLeft: {fileID: 1314147525203590717}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -5144,11 +5345,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d777953ca5b36d04b85977fbb8e38d8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  targetText: {fileID: 0}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
+  targetText: {fileID: 5143909829054721896}
+  changeFontSize: 1
+  normalFontSize: 50
+  selectedFontSize: 55
   forceSelectOnEnable: 0
+--- !u!114 &7622770111357638310
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5144918413752116163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da1d36fae1d0141bebff9e3ab037ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 5143909829054721896}
+  normalFontColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
 --- !u!1 &5175192035864293136
 GameObject:
   m_ObjectHideFlags: 0
@@ -5872,7 +6088,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 72.527954, w: 0}
+  m_margin: {x: 0, y: 0, z: -210.68663, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -6023,11 +6239,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
+    m_SelectOnLeft: {fileID: 1314147525203590717}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
   m_Colors:
@@ -6872,6 +7088,7 @@ GameObject:
   - component: {fileID: 3743482404652160807}
   - component: {fileID: 6770461591003519686}
   - component: {fileID: 4487781249040907012}
+  - component: {fileID: 7440818471954257729}
   m_Layer: 5
   m_Name: MusicVolume
   m_TagString: Untagged
@@ -6917,10 +7134,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 6859189533143802795}
+    m_SelectOnDown: {fileID: 962763831481137152}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -7062,13 +7279,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 7570439958207351488}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 6674229276024643154}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -7087,10 +7304,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetText: {fileID: 910505471396253871}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
+  changeFontSize: 1
+  normalFontSize: 40
+  selectedFontSize: 45
   forceSelectOnEnable: 0
+--- !u!114 &7440818471954257729
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6674229276024643154}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da1d36fae1d0141bebff9e3ab037ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 910505471396253871}
+  normalFontColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
 --- !u!1 &6786754983867097229
 GameObject:
   m_ObjectHideFlags: 0
@@ -7772,7 +8004,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 40.0708, y: 0, z: 40.50244, w: 0}
+  m_margin: {x: 40.0708, y: 0, z: -182.02336, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -8092,6 +8324,7 @@ GameObject:
   - component: {fileID: 7178051440127213752}
   - component: {fileID: 5544960541027663232}
   - component: {fileID: 4822942332725266138}
+  - component: {fileID: 659611164663057354}
   m_Layer: 5
   m_Name: Back_Button
   m_TagString: Untagged
@@ -8117,7 +8350,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -808, y: 552}
+  m_AnchoredPosition: {x: -808, y: -428}
   m_SizeDelta: {x: 139.2, y: 14}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &6502449904220173337
@@ -8171,19 +8404,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 0
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
+    m_SelectOnUp: {fileID: 962763831481137152}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 962763831481137152}
   m_Transition: 1
   m_Colors:
-    m_NormalColor: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
-    m_HighlightedColor: {r: 0.8962264, g: 0.8962264, b: 0.8962264, a: 1}
-    m_PressedColor: {r: 0.8773585, g: 0.8773585, b: 0.8773585, a: 1}
-    m_SelectedColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
-    m_DisabledColor: {r: 0.3679245, g: 0.3679245, b: 0.3679245, a: 1}
+    m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
+    m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+    m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -8198,7 +8431,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 7178051440127213752}
+  m_TargetGraphic: {fileID: 4047175426904827184}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -8250,6 +8483,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &4822942332725266138
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -8267,6 +8512,51 @@ MonoBehaviour:
   normalFontSize: 18
   selectedFontSize: 23
   forceSelectOnEnable: 0
+--- !u!114 &659611164663057354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7982180337239085547}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &8148775555189141663
 GameObject:
   m_ObjectHideFlags: 0
@@ -8728,6 +9018,7 @@ GameObject:
   - component: {fileID: 5295889500962747140}
   - component: {fileID: 962763831481137152}
   - component: {fileID: 3277741461672764422}
+  - component: {fileID: 5598099183046132842}
   m_Layer: 5
   m_Name: Reset_Button
   m_TagString: Untagged
@@ -8776,7 +9067,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.42745098, g: 0, b: 0.57254905, a: 1}
+  m_Color: {r: 0.7607843, g: 0.36078432, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -8806,19 +9097,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
     m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnDown: {fileID: 5544960541027663232}
     m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 73152958257316262}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 1}
     m_HighlightedColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
     m_PressedColor: {r: 0.62352943, g: 0.2, b: 0.5882353, a: 1}
-    m_SelectedColor: {r: 1, g: 0.3529412, b: 0.4, a: 1}
-    m_DisabledColor: {r: 0.6784314, g: 0.5568628, b: 0.7490196, a: 0.5019608}
+    m_SelectedColor: {r: 0.8980392, g: 0.4745098, b: 0.81960785, a: 1}
+    m_DisabledColor: {r: 0.40392157, g: 0.40392157, b: 0.40392157, a: 0.29803923}
     m_ColorMultiplier: 1
     m_FadeDuration: 0.1
   m_SpriteState:
@@ -8833,13 +9124,25 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 5295889500962747140}
+  m_TargetGraphic: {fileID: 8816519170094068744}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 7258448918411140027}
         m_TargetAssemblyTypeName: Settings, Assembly-CSharp
         m_MethodName: ResetSettings
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 0}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -8866,6 +9169,51 @@ MonoBehaviour:
   normalFontSize: 21.59
   selectedFontSize: 24
   forceSelectOnEnable: 0
+--- !u!114 &5598099183046132842
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8388770873830478139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Delegates:
+  - eventID: 0
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
+  - eventID: 9
+    callback:
+      m_PersistentCalls:
+        m_Calls:
+        - m_Target: {fileID: 4837725931723371406}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
+          m_Arguments:
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+            m_IntArgument: 0
+            m_FloatArgument: 0
+            m_StringArgument: 
+            m_BoolArgument: 0
+          m_CallState: 2
 --- !u!1 &8509598781412882378
 GameObject:
   m_ObjectHideFlags: 0
@@ -8988,7 +9336,6 @@ GameObject:
   - component: {fileID: 2179691103144845468}
   - component: {fileID: 4370494059021608784}
   - component: {fileID: 4081191507252120133}
-  - component: {fileID: 454944564906767510}
   m_Layer: 5
   m_Name: MasterText
   m_TagString: Untagged
@@ -9111,52 +9458,12 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 149.77222, w: 0}
+  m_margin: {x: 0, y: 0, z: 39.020615, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &454944564906767510
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8721435078443425402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StringReference:
-    m_TableReference:
-      m_TableCollectionName: GUID:04beeca5570025348a0c83c63ced5005
-    m_TableEntryReference:
-      m_KeyId: 225818058752
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  m_FormatArguments: []
-  m_UpdateString:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 4081191507252120133}
-        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
-        m_MethodName: set_text
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  references:
-    version: 2
-    RefIds: []
 --- !u!1 &8794056602063333757
 GameObject:
   m_ObjectHideFlags: 0
@@ -9168,7 +9475,6 @@ GameObject:
   - component: {fileID: 8211497069882966254}
   - component: {fileID: 626213991619829796}
   - component: {fileID: 7063249455698886955}
-  - component: {fileID: 57227429296054326}
   m_Layer: 5
   m_Name: SFXText
   m_TagString: Untagged
@@ -9297,46 +9603,6 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &57227429296054326
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8794056602063333757}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 56eb0353ae6e5124bb35b17aff880f16, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_StringReference:
-    m_TableReference:
-      m_TableCollectionName: GUID:04beeca5570025348a0c83c63ced5005
-    m_TableEntryReference:
-      m_KeyId: 265580060672
-      m_Key: 
-    m_FallbackState: 0
-    m_WaitForCompletion: 0
-    m_LocalVariables: []
-  m_FormatArguments: []
-  m_UpdateString:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 7063249455698886955}
-        m_TargetAssemblyTypeName: TMPro.TextMeshProUGUI, Unity.TextMeshPro
-        m_MethodName: set_text
-        m_Mode: 0
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  references:
-    version: 2
-    RefIds: []
 --- !u!1 &8879358012586218733
 GameObject:
   m_ObjectHideFlags: 0
@@ -9422,6 +9688,8 @@ GameObject:
   m_Component:
   - component: {fileID: 5687568840358850628}
   - component: {fileID: 7258448918411140027}
+  - component: {fileID: 7167555591962549308}
+  - component: {fileID: 4837725931723371406}
   m_Layer: 5
   m_Name: Settings
   m_TagString: Untagged
@@ -9437,7 +9705,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8916640113473416445}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 960, y: 540, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -9560,9 +9828,76 @@ MonoBehaviour:
   audioTabFrame: {fileID: 4092788565478754579}
   gameTabFrame: {fileID: 5883517221921928346}
   selectedObject: {fileID: 0}
+  videoButton: {fileID: 2369241825234250394}
+  audioButton: {fileID: 5813543912440163961}
+  gameButton: {fileID: 3667707869578940952}
   applyButton: {fileID: 73152958257316262}
+  resetButton: {fileID: 962763831481137152}
   backButton: {fileID: 5544960541027663232}
+  emitter: {fileID: 7167555591962549308}
   currentTab: 0
+--- !u!114 &7167555591962549308
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8916640113473416445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -420396278
+      Data2: 1141655867
+      Data3: -2108305989
+      Data4: -2125732588
+    Path: event:/ui/ui_player_join
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
+--- !u!114 &4837725931723371406
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8916640113473416445}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: -1606528762
+      Data2: 1247681241
+      Data3: 260056209
+      Data4: -2075102111
+    Path: event:/ui/ui_hover
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &9021512996335922948
 GameObject:
   m_ObjectHideFlags: 0
@@ -9714,6 +10049,7 @@ GameObject:
   - component: {fileID: 3937969688138286997}
   - component: {fileID: 5489268982501361917}
   - component: {fileID: 7487169288707761674}
+  - component: {fileID: 6908732251037854289}
   m_Layer: 5
   m_Name: SFXVolume
   m_TagString: Untagged
@@ -9759,10 +10095,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: 4
     m_WrapAround: 0
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
+    m_SelectOnUp: {fileID: 5393861481354875810}
+    m_SelectOnDown: {fileID: 5632155966195102491}
     m_SelectOnLeft: {fileID: 0}
     m_SelectOnRight: {fileID: 0}
   m_Transition: 1
@@ -9904,13 +10240,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 7818721822239119209}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 9025400150278964288}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -9929,10 +10265,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetText: {fileID: 7063249455698886955}
-  changeFontSize: 0
-  normalFontSize: 24
-  selectedFontSize: 32
+  changeFontSize: 1
+  normalFontSize: 40
+  selectedFontSize: 45
   forceSelectOnEnable: 0
+--- !u!114 &6908732251037854289
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9025400150278964288}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f6da1d36fae1d0141bebff9e3ab037ac, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetText: {fileID: 7063249455698886955}
+  normalFontColor: {r: 1, g: 1, b: 1, a: 1}
+  selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
 --- !u!1 &9028634832159563536
 GameObject:
   m_ObjectHideFlags: 0

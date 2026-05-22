@@ -26,6 +26,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        blurImage.color = initialBlurColor;
     }
 
     private void Awake()
@@ -44,11 +46,12 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
-            UpdateBlur();
             UpdateSkin();
             wasInit = true;
         }
         init = true;
+        UpdateBlur();
+
     }
 
     public void ReadyStateUpdated(ulong clientId, bool state)
@@ -89,10 +92,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void ResetContainer()
     {
-        teamSelection.ResetTeam();
         currentSkinSelection.ChangePlayerIcon(-1,playerIndex);
         currentSkinSelection = null;
-        blurImage.color = initialBlurColor;
         emptyPlayerContainer.SetActive(true);
         wasInit = false;
         init = true;
@@ -239,6 +240,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void UpdateBlur()
     {
+        if (!currentSkinSelection) return;
         blurImage.enabled = true;
         Color c = Color.white;
 

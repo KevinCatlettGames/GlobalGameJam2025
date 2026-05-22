@@ -36,8 +36,6 @@ public class TeamSelection : MonoBehaviour
 
         LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
         playerContainerSkinChange.UpdateBlur();
-        currentTeamIndex = -1;
-        initialSet = false;
     }
 
     private void Init()
@@ -69,10 +67,8 @@ public class TeamSelection : MonoBehaviour
                 currentTeamIndex = 2;
             else if(playersInTeamA ==  playersInTeamB)
                 currentTeamIndex = 1;
-
-            SetTeam();
         }
-
+        SetTeam();
         UpdateTeamIndex((ulong)playerIndex, true);
         LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
     }
@@ -139,10 +135,5 @@ public class TeamSelection : MonoBehaviour
             lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex = -1;
             SetTeam();
         }
-    }
-
-    public void ResetTeam()
-    {
-        currentTeamIndex = -1; 
     }
 }

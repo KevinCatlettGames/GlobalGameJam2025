@@ -9,7 +9,6 @@ using UnityEngine.UI;
 using FMODUnity;
 using TMPro;
 using UnityEngine.InputSystem;
-using UnityEngine.iOS;
 
 /// <summary>
 /// Handles the multiplayer lobby including:
@@ -149,9 +148,6 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Team indicator images.")]
     public Image[] teamIndicators;
-
-    [Tooltip("Sprites used for team indicators.")]
-    public Sprite[] teamSprites;
 
     [Tooltip("Weapon toggle buttons.")]
     public Toggle[] weaponToggles;

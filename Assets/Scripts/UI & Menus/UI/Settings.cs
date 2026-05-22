@@ -77,7 +77,11 @@ public class Settings : MonoBehaviour
     #region UI
     [Header("UI")]
     [SerializeField] private GameObject selectedObject;
+    [SerializeField] private Button videoButton;
+    [SerializeField] private Button audioButton;
+    [SerializeField] private Button gameButton;
     [SerializeField] private Button applyButton;
+    [SerializeField] private Button resetButton;
     [SerializeField] private Button backButton;
     [SerializeField] private StudioEventEmitter emitter;
     #endregion
@@ -144,7 +148,6 @@ public class Settings : MonoBehaviour
         pendingFullscreen = isFullScreen;
 
         Screen.fullScreen = isFullScreen;
-        resolutionDropdown.interactable = !isFullScreen;
 
         UpdateApplyButton();
     }
@@ -190,7 +193,6 @@ public class Settings : MonoBehaviour
 
         resolutionDropdown.value = value;
         resolutionDropdown.RefreshShownValue();
-        resolutionDropdown.interactable = !Screen.fullScreen;
     }
 
     public void SetMasterVolume(float volume)
@@ -269,6 +271,7 @@ public class Settings : MonoBehaviour
 
     private void ExitSettings(InputAction.CallbackContext obj)
     {
+        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return; 
         backButton.onClick?.Invoke();
     }
 
@@ -283,6 +286,7 @@ public class Settings : MonoBehaviour
             EnableTabToggling();
 
         UpdateTabVisibility(tab);
+        SetButtonNavigation(tab);
 
         if (!initialSet)
             emitter?.Play();
@@ -322,6 +326,79 @@ public class Settings : MonoBehaviour
         gameTabFrame.SetActive(tab == Tab.Game);
     }
 
+    private void SetButtonNavigation(Tab tab)
+    {
+        Navigation newApplyNav = new Navigation();
+        newApplyNav.mode = Navigation.Mode.Explicit;
+        newApplyNav.selectOnDown = applyButton.navigation.selectOnDown;
+        newApplyNav.selectOnLeft = applyButton.navigation.selectOnLeft;
+        newApplyNav.selectOnRight = applyButton.navigation.selectOnRight;
+
+        Navigation newResetNav = new Navigation();
+        newResetNav.mode = Navigation.Mode.Explicit;
+        newResetNav.selectOnDown = resetButton.navigation.selectOnDown;
+        newResetNav.selectOnLeft = resetButton.navigation.selectOnLeft;
+        newResetNav.selectOnRight = resetButton.navigation.selectOnRight;
+
+
+        Navigation newVideoNav = new Navigation();
+        newVideoNav.mode = Navigation.Mode.Explicit;
+        newVideoNav.selectOnUp = videoButton.navigation.selectOnUp;
+        newVideoNav.selectOnLeft = videoButton.navigation.selectOnLeft;
+        newVideoNav.selectOnRight = videoButton.navigation.selectOnRight;
+
+        Navigation newAudioNav = new Navigation();
+        newAudioNav.mode = Navigation.Mode.Explicit;
+        newAudioNav.selectOnUp = audioButton.navigation.selectOnUp;
+        newAudioNav.selectOnLeft = audioButton.navigation.selectOnLeft;
+        newAudioNav.selectOnRight = audioButton.navigation.selectOnRight;
+
+
+        Navigation newGameNav = new Navigation();
+        newGameNav.mode = Navigation.Mode.Explicit;
+        newGameNav.selectOnUp = gameButton.navigation.selectOnUp;
+        newGameNav.selectOnLeft = gameButton.navigation.selectOnLeft;
+        newGameNav.selectOnRight = gameButton.navigation.selectOnRight;
+
+
+        switch (tab)
+        {
+            case Tab.Video:
+                newApplyNav.selectOnUp = graphicsQualityDropdown;
+                newResetNav.selectOnUp = graphicsQualityDropdown;
+                newVideoNav.selectOnDown = fullScreenToggle;
+                newAudioNav.selectOnDown = fullScreenToggle;
+                newGameNav.selectOnDown = resolutionDropdown;
+                break;
+            case Tab.Audio:
+                newApplyNav.selectOnUp = musicSlider;
+                newResetNav.selectOnUp = musicSlider;
+                newVideoNav.selectOnDown = masterSlider;
+                newAudioNav.selectOnDown = masterSlider;
+                newGameNav.selectOnDown = masterSlider;
+                break;
+            case Tab.Game:
+                newApplyNav.selectOnUp = videoButton;
+                newResetNav.selectOnUp = videoButton;
+                newVideoNav.selectOnDown = applyButton;
+                newAudioNav.selectOnDown = applyButton;
+                newGameNav.selectOnDown = applyButton;
+                break;
+            default:
+                newApplyNav.selectOnUp = videoButton;
+                newResetNav.selectOnUp = videoButton;
+                newVideoNav.selectOnDown = applyButton;
+                newAudioNav.selectOnDown = applyButton;
+                newGameNav.selectOnDown = applyButton;
+                break;
+        }
+        applyButton.navigation = newApplyNav;
+        resetButton.navigation = newResetNav;
+        videoButton.navigation = newVideoNav;
+        audioButton.navigation = newAudioNav;
+        gameButton.navigation = newGameNav;
+    }
+
     public void SetSelected()
     {
         EventSystem.current.SetSelectedGameObject(selectedObject);
@@ -355,8 +432,6 @@ public class Settings : MonoBehaviour
 
         graphicsQualityDropdown.value = pendingQuality;
         graphicsQualityDropdown.RefreshShownValue();
-
-        resolutionDropdown.interactable = !pendingFullscreen;
     }
 
     private void UpdateApplyButton()
@@ -401,6 +476,7 @@ public class Settings : MonoBehaviour
 
         PlayerPrefs.Save();
 
+        EventSystem.current.SetSelectedGameObject(resetButton.gameObject);
         UpdateApplyButton();
     }
 
