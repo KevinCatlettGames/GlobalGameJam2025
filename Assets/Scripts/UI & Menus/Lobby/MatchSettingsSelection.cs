@@ -115,7 +115,6 @@ public class MatchSettingsSelection : NetworkBehaviour
                 currentTab == Tab.Maps ? Tab.Spells : Tab.General);
 
         SetTab(nextTab);
-        SetButtonNavigation(nextTab);
     }
     #endregion
     
@@ -153,6 +152,7 @@ public class MatchSettingsSelection : NetworkBehaviour
                 mapsTab.SetActive(true);
                 break;
         }
+        SetButtonNavigation(currentTab);
     }
 
     public void OpenGeneralTab() => SetTab(Tab.General);

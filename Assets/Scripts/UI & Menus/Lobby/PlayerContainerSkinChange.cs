@@ -46,11 +46,12 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
-            UpdateBlur();
             UpdateSkin();
             wasInit = true;
         }
         init = true;
+        UpdateBlur();
+
     }
 
     public void ReadyStateUpdated(ulong clientId, bool state)
