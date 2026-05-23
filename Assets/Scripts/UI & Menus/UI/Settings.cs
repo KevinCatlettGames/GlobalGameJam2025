@@ -79,7 +79,6 @@ public class Settings : MonoBehaviour
     [SerializeField] private GameObject selectedObject;
     [SerializeField] private Button videoButton;
     [SerializeField] private Button audioButton;
-    [SerializeField] private Button gameButton;
     [SerializeField] private Button applyButton;
     [SerializeField] private Button resetButton;
     [SerializeField] private Button backButton;
@@ -353,14 +352,6 @@ public class Settings : MonoBehaviour
         newAudioNav.selectOnLeft = audioButton.navigation.selectOnLeft;
         newAudioNav.selectOnRight = audioButton.navigation.selectOnRight;
 
-
-        Navigation newGameNav = new Navigation();
-        newGameNav.mode = Navigation.Mode.Explicit;
-        newGameNav.selectOnUp = gameButton.navigation.selectOnUp;
-        newGameNav.selectOnLeft = gameButton.navigation.selectOnLeft;
-        newGameNav.selectOnRight = gameButton.navigation.selectOnRight;
-
-
         switch (tab)
         {
             case Tab.Video:
@@ -368,35 +359,30 @@ public class Settings : MonoBehaviour
                 newResetNav.selectOnUp = graphicsQualityDropdown;
                 newVideoNav.selectOnDown = fullScreenToggle;
                 newAudioNav.selectOnDown = fullScreenToggle;
-                newGameNav.selectOnDown = resolutionDropdown;
                 break;
             case Tab.Audio:
                 newApplyNav.selectOnUp = musicSlider;
                 newResetNav.selectOnUp = musicSlider;
                 newVideoNav.selectOnDown = masterSlider;
                 newAudioNav.selectOnDown = masterSlider;
-                newGameNav.selectOnDown = masterSlider;
                 break;
             case Tab.Game:
                 newApplyNav.selectOnUp = videoButton;
                 newResetNav.selectOnUp = videoButton;
                 newVideoNav.selectOnDown = applyButton;
                 newAudioNav.selectOnDown = applyButton;
-                newGameNav.selectOnDown = applyButton;
                 break;
             default:
                 newApplyNav.selectOnUp = videoButton;
                 newResetNav.selectOnUp = videoButton;
                 newVideoNav.selectOnDown = applyButton;
                 newAudioNav.selectOnDown = applyButton;
-                newGameNav.selectOnDown = applyButton;
                 break;
         }
         applyButton.navigation = newApplyNav;
         resetButton.navigation = newResetNav;
         videoButton.navigation = newVideoNav;
         audioButton.navigation = newAudioNav;
-        gameButton.navigation = newGameNav;
     }
 
     public void SetSelected()

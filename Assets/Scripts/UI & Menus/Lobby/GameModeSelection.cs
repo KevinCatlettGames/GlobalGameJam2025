@@ -10,25 +10,34 @@ using UnityEngine.UI;
 public class GameModeSelection : NetworkBehaviour
 {
     [Header("UI")]
-    [SerializeField] StudioEventEmitter buttonOnClickEmitter;
-    public LocalizeStringEvent matchSettingsGameModeNameStringEvent;
-    public InputActionProperty gameModeSwitchInputAction;
-    public LocalizeStringEvent localizeStringEvent;
-    public Button gameModeButton;
-    public Image[] gameModeBubbleImages;
+    [SerializeField] private StudioEventEmitter buttonOnClickEmitter;
 
-    [Header("Lobby Connection")]
-    [SerializeField] LobbyButtons lobbyButtons;
-    LobbyManager lobbyManager;
+    public LocalizeStringEvent matchSettingsGameModeNameStringEvent;
+    public LocalizeStringEvent localizeStringEvent;
+
+    [SerializeField] private InputActionProperty gameModeSwitchInputAction;
+    [SerializeField] private Button gameModeButton;
+    [SerializeField] private Button loadoutButton;
+
+    [Header("Lobby")]
+    private LobbyManager lobbyManager;
 
     [SerializeField] private GameObject[] teamSelections;
+
+    [Header("Stick Input")]
     [SerializeField] private float stickThreshold = 0.5f;
     [SerializeField] private float pageInitialDelay = 0.35f;
     [SerializeField] private float pageRepeatRate = 0.12f;
-    public bool stickInUse;
-    private float pageHoldTimer = 0f;
+
+    private bool stickInUse;
+    private float pageHoldTimer;
+
+    [Header("UI")]
+    [SerializeField] private Image[] gameModeBubbleImages;
+
     [SerializeField] private Sprite activePageDotSprite;
     [SerializeField] private Color activePageDotColor;
+
     [SerializeField] private Sprite inactivePageDotSprite;
     [SerializeField] private Color inactivePageDotColor;
 
@@ -47,28 +56,34 @@ public class GameModeSelection : NetworkBehaviour
 
     private void Update()
     {
-        Vector2 stick = gameModeSwitchInputAction.action.ReadValue<Vector2>();
+        Vector2 stick =
+            gameModeSwitchInputAction.action.ReadValue<Vector2>();
+
         int direction = 0;
 
-        if (stick.x < -stickThreshold) direction = -1;
-        else if (stick.x > stickThreshold) direction = 1;
+        if (stick.x < -stickThreshold)
+            direction = -1;
+        else if (stick.x > stickThreshold)
+            direction = 1;
 
         if (direction != 0)
         {
+            if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject)
+                return;
+
             if (!stickInUse)
             {
-                if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject) return;
                 pageHoldTimer = 0f;
-                UpdateGameMode(true);
+                UpdateGameMode(direction > 0);
                 stickInUse = true;
             }
             else
             {
-                if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject) return;
                 pageHoldTimer += Time.deltaTime;
+
                 if (pageHoldTimer >= pageInitialDelay)
                 {
-                    UpdateGameMode(false);
+                    UpdateGameMode(direction > 0);
                     pageHoldTimer = pageInitialDelay - pageRepeatRate;
                 }
             }
@@ -80,57 +95,124 @@ public class GameModeSelection : NetworkBehaviour
         }
     }
 
-    public void UpdateGameMode(bool increment)
+    // =====================================================
+    // BUTTON CLICK (LOOPS ALWAYS)
+    // =====================================================
+
+    public void OnGameModeButtonClick()
+    {
+        UpdateGameMode(true, true);
+    }
+
+    // =====================================================
+    // MAIN LOGIC
+    // =====================================================
+
+    public void UpdateGameMode(bool increment, bool allowPositiveLoop = false)
     {
         int currentIndex = (int)lobbyManager.SelectedGameMode;
-        int enumLength = Enum.GetValues(typeof(GameManager.GameModeType)).Length;
+
+        int enumLength =
+            Enum.GetValues(typeof(GameManager.GameModeType)).Length;
 
         if (increment)
-            currentIndex = (currentIndex + 1) % enumLength;
-        else
-            currentIndex = (currentIndex - 1 + enumLength) % enumLength;
-
-        for (int i = 0; i < gameModeBubbleImages.Length; i++) 
         {
-            if (currentIndex == i)
+            if (allowPositiveLoop)
             {
-                gameModeBubbleImages[i].sprite = activePageDotSprite;
-                gameModeBubbleImages[i].color = activePageDotColor;
+                currentIndex = (currentIndex + 1) % enumLength;
             }
             else
             {
-                gameModeBubbleImages[i].sprite = inactivePageDotSprite;
-                gameModeBubbleImages[i].color = inactivePageDotColor;
+                currentIndex = Mathf.Min(currentIndex + 1, enumLength - 1);
             }
         }
+        else
+        {
+            currentIndex = (currentIndex - 1 + enumLength) % enumLength;
+        }
 
-        lobbyManager.SelectedGameMode = (GameManager.GameModeType)currentIndex;
+        lobbyManager.SelectedGameMode =
+            (GameManager.GameModeType)currentIndex;
+
+        UpdateBubbles(currentIndex);
 
         UpdateGameModeSelectionUI();
+
+        RefreshNavigation(currentIndex, enumLength);
+
         buttonOnClickEmitter.Play();
     }
 
-    void UpdateGameModeSelectionUI()
+    // =====================================================
+    // NAVIGATION (IMPORTANT FIX)
+    // =====================================================
+
+    private void RefreshNavigation(int currentIndex, int maxIndex)
     {
-        GameModeSO gameModeSoToUse = lobbyManager.GameModes[0];
-        foreach (GameModeSO gameModeSo in lobbyManager.GameModes)
+        Navigation nav = gameModeButton.navigation;
+        nav.mode = Navigation.Mode.Explicit;
+
+        // RIGHT EDGE RULE:
+        // Only last index allows navigation to loadout
+        if (currentIndex == maxIndex - 1)
+            nav.selectOnRight = loadoutButton;
+        else
+            nav.selectOnRight = null;
+
+        gameModeButton.navigation = nav;
+    }
+
+    // =====================================================
+    // UI BUBBLES
+    // =====================================================
+
+    private void UpdateBubbles(int currentIndex)
+    {
+        for (int i = 0; i < gameModeBubbleImages.Length; i++)
         {
-            if (lobbyManager.SelectedGameMode == gameModeSo.GameModeType)
+            bool isActive = i == currentIndex;
+
+            gameModeBubbleImages[i].sprite =
+                isActive ? activePageDotSprite : inactivePageDotSprite;
+
+            gameModeBubbleImages[i].color =
+                isActive ? activePageDotColor : inactivePageDotColor;
+        }
+    }
+
+    // =====================================================
+    // FULL UI UPDATE
+    // =====================================================
+
+    private void UpdateGameModeSelectionUI()
+    {
+        GameModeSO selected = lobbyManager.GameModes[0];
+
+        foreach (GameModeSO mode in lobbyManager.GameModes)
+        {
+            if (mode.GameModeType == lobbyManager.SelectedGameMode)
             {
-                gameModeSoToUse = gameModeSo;
+                selected = mode;
                 break;
             }
         }
 
-        matchSettingsGameModeNameStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
-        localizeStringEvent.StringReference = gameModeSoToUse.GameModeLocalizationProperty.LocalizedString;
+        matchSettingsGameModeNameStringEvent.StringReference =
+            selected.GameModeLocalizationProperty.LocalizedString;
+
+        localizeStringEvent.StringReference =
+            selected.GameModeLocalizationProperty.LocalizedString;
 
         foreach (GameObject teamSelection in teamSelections)
-            teamSelection.SetActive(gameModeSoToUse.GameModeType == GameManager.GameModeType.Team);
-
-        foreach(GameObject skinChange in LobbyManager.instance.playerContainers)
         {
-            skinChange.GetComponent<PlayerContainerSkinChange>().UpdateBlur();
-        }    
+            teamSelection.SetActive(
+                selected.GameModeType == GameManager.GameModeType.Team
+            );
+        }
+
+        foreach (GameObject skin in LobbyManager.instance.playerContainers)
+        {
+            skin.GetComponent<PlayerContainerSkinChange>().UpdateBlur();
+        }
     }
 }
