@@ -214,7 +214,7 @@ public class LobbyButtons : MonoBehaviour
 
     public void LeaveToMainMenu()
     {
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
         buttonOnClickEmitter.Play();

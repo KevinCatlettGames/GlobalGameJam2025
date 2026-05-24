@@ -60,7 +60,7 @@ public class LobbyPlayerInput : MonoBehaviour
     public void OnJoined(InputAction.CallbackContext context)
     {
         if (joined) return;
-        if (lobbyManager.MatchSettingsSelection.activeSelf) return;
+        if (lobbyManager._MatchSettingsSelection.activeSelf) return;
         lobbyPlayerInputIndex = -1;
         foreach (GameObject go in lobbyManager.playerContainers)
         {
@@ -103,7 +103,7 @@ public class LobbyPlayerInput : MonoBehaviour
                 return;
             }
         }
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
         if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
@@ -123,10 +123,10 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
 
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager._MatchSettingsSelection.activeSelf)
         {
             PlaySFX(buttonReference);
-            lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
+            lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
             return;
         }
 
@@ -172,7 +172,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (!joined) return;
         if (!isActiveAndEnabled) return;
 
-        if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
         Vector2 input = context.ReadValue<Vector2>();
@@ -201,7 +201,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-        if (lobbyManager.MatchSettingsSelection.activeSelf)
+        if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
         if(LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
 
@@ -238,7 +238,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-        if (lobbyManager.MatchSettingsSelection.activeSelf) return;
+        if (lobbyManager._MatchSettingsSelection.activeSelf) return;
 
         if (context.started)
             lobbyButtons.StartGameHold(lobbyPlayerInputIndex);
@@ -256,6 +256,6 @@ public class LobbyPlayerInput : MonoBehaviour
             !NetworkManager.Singleton.IsServer) return;
 
         PlaySFX(buttonReference);
-        lobbyManager.MatchSettingsSelection.SetActive(!lobbyManager.MatchSettingsSelection.activeSelf);
+        lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
     }
 }

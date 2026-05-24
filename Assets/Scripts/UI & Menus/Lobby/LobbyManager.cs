@@ -10,21 +10,10 @@ using FMODUnity;
 using TMPro;
 using UnityEngine.InputSystem;
 
-/// <summary>
-/// Handles the multiplayer lobby including:
-/// - Player ready states
-/// - Game mode selection
-/// - Map & spell configuration
-/// - UI synchronization
-/// - Network synchronization (RPCs)
-/// </summary>
 public class LobbyManager : NetworkBehaviour
 {
     #region Singleton
 
-    /// <summary>
-    /// Global instance of the LobbyManager.
-    /// </summary>
     public static LobbyManager instance;
 
     #endregion
@@ -57,6 +46,10 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
+    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+    public int selectedLeftSpellIndex = 0;
+    public int selectedRightSpellIndex = 0;
+
     [SerializeField] GameObject uiParent;
     public GameModeSO[] GameModes { get => gameModes; set => gameModes = value; }
     public MapSettingsSO[] MapSettings { get => mapSettings; set => mapSettings = value; }
@@ -84,7 +77,7 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("UI panel for match settings.")]
     [SerializeField] public GameObject matchSettingsSelection;
-    public GameObject MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
+    public GameObject _MatchSettingsSelection { get => matchSettingsSelection; set => matchSettingsSelection = value; }
 
     public LobbyPlayerInput lobbyInput;
 
@@ -680,6 +673,7 @@ public class LobbyManager : NetworkBehaviour
     public void SetWinsNeeded(float value)
     {
         winsNeeded = (int)value;
+        MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
     public void ToggleEndless(bool toggle)
