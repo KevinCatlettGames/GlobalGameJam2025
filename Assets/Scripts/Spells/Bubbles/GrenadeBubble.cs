@@ -1,6 +1,7 @@
 using FMODUnity;
 using System.Collections;
 using Unity.Netcode;
+using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 public class GrenadeBubble : BasicBubble
@@ -92,5 +93,11 @@ public class GrenadeBubble : BasicBubble
                 puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
         }
+    }
+
+    protected override void Reflect(Vector3 normal)
+    {
+        progress = 0;
+        base.Reflect(normal);
     }
 }

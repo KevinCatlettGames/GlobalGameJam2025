@@ -65,6 +65,7 @@ public class BasicBubble : NetworkBehaviour
     private float soapSpeedAmp = 2f;
     private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
+    private float reflectDmgIncrease = 1.2f;
 
     protected Vector3 lastPosition;
     protected float desyncThreshold = 0.05f;
@@ -243,6 +244,7 @@ public class BasicBubble : NetworkBehaviour
             StopCoroutine(rangeCoroutine);
         
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+        damage *= reflectDmgIncrease;
         isReflected = true;
     }    
     public virtual void SetSlippy()
@@ -268,6 +270,8 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     private void SpawnPopEffectClientRpc(Vector3 pos)
     {
+        if (fizzleEffect == null) 
+            return;
         var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
     private void DestroyBubble()
