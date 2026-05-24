@@ -201,6 +201,9 @@ public class LobbyManager : NetworkBehaviour
     {
         scores.ResetKills();
         scores.ResetWins();
+        selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+        selectedLeftSpellIndex = 0;
+        selectedRightSpellIndex = 0;
 
         gameModeTypeText.text =
             gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();

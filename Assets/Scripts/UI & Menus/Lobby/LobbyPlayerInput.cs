@@ -251,7 +251,6 @@ public class LobbyPlayerInput : MonoBehaviour
     {
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
-        if (!SteamIntegration.instance.IsFullVersion) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
