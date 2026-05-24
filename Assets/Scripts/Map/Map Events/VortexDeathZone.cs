@@ -1,32 +1,42 @@
 using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
+using System.Collections;
 
 public class VortexDeathZone : MonoBehaviour
 {
     private List<PlayerController> playersInRange = new List<PlayerController>();
     private float[] timeInZone = new float[4];
     [SerializeField] private float timeToDeath = 1f;
-    private Vortex vortex;
+    [SerializeField] private float startDelay = 25f;
+    [SerializeField] private GameObject skull;
     [SerializeField] private EventReference deathEvent;
+    private Vortex vortex;
+    private SphereCollider sphereCollider;
+    private bool isKilling = false;
+
     private void Start()
     {
         vortex = GetComponentInParent<Vortex>();
+        sphereCollider = GetComponentInParent<SphereCollider>();
     }
 
     private void FixedUpdate()
     {
-        for (int i = playersInRange.Count -1; i >= 0; i--)
+        if (sphereCollider.enabled)
         {
-            int id = playersInRange[i].PlayerID;
-            timeInZone[id] += Time.fixedDeltaTime;
-            if (timeInZone[id] >= timeToDeath)
+            for (int i = playersInRange.Count -1; i >= 0; i--)
             {
-                timeInZone[id] = 0f;
-                RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
-                playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer();
-                vortex.RemovePlayer(playersInRange[i]);
-                playersInRange.RemoveAt(i);
+                int id = playersInRange[i].PlayerID;
+                timeInZone[id] += Time.fixedDeltaTime;
+                if (timeInZone[id] >= timeToDeath)
+                {
+                    timeInZone[id] = 0f;
+                    RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
+                    playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer();
+                    vortex.RemovePlayer(playersInRange[i]);
+                    playersInRange.RemoveAt(i);
+                }
             }
         }
     }
@@ -50,8 +60,22 @@ public class VortexDeathZone : MonoBehaviour
             playersInRange.Remove(player);           
         }
     }
+    public IEnumerator StartDeathZone()
+    {
+        yield return new WaitForSeconds(startDelay);
+        isKilling = true;
+        ToggleDeathZone();
+    }
     public void ResetDeathZone()
     {
         playersInRange.Clear();
+        isKilling = false;
+        ToggleDeathZone();
+    }
+    private void ToggleDeathZone()
+    {
+        // Effects n stuff
+        sphereCollider.enabled = isKilling;
+        skull.SetActive(isKilling);
     }
 }

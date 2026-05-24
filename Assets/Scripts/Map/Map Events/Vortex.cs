@@ -24,7 +24,10 @@ public class Vortex : MapEvent
 
     [Header("Audio")]
     [SerializeField] private StudioEventEmitter skateEvent;
-    EventInstance fmodEvent;
+    [SerializeField] private EventReference vortexSFX;
+    private EventInstance vortexSFXInstance;
+    private float paramFactor = 0;
+    private float param = 0;
     private Vector3 targetScale = Vector3.one;
     private bool isBig = false;
     private bool playerIsSkating = false;
@@ -40,6 +43,9 @@ public class Vortex : MapEvent
 
         targetScale = Vector3.one * minSize;
         transform.localScale = Vector3.one * startSize;
+        vortexSFXInstance = RuntimeManager.CreateInstance(vortexSFX);
+        vortexSFXInstance.start();
+        paramFactor = 1f / (maxSize - minSize);
     }
 
     private void OnEnable()
@@ -59,6 +65,20 @@ public class Vortex : MapEvent
         range = radius * transform.localScale.x;
 
         PlayerController player;
+
+        if (playersInRange.Count > 0 && !playerIsSkating)
+        {
+            playerIsSkating = true;
+            skateEvent?.Play();
+        }
+        else if (playersInRange.Count == 0)
+        {
+            playerIsSkating = false;
+            skateEvent?.Stop();
+        }
+
+        param = Mathf.Max(0f, range - minSize);
+        vortexSFXInstance.setParameterByName("VortexSize", param);
 
         for (int i = playersInRange.Count - 1; i >= 0; i--)
         {
@@ -182,6 +202,7 @@ public class Vortex : MapEvent
         reset = false;
         StopAllCoroutines();
         StartCoroutine(GrowCoroutine());
+        StartCoroutine(deathZone.StartDeathZone());
     }
 
     protected override void StopEvent()
