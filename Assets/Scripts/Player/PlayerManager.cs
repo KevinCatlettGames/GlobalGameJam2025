@@ -14,7 +14,6 @@ public class PlayerManager : NetworkBehaviour
 
     [Header("Player Setup")]
     [SerializeField] private PlayerHUD[] playerHUDs;
-    [SerializeField] private int startingSpellCount;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private int[] teamIDs;
     
@@ -31,6 +30,7 @@ public class PlayerManager : NetworkBehaviour
     public InputActionProperty startGameInputAction; 
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
+
     
     private void Awake()
     {
@@ -49,7 +49,6 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         countdown.onCountdownComplete.AddListener(StartPlayerJoining);
-        startingSpellCount = ItemSpawner.Instance.GetSpellCount();
     }
 
     private void OnDisable()
@@ -67,7 +66,6 @@ public class PlayerManager : NetworkBehaviour
     {
         CameraHandler.Instance.onCinematicEnd.RemoveListener(StartPlayerJoining);
         GameManager.Instance.OnGameStarted += ResetPlayers;
-        RerollSpells();
         if (GameManager.Instance.PlayingLocal)
         {
             if (!TransportSwitcher.Instance)
@@ -133,6 +131,7 @@ public class PlayerManager : NetworkBehaviour
 
     void StartLocalGame()
     {
+        RerollSpells();
         if (LobbyPlayerValues.Instance != null)
         {
             LobbyPlayerValues lobbyPlayerHandler = LobbyPlayerValues.Instance;
@@ -166,6 +165,9 @@ public class PlayerManager : NetworkBehaviour
                         newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
                     }
                 }
+
+                if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                    RerollSpells();
             }
         }
         ItemSpawner.Instance.InitialSpawn();
@@ -263,6 +265,8 @@ public class PlayerManager : NetworkBehaviour
             {
                 networkObject.GetComponent<PlayerController>().InitializeClientRpc();
             }
+            if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                RerollSpells();
         }
     }
 
@@ -279,6 +283,8 @@ public class PlayerManager : NetworkBehaviour
             foreach (var player in localPlayers)
             {
                 ResetPlayerComponents(player);
+                if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                    RerollSpells();
             }
         }
         else
@@ -288,6 +294,8 @@ public class PlayerManager : NetworkBehaviour
                 if (playerRef.TryGet(out NetworkObject networkObject))
                 {
                     ResetPlayerComponents(networkObject.gameObject);
+                    if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                        RerollSpells();
                 }
             }
         }
@@ -310,37 +318,23 @@ public class PlayerManager : NetworkBehaviour
     private void RerollSpells()
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
-
-        int maxAttempts = 50;
-        int attempts = 0;
-        int r = -1;
-
-        while ((r == -1 || !ItemSpawner.Instance.SpawnableItems[r].CanUse) 
-               && attempts < maxAttempts)
+        if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.SharedCustom)
         {
-            r = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
-            attempts++;
+            syncedFirstSpellIndex.Value = LobbyManager.instance.selectedLeftSpellIndex;
+            syncedSecondSpellIndex.Value = LobbyManager.instance.selectedRightSpellIndex;
+            return;
         }
 
-        if (attempts >= maxAttempts)
-            r = 0;
-
-        syncedFirstSpellIndex.Value = r;
-        
-        r = -1;
-        attempts = 0;
-
-        while ((r == -1 || !ItemSpawner.Instance.SpawnableItems[r].CanUse) 
-               && attempts < maxAttempts)
+        List<int> legalSpells = new List<int>();
+        for (int i = 0; i < ItemSpawner.Instance.GetSpellCount(); i++)
         {
-            r = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
-            attempts++;
+            if (ItemSpawner.Instance.SpawnableItems[i].CanUse)
+            {
+                legalSpells.Add(i);
+            }
         }
-
-        if (attempts >= maxAttempts)
-            r = 0;
-
-        syncedSecondSpellIndex.Value = r;
+        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
+        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
     }
 
 
