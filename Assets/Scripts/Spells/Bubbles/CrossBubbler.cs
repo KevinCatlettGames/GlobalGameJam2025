@@ -1,7 +1,5 @@
-using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEditor.PlayerSettings;
 
 public class CrossBubbler : BasicBubble
 {
