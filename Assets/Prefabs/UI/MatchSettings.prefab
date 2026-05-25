@@ -348,6 +348,7 @@ MonoBehaviour:
   giantToggle: {fileID: 5019360367395686756}
   grenadeToggle: {fileID: 4160615377435309173}
   plateToggle: {fileID: 2927653149514110486}
+  potToggle: {fileID: 7609254204960995700}
   bucketSlider: {fileID: 1168546441094216101}
   roundsToWinOption: {fileID: 2506702985112752838}
   tabSwitchEmitter: {fileID: 1156564344192090336}
@@ -1452,7 +1453,7 @@ MonoBehaviour:
     m_SelectOnUp: {fileID: 693040239118095558}
     m_SelectOnDown: {fileID: 2813822960197940296}
     m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_SelectOnRight: {fileID: 7463475799650385490}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 1, g: 1, b: 1, a: 0}
@@ -2385,7 +2386,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -4449,7 +4450,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6655230367991237731}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 5
+  m_MaxValue: 9
   m_WholeNumbers: 1
   m_Value: 3
   m_OnValueChanged:
@@ -5736,7 +5737,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 6163944240869425230}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 5
+  m_MaxValue: 9
   m_WholeNumbers: 1
   m_Value: 3
   m_OnValueChanged:
@@ -7748,7 +7749,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 4566020388648862522}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 5
+  m_MaxValue: 9
   m_WholeNumbers: 1
   m_Value: 3
   m_OnValueChanged:
@@ -10817,7 +10818,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -13347,7 +13348,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -14634,7 +14635,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -15241,7 +15242,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -17856,7 +17857,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -18381,7 +18382,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 3101923656764046735}
+      - m_Target: {fileID: 3592765673974354778}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -19563,7 +19564,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -19749,6 +19750,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7997014871703833926}
   - component: {fileID: 200514966053764859}
+  - component: {fileID: 7296530642953567173}
   m_Layer: 5
   m_Name: Loadout
   m_TagString: Untagged
@@ -19928,6 +19930,38 @@ MonoBehaviour:
   inactivePageDotSprite: {fileID: 21300000, guid: 1cdacad2fb60e884dbff27f3c91d4eac,
     type: 3}
   inactivePageDotColor: {r: 0.58431375, g: 0.58431375, b: 0.58431375, a: 1}
+  buttonClickEmitter: {fileID: 7296530642953567173}
+--- !u!114 &7296530642953567173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7648984555731441129}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 1591094170
+      Data2: 1080478032
+      Data3: -1876677235
+      Data4: -1759031655
+    Path: event:/ui/ui_click
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &7652607905139561155
 GameObject:
   m_ObjectHideFlags: 0
@@ -20272,7 +20306,7 @@ MonoBehaviour:
   m_HandleRect: {fileID: 1190690062346964853}
   m_Direction: 0
   m_MinValue: 1
-  m_MaxValue: 5
+  m_MaxValue: 9
   m_WholeNumbers: 1
   m_Value: 3
   m_OnValueChanged:
@@ -22531,7 +22565,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -22809,7 +22843,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -23872,6 +23906,7 @@ GameObject:
   - component: {fileID: 3320512776891795401}
   - component: {fileID: 2683277312761712402}
   - component: {fileID: 6643159092149659119}
+  - component: {fileID: 3160049572968002595}
   m_Layer: 5
   m_Name: MapsButton
   m_TagString: Untagged
@@ -24096,6 +24131,18 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &3160049572968002595
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8544999189686426408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8568879868129496559
 GameObject:
   m_ObjectHideFlags: 0
@@ -24335,7 +24382,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1
@@ -25563,7 +25610,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-      - m_Target: {fileID: 2257267300693205446}
+      - m_Target: {fileID: 4129074884090405378}
         m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
         m_MethodName: Play
         m_Mode: 1

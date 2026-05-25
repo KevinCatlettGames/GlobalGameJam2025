@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 using EditorAttributes;
 using Steamworks;
+using Steamworks.Data;
 
 public class SteamIntegration : MonoBehaviour
 {
@@ -300,7 +301,7 @@ public class SteamIntegration : MonoBehaviour
         {
             if (i == achievementNameID)
             {
-                var ach = new Steamworks.Data.Achievement(achievementNames[i]);
+                Achievement ach = new Steamworks.Data.Achievement(achievementNames[i]);
                 //Debug.Log("Achievement Unlocked");
                 ach.Trigger();
             }
