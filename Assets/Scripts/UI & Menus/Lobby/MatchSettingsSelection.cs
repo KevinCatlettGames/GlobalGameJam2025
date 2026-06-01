@@ -166,7 +166,7 @@ public class MatchSettingsSelection : NetworkBehaviour
 
             case Tab.Spells:
                 generalNav.selectOnDown = explosionToggle;
-                spellNav.selectOnDown = giantToggle;
+                spellNav.selectOnDown = explosionToggle;
                 mapsNav.selectOnDown = giantToggle;
                 backNav.selectOnUp = grenadeToggle;
                 EventSystem.current.SetSelectedGameObject(spellButton.gameObject);

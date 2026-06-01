@@ -76,46 +76,46 @@ public class LoadoutSelection : MonoBehaviour
         loadoutSwitchInputAction.action.Disable();
     }
 
-    private void Update()
-    {
-        Vector2 stick =
-            loadoutSwitchInputAction.action.ReadValue<Vector2>();
+    //private void Update()
+    //{
+    //    Vector2 stick =
+    //        loadoutSwitchInputAction.action.ReadValue<Vector2>();
 
-        int direction = 0;
+    //    int direction = 0;
 
-        if (stick.x < -stickThreshold)
-            direction = -1;
-        else if (stick.x > stickThreshold)
-            direction = 1;
+    //    if (stick.x < -stickThreshold)
+    //        direction = -1;
+    //    else if (stick.x > stickThreshold)
+    //        direction = 1;
 
-        if (direction != 0)
-        {
-            GameObject currentSelected =
-                EventSystem.current.currentSelectedGameObject;
+    //    if (direction != 0)
+    //    {
+    //        GameObject currentSelected =
+    //            EventSystem.current.currentSelectedGameObject;
 
-            if (!stickInUse)
-            {
-                pageHoldTimer = 0f;
-                HandleSelectionInput(currentSelected, direction);
-                stickInUse = true;
-            }
-            else
-            {
-                pageHoldTimer += Time.deltaTime;
+    //        if (!stickInUse)
+    //        {
+    //            pageHoldTimer = 0f;
+    //            HandleSelectionInput(currentSelected, direction);
+    //            stickInUse = true;
+    //        }
+    //        else
+    //        {
+    //            pageHoldTimer += Time.deltaTime;
 
-                if (pageHoldTimer >= pageInitialDelay)
-                {
-                    HandleSelectionInput(currentSelected, direction);
-                    pageHoldTimer = pageInitialDelay - pageRepeatRate;
-                }
-            }
-        }
-        else
-        {
-            stickInUse = false;
-            pageHoldTimer = 0f;
-        }
-    }
+    //            if (pageHoldTimer >= pageInitialDelay)
+    //            {
+    //                HandleSelectionInput(currentSelected, direction);
+    //                pageHoldTimer = pageInitialDelay - pageRepeatRate;
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        stickInUse = false;
+    //        pageHoldTimer = 0f;
+    //    }
+    //}
 
     private void HandleSelectionInput(GameObject currentSelected, int direction)
     {
@@ -257,16 +257,10 @@ public class LoadoutSelection : MonoBehaviour
         {
             nav.selectOnDown = leftSpellButton;
         }
-        else if ((int)selectedLoadoutType == 0)
+        else
         {
             nav.selectOnLeft = gameModeButton;
             nav.selectOnDown = null;
-        }
-        else
-        {
-            nav.selectOnLeft = null;
-            nav.selectOnDown = null;
-
         }
         loadoutButton.navigation = nav;
     }
@@ -276,10 +270,7 @@ public class LoadoutSelection : MonoBehaviour
         Navigation nav = leftSpellButton.navigation;
         nav.mode = Navigation.Mode.Explicit;
 
-        if (lobbyManager.selectedLeftSpellIndex == 0)
-            nav.selectOnLeft = endlessToggle;
-        else
-            nav.selectOnLeft = null;
+        nav.selectOnLeft = endlessToggle;
 
         leftSpellButton.navigation = nav;
     }
@@ -289,10 +280,7 @@ public class LoadoutSelection : MonoBehaviour
         Navigation nav = rightSpellButton.navigation;
         nav.mode = Navigation.Mode.Explicit;
 
-        if (lobbyManager.selectedRightSpellIndex == 0)
-            nav.selectOnLeft = roundsToWinSlider;
-        else
-            nav.selectOnLeft = null;
+        nav.selectOnLeft = roundsToWinSlider;
 
         rightSpellButton.navigation = nav;
     }

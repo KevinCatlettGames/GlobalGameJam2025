@@ -37,7 +37,6 @@ public class GameModeSelection : NetworkBehaviour
 
     [SerializeField] private Sprite activePageDotSprite;
     [SerializeField] private Color activePageDotColor;
-
     [SerializeField] private Sprite inactivePageDotSprite;
     [SerializeField] private Color inactivePageDotColor;
 
@@ -54,59 +53,51 @@ public class GameModeSelection : NetworkBehaviour
         gameModeSwitchInputAction.action.Disable();
     }
 
-    private void Update()
-    {
-        Vector2 stick =
-            gameModeSwitchInputAction.action.ReadValue<Vector2>();
+    //private void Update()
+    //{
+    //    Vector2 stick =
+    //        gameModeSwitchInputAction.action.ReadValue<Vector2>();
 
-        int direction = 0;
+    //    int direction = 0;
 
-        if (stick.x < -stickThreshold)
-            direction = -1;
-        else if (stick.x > stickThreshold)
-            direction = 1;
+    //    if (stick.x < -stickThreshold)
+    //        direction = -1;
+    //    else if (stick.x > stickThreshold)
+    //        direction = 1;
 
-        if (direction != 0)
-        {
-            if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject)
-                return;
+    //    if (direction != 0)
+    //    {
+    //        if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject)
+    //            return;
 
-            if (!stickInUse)
-            {
-                pageHoldTimer = 0f;
-                UpdateGameMode(direction > 0);
-                stickInUse = true;
-            }
-            else
-            {
-                pageHoldTimer += Time.deltaTime;
+    //        if (!stickInUse)
+    //        {
+    //            pageHoldTimer = 0f;
+    //            UpdateGameMode(direction > 0);
+    //            stickInUse = true;
+    //        }
+    //        else
+    //        {
+    //            pageHoldTimer += Time.deltaTime;
 
-                if (pageHoldTimer >= pageInitialDelay)
-                {
-                    UpdateGameMode(direction > 0);
-                    pageHoldTimer = pageInitialDelay - pageRepeatRate;
-                }
-            }
-        }
-        else
-        {
-            stickInUse = false;
-            pageHoldTimer = 0f;
-        }
-    }
-
-    // =====================================================
-    // BUTTON CLICK (LOOPS ALWAYS)
-    // =====================================================
+    //            if (pageHoldTimer >= pageInitialDelay)
+    //            {
+    //                UpdateGameMode(direction > 0);
+    //                pageHoldTimer = pageInitialDelay - pageRepeatRate;
+    //            }
+    //        }
+    //    }
+    //    else
+    //    {
+    //        stickInUse = false;
+    //        pageHoldTimer = 0f;
+    //    }
+    //}
 
     public void OnGameModeButtonClick()
     {
         UpdateGameMode(true, true);
     }
-
-    // =====================================================
-    // MAIN LOGIC
-    // =====================================================
 
     public void UpdateGameMode(bool increment, bool allowPositiveLoop = false)
     {
@@ -143,28 +134,15 @@ public class GameModeSelection : NetworkBehaviour
         buttonOnClickEmitter.Play();
     }
 
-    // =====================================================
-    // NAVIGATION (IMPORTANT FIX)
-    // =====================================================
-
     private void RefreshNavigation(int currentIndex, int maxIndex)
     {
         Navigation nav = gameModeButton.navigation;
         nav.mode = Navigation.Mode.Explicit;
 
-        // RIGHT EDGE RULE:
-        // Only last index allows navigation to loadout
-        if (currentIndex == maxIndex - 1)
-            nav.selectOnRight = loadoutButton;
-        else
-            nav.selectOnRight = null;
+        nav.selectOnRight = loadoutButton;
 
         gameModeButton.navigation = nav;
     }
-
-    // =====================================================
-    // UI BUBBLES
-    // =====================================================
 
     private void UpdateBubbles(int currentIndex)
     {
@@ -179,10 +157,6 @@ public class GameModeSelection : NetworkBehaviour
                 isActive ? activePageDotColor : inactivePageDotColor;
         }
     }
-
-    // =====================================================
-    // FULL UI UPDATE
-    // =====================================================
 
     private void UpdateGameModeSelectionUI()
     {
