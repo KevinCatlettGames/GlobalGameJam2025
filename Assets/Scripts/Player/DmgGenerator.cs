@@ -6,7 +6,7 @@ public class DmgGenerator : MonoBehaviour
 
     public void SpawnDamagePopup(int damage)
     {
-        GameObject popup = Instantiate(damagePopup, transform.position, Quaternion.identity);
+        GameObject popup = Instantiate(damagePopup, transform.position, Quaternion.identity, transform);
         popup.GetComponent<DamagePopup>().InitialiseDamagePopup(damage);
     }
 }
