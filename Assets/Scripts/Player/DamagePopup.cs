@@ -20,4 +20,9 @@ public class DamagePopup : MonoBehaviour
     {
         Destroy(gameObject);
     }
+
+    public void DissapearText()
+    {
+        damageTypewriter.StartDisappearingText();
+    }
 }
