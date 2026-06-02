@@ -26,7 +26,8 @@ public class PlayerContainerManager : MonoBehaviour
     }
 
     private void Start()
-    {      
+    {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         foreach (var player in LobbyManager.instance.players)
         {
             if ((int)player.ClientId == uiIndex)
@@ -39,7 +40,20 @@ public class PlayerContainerManager : MonoBehaviour
                 break;
             }
         }
-
+#else
+        foreach (var player in LobbyManager.instance.switchPlayers)
+        {
+            if ((int)player.ClientId == uiIndex)
+            {
+                isReady = player.IsReady;
+                readyImage.enabled = isReady ? false : true;
+                unreadyText.enabled = isReady ? false : true;
+                readyText.enabled = isReady ? true : false;
+                readyObject.SetActive(true);
+                break;
+            }
+        }
+#endif 
         gameObject.SetActive(false);
     }
 

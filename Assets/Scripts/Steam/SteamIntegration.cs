@@ -55,11 +55,13 @@ public class SteamIntegration : MonoBehaviour
 
     public int[] StatThresholds => statThresholds;
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
     public Friend steamFriendToJoin;
+#endif
+
     [ReadOnly]
     public string lobbyIDToJoin;
-    
-    #region Unity Life Cycle
+
     private void Awake()
     {
         gameObject.transform.parent = null;
@@ -68,6 +70,8 @@ public class SteamIntegration : MonoBehaviour
             instance = this;
         else Destroy(gameObject);
     }
+
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
     private void Start()
     {
@@ -103,18 +107,6 @@ public class SteamIntegration : MonoBehaviour
         if (SteamClient.IsValid)
             SteamClient.Shutdown();
     }
-
-    private void OnEnable()
-    {
-        SteamFriends.OnGameRichPresenceJoinRequested += RichPresenceJoinRequested;
-    }
-
-    private void OnDisable()
-    {
-        SteamFriends.OnGameRichPresenceJoinRequested -= RichPresenceJoinRequested;
-    }
-
-    #endregion
     
     private void InitializeSteam()
     {
@@ -149,20 +141,13 @@ public class SteamIntegration : MonoBehaviour
             steamInitialized = false;
         }
     }
-    
-    #region Matchmaking
-    private void RichPresenceJoinRequested(Friend steamFriend, string lobbyID)
-    {
-        steamFriendToJoin = steamFriend;
-        lobbyIDToJoin = lobbyID;
-        if (MainMenuLobbyCreator.Instance != null)
-            MainMenuLobbyCreator.Instance.OpenLobby();
-    }
-    #endregion 
-    
+#endif
+
     #region Localization
     private void SetLocaleBasedOnSteamLanguage()
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         try
         {
             Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
@@ -214,13 +199,16 @@ public class SteamIntegration : MonoBehaviour
         {
             //Debug.LogError("No steam locale settable");
         }
+#endif
     }
-     #endregion
+#endregion
     
     #region Achievements
     [Button]
     public void UnlockAllAchievements()
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         try
         {
             foreach (string id in achievementNames)
@@ -234,8 +222,11 @@ public class SteamIntegration : MonoBehaviour
         {
             Debug.Log(e);
         }
+#endif
     }
-    
+
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
     [Button]
     public void ClearAllAchievements()
     {
@@ -291,10 +282,12 @@ public class SteamIntegration : MonoBehaviour
             Debug.Log(e);
         }
     }
-    
+#endif
     [Button]
     public void UnlockAchievement(int achievementNameID)
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         if (!steamInitialized) return; 
         
         for (int i = 0; i < achievementNames.Length; i++)
@@ -306,8 +299,11 @@ public class SteamIntegration : MonoBehaviour
                 ach.Trigger();
             }
         }
+#endif
     }
-    
+
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
     [Button]
     public void ClearAchievement(int id)
     {
@@ -322,10 +318,13 @@ public class SteamIntegration : MonoBehaviour
             Debug.Log(e);
         }
     }
-    
+#endif
+
     [Button]
     public void IncrementIntSteamStat(int statNameID, int incrementAmount, int achievementThreshold, int achievementNameID)
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         if (!isFullVersion) return;  
         
         try
@@ -359,6 +358,7 @@ public class SteamIntegration : MonoBehaviour
         {
             Debug.Log(e);
         }
+#endif
     }
-    #endregion Achievements
-}
+#endregion Achievements
+    }

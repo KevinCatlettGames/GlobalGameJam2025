@@ -111,6 +111,9 @@ public class LobbyManager : NetworkBehaviour
     /// </summary>
     public NetworkList<PlayerLobbyState> players = new();
 
+    public List<PlayerLobbyState> switchPlayers = new();
+
+
     [Tooltip("True if all players are ready.")]
     public bool allPlayersReady;
 
@@ -193,8 +196,10 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         if (!GetComponent<NetworkObject>().IsSpawned)
             GetComponent<NetworkObject>().Spawn();
+#endif
     }
 
     private void Start()
@@ -208,16 +213,23 @@ public class LobbyManager : NetworkBehaviour
         gameModeTypeText.text =
             gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         foreach (PlayerLobbyState player in players)
             playerContainers[player.ClientId].SetActive(true);
 
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
 
-        ChangeStartButtonState(false);
 
         if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
             UpdateSelectedGameModeForNewClientServerRpc();
+#else
+        foreach (PlayerLobbyState player in switchPlayers)
+            playerContainers[player.ClientId].SetActive(true);
+#endif
+
+        ChangeStartButtonState(false);
 
         foreach (var device in InputSystem.devices)
         {
@@ -229,9 +241,11 @@ public class LobbyManager : NetworkBehaviour
     {
         InputSystem.onDeviceChange += OnDeviceChange;
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged += OnPlayersListChanged;
+#endif
 
         foreach (MapSettingsSO mapSetting in mapSettings)
         {
@@ -278,11 +292,14 @@ public class LobbyManager : NetworkBehaviour
 
         OnLeavingLobby?.Invoke();
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged -= OnPlayersListChanged;
 
         if (IsServer && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted -= OnLoadEventCompleted;
+#endif
     }
     private void OnLoadEventCompleted(string sceneName, LoadSceneMode mode, List<ulong> completed, List<ulong> timedOut)
     {
@@ -320,6 +337,8 @@ public class LobbyManager : NetworkBehaviour
     {
         int index = -1;
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         for (int i = 0; i < players.Count; i++)
         {
             if (players[i].ClientId == (ulong)playerIndex)
@@ -328,24 +347,45 @@ public class LobbyManager : NetworkBehaviour
                 break;
             }
         }
-
+#else 
+        for(int i = 0; i < switchPlayers.Count; i++)
+        {
+            if (switchPlayers[i].ClientId == (ulong)playerIndex)
+            {
+                index = i;
+                break;
+            }
+        }
+#endif
         if (index == -1)
         {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
             players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+#else 
+            switchPlayers.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+#endif
             CheckAllReady();
             UpdatePlayerUI();
             return;
         }
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         var player = players[index];
+#else 
+        var player = switchPlayers[index];
+#endif 
+
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
         if(value)
         {
             player.IsReady = true;
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
             players[index] = player;
-
+#else 
+            switchPlayers[index] = player;
+#endif
             OnReadyStateUpdated?.Invoke((ulong)playerIndex, true);
             CheckAllReady();
             UpdatePlayerUI();
@@ -353,7 +393,11 @@ public class LobbyManager : NetworkBehaviour
         else
         {
             player.IsReady = false;
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
             players[index] = player;
+#else
+            switchPlayers[index] = player;
+#endif
 
             OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
             CheckAllReady();
@@ -363,12 +407,21 @@ public class LobbyManager : NetworkBehaviour
 
     public void RemovePlayer(int playerIndex)
     {
-        PlayerLobbyState stateToChange; 
+        PlayerLobbyState stateToChange;
+
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         foreach (PlayerLobbyState state in players)
         {
             if (state.ClientId == (ulong)playerIndex)
                 stateToChange = state;
         }
+#else 
+        foreach(PlayerLobbyState state in switchPlayers)
+        {
+            if (state.ClientId == (ulong)playerIndex)
+                stateToChange = state;
+        }
+#endif 
 
         stateToChange.IsReady = false;
         OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);     
@@ -379,6 +432,7 @@ public class LobbyManager : NetworkBehaviour
     {
         int index = -1;
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         for (int i = 0; i < players.Count; i++)
         {
             if (players[i].ClientId == clientID)
@@ -409,6 +463,38 @@ public class LobbyManager : NetworkBehaviour
         }
 
         CheckAllReady();
+#else
+        for (int i = 0; i < switchPlayers.Count; i++)
+        {
+            if (switchPlayers[i].ClientId == clientID)
+            {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1)
+        {
+            switchPlayers.Add(new PlayerLobbyState { ClientId = clientID, IsReady = false });
+            AddNewPlayerValuesClientRpc((int)clientID);
+            index = switchPlayers.Count - 1;
+        }
+        else
+        {
+            var player = switchPlayers[index];
+            var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
+            TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
+
+            if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
+            {
+                player.IsReady = state;
+                switchPlayers[index] = player;
+                InvokeOnReadyStateUpdatedClientRpc(clientID, state);
+            }
+        }
+
+        CheckAllReady();
+#endif 
     }
 
     [ClientRpc]
@@ -429,6 +515,7 @@ public class LobbyManager : NetworkBehaviour
 
     public void CheckAllReady()
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         if (players.Count == 0)
         {
             allPlayersReady = false;
@@ -462,12 +549,48 @@ public class LobbyManager : NetworkBehaviour
         }
 
         allPlayersReady = players.Count >= minPlayers;
+#else
+        if (switchPlayers.Count == 0)
+        {
+            allPlayersReady = false;
+            ChangeStartButtonState(false);
+            return;
+        }
 
+        for (int i = 0; i < switchPlayers.Count; i++)
+        {
+            if (!switchPlayers[i].IsReady && playerContainers[i].GetComponent<PlayerContainerManager>().occupied)
+            {
+                allPlayersReady = false;
+                ChangeStartButtonState(false);
+                return;
+            }
+        }
+
+        int occupiedContainers = 0;
+        foreach (GameObject container in playerContainers)
+        {
+            if (container.GetComponent<PlayerContainerManager>().occupied)
+            {
+                occupiedContainers++;
+            }
+        }
+        if (occupiedContainers <= 0)
+        {
+            allPlayersReady = false;
+            ChangeStartButtonState(false);
+            return;
+        }
+
+        allPlayersReady = switchPlayers.Count >= minPlayers;
+#endif 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         if (TransportSwitcher.Instance.isUsingRelay &&
             NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
         }
+#endif
 
         ChangeStartButtonState(allPlayersReady);
     }
@@ -477,6 +600,7 @@ public class LobbyManager : NetworkBehaviour
         foreach (GameObject container in playerContainers)
             container.SetActive(false);
 
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         foreach (var player in players)
         {
             int index = (int)player.ClientId;
@@ -489,6 +613,20 @@ public class LobbyManager : NetworkBehaviour
                 }
             }
         }
+#else
+        foreach (var player in switchPlayers)
+        {
+            int index = (int)player.ClientId;
+            if (index >= 0 && index < playerContainers.Length)
+            {
+                if (playerContainers[index].GetComponent<PlayerContainerManager>().occupied)
+                {
+                    emptyPlayerContainers[index].SetActive(false);
+                    playerContainers[index].SetActive(true);
+                }
+            }
+        }
+#endif 
     }
 
     public IEnumerator LoadGameScene()
@@ -501,7 +639,13 @@ public class LobbyManager : NetworkBehaviour
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
+        {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+#else
+            SceneManager.LoadScene(plateLevel);
+#endif
+        }
     }
 
     private void ChangeStartButtonState(bool enable)

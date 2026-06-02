@@ -6,6 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class StartServerIfNotActive : MonoBehaviour
 {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
     [SerializeField] PlayerInputManager playerInputManager;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -20,4 +22,5 @@ public class StartServerIfNotActive : MonoBehaviour
         NetworkManager.Singleton.StartHost();
         ItemSpawner.Instance.InitialSpawn();
     }
+#endif
 }

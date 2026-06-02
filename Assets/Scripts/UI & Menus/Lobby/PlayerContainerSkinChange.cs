@@ -79,13 +79,22 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void SwapColorWithIncrementation(bool increment)
     {
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+
         if (LobbyManager.instance != null && LobbyManager.instance.players[playerIndex].IsReady) return;
 
         int totalSkins = LobbyManager.instance.PossibleSkins.Length;
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
+#else
+        if (LobbyManager.instance != null && LobbyManager.instance.switchPlayers[playerIndex].IsReady) return;
 
+        int totalSkins = LobbyManager.instance.PossibleSkins.Length;
+        currentColorIndex = increment
+            ? (currentColorIndex + 1) % totalSkins
+            : (currentColorIndex - 1 + totalSkins) % totalSkins;
+#endif 
         UpdateSkin();
         cycleEmitter.Play();
     }
@@ -225,6 +234,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;
+#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
             var otherSkin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
             if (otherSkin != null && otherSkin == skinToCheck &&
@@ -233,6 +243,15 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             {
                 return true;
             }
+#else
+            var otherSkin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
+            if (otherSkin != null && otherSkin == skinToCheck &&
+                i < LobbyManager.instance.switchPlayers.Count &&
+                LobbyManager.instance.switchPlayers[i].IsReady)
+            {
+                return true;
+            }
+#endif 
         }
 
         return false;

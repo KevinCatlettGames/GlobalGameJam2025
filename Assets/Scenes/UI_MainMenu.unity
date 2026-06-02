@@ -5651,7 +5651,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputActionProperty:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Exit Game Mode Selection Input
       m_Type: 0
@@ -5661,14 +5661,6 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 2f578f96-7f85-405d-9513-491c95af48d1
-        m_Path: <Gamepad>/buttonEast
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Exit Game Mode Selection Input
-        m_Flags: 0
-      - m_Name: 
         m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
         m_Path: <Keyboard>/escape
         m_Interactions: 
@@ -5676,8 +5668,17 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Exit Game Mode Selection Input
         m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: 0}
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
   requireFreshPressOnEnable: 1
   freshPressBlockDuration: 0.5
   OnInputActionPerformed:
@@ -11428,6 +11429,37 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_Reference
+      value: 
+      objectReference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+        type: 3}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_UseReference
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Id
+      value: 0d1215c3-ec78-4293-ab60-758ee408a230
+      objectReference: {fileID: 0}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/escape
+      objectReference: {fileID: 0}
+    - target: {fileID: 7258448918411140027, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: exitSettingsAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Path
+      value: <NPad>/buttonSouth
+      objectReference: {fileID: 0}
     - target: {fileID: 8916640113473416445, guid: 236dbc0945aff8d4a80d4d018c7ada38,
         type: 3}
       propertyPath: m_Name
@@ -12219,10 +12251,10 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
@@ -13443,16 +13475,16 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
-    m_SensorSize: {x: 36, y: 24}
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -15322,7 +15354,7 @@ Camera:
   serializedVersion: 2
   m_ClearFlags: 1
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
-  m_projectionMatrixMode: 2
+  m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
   m_Iso: 200
@@ -15343,8 +15375,8 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
-  field of view: 26.991467
+  far clip plane: 20
+  field of view: 23
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -15401,7 +15433,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -16461,16 +16493,16 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
-    m_SensorSize: {x: 36, y: 24}
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -16789,16 +16821,16 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
-    m_SensorSize: {x: 36, y: 24}
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -18044,6 +18076,37 @@ PrefabInstance:
       propertyPath: mainMenuButtons
       value: 
       objectReference: {fileID: 128647767}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_Reference
+      value: 
+      objectReference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+        type: 3}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_UseReference
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Id
+      value: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Id
+      value: 0d1215c3-ec78-4293-ab60-758ee408a230
+      objectReference: {fileID: 0}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_Action.m_SingletonActionBindings.Array.data[0].m_Path
+      value: <Keyboard>/escape
+      objectReference: {fileID: 0}
+    - target: {fileID: 3595342493907647026, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: exitTutorialAction.m_Action.m_SingletonActionBindings.Array.data[1].m_Path
+      value: <NPad>/buttonSouth
+      objectReference: {fileID: 0}
     - target: {fileID: 3638787993343801942, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -21501,16 +21564,16 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
-    m_SensorSize: {x: 36, y: 24}
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
@@ -23441,7 +23504,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   inputActionProperty:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Exit Game Mode Selection Input
       m_Type: 0
@@ -23451,14 +23514,6 @@ MonoBehaviour:
       m_Interactions: 
       m_SingletonActionBindings:
       - m_Name: 
-        m_Id: 2f578f96-7f85-405d-9513-491c95af48d1
-        m_Path: <Gamepad>/buttonEast
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Exit Game Mode Selection Input
-        m_Flags: 0
-      - m_Name: 
         m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
         m_Path: <Keyboard>/escape
         m_Interactions: 
@@ -23466,8 +23521,17 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Exit Game Mode Selection Input
         m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: 0}
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
   requireFreshPressOnEnable: 1
   freshPressBlockDuration: 0.5
   OnInputActionPerformed:
@@ -23723,13 +23787,13 @@ MonoBehaviour:
   m_RequiresOpaqueTextureOption: 2
   m_CameraType: 0
   m_Cameras: []
-  m_RendererIndex: 0
+  m_RendererIndex: -1
   m_VolumeLayerMask:
     serializedVersion: 2
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 1
+  m_RenderPostProcessing: 0
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -23790,7 +23854,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 20
   field of view: 26.99147
   orthographic: 0
   orthographic size: 5
@@ -26752,16 +26816,16 @@ MonoBehaviour:
   m_LookAt: {fileID: 0}
   m_Follow: {fileID: 0}
   m_Lens:
-    FieldOfView: 26.991467
+    FieldOfView: 23
     OrthographicSize: 5
     NearClipPlane: 0.3
-    FarClipPlane: 1000
+    FarClipPlane: 20
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
     GateFit: 2
     FocusDistance: 10
-    m_SensorSize: {x: 36, y: 24}
+    m_SensorSize: {x: 1, y: 1}
   m_Transitions:
     m_BlendHint: 0
     m_InheritPosition: 0
