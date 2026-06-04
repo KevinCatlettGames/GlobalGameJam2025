@@ -72,6 +72,7 @@ public class BasicBubble : NetworkBehaviour
     
     protected bool canMiss = true;
     protected bool isUlt = false;
+    protected bool hasHitPlayer = false;
     
     private void Start()
     {
@@ -201,6 +202,7 @@ public class BasicBubble : NetworkBehaviour
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
+            hasHitPlayer = true;
             if (popOnPlayerHit)
                 Pop();
         }
