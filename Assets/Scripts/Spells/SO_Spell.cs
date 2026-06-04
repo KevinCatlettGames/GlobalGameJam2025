@@ -26,7 +26,7 @@ public class SO_Spell : ScriptableObject
     [Header("Pickup")]
     [SerializeField] protected Mesh itemMesh;
     [SerializeField] protected Material[] itemMaterials;
-    [Tooltip("0 = ShadowColor, 1 = EimerColor, 2 = SparkleColor, 3 = WaveColor")]
+    [Tooltip("0 = ShadowColor, 1 = EimerColor, 2 = SparkleColor, 3 = WaveColor, 4 = OutlineColor")]
     [SerializeField, ColorUsage(true,true)] protected Color[] effectColors;
     public Color[]  EffectColors { get { return effectColors; } }
     public Mesh ItemMesh { get { return itemMesh; } }
