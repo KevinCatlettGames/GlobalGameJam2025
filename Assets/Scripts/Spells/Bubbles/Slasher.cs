@@ -10,6 +10,7 @@ public class Slasher : MonoBehaviour
     [SerializeField] private Collider collider;
     [SerializeField] private GameObject slasherParent;
     [SerializeField] private GameObject popEffect;
+    [SerializeField] private GameObject hitEffect;
     private bool hasPopped = false;
 
     public void SetInflated(Collider playerCollider, int ID)
@@ -50,7 +51,10 @@ public class Slasher : MonoBehaviour
             return;
         }
         if(other.gameObject != null)
+        {
+            SpawnHitEffect();
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
+        }
     }
 
     public void SpawnPopEffect()
@@ -60,6 +64,12 @@ public class Slasher : MonoBehaviour
             hasPopped = true;
             Instantiate(popEffect, collider.transform.position, Quaternion.identity);
         }
+    }
+
+    public void SpawnHitEffect()
+    {
+        if (hitEffect)
+            Instantiate(hitEffect, collider.transform.position, Quaternion.identity);
     }
 
     private void OnDestroy()
