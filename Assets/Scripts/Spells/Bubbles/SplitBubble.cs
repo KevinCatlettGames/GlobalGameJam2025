@@ -11,7 +11,7 @@ public class SplitBubble : BasicBubble
 
     protected override void Pop()
     {
-        Vector3 splitDirection = direction;
+        Vector3 splitDirection = Quaternion.AngleAxis(offsetAngle, Vector3.up) * direction;
         if (!hasHitPlayer)
             offsetDistance = .75f;
 
@@ -24,13 +24,13 @@ public class SplitBubble : BasicBubble
 
 
         // Split right
-        splitDirection = Quaternion.AngleAxis(offsetAngle, Vector3.up) * direction;
-        bubble = Instantiate(bubblePrefab, transform.position + splitDirection * offsetDistance, Quaternion.LookRotation(splitDirection));
-        netObj = bubble.GetComponent<NetworkObject>();
-        if (netObj != null)
-            netObj.Spawn();
-        bubbleScript = bubble.GetComponent<BasicBubble>();
-        bubbleScript.InitialiseBubble(OwnerID, splitDirection, playerCollider);
+        //splitDirection = Quaternion.AngleAxis(offsetAngle, Vector3.up) * direction;
+        //bubble = Instantiate(bubblePrefab, transform.position + splitDirection * offsetDistance, Quaternion.LookRotation(splitDirection));
+        //netObj = bubble.GetComponent<NetworkObject>();
+        //if (netObj != null)
+        //    netObj.Spawn();
+        //bubbleScript = bubble.GetComponent<BasicBubble>();
+        //bubbleScript.InitialiseBubble(OwnerID, splitDirection, playerCollider);
 
         // Split left
         splitDirection = Quaternion.AngleAxis(-offsetAngle, Vector3.up) * direction;

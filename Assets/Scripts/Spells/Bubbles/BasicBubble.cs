@@ -270,7 +270,7 @@ public class BasicBubble : NetworkBehaviour
         speed *= factor;
     }
     [ClientRpc]
-    private void SpawnPopEffectClientRpc(Vector3 pos)
+    protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
         if (fizzleEffect == null) 
             return;
