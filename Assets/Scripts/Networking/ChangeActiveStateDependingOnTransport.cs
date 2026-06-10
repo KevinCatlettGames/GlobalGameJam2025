@@ -10,8 +10,7 @@ public class ChangeActiveStateDependingOnTransport : MonoBehaviour
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && activeWithRelay)
             gameObject.SetActive(true);
         
-        if(TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay && activeWithRelay)
-            gameObject.SetActive(false);
-            
+        if(TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay && activeWithRelay || !TransportSwitcher.Instance)
+            gameObject.SetActive(false);          
     }
 }

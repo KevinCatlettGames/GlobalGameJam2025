@@ -68,6 +68,11 @@ public class PlayerManager : NetworkBehaviour
         CameraHandler.Instance.onCinematicEnd.RemoveListener(StartPlayerJoining);
         GameManager.Instance.OnGameStarted += ResetPlayers;
         RerollSpells();
+
+#if UNITY_SWITCH
+        StartLocalGame();
+#endif 
+
         if (GameManager.Instance.PlayingLocal)
         {
             if (!TransportSwitcher.Instance)
