@@ -5,6 +5,7 @@ public class WallBubble : BasicBubble
 {
     [Header("Special Stats")]
     [SerializeField] private float speedBosst = 1.5f;
+    [SerializeField] private Material dmgedOutline;
     private int hitPoints = 0;
     private bool stop = false;
 
@@ -35,6 +36,12 @@ public class WallBubble : BasicBubble
         else if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
+
+            MeshRenderer renderer = GetComponent<MeshRenderer>();
+            Material[] materials = renderer.materials;
+            materials[1] = dmgedOutline;
+            renderer.materials = materials;
+
             other.GetComponent<BasicBubble>().ChangeSpeed(speedBosst);
             if (hitPoints <= 0)
             {

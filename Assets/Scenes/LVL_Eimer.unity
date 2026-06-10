@@ -3397,7 +3397,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!212 &1086640933
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -3572,8 +3572,8 @@ MonoBehaviour:
       inWeight: 0.33333334
       outWeight: 0.33333334
     - serializedVersion: 3
-      time: 1
-      value: 2.5
+      time: 1.0013502
+      value: 2.0025487
       inSlope: -0.031936686
       outSlope: -0.031936686
       tangentMode: 0
@@ -3623,6 +3623,13 @@ MonoBehaviour:
   startSize: 0.4
   pauseTime: 8
   skateEvent: {fileID: 1171026282}
+  vortexSFX:
+    Guid:
+      Data1: -1532430597
+      Data2: 1275574808
+      Data3: 499163011
+      Data4: 661732706
+    Path: event:/sfx/map/vortex_maelstrom
 --- !u!114 &1171026282
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4509,7 +4516,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 1
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 4
   m_Center: {x: 0, y: 0, z: 0}
@@ -4526,6 +4533,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   timeToDeath: 0.75
+  startDelay: 25
+  skull: {fileID: 1086640932}
   deathEvent:
     Guid:
       Data1: 156137204

@@ -51,14 +51,16 @@ public class Item : NetworkBehaviour
         meshFilter.mesh = spell.ItemMesh;
         spellMaterial = spell.ItemMaterials[0];
         meshRenderer.materials = spell.ItemMaterials;
+        Material outlineMaterial = meshRenderer.materials[1];
         
         Color[] itemEffectColors = spell.EffectColors;
         if (itemEffectColors != null)
         {
             spriteRenderer.color = itemEffectColors[0];
             wrapParticleRenderer.material.SetColor("_TopColor", itemEffectColors[1]);
-            waveEffect.material.SetColor("_TopColor", itemEffectColors[3]);
             sparkleParticleSystem.material.SetColor("_TopColor", itemEffectColors[2]);
+            waveEffect.material.SetColor("_TopColor", itemEffectColors[3]);
+            outlineMaterial.SetColor("_OutlineColor", itemEffectColors[4]);
         }
     }
 

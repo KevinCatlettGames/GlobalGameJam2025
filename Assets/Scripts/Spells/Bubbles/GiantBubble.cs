@@ -11,7 +11,7 @@ public class GiantBubble : BasicBubble
     [SerializeField] private int knbDecreaseAngle = 45;
     [SerializeField] private float knbDecreaseIncrement = .25f;
     [Header("Small Version")]
-    [SerializeField] private float dmgMod = 3;
+    [SerializeField] private float dmgMini = 3;
     [SerializeField] private float knbMod = .3f;
     [SerializeField] private float sizMod = .25f;
     [SerializeField] private float speedMod = 5f;
@@ -36,7 +36,7 @@ public class GiantBubble : BasicBubble
         if (!isSmall && other.CompareTag("Bubble"))
         {
             isSmall = true;
-            damage *= dmgMod;
+            damage = dmgMini;
             knockback *= knbMod;
             size *= sizMod;
             speed *= speedMod;

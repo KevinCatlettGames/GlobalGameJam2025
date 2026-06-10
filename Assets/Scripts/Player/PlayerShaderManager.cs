@@ -12,13 +12,16 @@ public enum ShaderState
 public class PlayerShaderManager : MonoBehaviour
 {
     [SerializeField] private int materialElementID = 0;
+    [SerializeField] private SkinnedMeshRenderer bubbleRenderer;
     private Material material;
+    private Material bubbleMaterial;
     private bool damageEffectActice = false;
     private ShaderState currentShaderState = ShaderState.sober;
     private string[] enumKeys = { "_STATUS_SOBER", "_STATUS_WET", "_STATUS_SAUCED", "_STATUS_INKED", "_STATUS_BUFFED" };
     void Awake()
     {
         material = GetComponent<SkinnedMeshRenderer>().materials[materialElementID];
+        bubbleMaterial = bubbleRenderer.materials[0];
     }
 
     public void ResetShader()
@@ -28,7 +31,7 @@ public class PlayerShaderManager : MonoBehaviour
         if (!material) return;
 
         material.SetFloat("_isDamaged", 0);
-        
+        bubbleMaterial.SetFloat("_isDamaged", 0);
     }
 
     public void DamageEffect(float effectDuration)
@@ -39,8 +42,10 @@ public class PlayerShaderManager : MonoBehaviour
     private IEnumerator DamageCoroutine(float duration)
     {
         material.SetFloat("_isDamaged", 1);
+        bubbleMaterial.SetFloat("_isDamaged", 1);
         damageEffectActice = true;
         yield return new WaitForSeconds(duration);
+        bubbleMaterial.SetFloat("_isDamaged", 0);
         material.SetFloat("_isDamaged", 0);
         damageEffectActice = false;
     }

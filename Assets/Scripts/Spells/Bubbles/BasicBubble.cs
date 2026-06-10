@@ -65,12 +65,14 @@ public class BasicBubble : NetworkBehaviour
     private float soapSpeedAmp = 2f;
     private float soapSecSpeedAmp = .5f;
     private float soapSecSpeedIncrease = 0f;
+    private float reflectDmgIncrease = 1.2f;
 
     protected Vector3 lastPosition;
     protected float desyncThreshold = 0.05f;
     
     protected bool canMiss = true;
     protected bool isUlt = false;
+    protected bool hasHitPlayer = false;
     
     private void Start()
     {
@@ -200,6 +202,7 @@ public class BasicBubble : NetworkBehaviour
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             fizzleEffect = hitEffect;
+            hasHitPlayer = true;
             if (popOnPlayerHit)
                 Pop();
         }
@@ -243,6 +246,7 @@ public class BasicBubble : NetworkBehaviour
             StopCoroutine(rangeCoroutine);
         
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+        damage *= reflectDmgIncrease;
         isReflected = true;
     }    
     public virtual void SetSlippy()
@@ -266,8 +270,10 @@ public class BasicBubble : NetworkBehaviour
         speed *= factor;
     }
     [ClientRpc]
-    private void SpawnPopEffectClientRpc(Vector3 pos)
+    protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
+        if (fizzleEffect == null) 
+            return;
         var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
     private void DestroyBubble()
