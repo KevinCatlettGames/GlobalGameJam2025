@@ -1241,6 +1241,7 @@ GameObject:
   - component: {fileID: 3817757606228305598}
   - component: {fileID: 6368911272488385033}
   - component: {fileID: 2125852868203062195}
+  - component: {fileID: 2084477931639227363}
   m_Layer: 5
   m_Name: GraphicsText
   m_TagString: Untagged
@@ -1306,6 +1307,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &2084477931639227363
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1756609375101508783}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1766027584173990667
 GameObject:
   m_ObjectHideFlags: 0
@@ -2367,7 +2380,7 @@ MonoBehaviour:
   changeFontSize: 1
   normalFontSize: 40
   selectedFontSize: 45
-  forceSelectOnEnable: 1
+  forceSelectOnEnable: 0
 --- !u!114 &2964273148010705449
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2853,6 +2866,7 @@ GameObject:
   - component: {fileID: 7097273829753804305}
   - component: {fileID: 4720390951208652367}
   - component: {fileID: 7029350847047110948}
+  - component: {fileID: 4376319092614337668}
   m_Layer: 5
   m_Name: ResolutionDropdown
   m_TagString: Untagged
@@ -3112,6 +3126,18 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls: []
+--- !u!114 &4376319092614337668
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3692120384967334527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3740710235286451168
 GameObject:
   m_ObjectHideFlags: 0
@@ -3262,7 +3288,7 @@ MonoBehaviour:
   changeFontSize: 1
   normalFontSize: 45
   selectedFontSize: 60
-  forceSelectOnEnable: 0
+  forceSelectOnEnable: 1
 --- !u!114 &8664424035258858869
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4780,6 +4806,7 @@ GameObject:
   - component: {fileID: 558589940115030818}
   - component: {fileID: 4301781812118145394}
   - component: {fileID: 1735967716956890152}
+  - component: {fileID: 8010512892541215374}
   m_Layer: 5
   m_Name: FullScreenToggle
   m_TagString: Untagged
@@ -4990,7 +5017,7 @@ MonoBehaviour:
   changeFontSize: 1
   normalFontSize: 50
   selectedFontSize: 55
-  forceSelectOnEnable: 1
+  forceSelectOnEnable: 0
 --- !u!114 &1735967716956890152
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5006,6 +5033,18 @@ MonoBehaviour:
   targetText: {fileID: 3858615096443662376}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+--- !u!114 &8010512892541215374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5085816390107341125}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5144918413752116163
 GameObject:
   m_ObjectHideFlags: 0
@@ -5024,6 +5063,7 @@ GameObject:
   - component: {fileID: 4630228519533574271}
   - component: {fileID: 2447028106566846227}
   - component: {fileID: 7622770111357638310}
+  - component: {fileID: 7160273965038203495}
   m_Layer: 5
   m_Name: GraphicsDropdown
   m_TagString: Untagged
@@ -5365,6 +5405,18 @@ MonoBehaviour:
   targetText: {fileID: 5143909829054721896}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.83137256, g: 0.2784314, b: 1, a: 1}
+--- !u!114 &7160273965038203495
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5144918413752116163}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5175192035864293136
 GameObject:
   m_ObjectHideFlags: 0
@@ -7691,6 +7743,7 @@ GameObject:
   - component: {fileID: 2184177120377330510}
   - component: {fileID: 8836553567192639941}
   - component: {fileID: 6564520679455823553}
+  - component: {fileID: 8390651645350547949}
   m_Layer: 5
   m_Name: FullscreenText
   m_TagString: Untagged
@@ -7756,6 +7809,18 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8390651645350547949
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7069038917148424741}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7134886497380291731
 GameObject:
   m_ObjectHideFlags: 0
@@ -9762,6 +9827,30 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Left Tab Switch
         m_Flags: 0
+      - m_Name: 
+        m_Id: 13d817ee-dd1f-458d-9ff3-87717cc6c7d3
+        m_Path: <NPad>/leftTrigger
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Left Tab Switch
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 349aadac-de6e-418b-9f20-2acf07abadc0
+        m_Path: <NPad>/leftSL
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Left Tab Switch
+        m_Flags: 0
+      - m_Name: 
+        m_Id: d26fa792-3e6d-487f-a775-e5f182366d84
+        m_Path: <NPad>/rightSL
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Left Tab Switch
+        m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
   rightTabSwitchAction:
@@ -9790,10 +9879,34 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Right Tab Switch
         m_Flags: 0
+      - m_Name: 
+        m_Id: 60d4cb75-b4b1-418b-be1e-a3aa226746b6
+        m_Path: <NPad>/rightTrigger
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Right Tab Switch
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 373bb7b4-bc45-4537-bd2f-c21634c03914
+        m_Path: <NPad>/leftSR
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Right Tab Switch
+        m_Flags: 0
+      - m_Name: 
+        m_Id: fc45339e-bbfa-44fa-9ccd-f485b1a345de
+        m_Path: <NPad>/rightSR
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Right Tab Switch
+        m_Flags: 0
       m_Flags: 0
     m_Reference: {fileID: 0}
   exitSettingsAction:
-    m_UseReference: 0
+    m_UseReference: 1
     m_Action:
       m_Name: Exit Game Mode Selection Input
       m_Type: 0
@@ -9818,8 +9931,17 @@ MonoBehaviour:
         m_Groups: 
         m_Action: Exit Game Mode Selection Input
         m_Flags: 0
+      - m_Name: 
+        m_Id: f09f4502-df57-4f52-8fb5-d8dd4a11dbb0
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
       m_Flags: 0
-    m_Reference: {fileID: 0}
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
   videoTab: {fileID: 8148775555189141663}
   audioTab: {fileID: 6381002250104166171}
   gameTab: {fileID: 5257365116069023141}
