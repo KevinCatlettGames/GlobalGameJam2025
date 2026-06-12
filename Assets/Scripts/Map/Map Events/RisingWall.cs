@@ -23,7 +23,7 @@ public class RisingWall : MonoBehaviour
     }
     void OnDestroy()
     {
-      idleEvent?.Stop();
+        idleEvent?.Stop();
     }
 
     public virtual void Rise()
