@@ -1,14 +1,13 @@
 using System.Collections;
+using Unity.Netcode.Transports.UTP;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
+using Unity.Netcode;
 
 #if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-using Unity.Netcode;
-using Unity.Netcode.Transports.UTP;
 using Netcode.Transports.Facepunch;
-
 #endif
 
 /// <summary>
@@ -26,11 +25,8 @@ public class TransportSwitcher : MonoBehaviour
     /// <summary>True if Relay Transport is currently in use.</summary>
     public bool isUsingRelay = false;
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-
     [SerializeField] private UnityTransport unityTransport;
     [SerializeField] private UnityTransport relayTransport;
-#endif
 
     /// <summary>Event triggered when switching to Unity Transport.</summary>
     public UnityEvent onSwitchToUnityTransport;
@@ -46,8 +42,6 @@ public class TransportSwitcher : MonoBehaviour
     private bool hasConnection = false;        // Stores internet connection status
 
     private MonoBehaviour currentTransport;     // Reference to the currently active transport
-
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
     private void Awake()
     {
@@ -144,6 +138,7 @@ public class TransportSwitcher : MonoBehaviour
         }
     }
 
+#if !UNITY_SWITCH
     /// <summary>
     /// Returns true if Steamworks client is valid/connected.
     /// </summary>
@@ -151,6 +146,7 @@ public class TransportSwitcher : MonoBehaviour
     {
         return Steamworks.SteamClient.IsValid;
     }
+#endif 
 
     /// <summary>
     /// Forces a switch to Unity Transport and disables further automatic switching.
@@ -175,5 +171,4 @@ public class TransportSwitcher : MonoBehaviour
         isUsingRelay = true; 
         onSwitchToRelayTransport?.Invoke();
     }
-#endif
 }

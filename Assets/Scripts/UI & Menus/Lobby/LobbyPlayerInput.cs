@@ -106,7 +106,6 @@ public class LobbyPlayerInput : MonoBehaviour
         if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
         if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
@@ -117,19 +116,7 @@ public class LobbyPlayerInput : MonoBehaviour
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
 
             PlaySFX(readyReference);
-        }     
-#else
-        if (context.performed && !LobbyManager.instance.switchPlayers[lobbyPlayerInputIndex].IsReady)
-        {
-
-            lobbyManager.SetReady(lobbyPlayerInputIndex, true);
-
-            foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
-
-            PlaySFX(readyReference);
         }
-#endif
     }
 
     public void OnCancelled(InputAction.CallbackContext context)
@@ -143,8 +130,6 @@ public class LobbyPlayerInput : MonoBehaviour
             lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
             return;
         }
-
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
         if (joined && LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
@@ -165,32 +150,8 @@ public class LobbyPlayerInput : MonoBehaviour
                 LobbyPlayerValues.Instance.playerValuesList[lobbyPlayerInputIndex].Device = null;
                 PlaySFX(buttonReference);
             }
-          return;
-        }
-#else
-
-        if (joined && LobbyManager.instance.switchPlayers[lobbyPlayerInputIndex].IsReady)
-        {
-            lobbyManager.SetReady(lobbyPlayerInputIndex, false);
-            PlaySFX(buttonReference);
             return;
         }
-
-        if (joined && !LobbyManager.instance.switchPlayers[lobbyPlayerInputIndex].IsReady)
-        {
-            if (context.started)
-            {
-                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
-                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;
-                lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
-                joined = false;
-                lobbyManager.CheckAllReady();
-                LobbyPlayerValues.Instance.playerValuesList[lobbyPlayerInputIndex].Device = null;
-                PlaySFX(buttonReference);
-            }
-            return;
-        }
-#endif
 
 
         if (!joined)
@@ -212,14 +173,8 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-
         if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
             return;
-#else
-        if (lobbyManager.switchPlayers[lobbyPlayerInputIndex].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
-            return;
-#endif 
         Vector2 input = context.ReadValue<Vector2>();
 
         if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)

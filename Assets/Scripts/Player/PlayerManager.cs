@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using FMODUnity;
+using nn.hid;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -283,7 +284,7 @@ public class PlayerManager : NetworkBehaviour
             foreach (var player in localPlayers)
             {
                 ResetPlayerComponents(player);
-                if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                if (LobbyManager.instance && LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
                     RerollSpells();
             }
         }
@@ -318,7 +319,7 @@ public class PlayerManager : NetworkBehaviour
     private void RerollSpells()
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
-        if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.SharedCustom)
+        if (LobbyManager.instance && LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.SharedCustom)
         {
             syncedFirstSpellIndex.Value = LobbyManager.instance.selectedLeftSpellIndex;
             syncedSecondSpellIndex.Value = LobbyManager.instance.selectedRightSpellIndex;

@@ -42,11 +42,8 @@ public class LobbyPlayerValues : NetworkBehaviour
         DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-#endif
     }
 
     private void OnDisable()
@@ -56,9 +53,7 @@ public class LobbyPlayerValues : NetworkBehaviour
 
     private void OnDestroy()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
-#endif
     }
 
     private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)

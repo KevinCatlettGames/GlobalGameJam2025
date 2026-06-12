@@ -15,6 +15,7 @@ public class MenuSelection : MonoBehaviour
     GameObject currentToSelect;
     public EventSystem eventSystem;
     public GameObject localOnline;
+    public GameObject mainMenu;
 
     private void Awake()
     {
@@ -44,6 +45,12 @@ public class MenuSelection : MonoBehaviour
         #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
         #endif
+    }
+
+    public void ResetAllCams()
+    {
+        foreach (var cam in otherVirtualsCams)
+            cam.Priority = 0;
     }
 
     public void ChangeSelectedGameObject(GameObject newGameObject)

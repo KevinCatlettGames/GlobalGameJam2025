@@ -31,9 +31,15 @@ public class ControllerRumbler : MonoBehaviour
     public void Rumble(float duration, float lowIntensity, float highIntensity)
     {
         timer = duration;
-        if (timer > maxDuration) timer = maxDuration; 
+        if (timer > maxDuration) timer = maxDuration;
+
+#if UNITY_SWITCH
+        lowMotorSpeed = (lowIntensity *.5f) * lowFrFactor;
+        highMotorSpeed = (highIntensity * .5f) * highFrFactor;
+#else
         lowMotorSpeed = lowIntensity * lowFrFactor;
         highMotorSpeed = highIntensity * highFrFactor;
+#endif
         if (timer > 0 && controller != null)
         {
             controller.SetMotorSpeeds(lowMotorSpeed, highMotorSpeed);

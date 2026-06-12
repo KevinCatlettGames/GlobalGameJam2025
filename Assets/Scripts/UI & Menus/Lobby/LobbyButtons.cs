@@ -139,15 +139,9 @@ public class LobbyButtons : MonoBehaviour
 
     public void StartGameHold(int playerIndex)
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-
         if (!LobbyManager.instance.allPlayersReady ||
-            LobbyManager.instance.players.Count <= 0)
+                  LobbyManager.instance.players.Count <= 0)
             return;
-#else
-        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.switchPlayers.Count <= 0)
-            return;
-#endif 
         if (gameStarting)
             return;
 
@@ -228,7 +222,15 @@ public class LobbyButtons : MonoBehaviour
             NetworkManager.Singleton.Shutdown();
 
         GlobalLobby.CurrentLobby = null;
+
+#if UNITY_SWITCH
+        MenuSelection.Instance.mainMenu.SetActive(true);
+        MenuSelection.Instance.ResetAllCams();
+
+#else
         MenuSelection.Instance.localOnline.SetActive(true);
+
+#endif
         Destroy(lobbyParent);
     }
 

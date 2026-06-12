@@ -50,12 +50,10 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// <param name="sceneName">The name of the scene to load (currently loads "Lobby").</param>
     public async void StartGameLocal(string sceneName)
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
 
         NetworkManager.Singleton
             .GetComponent<TransportSwitcher>()
             .SwitchToUnityTransportAndDisable();
-#endif 
 
         NetworkManager.Singleton.StartHost();
         GlobalLobby.CurrentLobby = joinedLobby;
@@ -64,14 +62,12 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
     public async void StartSceneLocal(string sceneName)
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
         NetworkManager.Singleton
             .GetComponent<TransportSwitcher>()
             .SwitchToUnityTransportAndDisable();
 
         NetworkManager.Singleton.StartHost();
         GlobalLobby.CurrentLobby = joinedLobby;
-#endif 
 
         Instantiate(lobby);
         // NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
