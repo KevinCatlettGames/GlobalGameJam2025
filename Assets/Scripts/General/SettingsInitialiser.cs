@@ -11,9 +11,18 @@ public class SettingsInitialiser : MonoBehaviour
 
     private void Awake()
     {
-        if (resetAllPlayerPrefs) PlayerPrefs.DeleteAll();
+        if (resetAllPlayerPrefs)
+        {
+            PlayerPrefs.DeleteAll();
+            SaveManager.Save();
+        }
+
+        SaveManager.Initialize();
+
+        Invoke(nameof(Set), .1f);
     }
-    void Start()
+
+    void Set()
     {
         FMOD.Studio.VCA masterVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Master");
         FMOD.Studio.VCA sfxVCA = FMODUnity.RuntimeManager.GetVCA("vca:/SFX");
@@ -25,7 +34,7 @@ public class SettingsInitialiser : MonoBehaviour
 
         masterVCA.setVolume(PlayerPrefs.GetFloat(MasterVolKey, defaultValue));
         sfxVCA.setVolume(PlayerPrefs.GetFloat(SfxVolKey, defaultValue));
-        musicVCA.setVolume(PlayerPrefs.GetFloat(MusicVolKey,defaultValue));
+        musicVCA.setVolume(PlayerPrefs.GetFloat(MusicVolKey, defaultValue));
 
         int fullScreen = PlayerPrefs.GetInt("Fullscreen", 1);
         if (fullScreen == 1)

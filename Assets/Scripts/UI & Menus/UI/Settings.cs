@@ -460,7 +460,7 @@ public class Settings : MonoBehaviour
         PlayerPrefs.SetInt("ResolutionLevel", pendingResolution);
         PlayerPrefs.SetInt("QualityLevel", pendingQuality);
 
-        PlayerPrefs.Save();
+        SaveManager.Save();
 
         EventSystem.current.SetSelectedGameObject(resetButton.gameObject);
         UpdateApplyButton();

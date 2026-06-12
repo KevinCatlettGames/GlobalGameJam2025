@@ -5302,7 +5302,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   appearDuration: 1
   overshootScale: 1
-  beginEffectWaitTime: 4
+  beginEffectWaitTime: 5
   scaleCurve:
     serializedVersion: 2
     m_Curve:
@@ -14203,7 +14203,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &660430269
 RectTransform:
   m_ObjectHideFlags: 0
@@ -15809,16 +15809,8 @@ MonoBehaviour:
         m_Action: Exit Game Mode Selection Input
         m_Flags: 0
       - m_Name: 
-        m_Id: cff384b6-5db8-4cde-8e63-a513f8e59f8e
-        m_Path: <NPad>/{Point}
-        m_Interactions: 
-        m_Processors: 
-        m_Groups: 
-        m_Action: Exit Game Mode Selection Input
-        m_Flags: 0
-      - m_Name: 
-        m_Id: 00e6bdd9-396a-4363-b465-2407a73645d9
-        m_Path: <NPad>/{Pressure}
+        m_Id: c13fa0b1-b490-4098-9a79-22b7ba7c3813
+        m_Path: <Touchscreen>/Press
         m_Interactions: 
         m_Processors: 
         m_Groups: 
@@ -15829,7 +15821,7 @@ MonoBehaviour:
       type: 3}
   requireFreshPressOnEnable: 1
   allowOnSwitch: 1
-  freshPressBlockDuration: 3.5
+  freshPressBlockDuration: 0.1
   OnInputActionPerformed:
     m_PersistentCalls:
       m_Calls:
@@ -18842,6 +18834,16 @@ PrefabInstance:
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Arguments.m_ObjectArgumentAssemblyTypeName
       value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893587154688938041, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: m_SkipOnDrop
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5893587154688938041, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: m_TimeUpdateMode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5946186312046494782, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
@@ -24609,6 +24611,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1690912880}
   - component: {fileID: 1690912879}
+  - component: {fileID: 1690912881}
   m_Layer: 0
   m_Name: MainMenuMusic
   m_TagString: Untagged
@@ -24637,7 +24640,7 @@ MonoBehaviour:
       Data4: -1666966333
     Path: event:/music/menu_theme/WizzoWizzo
   Event: 
-  EventPlayTrigger: 1
+  EventPlayTrigger: 0
   EventStopTrigger: 2
   AllowFadeout: 1
   TriggerOnce: 0
@@ -24662,6 +24665,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1596318191}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1690912881
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1690912877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 842c642615a04ed418fcb21161e15706, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  delay: 0.5
+  emitter: {fileID: 1690912879}
 --- !u!1 &1709203907
 GameObject:
   m_ObjectHideFlags: 0
@@ -26069,14 +26086,14 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1996974312}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 37f3001e67e0950409eb3153adfae1e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   appearDuration: 1
   overshootScale: 1
-  beginEffectWaitTime: 4
+  beginEffectWaitTime: 0
   scaleCurve:
     serializedVersion: 2
     m_Curve:
