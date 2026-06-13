@@ -1,22 +1,20 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 public class Clam : MonoBehaviour
 {
     [SerializeField] private float damage = 56;
 
-    private float riseDuration = .5f;
+    private float riseDuration = .1f;
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
-    private Animator animator;
+    [SerializeField] private Animator animator;
     private float radius = 0;
     public Action OnSnap;
 
     private void Awake()
     {
-        animator = GetComponent<Animator>();
         radius = GetComponent<SphereCollider>().radius;
     }
     public void Rise()
@@ -29,7 +27,7 @@ public class Clam : MonoBehaviour
     {
         //Effects
         //Sound
-        animator.SetTrigger("Rise");
+        animator.Play("Rise");
         yield return new WaitForSeconds(riseDuration);
         isActive = true;
     }

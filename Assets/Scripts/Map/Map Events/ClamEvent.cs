@@ -1,5 +1,3 @@
-using NUnit.Framework;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class ClamEvent : MapEvent
@@ -16,6 +14,7 @@ public class ClamEvent : MapEvent
         for (int i = 0; i < clams.Length; i++)
         {
             clams[i].OnSnap += DecreaseActiveClams;
+            clams[i].gameObject.SetActive(false);
         }
     }
     private void Update()
@@ -34,6 +33,7 @@ public class ClamEvent : MapEvent
                         r = 0;
                     clam = clams[r];
                 }
+                clam.gameObject.SetActive(true);
                 clam.Rise();
                 currentActiveClams++;
                 timer = 0;
@@ -47,6 +47,7 @@ public class ClamEvent : MapEvent
     protected override void StartEvent()
     {
         isClaming = true;
+        Debug.Log("Clam Time");
     }
 
     protected override void StopEvent()
