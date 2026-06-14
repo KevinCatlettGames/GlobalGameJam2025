@@ -5,8 +5,10 @@ using UnityEngine;
 public class Clam : MonoBehaviour
 {
     [SerializeField] private float damage = 56;
+    [SerializeField] private float activeDelay = .1f;
+    [SerializeField] private ParticleSystem riseParticleSystem;
+    [SerializeField] private ParticleSystem snapParticleSystem;
 
-    private float riseDuration = .1f;
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
     [SerializeField] private Animator animator;
@@ -27,8 +29,9 @@ public class Clam : MonoBehaviour
     {
         //Effects
         //Sound
+        riseParticleSystem?.Play();
         animator.Play("Rise");
-        yield return new WaitForSeconds(riseDuration);
+        yield return new WaitForSeconds(activeDelay);
         isActive = true;
     }
 
@@ -39,6 +42,7 @@ public class Clam : MonoBehaviour
             isActive = false;
             //Effects
             //Sound
+            snapParticleSystem?.Play();
             animator.SetTrigger("Snap");
         }
     }
@@ -73,6 +77,7 @@ public class Clam : MonoBehaviour
         if (isActive)
         {
             isActive = false;
+            snapParticleSystem?.Play();
             animator.SetTrigger("Snap");
         }
         else
