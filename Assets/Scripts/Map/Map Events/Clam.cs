@@ -12,6 +12,7 @@ public class Clam : MonoBehaviour
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
     [SerializeField] private Animator animator;
+    [SerializeField] private Animator pearlAnimator;
     private float radius = 0;
     public Action OnSnap;
 
@@ -31,6 +32,7 @@ public class Clam : MonoBehaviour
         //Sound
         riseParticleSystem?.Play();
         animator.Play("Rise");
+        pearlAnimator.Play("Rise");
         yield return new WaitForSeconds(activeDelay);
         isActive = true;
     }
@@ -44,6 +46,7 @@ public class Clam : MonoBehaviour
             //Sound
             snapParticleSystem?.Play();
             animator.SetTrigger("Snap");
+            pearlAnimator.SetTrigger("Snap");
         }
     }
 
@@ -79,6 +82,7 @@ public class Clam : MonoBehaviour
             isActive = false;
             snapParticleSystem?.Play();
             animator.SetTrigger("Snap");
+            pearlAnimator.SetTrigger("Snap");
         }
         else
         {

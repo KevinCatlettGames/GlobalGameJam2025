@@ -47,7 +47,6 @@ public class ClamEvent : MapEvent
     protected override void StartEvent()
     {
         isClaming = true;
-        Debug.Log("Clam Time");
     }
 
     protected override void StopEvent()
