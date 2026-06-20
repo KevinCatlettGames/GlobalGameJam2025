@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class Clam : MonoBehaviour
 {
@@ -8,12 +9,14 @@ public class Clam : MonoBehaviour
     [SerializeField] private float activeDelay = .1f;
     [SerializeField] private ParticleSystem riseParticleSystem;
     [SerializeField] private ParticleSystem snapParticleSystem;
+    [SerializeField] private Material[] materials;
 
     private bool isActive = false;
     public bool IsAvailble = true;
     [SerializeField] private Animator animator;
     [SerializeField] private Animator pearlAnimator;
     [SerializeField] private ClamItem clamItem;
+    [SerializeField] private SkinnedMeshRenderer meshRenderer;
     private float radius = 0;
     public Action OnSnap;
 
@@ -32,6 +35,8 @@ public class Clam : MonoBehaviour
         //Effects
         //Sound
         IsAvailble = false;
+        int r = Random.Range(0, materials.Length);
+        meshRenderer.material = materials[r];
         clamItem.gameObject.SetActive(true);
         clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
         riseParticleSystem?.Play();

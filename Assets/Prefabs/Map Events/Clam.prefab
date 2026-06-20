@@ -4972,7 +4972,6 @@ GameObject:
   - component: {fileID: 8757668450407490143}
   - component: {fileID: 2679411215650738299}
   - component: {fileID: 409879901753390247}
-  - component: {fileID: 5684577422567448665}
   m_Layer: 0
   m_Name: Clam
   m_TagString: Untagged
@@ -4993,8 +4992,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 326833779980711720}
-  - {fileID: 4242288488498583034}
+  - {fileID: 2253663745163528819}
   - {fileID: 3401371273308012034}
   - {fileID: 2887848616099148309}
   - {fileID: 7958890991269529195}
@@ -5016,10 +5014,13 @@ MonoBehaviour:
   activeDelay: 0.1
   riseParticleSystem: {fileID: 8001257613311578387}
   snapParticleSystem: {fileID: 7076079850321561405}
+  materials:
+  - {fileID: 2100000, guid: f94d6dd51bd378844bacac68a5a34821, type: 2}
   IsAvailble: 1
-  animator: {fileID: 5684577422567448665}
+  animator: {fileID: 9105906232865947510}
   pearlAnimator: {fileID: 5412537674163755503}
   clamItem: {fileID: 1224156966118568026}
+  meshRenderer: {fileID: 3145769685369247706}
 --- !u!135 &409879901753390247
 SphereCollider:
   m_ObjectHideFlags: 0
@@ -5041,28 +5042,6 @@ SphereCollider:
   serializedVersion: 3
   m_Radius: 5
   m_Center: {x: 0, y: 0, z: 0}
---- !u!95 &5684577422567448665
-Animator:
-  serializedVersion: 7
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2130730867070163848}
-  m_Enabled: 1
-  m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 1e382f10f7e684d4b8a10d5b7b48c24d, type: 2}
-  m_CullingMode: 0
-  m_UpdateMode: 0
-  m_ApplyRootMotion: 0
-  m_LinearVelocityBlending: 0
-  m_StabilizeFeet: 0
-  m_AnimatePhysics: 0
-  m_WarningMessage: 
-  m_HasTransformHierarchy: 1
-  m_AllowConstantClipSamplingOptimization: 1
-  m_KeepAnimatorStateOnDisable: 0
-  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &2173697811619675588
 GameObject:
   m_ObjectHideFlags: 0
@@ -5387,6 +5366,76 @@ Transform:
   - {fileID: 8067389190194570568}
   m_Father: {fileID: 8497369544092017355}
   m_LocalEulerAnglesHint: {x: -2.005556, y: 9.947669, z: -27.700806}
+--- !u!1 &6398305377081209744
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 2253663745163528819}
+  - component: {fileID: 9105906232865947510}
+  - component: {fileID: 8173540205993379389}
+  m_Layer: 0
+  m_Name: ClamParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &2253663745163528819
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6398305377081209744}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
+  m_ConstrainProportionsScale: 1
+  m_Children:
+  - {fileID: 326833779980711720}
+  - {fileID: 4242288488498583034}
+  m_Father: {fileID: 8757668450407490143}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &9105906232865947510
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6398305377081209744}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 1e382f10f7e684d4b8a10d5b7b48c24d, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &8173540205993379389
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6398305377081209744}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4634badfb067a3604b8de99b023dcd1e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clam: {fileID: 2679411215650738299}
 --- !u!1 &6626777426617054241
 GameObject:
   m_ObjectHideFlags: 0
@@ -10442,7 +10491,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 2064666845193477622}
-  m_Father: {fileID: 8757668450407490143}
+  m_Father: {fileID: 2253663745163528819}
   m_LocalEulerAnglesHint: {x: 79.395996, y: -90.00005, z: 89.99995}
 --- !u!1 &8879972179273763813
 GameObject:
@@ -10472,9 +10521,9 @@ Transform:
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -0.0025077593, y: -4.912334, z: 0.041305717}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
+  m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 8757668450407490143}
+  m_Father: {fileID: 2253663745163528819}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!137 &3145769685369247706
 SkinnedMeshRenderer:
@@ -10499,7 +10548,7 @@ SkinnedMeshRenderer:
   m_RenderingLayerMask: 3
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: f94d6dd51bd378844bacac68a5a34821, type: 2}
+  - {fileID: 5421116879912036708, guid: dea4b79ce62ba0d45bec89c3ef02e40e, type: 3}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
