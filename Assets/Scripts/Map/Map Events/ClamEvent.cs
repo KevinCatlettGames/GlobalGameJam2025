@@ -26,7 +26,7 @@ public class ClamEvent : MapEvent
                 int r = Random.Range(0, maxClams);
                 Clam clam = clams[r];
 
-                while (clam.IsActive == true)
+                while (!clam.IsAvailble)
                 {
                     r++;
                     if (r >= clams.Length) 

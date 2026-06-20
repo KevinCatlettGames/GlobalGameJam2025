@@ -10,9 +10,10 @@ public class Clam : MonoBehaviour
     [SerializeField] private ParticleSystem snapParticleSystem;
 
     private bool isActive = false;
-    public bool IsActive { get { return isActive; } }
+    public bool IsAvailble = true;
     [SerializeField] private Animator animator;
     [SerializeField] private Animator pearlAnimator;
+    [SerializeField] private ClamItem clamItem;
     private float radius = 0;
     public Action OnSnap;
 
@@ -30,6 +31,9 @@ public class Clam : MonoBehaviour
     {
         //Effects
         //Sound
+        IsAvailble = false;
+        clamItem.gameObject.SetActive(true);
+        clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
         riseParticleSystem?.Play();
         animator.Play("Rise");
         pearlAnimator.Play("Rise");
@@ -86,6 +90,7 @@ public class Clam : MonoBehaviour
         }
         else
         {
+            IsAvailble = true;
             gameObject.SetActive(false);
         }
     }
