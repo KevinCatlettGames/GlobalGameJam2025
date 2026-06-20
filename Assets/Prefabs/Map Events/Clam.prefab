@@ -5200,6 +5200,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7958890991269529195}
   - component: {fileID: 5412537674163755503}
+  - component: {fileID: 4209192184861675528}
   m_Layer: 0
   m_Name: PearlParent
   m_TagString: Untagged
@@ -5245,6 +5246,19 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &4209192184861675528
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3895949784799797567}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f17822ff083536845b4cfcfea371d6aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  objectToDisable: {fileID: 4839678146215769770}
 --- !u!1 &4146737852013648431
 GameObject:
   m_ObjectHideFlags: 0
@@ -10605,7 +10619,7 @@ MonoBehaviour:
     type: 3}
   m_PrefabInstance: {fileID: 3347132192170659633}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 4839678146215769770}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 26c2cb0f8e5fae585aeb6b9debb2f7f3, type: 3}
@@ -10614,6 +10628,12 @@ MonoBehaviour:
 --- !u!4 &1803802795167333462 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3997793403689857895, guid: a23220288e2fa2410ad8f6f3aaf25b42,
+    type: 3}
+  m_PrefabInstance: {fileID: 3347132192170659633}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &4839678146215769770 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7879781332223670683, guid: a23220288e2fa2410ad8f6f3aaf25b42,
     type: 3}
   m_PrefabInstance: {fileID: 3347132192170659633}
   m_PrefabAsset: {fileID: 0}
