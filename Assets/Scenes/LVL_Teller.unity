@@ -1723,7 +1723,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 500
   field of view: 40
   orthographic: 0
   orthographic size: 5
@@ -15799,9 +15799,19 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 3779739547144125971}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
       propertyPath: cinematicCamera
       value: 
       objectReference: {fileID: 1429529807}
+    - target: {fileID: 2110777991818369739, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: m_Lens.FarClipPlane
+      value: 300
+      objectReference: {fileID: 0}
     - target: {fileID: 2527301316074673492, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_Name
@@ -15861,6 +15871,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4799993678396199993, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: far clip plane
+      value: 300
       objectReference: {fileID: 0}
     - target: {fileID: 4816222476746442012, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
@@ -16028,6 +16043,12 @@ MonoBehaviour:
   AutoObjectParentSync: 1
   SyncOwnerTransformWhenParented: 1
   AllowOwnerToParent: 0
+--- !u!1 &3779739547144125971 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 2119692710809655977, guid: 911b24a023c9b7b4d9082940e063c280,
+    type: 3}
+  m_PrefabInstance: {fileID: 3779739547144125967}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &5758177152077098217
 PrefabInstance:
   m_ObjectHideFlags: 0

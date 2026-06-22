@@ -2005,6 +2005,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
+      propertyPath: mainCamera
+      value: 
+      objectReference: {fileID: 2090398352}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
       propertyPath: cinematicCamera
       value: 
       objectReference: {fileID: 955743775}
@@ -2902,7 +2907,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 500
   field of view: 60
   orthographic: 0
   orthographic size: 5
@@ -4082,7 +4087,7 @@ MonoBehaviour:
     FieldOfView: 40
     OrthographicSize: 19.75
     NearClipPlane: 0.1
-    FarClipPlane: 5000
+    FarClipPlane: 300
     Dutch: 0
     ModeOverride: 0
     LensShift: {x: 0, y: 0}
@@ -4187,7 +4192,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.1
-  far clip plane: 5000
+  far clip plane: 300
   field of view: 40
   orthographic: 1
   orthographic size: 19.75

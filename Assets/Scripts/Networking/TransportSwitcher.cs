@@ -71,6 +71,7 @@ public class TransportSwitcher : MonoBehaviour
 
     private void Update()
     {
+#if !UNITY_SWITCH
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
@@ -85,6 +86,7 @@ public class TransportSwitcher : MonoBehaviour
                 StartCoroutine(PerformSwitchRoutine());
             }
         }
+#endif
     }
 
     /// <summary>
@@ -146,7 +148,7 @@ public class TransportSwitcher : MonoBehaviour
     {
         return Steamworks.SteamClient.IsValid;
     }
-#endif 
+#endif
 
     /// <summary>
     /// Forces a switch to Unity Transport and disables further automatic switching.
