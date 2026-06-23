@@ -69,9 +69,9 @@ public class TransportSwitcher : MonoBehaviour
         }
     }
 
+#if !UNITY_SWITCH
     private void Update()
     {
-#if !UNITY_SWITCH
         timer -= Time.deltaTime;
         if (timer <= 0f)
         {
@@ -86,7 +86,6 @@ public class TransportSwitcher : MonoBehaviour
                 StartCoroutine(PerformSwitchRoutine());
             }
         }
-#endif
     }
 
     /// <summary>
@@ -138,9 +137,7 @@ public class TransportSwitcher : MonoBehaviour
             yield return webRequest.SendWebRequest();
             hasConnection = (webRequest.result == UnityWebRequest.Result.Success);
         }
-    }
-
-#if !UNITY_SWITCH
+}
     /// <summary>
     /// Returns true if Steamworks client is valid/connected.
     /// </summary>
@@ -150,10 +147,10 @@ public class TransportSwitcher : MonoBehaviour
     }
 #endif
 
-    /// <summary>
-    /// Forces a switch to Unity Transport and disables further automatic switching.
-    /// </summary>
-    public void SwitchToUnityTransportAndDisable()
+/// <summary>
+/// Forces a switch to Unity Transport and disables further automatic switching.
+/// </summary>
+public void SwitchToUnityTransportAndDisable()
     {
         canSwitch = false;
         NetworkManager.Singleton.NetworkConfig.NetworkTransport = unityTransport;

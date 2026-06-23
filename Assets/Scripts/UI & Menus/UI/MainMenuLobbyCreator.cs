@@ -40,7 +40,9 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     private void Start()
     {
+#if !UNITY_SWITCH
         InitializeUnityAuth();
+#endif
     }
 
     /// <summary>

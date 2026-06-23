@@ -281,6 +281,10 @@ public class Settings : MonoBehaviour
         if (!useGameTab && tab == Tab.Game)
             tab = Tab.Video;
 
+#if UNITY_SWITCH
+        tab = Tab.Audio; 
+#endif 
+
         currentTab = tab;
 
         if (!tabTogglingEnabled)
