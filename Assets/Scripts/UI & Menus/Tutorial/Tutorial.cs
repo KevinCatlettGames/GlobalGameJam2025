@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Components;
 
 public class Tutorial : MonoBehaviour
 {
@@ -312,13 +314,13 @@ public class Tutorial : MonoBehaviour
             {
                 itemShortDescriptionText.enabled = hasDescription;
                 itemLongDescriptionText.enabled = false;
-                itemShortDescriptionText.text = item.ItemDescription;
+                itemShortDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;
             }
             else
             {
                 itemLongDescriptionText.enabled = hasDescription;
                 itemShortDescriptionText.enabled = false;
-                itemLongDescriptionText.text = item.ItemDescription;
+                itemLongDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;
             }
         }
         else
@@ -331,7 +333,6 @@ public class Tutorial : MonoBehaviour
         if (useButton)
         {
             itemButton.gameObject.SetActive(true);
-            itemButton.GetComponentInChildren<TextMeshProUGUI>().text = item.ButtonText;
         }
         else
         {
