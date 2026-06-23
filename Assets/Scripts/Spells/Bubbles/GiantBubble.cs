@@ -10,12 +10,14 @@ public class GiantBubble : BasicBubble
     [SerializeField] private float extraOffset = 2f;
     [SerializeField] private int knbDecreaseAngle = 45;
     [SerializeField] private float knbDecreaseIncrement = .25f;
+    [SerializeField] private TrailRenderer bigTrail;
     [Header("Small Version")]
     [SerializeField] private float dmgMini = 3;
     [SerializeField] private float knbMod = .3f;
     [SerializeField] private float sizMod = .25f;
     [SerializeField] private float speedMod = 5f;
     [SerializeField] private GameObject smallHitEffect;
+    [SerializeField] private TrailRenderer smallTrail;
 
     private bool isSmall = false;
 
@@ -43,6 +45,8 @@ public class GiantBubble : BasicBubble
             transform.localScale = Vector3.one * size;
             hitEffect = smallHitEffect;
             spellType = SpellType.SmallerGiant;
+            bigTrail.emitting = false;
+            smallTrail.emitting = true;
             return;
         }
         if (!isSmall && other.CompareTag("Player"))

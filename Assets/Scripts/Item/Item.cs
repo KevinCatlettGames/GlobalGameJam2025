@@ -11,8 +11,8 @@ public class Item : NetworkBehaviour
     [SerializeField] private int spellID = -1;
 
     [Header("Item PickUp")]
-    [SerializeField] private GameObject pickUpEffect;
-    [SerializeField] private EventReference pickUpEvent;
+    [SerializeField] protected GameObject pickUpEffect;
+    [SerializeField] protected EventReference pickUpEvent;
 
     [Header("Item Despawn")]
     [SerializeField] private EventReference despawnEvent;
@@ -64,7 +64,7 @@ public class Item : NetworkBehaviour
         }
     }
 
-    private IEnumerator DelayedDestroy()
+    protected virtual IEnumerator DelayedDestroy()
     {
         yield return new WaitForEndOfFrame();
 

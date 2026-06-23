@@ -596,7 +596,8 @@ public class PlayerController : NetworkBehaviour
 
         for (int i = itemsToEquip.Count - 1; i >= 0; i--)
         {
-            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);
+            Item item = itemsToEquip[i];
+            if (item == null || !item.gameObject.activeSelf) itemsToEquip.RemoveAt(i);
         }
         if (itemsToEquip[0] == null) return;
 
@@ -633,7 +634,8 @@ public class PlayerController : NetworkBehaviour
 
         for (int i = itemsToEquip.Count - 1; i >= 0; i--)
         {
-            if (itemsToEquip[i] == null) itemsToEquip.RemoveAt(i);           
+            Item item = itemsToEquip[i];
+            if (item == null || !item.gameObject.activeSelf) itemsToEquip.RemoveAt(i);           
         }
         if (itemsToEquip.Count == 0) return;
 
@@ -832,7 +834,6 @@ public class PlayerController : NetworkBehaviour
             else  
                 itemsToEquip.Remove(_item); 
         }
-
     }
 
     #endregion

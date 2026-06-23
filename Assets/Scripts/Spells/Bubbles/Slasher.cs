@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -50,7 +49,7 @@ public class Slasher : MonoBehaviour
             slasherParent.SetActive(false);
             return;
         }
-        if(other.gameObject != null)
+        if(other.gameObject != null && !other.isTrigger)
         {
             SpawnHitEffect();
             slasherBubble.SlasherHit(transform.forward, other.gameObject);

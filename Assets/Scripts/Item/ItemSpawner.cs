@@ -18,6 +18,7 @@ public class ItemSpawner : MonoBehaviour
     [SerializeField] SO_Spell[] spawnableItems;
     [SerializeField] bool spawningEnabled = true;
     public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
+    private List<int> legalSpells;
     
     public int maxAmount = 2;
     public int currentAmount;
@@ -37,6 +38,14 @@ public class ItemSpawner : MonoBehaviour
         if (NetworkManager.Singleton.IsServer && spawningEnabled)
         {
             GameManager.Instance.OnGameStarted += ResetSpawner;
+            legalSpells = new List<int>();
+            for (int i = 0; i < GetSpellCount(); i++)
+            {
+                if (SpawnableItems[i].CanUse)
+                {
+                    legalSpells.Add(i);
+                }
+            }
 
             foreach (Transform t in startSpawnPoints)
                 SpawnItem(t.position);
@@ -88,21 +97,10 @@ public class ItemSpawner : MonoBehaviour
         GameObject itemInstance =
             Instantiate(itemPrefab, spawnPosition, Quaternion.identity);
         
-        int maxAttempts = 50;
-        int attempts = 0;
-        int r = -1;
-
-        while ((r == -1 || !spawnableItems[r].CanUse) && attempts < maxAttempts)
-        {
-            r = Random.Range(0, spawnableItems.Length);
-            attempts++;
-        }
-
-        if (attempts >= maxAttempts)
-            r = 0;
+        int spellID = GetRandomLegalSpellID();
 
         itemInstance.GetComponent<NetworkObject>().Spawn(true);
-        itemInstance.GetComponent<Item>().SetupSpellClientRpc(r);
+        itemInstance.GetComponent<Item>().SetupSpellClientRpc(spellID);
 
         spawnedItems.Add(itemInstance);
         currentAmount++;
@@ -142,6 +140,12 @@ public class ItemSpawner : MonoBehaviour
     {
         if (index < 0 || index >= spawnableItems.Length) return null;
         return spawnableItems[index];
+    }
+
+    public int GetRandomLegalSpellID()
+    {
+        int r = Random.Range(0, legalSpells.Count);
+        return legalSpells[r];
     }
     public int GetSpellCount()
     {
