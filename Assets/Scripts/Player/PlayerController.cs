@@ -925,6 +925,7 @@ public class PlayerController : NetworkBehaviour
         direction.Normalize();
         knockbackVelocity += direction * force; 
     }
+
     [ServerRpc(RequireOwnership = false)]
     public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
     {
@@ -1076,7 +1077,7 @@ public class PlayerController : NetworkBehaviour
                 }
 
                 shaderManager?.DamageEffect(damageColorEffectDuration);
-                
+
                 float knbMagnitude = knockbackVelocity.magnitude;
                 float duration = knbMagnitude * rumbleDurationFactor;
                 controllerRumbler?.Rumble(duration, force, dmg);
@@ -1084,7 +1085,7 @@ public class PlayerController : NetworkBehaviour
             else
             {
                 FlinchAnimServerRpc(force, dmg);
-                
+
                 float knbMagnitude = knockbackVelocity.magnitude;
                 float duration = knbMagnitude * rumbleDurationFactor;
                 controllerRumbler?.Rumble(duration, force, dmg);

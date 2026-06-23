@@ -91,15 +91,6 @@ public class SteamIntegration : MonoBehaviour
     {
         if (steamInitialized)
             SteamClient.RunCallbacks();
-        else
-        {
-            retryTimer -= Time.deltaTime;
-            if (retryTimer <= 0f)
-            {
-                InitializeSteam();
-                retryTimer = retryInterval;
-            }
-        }
     }
 
     private void OnApplicationQuit()
