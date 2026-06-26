@@ -11,6 +11,7 @@ public class GiantBubble : BasicBubble
     [SerializeField] private int knbDecreaseAngle = 45;
     [SerializeField] private float knbDecreaseIncrement = .25f;
     [SerializeField] private TrailRenderer bigTrail;
+    [SerializeField] private Material[] blinkMaterials;
     [Header("Small Version")]
     [SerializeField] private float dmgMini = 3;
     [SerializeField] private float knbMod = .3f;
@@ -26,11 +27,24 @@ public class GiantBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         transform.position += direction * extraOffset;
     }
+    protected override void InflateOverlapChack()
+    {
+        StartCoroutine(Blink());
+        base.InflateOverlapChack();
+    }
     protected override void BubbleMovement()
     {
         if (!IsServer) return;
         if (!hasInflated) return;
         base.BubbleMovement();
+    }
+    private IEnumerator Blink()
+    {
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        Material[] materials = meshRenderer.materials;
+        meshRenderer.materials = blinkMaterials;
+        yield return new WaitForSeconds(.15f);
+        meshRenderer.materials = materials;
     }
     public override void BubbleCollision(GameObject other)
     {
@@ -40,13 +54,13 @@ public class GiantBubble : BasicBubble
             isSmall = true;
             damage = dmgMini;
             knockback *= knbMod;
-            size *= sizMod;
             speed *= speedMod;
-            transform.localScale = Vector3.one * size;
             hitEffect = smallHitEffect;
             spellType = SpellType.SmallerGiant;
             bigTrail.emitting = false;
             smallTrail.emitting = true;
+            size *= sizMod;
+            transform.localScale = Vector3.one * size;
             return;
         }
         if (!isSmall && other.CompareTag("Player"))
