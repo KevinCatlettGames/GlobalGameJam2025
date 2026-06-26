@@ -9,14 +9,14 @@ public class GrenadeBubble : BasicBubble
     private bool hasExploded = false;
     [Header("Special Stats")]
     [SerializeField] private float explosionRadius = 5f;
-    [SerializeField] private float explosionDamage = 5f;
-    [SerializeField] private float explosionKnockback = 5f;
+    [SerializeField] private float primaryTargetMod = 2f;
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
     [SerializeField] private GameObject splat;
     [SerializeField] private LayerMask groundedLayerMask;
     private float progress = 0f;
     private const float raycastDistance = 5f;
+    private GameObject primaryTarget = null;
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
@@ -33,6 +33,16 @@ public class GrenadeBubble : BasicBubble
             transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
             Pop();
         }
+    }
+    public override void BubbleCollision(GameObject other)
+    {
+        if (hasPopped || !IsServer) return;
+        if (other.CompareTag("Player"))
+        {
+            primaryTarget = other;
+        }
+        fizzleEffect = hitEffect;
+        Pop();
     }
     protected override void Pop()
     {
@@ -62,6 +72,13 @@ public class GrenadeBubble : BasicBubble
                     PlayerController player = col.GetComponent<PlayerController>();
                     if (player != null)
                     {
+                        float explosionDamage = damage;
+                        float explosionKnockback = knockback;
+                        if (player.gameObject == primaryTarget)
+                        {
+                            explosionDamage *= primaryTargetMod;
+                            explosionKnockback *= primaryTargetMod;
+                        }
                         if (gameManager.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, explosionKnockback, explosionDamage);
                         else
