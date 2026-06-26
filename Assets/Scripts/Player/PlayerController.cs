@@ -1,10 +1,12 @@
 using FMOD.Studio;
 using FMODUnity;
+using JetBrains.Annotations;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -26,6 +28,8 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Visuals & Effects
+
+    public GameObject childAnimatorObject; 
 
     [Header("Visuals")] 
     [SerializeField] private Image[] coloredElements;
@@ -200,7 +204,7 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
-            PlayerManager.Instance?.AddPlayerServerRpc(new NetworkObjectReference(netObj));
+            //PlayerManager.Instance?.AddPlayerServerRpc(new NetworkObjectReference(netObj));
             EnableInput();
         }
 
@@ -304,7 +308,11 @@ public class PlayerController : NetworkBehaviour
             hitStunDuration -= Time.deltaTime;
             if (hitStunDuration <= 0)
             {
-                mainAnimator.SetBool("HitStun", false);
+                if (GameManager.Instance.PlayingLocal)
+                    mainAnimator.SetBool("HitStun", false);
+                else
+                    SetHitStunServerRpc(false);
+
             }
             else
             {
@@ -336,6 +344,18 @@ public class PlayerController : NetworkBehaviour
             controller.Move(move);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void SetHitStunServerRpc(bool value)
+    {
+        SetHitStunClientRpc(value);
+    }
+
+    [ClientRpc]
+    private void SetHitStunClientRpc(bool value)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", value);
+    }
+
     private void HandleAnimations()
     {
         bool isMoving = movementInput.sqrMagnitude > 0.01f;
@@ -365,7 +385,13 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void WalkingAnimServerRpc(Vector3 direction)
     {
-        mainAnimator?.SetBool("IsWalking", direction.sqrMagnitude > 0.01f);
+        WalkingAnimClientRpc(direction);
+    }
+
+    [ClientRpc]
+    void WalkingAnimClientRpc(Vector3 direction)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsWalking", direction.sqrMagnitude > 0.01f);
     }
 
     public void Teleport(Vector3 destination)
@@ -548,14 +574,15 @@ public class PlayerController : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     private void SlapAnimServerRpc(bool isFirstSpell)
-    {
-        mainAnimator.SetTrigger("SlapTrigger");
+    {      
         SlapAnimClientRpc(isFirstSpell);
     }
 
     [ClientRpc]
     private void SlapAnimClientRpc(bool isFirstSpell)
     {
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
+        //mainAnimator.SetTrigger("SlapTrigger");
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
@@ -777,7 +804,24 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void EmoteAnimServerRpc(Vector2 value) => TriggerEmote(value);
+    private void EmoteAnimServerRpc(Vector2 value)
+    {
+        EmoteAnimClientRpc(value);
+        //mainAnimator.SetTrigger("Emote");
+    }
+
+    [ClientRpc]
+    private void EmoteAnimClientRpc(Vector2 value)
+    {
+        switch (value.x, value.y)
+        {
+            case (0, 1): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 1); break;   // EmoteUp
+            case (1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 2); break;  // EmoteRight
+            case (0, -1): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 3); break; // EmoteDown
+            case (-1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 4); break; // EmoteLeft
+        }
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Emote");
+    }
 
     private void TriggerEmote(Vector2 value)
     {
@@ -1095,14 +1139,14 @@ public class PlayerController : NetworkBehaviour
 
     [ServerRpc(RequireOwnership = false)]
     void FlinchAnimServerRpc(float force, float dmg)
-    {
-        mainAnimator.SetTrigger("Flinch");
+    {       
         FlinchAnimClientRpc(force, dmg);
     }
 
     [ClientRpc]
     void FlinchAnimClientRpc(float force, float dmg)
     {
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Flinch");
         EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
 
@@ -1120,6 +1164,12 @@ public class PlayerController : NetworkBehaviour
     void DeadAnimServerRpc(bool activationState)
     {
         mainAnimator.SetBool("IsDead", activationState);
+    }
+
+    [ClientRpc]
+    void DeadAnimClientRpc(bool activationState)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsDead", activationState);
     }
 
     [ClientRpc]
@@ -1348,7 +1398,14 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void VictoryAnimServerRpc(bool activationState)
     {
-        mainAnimator.SetBool("Victory", activationState);
+        VictoryAnimClientRpc(activationState);
+        //mainAnimator.SetBool("Victory", activationState);
+    }
+
+    [ClientRpc]
+    void VictoryAnimClientRpc(bool activationState)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("Victory", activationState);
     }
 
     public void ResetPlayerController()
@@ -1414,7 +1471,7 @@ public class PlayerController : NetworkBehaviour
         this.playerHUD = playerHUD;
         this.playerID = playerID;
 
-        GameObject skin = Instantiate(skinObject.SkinPrefab, meshParent);
+        childAnimatorObject = Instantiate(skinObject.SkinPrefab, meshParent);
         
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
@@ -1438,8 +1495,11 @@ public class PlayerController : NetworkBehaviour
             }       
 
             ActivateCorrectColorServerRpc(skinObject.Index);
-            mainAnimator = skin.GetComponent<Animator>();
-            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>();
+
+            // 1. Get the animator from your newly spawned skin
+            mainAnimator = GetComponent<Animator>();
+            SetupProxyAnimatorClientRpc();
+            shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
         }
         else
         {
@@ -1466,8 +1526,8 @@ public class PlayerController : NetworkBehaviour
                     element.color = skinObject.Color;
             }
 
-            mainAnimator = skin.GetComponent<Animator>();
-            shaderManager = skin.GetComponentInChildren<PlayerShaderManager>(); 
+            mainAnimator = childAnimatorObject.GetComponent<Animator>();
+            shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>(); 
         }
         
         playerHUD.UpdateDamageText((int)damage);
@@ -1479,6 +1539,12 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
+    }
+
+    [ClientRpc]
+    void SetupProxyAnimatorClientRpc()
+    {
+        GetComponent<NetworkAnimatorProxy>().RegisterChildAnimator(childAnimatorObject.GetComponent<Animator>());
     }
 
     [ServerRpc(RequireOwnership = false)]

@@ -4,7 +4,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using FMODUnity;
-using nn.hid;
 
 public class PlayerManager : NetworkBehaviour
 {

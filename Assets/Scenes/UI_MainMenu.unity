@@ -12225,7 +12225,7 @@ MonoBehaviour:
   lobbyCodeText: {fileID: 2027851097}
   relayServerHeartbeat: {fileID: 237912327}
   onlineCreationUI: {fileID: 1570116369}
-  lobby: {fileID: 0}
+  lobby: {fileID: 6757553819009465515, guid: 29d2a09a0e4fb5d4d89d9b75439a181c, type: 3}
   onlineMatchmakingParent: {fileID: 762469770}
 --- !u!1 &431411920
 GameObject:
@@ -15045,7 +15045,7 @@ GameObject:
   - component: {fileID: 762469771}
   m_Layer: 0
   m_Name: OnlineMatchmaking
-  m_TagString: Untagged
+  m_TagString: OnlineMatchmakingUI
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -21015,6 +21015,7 @@ RectTransform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1570116370}
+  - {fileID: 1620284536}
   m_Father: {fileID: 762469771}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -22072,6 +22073,7 @@ MonoBehaviour:
   creatingLobbyText: {fileID: 1361102460}
   joiningLobbyText: {fileID: 1620284534}
   eventSystem: {fileID: 571817794}
+  lobbyUI: {fileID: 1570116368}
 --- !u!224 &1570116370
 RectTransform:
   m_ObjectHideFlags: 0
@@ -22099,7 +22101,6 @@ RectTransform:
   - {fileID: 732909546}
   - {fileID: 2027851093}
   - {fileID: 1361102458}
-  - {fileID: 1620284536}
   - {fileID: 868621947}
   - {fileID: 540307559}
   - {fileID: 282973051}
@@ -22428,7 +22429,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a4da923cadad849987b66cbd1373ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localOnlineMenu: {fileID: 0}
 --- !u!1 &1596318190
 GameObject:
   m_ObjectHideFlags: 0
@@ -22623,6 +22623,8 @@ GameObject:
   - component: {fileID: 1620284536}
   - component: {fileID: 1620284535}
   - component: {fileID: 1620284534}
+  - component: {fileID: 1620284538}
+  - component: {fileID: 1620284537}
   m_Layer: 5
   m_Name: JoiningLobbyText
   m_TagString: Untagged
@@ -22650,10 +22652,10 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Initializing Lobby...
+  m_text: Joining Lobby\n.............................
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 59282db43a7a99a44a77e07f76adf7bd, type: 2}
-  m_sharedMaterial: {fileID: -6774773588759338174, guid: 59282db43a7a99a44a77e07f76adf7bd,
+  m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
+  m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -22678,15 +22680,15 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 54.6
-  m_fontSizeBase: 54.6
+  m_fontSize: 89.49
+  m_fontSizeBase: 89.49
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
-  m_fontStyle: 1
+  m_fontStyle: 0
   m_HorizontalAlignment: 2
-  m_VerticalAlignment: 256
+  m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
   m_wordSpacing: 0
@@ -22694,7 +22696,7 @@ MonoBehaviour:
   m_lineSpacingMax: 0
   m_paragraphSpacing: 0
   m_charWidthMaxAdj: 0
-  m_TextWrappingMode: 1
+  m_TextWrappingMode: 0
   m_wordWrappingRatios: 0.4
   m_overflowMode: 0
   m_linkedTextComponent: {fileID: 0}
@@ -22719,7 +22721,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 1
+  m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1620284535
@@ -22737,18 +22739,143 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1620284533}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 1570116370}
+  m_Father: {fileID: 1493765960}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 13.936003, y: 346}
+  m_AnchoredPosition: {x: 0, y: 500}
   m_SizeDelta: {x: 649.6685, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1620284537
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620284533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57a6945b90dcd0c4b81619c0d8b5c283, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  useTypeWriter: 1
+  startTypewriterMode: 3
+  hideAppearancesOnSkip: 0
+  hideDisappearancesOnSkip: 0
+  triggerEventsOnSkip: 0
+  resetTypingSpeedAtStartup: 1
+  disappearanceOrientation: 0
+  triggerShowedAfterEffectsEnd: 0
+  triggerDisappearedAfterEffectsEnd: 0
+  onTextShowed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1615264941}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1570116368}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 1620284533}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 762469770}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onTypewriterStart:
+    m_PersistentCalls:
+      m_Calls: []
+  onTextDisappeared:
+    m_PersistentCalls:
+      m_Calls: []
+  onCharacterVisible:
+    m_PersistentCalls:
+      m_Calls: []
+  onMessage:
+    m_PersistentCalls:
+      m_Calls: []
+  waitForNormalChars: 0.0001
+  waitLong: 1
+  waitMiddle: 0.2
+  avoidMultiplePunctuationWait: 0
+  waitForNewLines: 1
+  waitForLastCharacter: 1
+  useTypewriterWaitForDisappearances: 1
+  disappearanceWaitTime: 0.015
+  disappearanceSpeedMultiplier: 1
+--- !u!114 &1620284538
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1620284533}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8ace8ced0e81c847968cdca0aeda757, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  typewriterStartsAutomatically: 1
+  animationLoop: 0
+  timeScale: 0
+  _text: Initializing Lobby...
+  useDynamicScaling: 1
+  referenceFontSize: 10
+  isResettingTimeOnNewText: 1
+  useDefaultDatabases: 1
+  databaseBehaviors: {fileID: 11400000, guid: 859772dbcab511240b6be0654378a4a3, type: 2}
+  databaseAppearances: {fileID: 11400000, guid: 44411ded79b0e2c43901226b83d23273,
+    type: 2}
+  useDefaultStyleSheet: 1
+  styleSheet: {fileID: 0}
+  databaseActions: {fileID: 11400000, guid: 7e79a62c46dc29f45a3d8926e57e8d07, type: 2}
+  defaultAppearancesTags:
+  - size
+  defaultDisappearancesTags:
+  - fade
+  defaultBehaviorsTags: []
+  defaultTagsMode: 0
 --- !u!1 &1629768850
 GameObject:
   m_ObjectHideFlags: 0

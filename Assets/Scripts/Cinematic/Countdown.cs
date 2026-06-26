@@ -68,7 +68,7 @@ public class Countdown : MonoBehaviour
             countdownImage.sprite = goSprite;
             //goEmitter.Play();
         }
-
+        Debug.Log("Invoking event");
         onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);

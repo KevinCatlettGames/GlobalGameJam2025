@@ -125,10 +125,10 @@ public class GameLobby : MonoBehaviour
             NetworkManager.Singleton.StartHost();
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
 
-            onlineCreationUI.HideOnCreateUI();
+            onlineCreationUI.lobbyUI.SetActive(false);
             //NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
-            lobby.SetActive(true);
-            onlineMatchmakingParent.SetActive(false);
+            GameObject newLobby = Instantiate(lobby);
+            newLobby.GetComponent<NetworkObject>().Spawn();
         }
         catch (LobbyServiceException e)
         {
@@ -216,7 +216,7 @@ public class GameLobby : MonoBehaviour
         catch (LobbyServiceException e)
         {
             Debug.LogError(e);
-        }
+        }       
     }
 
     /// <summary>
@@ -250,7 +250,7 @@ public class GameLobby : MonoBehaviour
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
 
-            onlineCreationUI.HideOnJoinUI();
+            onlineCreationUI.lobbyUI.SetActive(false);
             waitForHostText.gameObject.SetActive(true);
         }
         catch

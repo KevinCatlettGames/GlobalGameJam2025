@@ -86,9 +86,12 @@ public class GameManager : NetworkBehaviour
 
         Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
-        
+
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            Debug.Log("Event subsribed to");
             countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
+        }
         else
             PlayingLocal = true;
 
@@ -106,12 +109,16 @@ public class GameManager : NetworkBehaviour
 
     private void OnDisable()
     {
-        if(LobbyManager.instance && countdown) 
-            countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);    
+        if (LobbyManager.instance && countdown)
+        {
+            Debug.Log("Unsubscribed");
+            countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);
+        }
     }
 
     private void StartGameAfterDelay()
     {
+        Debug.Log("In start game");
         if (!TransportSwitcher.Instance && NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
             ChangePlayerStatesLocal(playerStates);
@@ -120,6 +127,7 @@ public class GameManager : NetworkBehaviour
         }
         else if (IsServer || NetworkManager.Singleton.ConnectedClients.Count == 1)
         {
+            Debug.Log("initializing game");
             ChangePlayerStatesServerRpc(playerStates);
 
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -128,10 +136,18 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
-            PlayerManager.Instance.Initialize();
-            Invoke(nameof(EnableDeathzonesServerRpc), 1f);
+            Invoke(nameof(CallPlayerManagerInitialize), .4f);
+            Invoke(nameof(EnableDeathzonesServerRpc), .7f);
         }
         ItemSpawner.Instance.InitialSpawn();
+    }
+
+    private void CallPlayerManagerInitialize()
+    {
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.Initialize();
+        }
     }
 
     [ServerRpc]

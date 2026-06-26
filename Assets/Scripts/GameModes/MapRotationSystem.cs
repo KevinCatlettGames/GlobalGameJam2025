@@ -24,7 +24,7 @@ public class MapRotationSystem : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            this.enabled = false;
         }
 
         if(mapSetting) 

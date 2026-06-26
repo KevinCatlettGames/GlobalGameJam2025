@@ -71,7 +71,8 @@ public class MainMenuLobbyCreator : MonoBehaviour
         NetworkManager.Singleton.StartHost();
         GlobalLobby.CurrentLobby = joinedLobby;
 
-        Instantiate(lobby);
+        GameObject newLobby = Instantiate(lobby);
+        newLobby.GetComponent<NetworkObject>().Spawn();
         // NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }
 

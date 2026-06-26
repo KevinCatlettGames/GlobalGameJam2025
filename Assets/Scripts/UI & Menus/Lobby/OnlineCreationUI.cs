@@ -26,19 +26,12 @@ public class OnlineCreationUI : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private EventSystem eventSystem;
-
+    public GameObject lobbyUI;
     private void Awake()
     {
         joinCodeButton.onClick.AddListener(() =>
         {
-            joinCodeButton.gameObject.SetActive(false);
-            joinCodeInputField.gameObject.SetActive(false);
-            serverNameInputField.gameObject.SetActive(false);
-            createPublicButton.gameObject.SetActive(false);
-            createPrivateButton.gameObject.SetActive(false);
-            refreshButton.gameObject.SetActive(false);
-            lobbyList.SetActive(false);
-            creatingLobbyText.gameObject.SetActive(false);
+            lobbyUI.SetActive(false);
             joiningLobbyText.gameObject.SetActive(true);
             GameLobby.instance.JoinWithCode(joinCodeInputField.text);
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
@@ -67,20 +60,12 @@ public class OnlineCreationUI : MonoBehaviour
         createPrivateButton.gameObject.SetActive(true);
         refreshButton.gameObject.SetActive(false);
         lobbyList.SetActive(true);
-        creatingLobbyText.gameObject.SetActive(false);
-        joiningLobbyText.gameObject.SetActive(false);
     }
 
     void InitLobbyCreation(bool isPrivate)
     {
-        joinCodeButton.gameObject.SetActive(false);
-        joinCodeInputField.gameObject.SetActive(false);
-        serverNameInputField.gameObject.SetActive(false);
-        createPublicButton.gameObject.SetActive(false);
-        createPrivateButton.gameObject.SetActive(false);
-        refreshButton.gameObject.SetActive(false);
-        lobbyList.SetActive(false);
-        creatingLobbyText.gameObject.SetActive(true);
+        lobbyUI.SetActive(false);
+        joiningLobbyText.gameObject.SetActive(true);
 
         if (serverNameInputField.text.Length > 0)
         {
@@ -92,30 +77,6 @@ public class OnlineCreationUI : MonoBehaviour
         }
 
         eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
-    }
-    
-    public void HideOnCreateUI()
-    {
-        joinCodeButton.gameObject.SetActive(false);
-        joinCodeInputField.gameObject.SetActive(false);
-        serverNameInputField.gameObject.SetActive(false);
-        createPublicButton.gameObject.SetActive(false);
-        creatingLobbyText.gameObject.SetActive(false);
-        refreshButton.gameObject.SetActive(false);
-        lobbyList.SetActive(false);
-    }
-    
-    public void HideOnJoinUI()
-    {
-        joinCodeButton.gameObject.SetActive(false);
-        joinCodeInputField.gameObject.SetActive(false);
-        serverNameInputField.gameObject.SetActive(false);
-        createPublicButton.gameObject.SetActive(false);
-        createPrivateButton.gameObject.SetActive(false);
-        creatingLobbyText.gameObject.SetActive(false); 
-        joiningLobbyText.gameObject.SetActive(false);
-        refreshButton.gameObject.SetActive(false);
-        lobbyList.SetActive(false);
     }
     
     private void ValidateJoinButtonActivation(string codeInput)

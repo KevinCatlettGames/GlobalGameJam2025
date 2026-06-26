@@ -99,6 +99,23 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         gameObject.SetActive(false);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetContainerServerRpc()
+    {
+        ResetContainerClientRpc();
+    }
+
+    [ClientRpc]
+    void ResetContainerClientRpc()
+    {
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        currentSkinSelection = null;
+        emptyPlayerContainer.SetActive(true);
+        wasInit = false;
+        init = true;
+        gameObject.SetActive(false);
+    }
+
     public void ChangeSkin(Vector2 skinChangeInput)
     {
         SkinButtonHandler availableSkin = null;
@@ -164,6 +181,19 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateBlur();
         UpdateSkin();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ChangeSkinServerRpc(Vector2 skinChangeInput)
+    {
+        ChangeSkinClientRpc(skinChangeInput);
+    }
+
+    [ClientRpc]
+    public void ChangeSkinClientRpc(Vector2 skinChangeInput)
+    {
+        if ((int)NetworkManager.Singleton.LocalClientId == playerIndex) return; 
+        ChangeSkin(skinChangeInput);
     }
 
 

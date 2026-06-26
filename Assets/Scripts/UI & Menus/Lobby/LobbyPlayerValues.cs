@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 public class LobbyPlayerValues : NetworkBehaviour
 {
     public static LobbyPlayerValues Instance;
-
+    public GameObject lobbyPlayer;
     [System.Serializable]
     public class PlayerValues
     {
@@ -61,21 +61,26 @@ public class LobbyPlayerValues : NetworkBehaviour
         if (scene.buildIndex == 0)
             Destroy(gameObject);
 
-        List<PlayerValues> playersToRemove = new List<PlayerValues>();
+        if (!TransportSwitcher.Instance.isUsingRelay)
+        {
+            List<PlayerValues> playersToRemove = new List<PlayerValues>();
 
 
-        foreach(PlayerValues playerValues in playerValuesList)
-            if(playerValues.Device == null)
-                playersToRemove.Add(playerValues);
+            foreach (PlayerValues playerValues in playerValuesList)
+                if (playerValues.Device == null)
+                    playersToRemove.Add(playerValues);
 
-        foreach (PlayerValues p in playersToRemove)
-            playerValuesList.Remove(p);
+            foreach (PlayerValues p in playersToRemove)
+                playerValuesList.Remove(p);
 
-        playersToRemove.Clear();
+            playersToRemove.Clear();
+        }
     }
 
     private void OnClientConnectedCallback(ulong clientId)
     {
+        GameObject player = Instantiate(lobbyPlayer);
+        player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
         Invoke(nameof(SharePlayerValues), 0.5f);
     }
 

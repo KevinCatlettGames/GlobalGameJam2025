@@ -1,13 +1,16 @@
+using UnityEngine;
+
 #if UNITY_SWITCH
 using nn.hid;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
 using UnityEngine.InputSystem;
 using static UnityEngine.Rendering.RayTracingAccelerationStructure;
+#endif 
 
 public class SwitchControllerSupport : MonoBehaviour
 {
+#if UNITY_SWITCH
     PlayerInputManager playerInputManager; 
 
     private NpadId[] npadIds =
@@ -116,5 +119,5 @@ public class SwitchControllerSupport : MonoBehaviour
         }
         enabled = false; 
     }
-}
 #endif
+}

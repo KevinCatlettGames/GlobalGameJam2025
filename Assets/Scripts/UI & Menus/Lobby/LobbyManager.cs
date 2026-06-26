@@ -1,14 +1,14 @@
-using Unity.Netcode;
+using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using FMODUnity;
-using TMPro;
-using UnityEngine.InputSystem;
 
 public class LobbyManager : NetworkBehaviour
 {
@@ -177,6 +177,8 @@ public class LobbyManager : NetworkBehaviour
 
     #region Audio
 
+    public GameObject lobbyPlayer; 
+
     [Header("Audio Emitters")]
 
     [Tooltip("Played when starting the game.")]
@@ -194,8 +196,8 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
-        if (!GetComponent<NetworkObject>().IsSpawned)
-            GetComponent<NetworkObject>().Spawn();
+        if(GameObject.FindWithTag("OnlineMatchmakingUI"))
+            GameObject.FindWithTag("OnlineMatchmakingUI").SetActive(false);
     }
 
     private void Start()
@@ -221,9 +223,17 @@ public class LobbyManager : NetworkBehaviour
 
         ChangeStartButtonState(false);
 
-        foreach (var device in InputSystem.devices)
+        if (!TransportSwitcher.Instance.isUsingRelay)
         {
-            PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+            foreach (var device in InputSystem.devices)
+            {
+                PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+            }
+        }
+        else if (IsServer)
+        {
+            GameObject player = Instantiate(lobbyPlayer);
+            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
         }
     }
 
@@ -232,7 +242,8 @@ public class LobbyManager : NetworkBehaviour
         InputSystem.onDeviceChange += OnDeviceChange;
 
         if (TransportSwitcher.Instance.isUsingRelay)
-            players.OnListChanged += OnPlayersListChanged;
+            if (players != null)
+                players.OnListChanged += OnPlayersListChanged;
 
         foreach (MapSettingsSO mapSetting in mapSettings)
         {
@@ -249,11 +260,15 @@ public class LobbyManager : NetworkBehaviour
     private void OnDisable()
     {
         InputSystem.onDeviceChange -= OnDeviceChange;
+        if (players != null)
+            players.OnListChanged -= OnPlayersListChanged;
+
+        LobbyManager.instance = null;
     }
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        if (!canAddNewDevices) return; 
+        if (!canAddNewDevices || !TransportSwitcher.Instance.isUsingRelay) return; 
 
         switch (change)
         {
@@ -369,16 +384,42 @@ public class LobbyManager : NetworkBehaviour
 
     public void RemovePlayer(int playerIndex)
     {
-        PlayerLobbyState stateToChange;
-
-        foreach (PlayerLobbyState state in players)
+        if (!TransportSwitcher.Instance.isUsingRelay)
         {
-            if (state.ClientId == (ulong)playerIndex)
-                stateToChange = state;
-        }
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i].ClientId == (ulong)playerIndex)
+                {
+                    var state = players[i];
+                    state.IsReady = false;
+                    players[i] = state;
 
-        stateToChange.IsReady = false;
-        OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);     
+                    OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+                    return;
+                }
+            }
+        }
+        else
+        {
+            RemovePlayerServerRpc(playerIndex);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void RemovePlayerServerRpc(int playerIndex)
+    {
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].ClientId == (ulong)playerIndex)
+            {
+                var state = players[i];
+                state.IsReady = false;
+                players[i] = state;
+
+                OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+                return;
+            }
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -500,9 +541,7 @@ public class LobbyManager : NetworkBehaviour
 
     public IEnumerator LoadGameScene()
     {
-        PlayStartSFXClientRpc();
-        uiParent.SetActive(false);
-        GetComponent<PlayerInputManager>().enabled = false;
+        HandleLobbyContinueServerRpc();
         yield return new WaitForSeconds(1f);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
@@ -511,6 +550,20 @@ public class LobbyManager : NetworkBehaviour
         {
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void HandleLobbyContinueServerRpc()
+    {
+        HandleLobbyContinueClientRpc();
+    }
+
+    [ClientRpc]
+    void HandleLobbyContinueClientRpc()
+    {
+        PlayStartSFXClientRpc();
+        uiParent.SetActive(false);
+        GetComponent<PlayerInputManager>().enabled = false;
     }
 
     private void ChangeStartButtonState(bool enable)
