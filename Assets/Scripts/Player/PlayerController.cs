@@ -234,6 +234,7 @@ public class PlayerController : NetworkBehaviour
     {
         currentPlayerSpeed = playerBaseSpeed;
         damageGenerator = GetComponent<DmgGenerator>();
+        shaderManager?.SetStatusIndicator(statusIndicator);
     }
     protected void Update()
     {
@@ -994,7 +995,7 @@ public class PlayerController : NetworkBehaviour
                     RuntimeManager.PlayOneShotAttached(tickDamageEvent, gameObject);
                 }
                 
-                shaderManager.DamageEffect(damageColorEffectDuration);
+                shaderManager?.DamageEffect(damageColorEffectDuration);
                 
                 float knbMagnitude = knockbackVelocity.magnitude;
                 float duration = knbMagnitude * rumbleDurationFactor;
@@ -1111,7 +1112,7 @@ public class PlayerController : NetworkBehaviour
         fmodEvent.start();
         fmodEvent.release();
 
-        shaderManager.DamageEffect(damageColorEffectDuration);
+        shaderManager?.DamageEffect(damageColorEffectDuration);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1225,12 +1226,7 @@ public class PlayerController : NetworkBehaviour
 
     public void SetDoomed(bool isDoomed)
     {
-        ShaderState state = (isDoomed) ? ShaderState.inked : ShaderState.sober;
-        shaderManager.SetShaderState(state);
-        if(isDoomed)
-            statusIndicator.SetStatus(ShaderState.doomed);
-        else
-            statusIndicator.SetStatus(ShaderState.sober);
+        shaderManager?.SetShaderState(ShaderState.doomed, isDoomed);
     }
     #endregion
 
@@ -1258,10 +1254,8 @@ public class PlayerController : NetworkBehaviour
             wetEffect.Play();
         else
             wetEffect.Stop();
-
-        ShaderState state = (isSlippery) ? ShaderState.wet : ShaderState.sober;        
-        shaderManager.SetShaderState(state);
-        statusIndicator.SetStatus(state);
+   
+        shaderManager?.SetShaderState(ShaderState.wet, isSlippery);  
  
     }
     public void SetSlowed(bool slow)
@@ -1290,9 +1284,7 @@ public class PlayerController : NetworkBehaviour
             //Effect.Stop();
         }
 
-        ShaderState state = (isSlowed) ? ShaderState.inked : ShaderState.sober;
-        shaderManager.SetShaderState(state);
-        statusIndicator.SetStatus(state);
+        shaderManager?.SetShaderState(ShaderState.inked, isSlowed);  
         dashDisabledUI.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
@@ -1312,8 +1304,7 @@ public class PlayerController : NetworkBehaviour
     {
         vulnerableTimer = duration;
         isVulnerable = true;
-        shaderManager.SetShaderState(ShaderState.sauced);
-        statusIndicator.SetStatus(ShaderState.sauced);
+        shaderManager?.SetShaderState(ShaderState.sauced, true);
         while (vulnerableTimer > 0)
         {
             vulnerableTimer -= Time.deltaTime;
@@ -1327,8 +1318,7 @@ public class PlayerController : NetworkBehaviour
             StopCoroutine(vulnerableRoutine);
         vulnerableRoutine = null;
         isVulnerable = false;
-        shaderManager.SetShaderState(ShaderState.sober);
-        statusIndicator.SetStatus(ShaderState.sober);
+        shaderManager?.SetShaderState(ShaderState.sauced, false);
         if (vulnerableEffect)
             vulnerableEffect.Stop();
     }
@@ -1369,7 +1359,6 @@ public class PlayerController : NetworkBehaviour
         canBeBoneFished = true;
 
         shaderManager?.ResetShader();
-        statusIndicator.SetStatus(ShaderState.sober);
 
         if (GameManager.Instance.PlayingLocal)
         {
