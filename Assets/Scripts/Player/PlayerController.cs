@@ -766,7 +766,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnEmote(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead) return;
 
         Vector2 value = context.ReadValue<Vector2>();
         if (GameManager.Instance.PlayingLocal)
@@ -782,12 +782,11 @@ public class PlayerController : NetworkBehaviour
     {
         switch (value.x, value.y)
         {
-            case (0, 1): mainAnimator.SetInteger("EmoteID", 1); break;   // EmoteUp
-            case (1, 0): mainAnimator.SetInteger("EmoteID", 2); break;  // EmoteRight
-            case (0, -1): mainAnimator.SetInteger("EmoteID", 3); break; // EmoteDown
-            case (-1, 0): mainAnimator.SetInteger("EmoteID", 4); break; // EmoteLeft
+            case (0, 1): mainAnimator.Play("UP_Emote", 0, 0); break;   // EmoteUp
+            case (1, 0): mainAnimator.Play("RIGHT_Emote", 0, 0); break;  // EmoteRight
+            case (0, -1): mainAnimator.Play("DOWN_Emote", 0, 0); break; // EmoteDown
+            case (-1, 0): mainAnimator.Play("LEFT_Emote", 0, 0); break; // EmoteLeft
         }
-        mainAnimator.SetTrigger("Emote");
     }
 
     #endregion
