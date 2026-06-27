@@ -1325,6 +1325,7 @@ public class PlayerController : NetworkBehaviour
     {
         isStunned = true;
         mainAnimator.SetBool("HitStun", true);
+        controllerRumbler?.Rumble(duration, 1f, 5f);
         yield return new WaitForSeconds(duration);
         mainAnimator.SetBool("HitStun", false);
         isStunned = false;

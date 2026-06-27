@@ -88,6 +88,7 @@ public class Clam : MonoBehaviour
 
                     if (GameManager.Instance.PlayingLocal)
                         player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+
                     else
                         player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
 
