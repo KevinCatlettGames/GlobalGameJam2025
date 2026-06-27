@@ -1,3 +1,4 @@
+using FMODUnity;
 using System;
 using System.Collections;
 using UnityEngine;
@@ -5,14 +6,21 @@ using Random = UnityEngine.Random;
 
 public class Clam : MonoBehaviour
 {
+    [Header("Stats")]
     [SerializeField] private float damage = 56;
+    [SerializeField] private float knockback = .5f;
     [SerializeField] private float activeDelay = .1f;
+    [SerializeField] private float stunDuration = .2f;
+
+    [Header("VFX / SFX")]
     [SerializeField] private ParticleSystem riseParticleSystem;
     [SerializeField] private ParticleSystem snapParticleSystem;
-    [SerializeField] private Material[] materials;
+    [SerializeField] protected EventReference crunchSoundEvent;
 
     private bool isActive = false;
     public bool IsAvailble = true;
+    [Header("Rendering")]
+    [SerializeField] private Material[] materials;
     [SerializeField] private Animator animator;
     [SerializeField] private Animator pearlAnimator;
     [SerializeField] private ClamItem clamItem;
@@ -53,7 +61,6 @@ public class Clam : MonoBehaviour
             isActive = false;
             //Effects
             //Sound
-            snapParticleSystem?.Play();
             animator.SetTrigger("Snap");
             pearlAnimator.SetTrigger("Snap");
         }
@@ -64,22 +71,29 @@ public class Clam : MonoBehaviour
     {
         //Effects
         //Sound
+        RuntimeManager.PlayOneShotAttached(crunchSoundEvent, gameObject);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
         Vector3 direction;
-        foreach (Collider col in snapOverlaps)
+        if (snapOverlaps != null && snapOverlaps.Length > 0)
         {
-            if (col == null) continue;
-            direction = col.transform.position - transform.position;
-
-            PlayerController player = col.GetComponent<PlayerController>();
-            if (player != null)
+            snapParticleSystem?.Play();
+            foreach (Collider col in snapOverlaps)
             {
+                if (col == null) continue;
+                PlayerController player = col.GetComponent<PlayerController>();
+                direction = player.GetComponent<CharacterController>().velocity;
 
-                if (GameManager.Instance.PlayingLocal)
-                    player.ApplyKnockbackLocal(-1, direction, .1f, damage);
-                else
-                    player.ApplyKnockbackServerRpc(-1, direction, .1f, damage);
-            }         
+                if (player != null)
+                {
+
+                    if (GameManager.Instance.PlayingLocal)
+                        player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+                    else
+                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
+
+                    player.Stun(stunDuration);
+                }         
+            }
         }
         OnSnap?.Invoke();
     }

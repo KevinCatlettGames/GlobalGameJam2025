@@ -74,7 +74,6 @@ public class PlayerController : NetworkBehaviour
     
     //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
     private bool isDead = false;
-    private float hitStunDuration = 0;
     private bool canBeBoneFished = true;
     private DmgGenerator damageGenerator;
 
@@ -93,6 +92,7 @@ public class PlayerController : NetworkBehaviour
     private bool isSlippery = false; 
     private Coroutine vulnerableRoutine = null;
     private float vulnerableTimer = 0f;
+    private bool isStunned = false;
     #endregion
 
     #region Ult
@@ -300,18 +300,10 @@ public class PlayerController : NetworkBehaviour
 
     private void ApplyMovement()
     {
-        if (hitStunDuration > 0)
+        if (isStunned)
         {
-            hitStunDuration -= Time.deltaTime;
-            if (hitStunDuration <= 0)
-            {
-                mainAnimator.SetBool("HitStun", false);
-            }
-            else
-            {
-                controller.Move(Vector3.zero);
-                return;
-            }
+            controller.Move(Vector3.zero);
+            return;
         }
         Vector3 move = smoothMoveDirection * (currentPlayerSpeed * Time.deltaTime);
 
@@ -414,7 +406,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -427,7 +419,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -441,7 +433,7 @@ public class PlayerController : NetworkBehaviour
     public void OnUltCharge(InputAction.CallbackContext context)
     {
         return; // Remove when Ult is back
-        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
         if (currentUltCharge >= maxUltCharge)
         {
             isUltCharged = true;
@@ -674,7 +666,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || hitStunDuration > 0) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
 
         if (!canSprint || isSlowed)
         {
@@ -766,7 +758,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnEmote(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
 
         Vector2 value = context.ReadValue<Vector2>();
         if (GameManager.Instance.PlayingLocal)
@@ -1321,6 +1313,20 @@ public class PlayerController : NetworkBehaviour
         if (vulnerableEffect)
             vulnerableEffect.Stop();
     }
+    public void Stun(float duration)
+    {
+        if (isStunned || duration <= 0)
+            return;
+        StartCoroutine(StunCoroutine(duration));
+    }
+    private IEnumerator StunCoroutine(float duration)
+    {
+        isStunned = true;
+        mainAnimator.SetBool("HitStun", true);
+        yield return new WaitForSeconds(duration);
+        mainAnimator.SetBool("HitStun", false);
+        isStunned = false;
+    }
     #endregion
 
     #region PlayerManager
@@ -1343,7 +1349,6 @@ public class PlayerController : NetworkBehaviour
         damage = 0;
         damagedEffect.UpdateParticleSystem(-1);
         killCreditID = -1;
-        hitStunDuration = 0;
         currentUltCharge = 0;
         playerHUD.SetUltSlider(0);
         isUltCharged = false;
@@ -1356,6 +1361,7 @@ public class PlayerController : NetworkBehaviour
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
         canBeBoneFished = true;
+        isStunned = false;
 
         shaderManager?.ResetShader();
 
