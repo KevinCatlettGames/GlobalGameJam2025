@@ -222,7 +222,10 @@ public class GameManager : NetworkBehaviour
 
     public virtual void RestartGame()
     {
-        RestartGameServerRpc();
+        OnGameStarted?.Invoke();
+        gameEnded = false;
+        isReadyToRestart = false;
+        UIManager.Instance.SetScoreScreenActive(false);
     }
 
     [ServerRpc(RequireOwnership = false)]

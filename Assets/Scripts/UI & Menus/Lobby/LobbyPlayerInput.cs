@@ -106,6 +106,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
+
         if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
         {
 
@@ -115,7 +116,7 @@ public class LobbyPlayerInput : MonoBehaviour
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
 
             PlaySFX(readyReference);
-        }     
+        }
     }
 
     public void OnCancelled(InputAction.CallbackContext context)
@@ -152,6 +153,7 @@ public class LobbyPlayerInput : MonoBehaviour
             return;
         }
 
+
         if (!joined)
         {
             if (context.started)
@@ -171,10 +173,8 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-
         if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
             return;
-
         Vector2 input = context.ReadValue<Vector2>();
 
         if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)

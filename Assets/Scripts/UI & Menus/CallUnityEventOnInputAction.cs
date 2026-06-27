@@ -9,7 +9,7 @@ public class CallUnityEventOnInputAction : MonoBehaviour
 
     [Tooltip("Ignore input briefly after enable")]
     public bool requireFreshPressOnEnable;
-
+    public bool allowOnSwitch = true;
     [SerializeField] private float freshPressBlockDuration = 0.2f;
 
     public UnityEvent OnInputActionPerformed;
@@ -66,6 +66,12 @@ public class CallUnityEventOnInputAction : MonoBehaviour
 
     private void InputActionPerformed(InputAction.CallbackContext context)
     {
+
+#if UNITY_SWITCH
+        if (!allowOnSwitch)
+            return;
+#endif 
+
         if (!canTrigger)
             return;
 

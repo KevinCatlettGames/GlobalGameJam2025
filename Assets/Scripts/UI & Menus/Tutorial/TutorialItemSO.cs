@@ -1,7 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
-using UnityEngine.UI; 
+using UnityEngine.UI;
+using UnityEngine.Localization; 
 
 [CreateAssetMenu(fileName = "New Tutorial ItemSO", menuName = "Scriptable Objects/SO_TutorialItem")]
 public class TutorialItemSO : ScriptableObject
@@ -89,6 +90,14 @@ public class TutorialItemSO : ScriptableObject
         get => itemDescription;
         set => itemDescription = value;
     }
+
+    [SerializeField] private LocalizedString itemDescriptionLocalizedString;
+    public LocalizedString ItemDescriptionLocalizedString
+    {
+        get => itemDescriptionLocalizedString;
+        set => itemDescriptionLocalizedString = value;
+    }
+
 
     [Header("Settings")]
     [SerializeField] private bool useButton;

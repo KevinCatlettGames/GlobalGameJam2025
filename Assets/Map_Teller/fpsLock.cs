@@ -3,14 +3,11 @@ using UnityEngine;
 public class fpsLock : MonoBehaviour
 {
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    void Awake()
     {
-        Application.targetFrameRate = 60; 
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+#if UNITY_SWITCH
+        QualitySettings.vSyncCount = 0;
+        Application.targetFrameRate = 30;
+#endif
     }
 }

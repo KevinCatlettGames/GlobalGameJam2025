@@ -6,6 +6,7 @@ public class CameraHandler : NetworkBehaviour
 {
     public static CameraHandler Instance;
     [SerializeField] private GameObject cinematicCamera;
+    [SerializeField] private GameObject mainCamera;
     public bool playCinematicAtStart = true;
     public UnityEvent onCinematicEnd;
     public UnityEvent onTransitionHolding;
@@ -21,6 +22,8 @@ public class CameraHandler : NetworkBehaviour
 
     private void Start()
     {
+        mainCamera.SetActive(false);
+        cinematicCamera.SetActive(false);
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
             if(IsServer) 
@@ -38,13 +41,15 @@ public class CameraHandler : NetworkBehaviour
         {
             LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(Begin);
         }
-        
+
         if (cinematicCamera == null || !playCinematicAtStart)
         {
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
-        else 
+        else
+        {
             cinematicCamera.SetActive(true);
+        }
     }
 
     [ClientRpc]
@@ -54,17 +59,21 @@ public class CameraHandler : NetworkBehaviour
         {
             LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(BeginClientRpc);
         }
-        
+
         if (cinematicCamera == null || !playCinematicAtStart)
         {
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
-        else 
+        else
+        {
             cinematicCamera.SetActive(true);
+        }
     }
 
     public void InvokeCinematicEnd()
     {
+        cinematicCamera.SetActive(false);
+        mainCamera.SetActive(true);
         onCinematicEnd?.Invoke();
     }
 

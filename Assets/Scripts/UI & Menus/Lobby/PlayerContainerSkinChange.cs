@@ -85,7 +85,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
-
         UpdateSkin();
         cycleEmitter.Play();
     }
@@ -225,7 +224,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;
-
             var otherSkin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
             if (otherSkin != null && otherSkin == skinToCheck &&
                 i < LobbyManager.instance.players.Count &&

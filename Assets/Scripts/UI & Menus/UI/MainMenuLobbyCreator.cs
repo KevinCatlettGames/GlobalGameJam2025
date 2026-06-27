@@ -40,7 +40,9 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// </summary>
     private void Start()
     {
+#if !UNITY_SWITCH
         InitializeUnityAuth();
+#endif
     }
 
     /// <summary>
@@ -50,6 +52,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
     /// <param name="sceneName">The name of the scene to load (currently loads "Lobby").</param>
     public async void StartGameLocal(string sceneName)
     {
+
         NetworkManager.Singleton
             .GetComponent<TransportSwitcher>()
             .SwitchToUnityTransportAndDisable();
@@ -67,6 +70,7 @@ public class MainMenuLobbyCreator : MonoBehaviour
 
         NetworkManager.Singleton.StartHost();
         GlobalLobby.CurrentLobby = joinedLobby;
+
         Instantiate(lobby);
         // NetworkManager.Singleton.SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
     }

@@ -12,7 +12,7 @@ public class StartServerIfNotActive : MonoBehaviour
     void Start()
     {
         if (LobbyManager.instance != null || playerInputManager != null)
-            return; 
+            return;
 
         if (playerInputManager == null)
             playerInputManager = PlayerManager.Instance.GetComponent<PlayerInputManager>();

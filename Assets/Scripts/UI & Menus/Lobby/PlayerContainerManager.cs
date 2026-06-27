@@ -26,7 +26,7 @@ public class PlayerContainerManager : MonoBehaviour
     }
 
     private void Start()
-    {      
+    {
         foreach (var player in LobbyManager.instance.players)
         {
             if ((int)player.ClientId == uiIndex)
@@ -39,7 +39,6 @@ public class PlayerContainerManager : MonoBehaviour
                 break;
             }
         }
-
         gameObject.SetActive(false);
     }
 

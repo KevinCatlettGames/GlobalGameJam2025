@@ -7,6 +7,8 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using UnityEngine.Video;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Components;
 
 public class Tutorial : MonoBehaviour
 {
@@ -34,8 +36,8 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Image videoOutline;
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
-    [SerializeField] private TextMeshProUGUI itemHeaderText;
     [SerializeField] private Image itemHeaderImage;
+    [SerializeField] private TextMeshProUGUI itemHeaderText;
     [SerializeField] private TextMeshProUGUI itemShortDescriptionText;
     [SerializeField] private TextMeshProUGUI itemLongDescriptionText;
     [SerializeField] private Button itemButton;
@@ -67,7 +69,6 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Color inactivePageDotColor;
 
     private int currentIndex;
-
     private bool pageTogglingEnabled = false;
     private bool tabTogglingEnabled = false;
 
@@ -77,25 +78,40 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private float pageRepeatRate = 0.12f;
 
     [Header("FMOD events")]
-    [SerializeField] StudioEventEmitter tabSwitchEmitter;
+    [SerializeField] private StudioEventEmitter tabSwitchEmitter;
     [SerializeField] private StudioEventEmitter pageSwitchEmitter;
 
     private bool stickInUse = false;
     private float pageHoldTimer = 0f;
-    private int pageDirection = 0;
 
     private RenderTexture runtimeTexture;
     [SerializeField] private Button backButton;
+
     private void Awake()
     {
         if (Instance == null) Instance = this;
         else Destroy(gameObject);
 
-        runtimeTexture = new RenderTexture(1920, 1080, 0);
+        runtimeTexture = new RenderTexture(1280, 720, 0);
         runtimeTexture.Create();
 
         videoPlayer.targetTexture = runtimeTexture;
         itemRawImage.texture = runtimeTexture;
+
+        // Subscribe ONCE here to prevent callback stack buildup leaks
+        videoPlayer.prepareCompleted += OnVideoPrepared;
+    }
+
+    private void OnDestroy()
+    {
+        if (videoPlayer != null)
+        {
+            videoPlayer.prepareCompleted -= OnVideoPrepared;
+        }
+        if (runtimeTexture != null)
+        {
+            runtimeTexture.Release();
+        }
     }
 
     private void OnEnable()
@@ -122,6 +138,10 @@ public class Tutorial : MonoBehaviour
         itemHeaderImage.enabled = false;
         itemShortDescriptionText.enabled = false;
         itemLongDescriptionText.enabled = false;
+
+        // Completely flush the player when turning off UI
+        videoPlayer.Stop();
+        videoPlayer.clip = null;
     }
 
     private void OnCloseHowToPlay(InputAction.CallbackContext ctx)
@@ -145,7 +165,6 @@ public class Tutorial : MonoBehaviour
     private void EnableTabToggling()
     {
         tabTogglingEnabled = true;
-
         leftTabSwitchAction.action.Enable();
         rightTabSwitchAction.action.Enable();
 
@@ -156,7 +175,6 @@ public class Tutorial : MonoBehaviour
     private void DisableTabToggling()
     {
         tabTogglingEnabled = false;
-
         leftTabSwitchAction.action.Disable();
         rightTabSwitchAction.action.Disable();
 
@@ -169,10 +187,8 @@ public class Tutorial : MonoBehaviour
         if (!tabTogglingEnabled) return;
 
         Tab nextTab = forward
-            ? (currentTab == Tab.General ? Tab.Weapons :
-               currentTab == Tab.Weapons ? Tab.Maps : Tab.General)
-            : (currentTab == Tab.General ? Tab.Maps :
-               currentTab == Tab.Maps ? Tab.Weapons : Tab.General);
+            ? (currentTab == Tab.General ? Tab.Weapons : currentTab == Tab.Weapons ? Tab.Maps : Tab.General)
+            : (currentTab == Tab.General ? Tab.Maps : currentTab == Tab.Maps ? Tab.Weapons : Tab.General);
 
         SetTab(nextTab, false);
     }
@@ -259,26 +275,28 @@ public class Tutorial : MonoBehaviour
         if (items == null || items.Length == 0) return;
 
         var item = items[index];
-
         bool hasVideo = item.ItemClip != null;
+
+        // Performance Fix: Clean up player completely before touching new clip references
+        videoPlayer.Stop();
+        videoPlayer.clip = null;
+
         itemRawImage.enabled = hasVideo;
 
-        if(hasVideo && item.ShowClipOutline)
+        if (hasVideo && item.ShowClipOutline)
         {
             videoOutline.enabled = true;
             videoOutline.color = item.ClipOutlineColor;
         }
         else
+        {
             videoOutline.enabled = false;
-
-            videoOutline.color = item.ClipOutlineColor;
-        videoPlayer.Stop();
-        videoPlayer.clip = item.ItemClip;
+        }
 
         if (hasVideo)
         {
-            videoPlayer.Prepare();
-            videoPlayer.prepareCompleted += OnVideoPrepared;
+            videoPlayer.clip = item.ItemClip;
+            videoPlayer.Prepare(); // Safely triggers background hardware prep
         }
 
         bool hasMainImage = item.ItemMainImage != null;
@@ -294,10 +312,10 @@ public class Tutorial : MonoBehaviour
         if (hasTitle && item.ShowItemNameText)
         {
             itemHeaderText.enabled = true;
-            itemHeaderText.text = hasTitle ? item.ItemNameText : string.Empty;
+            itemHeaderText.text = item.ItemNameText;
             itemHeaderImage.enabled = false;
         }
-        else if(item.ItemNameImage != null && item.ShowItemNameImage)
+        else if (item.ItemNameImage != null && item.ShowItemNameImage)
         {
             itemHeaderImage.enabled = true;
             itemHeaderImage.sprite = item.ItemNameImage;
@@ -310,15 +328,15 @@ public class Tutorial : MonoBehaviour
         {
             if (currentTab == Tab.Weapons)
             {
-                itemShortDescriptionText.enabled = hasDescription;
+                itemShortDescriptionText.enabled = true;
                 itemLongDescriptionText.enabled = false;
-                itemShortDescriptionText.text = item.ItemDescription;
+                itemShortDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;
             }
             else
             {
-                itemLongDescriptionText.enabled = hasDescription;
+                itemLongDescriptionText.enabled = true;
                 itemShortDescriptionText.enabled = false;
-                itemLongDescriptionText.text = item.ItemDescription;
+                itemLongDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;
             }
         }
         else
@@ -327,11 +345,9 @@ public class Tutorial : MonoBehaviour
             itemShortDescriptionText.text = string.Empty;
         }
 
-        bool useButton = item.UseButton;
-        if (useButton)
+        if (item.UseButton)
         {
             itemButton.gameObject.SetActive(true);
-            itemButton.GetComponentInChildren<TextMeshProUGUI>().text = item.ButtonText;
         }
         else
         {
@@ -364,7 +380,6 @@ public class Tutorial : MonoBehaviour
         for (int i = 0; i < images.Length; i++)
         {
             images[i].enabled = true;
-
             if (i < activeCount)
             {
                 images[i].transform.localScale = filledStatSize;
@@ -372,7 +387,7 @@ public class Tutorial : MonoBehaviour
             }
             else
             {
-                images[i].transform.localScale = emptyStatSize; 
+                images[i].transform.localScale = emptyStatSize;
                 images[i].sprite = emptyStatImage;
             }
         }
@@ -388,7 +403,7 @@ public class Tutorial : MonoBehaviour
 
     private void OnVideoPrepared(VideoPlayer vp)
     {
-        vp.prepareCompleted -= OnVideoPrepared;
+        // Don't modify the event listener array here. Just play.
         vp.Play();
     }
 
@@ -445,7 +460,6 @@ public class Tutorial : MonoBehaviour
         weaponsTabFrame.SetActive(tab == Tab.Weapons);
         mapsTabFrame.SetActive(tab == Tab.Maps);
 
-
         switch (tab)
         {
             case Tab.General:
@@ -459,7 +473,7 @@ public class Tutorial : MonoBehaviour
                 break;
         }
 
-        if(!initialSet)
+        if (!initialSet)
             tabSwitchEmitter.Play();
     }
 
@@ -472,9 +486,9 @@ public class Tutorial : MonoBehaviour
         backButton.onClick?.Invoke();
         MenuSelection.Instance.menuSelectionVritualCam.Priority = 1;
         foreach (CinemachineVirtualCamera cam in MenuSelection.Instance.otherVirtualsCams)
-            cam.Priority = 0; 
+            cam.Priority = 0;
 
-        gameObject.SetActive(false);    
+        gameObject.SetActive(false);
     }
 
     public void LoadOfflineSceneUsingSceneManager(string sceneName)

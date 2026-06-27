@@ -1,10 +1,12 @@
+using FMODUnity;
 using System;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.InputSystem;
 using UnityEngine.EventSystems;
-using FMODUnity;
+using UnityEngine.InputSystem;
+using UnityEngine.Localization.Components;
+using UnityEngine.Localization.PropertyVariants.TrackedProperties;
+using UnityEngine.UI;
 
 public class LoadoutSelection : MonoBehaviour
 {
@@ -24,6 +26,11 @@ public class LoadoutSelection : MonoBehaviour
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI loadoutText;
+    public LocalizeStringEvent loadoutTextStringEvent;
+    [SerializeField] private LocalizedStringProperty sharedRandomLocalizedStringProperty;
+    [SerializeField] private LocalizedStringProperty individualRandomLocalizedStringProperty;
+    [SerializeField] private LocalizedStringProperty sharedCustomLocalizedStringProperty;
+
     [SerializeField] private GameObject customLoadoutSelection;
 
     [SerializeField] private Image leftSpellImage;
@@ -209,11 +216,19 @@ public class LoadoutSelection : MonoBehaviour
 
     private void ApplyAllUI()
     {
-        string text = selectedLoadoutType.ToString()
-            .Replace("Random", " Random")
-            .Replace("Custom", " Custom");
 
-        loadoutText.text = text;
+        switch(selectedLoadoutType)
+        {
+            case LoadOutType.SharedCustom:
+                loadoutTextStringEvent.StringReference = sharedCustomLocalizedStringProperty.LocalizedString;               
+                    break;
+            case LoadOutType.SharedRandom:
+                loadoutTextStringEvent.StringReference = sharedRandomLocalizedStringProperty.LocalizedString;
+                break;
+            case LoadOutType.IndividualRandom:
+                loadoutTextStringEvent.StringReference = individualRandomLocalizedStringProperty.LocalizedString;
+                break;
+        }
 
         for (int i = 0; i < loadoutBubbleImages.Length; i++)
         {

@@ -64,10 +64,10 @@ public class MapRotationSystem : MonoBehaviour
     }
 
     public void LoadMap()
-    {       
+    {
         NetworkManager.Singleton.SceneManager.LoadScene(
-            chosenMap.SceneName,
-            LoadSceneMode.Single
-        );
+                   chosenMap.SceneName,
+                   LoadSceneMode.Single
+               );
     }
 }

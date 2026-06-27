@@ -60,6 +60,7 @@ public class LobbyManager : NetworkBehaviour
 
     public List<LobbyPlayerInput> allLobbyPlayerInputs = new List<LobbyPlayerInput>();
 
+    public bool canAddNewDevices = true; 
 
     public GameManager.GameModeType SelectedGameMode
     {
@@ -214,10 +215,11 @@ public class LobbyManager : NetworkBehaviour
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
 
-        ChangeStartButtonState(false);
 
         if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
             UpdateSelectedGameModeForNewClientServerRpc();
+
+        ChangeStartButtonState(false);
 
         foreach (var device in InputSystem.devices)
         {
@@ -228,7 +230,6 @@ public class LobbyManager : NetworkBehaviour
     private void OnEnable()
     {
         InputSystem.onDeviceChange += OnDeviceChange;
-
 
         if (TransportSwitcher.Instance.isUsingRelay)
             players.OnListChanged += OnPlayersListChanged;
@@ -252,6 +253,8 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
+        if (!canAddNewDevices) return; 
+
         switch (change)
         {
             case InputDeviceChange.Added:
@@ -328,16 +331,18 @@ public class LobbyManager : NetworkBehaviour
                 break;
             }
         }
-
         if (index == -1)
         {
             players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+
             CheckAllReady();
             UpdatePlayerUI();
             return;
         }
 
         var player = players[index];
+
+
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
@@ -355,6 +360,7 @@ public class LobbyManager : NetworkBehaviour
             player.IsReady = false;
             players[index] = player;
 
+
             OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
             CheckAllReady();
             UpdatePlayerUI();
@@ -363,7 +369,8 @@ public class LobbyManager : NetworkBehaviour
 
     public void RemovePlayer(int playerIndex)
     {
-        PlayerLobbyState stateToChange; 
+        PlayerLobbyState stateToChange;
+
         foreach (PlayerLobbyState state in players)
         {
             if (state.ClientId == (ulong)playerIndex)
@@ -399,12 +406,12 @@ public class LobbyManager : NetworkBehaviour
             var player = players[index];
             var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
             TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
-            
+
             if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-            {                
+            {
                 player.IsReady = state;
                 players[index] = player;
-                InvokeOnReadyStateUpdatedClientRpc(clientID,state);
+                InvokeOnReadyStateUpdatedClientRpc(clientID, state);
             }
         }
 
@@ -464,7 +471,7 @@ public class LobbyManager : NetworkBehaviour
         allPlayersReady = players.Count >= minPlayers;
 
         if (TransportSwitcher.Instance.isUsingRelay &&
-            NetworkManager.Singleton.ConnectedClients.Count > players.Count)
+                   NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
         }
@@ -501,7 +508,9 @@ public class LobbyManager : NetworkBehaviour
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         else
+        {
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+        }
     }
 
     private void ChangeStartButtonState(bool enable)
