@@ -15,6 +15,7 @@ public class Clam : MonoBehaviour
     [Header("VFX / SFX")]
     [SerializeField] private ParticleSystem riseParticleSystem;
     [SerializeField] private ParticleSystem snapParticleSystem;
+    [SerializeField] private ParticleSystem jumpParticleSystem;
     [SerializeField] protected EventReference crunchSoundEvent;
 
     private bool isActive = false;
@@ -69,7 +70,7 @@ public class Clam : MonoBehaviour
     // Called by animation
     public void Snap()
     {
-        //Effects
+        jumpParticleSystem?.Play();
         //Sound
         RuntimeManager.PlayOneShotAttached(crunchSoundEvent, gameObject);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
