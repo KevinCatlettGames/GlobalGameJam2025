@@ -41,6 +41,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private ParticleSystem wetEffect;
     [SerializeField] private ParticleSystem vulnerableEffect;
     [SerializeField] private ParticleSystem vulnerableHitEffect;
+    [SerializeField] private ParticleSystem trail;
     [SerializeField] private ParticleSystem damageParticleSystem;
     [SerializeField] private PlayerDamagedEffect damagedEffect;
     [SerializeField] private GameObject spellSpawnEffect;
@@ -1122,6 +1123,7 @@ public class PlayerController : NetworkBehaviour
         isDead = true;
         controller.enabled = false;
         damagedEffect.UpdateParticleSystem(-1);
+        trail.Stop();
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -1394,6 +1396,7 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
+        trail.Play();
         isDead = false;
     }
 
