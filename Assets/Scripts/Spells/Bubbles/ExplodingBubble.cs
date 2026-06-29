@@ -1,4 +1,3 @@
-using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,6 +9,7 @@ public class ExplodingBubble : BasicBubble
     [SerializeField] private float explosionRadius = 5f;
     [SerializeField] private GameObject earlyFizzleEffect;
     [SerializeField] private float primaryKnockbackIncrease = 1.2f;
+    [SerializeField] private Material[] blinkMaterials;
     private bool isReadyToExpode = false;
     private bool hasExploded = false;
     private GameObject primaryTarget;
@@ -37,6 +37,15 @@ public class ExplodingBubble : BasicBubble
     {
         isReadyToExpode = true;
         base.InflateOverlapChack();
+        StartCoroutine(Blink());
+    }
+    private IEnumerator Blink()
+    {
+        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+        Material[] materials = meshRenderer.materials;
+        meshRenderer.materials = blinkMaterials;
+        yield return new WaitForSeconds(.15f);
+        meshRenderer.materials = materials;
     }
     public void Explode()
     {
