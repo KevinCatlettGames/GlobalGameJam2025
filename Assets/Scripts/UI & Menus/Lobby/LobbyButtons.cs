@@ -5,16 +5,13 @@ using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using static LobbyPlayerValues;
-using FMODUnity;
 
 public class LobbyButtons : MonoBehaviour
 {
     public Image startGameRadialFillImage;
     public Image backRadialFillImage;
-
+    private bool isLeaving; // Prevents the back button from triggering multiple times
     public GameObject mainMenuButton;
 
     [SerializeField] private float startGameHoldDuration = 1f;
@@ -23,14 +20,13 @@ public class LobbyButtons : MonoBehaviour
     private float startGamePressTime;
     private float backPressTime;
 
-    private HashSet<int> playersHoldingStart = new(); 
+    private HashSet<int> playersHoldingStart = new();
     private HashSet<int> playersHoldingBack = new();
 
     private bool gameStarting;
 
     private bool startEmitting;
     private bool backEmitting;
-
 
     [Tooltip("Audio emitter for start game hold progress")]
     public StudioEventEmitter startProgressEmitter;
@@ -70,6 +66,7 @@ public class LobbyButtons : MonoBehaviour
 
     private void HandleStartGameHold()
     {
+        // If the game is already starting, stop checking immediately
         if (playersHoldingStart.Count == 0 || gameStarting)
             return;
 
@@ -87,14 +84,16 @@ public class LobbyButtons : MonoBehaviour
 
         if (heldTime >= startGameHoldDuration)
         {
-            gameStarting = true;
-            StartCoroutine(lobbyManager.LoadGameScene());
+            gameStarting = true; // 1. Flip this immediately so next frame returns early!
+            ResetStartRadial();  // 2. Turn off the progress bar/audio
+            StartCoroutine(lobbyManager.LoadGameScene()); // 3. Load the scene
         }
     }
 
     private void HandleBackHold()
     {
-        if (playersHoldingBack.Count == 0 || gameStarting)
+        // If we are already starting the game OR already leaving, stop checking
+        if (playersHoldingBack.Count == 0 || gameStarting || isLeaving)
             return;
 
         float heldTime = Time.time - backPressTime;
@@ -103,7 +102,7 @@ public class LobbyButtons : MonoBehaviour
         if (progress > 0.1f && !backEmitting)
         {
             backEmitting = true;
-            startProgressEmitter.Play();
+            mainMenuProgressEmitter.Play();
         }
 
         if (backRadialFillImage != null)
@@ -111,8 +110,11 @@ public class LobbyButtons : MonoBehaviour
 
         if (heldTime >= backHoldDuration)
         {
+            isLeaving = true; // Flip this immediately!
+            ResetBackRadial(); // Turn off the UI/Audio tracking
+
             buttonOnClickEmitter?.Play();
-            LeaveToMainMenu();
+            GoToMainMenu(); // This will now run safely exactly once
         }
     }
 
@@ -131,7 +133,7 @@ public class LobbyButtons : MonoBehaviour
             backRadialFillImage.fillAmount = 0f;
 
         backEmitting = false;
-        startProgressEmitter.Stop();
+        mainMenuProgressEmitter.Stop(); // FIXED: Changed to back/main menu emitter
     }
 
     public void OnStartGameButtonDown() => StartGameHold(0);
@@ -139,8 +141,7 @@ public class LobbyButtons : MonoBehaviour
 
     public void StartGameHold(int playerIndex)
     {
-        if (!LobbyManager.instance.allPlayersReady ||
-                  LobbyManager.instance.players.Count <= 0)
+        if (!LobbyManager.instance.allPlayersReady || LobbyManager.instance.players.Count <= 0)
             return;
         if (gameStarting)
             return;
@@ -205,38 +206,31 @@ public class LobbyButtons : MonoBehaviour
 
     private void OnClientDisconnect(ulong clientId)
     {
-        if (clientId != 1) return;
+        // FIXED: NetworkManager.ServerClientId is always 0. 
+        // If we are a client and the host (0) leaves, jump to main menu.
+        if (clientId != NetworkManager.ServerClientId) return;
+        LobbyPlayerInput inputOfDisconnectedClient = null;
+       
+        //foreach(LobbyPlayerInput input in LobbyManager.instance.allLobbyPlayerInputs)
+        //{
+        //    if (input.asignedClientId == (int)clientId)
+        //    {
+        //        LobbyManager.instance.playerContainers[input.lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainerServerRpc();
+        //        inputOfDisconnectedClient = input;
+        //    }
+        //}
+
+        LobbyManager.instance.allLobbyPlayerInputs.Remove(inputOfDisconnectedClient);
 
         Debug.Log("Host disconnected — returning to main menu...");
         LeaveToMainMenu();
     }
 
-    public void LeaveToMainMenu()
-    {
-        if (lobbyManager._MatchSettingsSelection.activeSelf)
-            return;
-
-        buttonOnClickEmitter.Play();
-
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
-            NetworkManager.Singleton.Shutdown();
-
-        GlobalLobby.CurrentLobby = null;
-
-#if UNITY_SWITCH
-        MenuSelection.Instance.mainMenu.SetActive(true);
-        MenuSelection.Instance.ResetAllCams();
-
-#else
-        MenuSelection.Instance.localOnline.SetActive(true);
-
-#endif
-        Destroy(lobbyParent);
-    }
-
     private async void GoToMainMenu()
     {
+        // Clean up cloud lobby assets while NetworkManager is still active
         await CleanupLobby();
+        // Shut down Netcode locally and transition UI
         LeaveToMainMenu();
     }
 
@@ -244,7 +238,7 @@ public class LobbyButtons : MonoBehaviour
     {
         try
         {
-            if (GameLobby.instance == null || GlobalLobby.CurrentLobby == null)
+            if (GlobalLobby.CurrentLobby == null)
                 return;
 
             string lobbyId = GlobalLobby.CurrentLobby.Id;
@@ -252,6 +246,7 @@ public class LobbyButtons : MonoBehaviour
 
             if (IsHost())
             {
+                // Make lobby invisible immediately so new people don't try to join mid-teardown
                 var options = new UpdateLobbyOptions { IsPrivate = true };
                 await LobbyService.Instance.UpdateLobbyAsync(lobbyId, options);
                 await Task.Delay(100);
@@ -261,14 +256,39 @@ public class LobbyButtons : MonoBehaviour
             {
                 await LobbyService.Instance.RemovePlayerAsync(lobbyId, playerId);
             }
-
-            GlobalLobby.CurrentLobby = null;
         }
         catch (LobbyServiceException e)
         {
             Debug.LogError($"Failed to clean up lobby: {e}");
         }
+        finally
+        {
+            GlobalLobby.CurrentLobby = null;
+        }
     }
 
-    private bool IsHost() => NetworkManager.Singleton.IsHost;
+    // FIXED: Added safety fallback just in case NetworkManager is missing instances mid-scene change
+    private bool IsHost() => NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
+
+    public void LeaveToMainMenu()
+    {
+        if (lobbyManager._MatchSettingsSelection.activeSelf)
+            return;
+
+        buttonOnClickEmitter.Play();
+
+        // Shut down netcode server/client session safely
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+            NetworkManager.Singleton.Shutdown();
+
+        GlobalLobby.CurrentLobby = null;
+
+#if UNITY_SWITCH
+        MenuSelection.Instance.mainMenu.SetActive(true);
+        MenuSelection.Instance.ResetAllCams();
+#else
+        MenuSelection.Instance.localOnline.SetActive(true);
+#endif
+        Destroy(lobbyParent);
+    }
 }

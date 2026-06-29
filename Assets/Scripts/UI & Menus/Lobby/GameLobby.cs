@@ -15,6 +15,7 @@ using Unity.Netcode.Transports.UTP;
 using Unity.Networking.Transport.Relay;
 using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
+using Febucci.UI;
 
 /// <summary>
 /// Holds the currently active lobby globally.
@@ -44,21 +45,6 @@ public class GameLobby : MonoBehaviour
     public string sceneToLoad;
 
     /// <summary>
-    /// Button to start the game once ready.
-    /// </summary>
-    public Button startGameButton;
-
-    /// <summary>
-    /// Text shown to players while waiting for host to start.
-    /// </summary>
-    public TextMeshProUGUI waitForHostText;
-
-    /// <summary>
-    /// Input field to display the lobby code.
-    /// </summary>
-    [SerializeField] private TMP_InputField lobbyCodeText;
-
-    /// <summary>
     /// Heartbeat handler to maintain lobby connection.
     /// </summary>
     [FormerlySerializedAs("lobbyHeartBeat")] 
@@ -70,6 +56,8 @@ public class GameLobby : MonoBehaviour
     [FormerlySerializedAs("lobbyUI")] 
     public OnlineCreationUI onlineCreationUI;
 
+    [Header("Texts")]
+    [SerializeField] private TextMeshProUGUI joiningLobbyText;
     /// <summary>
     /// Singleton instance of this class.
     /// </summary>
@@ -77,6 +65,8 @@ public class GameLobby : MonoBehaviour
 
     public GameObject lobby;
     public GameObject onlineMatchmakingParent;
+
+
 
     /// <summary>
     /// Unity Awake method. Initializes singleton and Unity Authentication.
@@ -111,6 +101,9 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
+            onlineCreationUI.lobbyUI.SetActive(false);
+            ChangeJoinTextState(true);
+
             GlobalLobby.CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
             {
                 IsPrivate = isPrivate,
@@ -125,7 +118,6 @@ public class GameLobby : MonoBehaviour
             NetworkManager.Singleton.StartHost();
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
 
-            onlineCreationUI.lobbyUI.SetActive(false);
             //NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
@@ -161,6 +153,7 @@ public class GameLobby : MonoBehaviour
         try
         {
             GlobalLobby.CurrentLobby = await LobbyService.Instance.QuickJoinLobbyAsync();
+            ChangeJoinTextState(true);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
         }
         catch (LobbyServiceException e)
@@ -211,6 +204,7 @@ public class GameLobby : MonoBehaviour
         try
         {
             GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
+            ChangeJoinTextState(true);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
         }
         catch (LobbyServiceException e)
@@ -229,6 +223,7 @@ public class GameLobby : MonoBehaviour
         {
             Lobby joinedLobby = await LobbyService.Instance.JoinLobbyByIdAsync(lobbyId);
             GlobalLobby.CurrentLobby = joinedLobby;
+            ChangeJoinTextState(true);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
         }
         catch (LobbyServiceException e)
@@ -249,14 +244,14 @@ public class GameLobby : MonoBehaviour
 
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
-
             onlineCreationUI.lobbyUI.SetActive(false);
-            waitForHostText.gameObject.SetActive(true);
+            ChangeJoinTextState(false);
+
         }
-        catch
+        catch (LobbyServiceException e)
         {
+            Debug.LogError($"Failed to join lobby via code: {e}");
             NetworkManager.Singleton.Shutdown();
-            Instantiate(lobby);
         }
     }
 
@@ -380,4 +375,11 @@ public class GameLobby : MonoBehaviour
     /// Returns the currently active lobby.
     /// </summary>
     public Lobby GetLobby() => GlobalLobby.CurrentLobby;
+
+    void ChangeJoinTextState(bool value)
+    {
+        joiningLobbyText.gameObject.SetActive(value);
+        joiningLobbyText.enabled = value;
+        joiningLobbyText.GetComponent<TextAnimator_TMP>().ResetState();
+    }
 }

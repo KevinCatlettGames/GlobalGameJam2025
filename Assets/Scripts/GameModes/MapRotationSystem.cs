@@ -58,8 +58,9 @@ public class MapRotationSystem : MonoBehaviour
         chosenMap = availableMaps[Random.Range(0, availableMaps.Count)];
         chosenMap.PlayedThisLoop = true;
 
+        mapSetting = chosenMap;
+        maxRounds = chosenMap.MapRounds;
         LoadMap();
-
         return true;
     }
 

@@ -52,11 +52,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc04e267f23c1b44a8332113d62a8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   playerIndex: 2
   playerContainerManager: {fileID: 4108606274338047152}
   playerContainerSkinChange: {fileID: 8162762353768506763}
   currentTeamIndex: 0
-  lobbyPlayerHandler: {fileID: 0}
+  lobbyPlayerHandler: {fileID: 3843379490485832630}
   teamText: {fileID: 5344715964913292182}
   teamImage: {fileID: 5890917417208048964}
 --- !u!222 &446453945492821789
@@ -4907,11 +4908,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc04e267f23c1b44a8332113d62a8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   playerIndex: 1
   playerContainerManager: {fileID: 6981371207434763050}
   playerContainerSkinChange: {fileID: 2927786848280910353}
   currentTeamIndex: 0
-  lobbyPlayerHandler: {fileID: 0}
+  lobbyPlayerHandler: {fileID: 3843379490485832630}
   teamText: {fileID: 5476841380687926980}
   teamImage: {fileID: 6399194114551010596}
 --- !u!222 &7515413203135908382
@@ -15072,11 +15074,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc04e267f23c1b44a8332113d62a8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   playerIndex: 3
   playerContainerManager: {fileID: 5407521930114273068}
   playerContainerSkinChange: {fileID: 236480985251278359}
   currentTeamIndex: 0
-  lobbyPlayerHandler: {fileID: 0}
+  lobbyPlayerHandler: {fileID: 3843379490485832630}
   teamText: {fileID: 2747235756448600451}
   teamImage: {fileID: 1500282345432969163}
 --- !u!222 &7135915572268100901
@@ -16380,11 +16383,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abc04e267f23c1b44a8332113d62a8a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   playerIndex: 0
   playerContainerManager: {fileID: 6898372643355871554}
   playerContainerSkinChange: {fileID: 1727332635080796281}
   currentTeamIndex: 0
-  lobbyPlayerHandler: {fileID: 0}
+  lobbyPlayerHandler: {fileID: 3843379490485832630}
   teamText: {fileID: 1664139238738039089}
   teamImage: {fileID: 4094110262286293723}
 --- !u!222 &7746681861184509006
@@ -27682,6 +27686,26 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 507170827254629287, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 507170827254629287, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
+    - target: {fileID: 706578714001527216, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 706578714001527216, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleUsageOfTunaMap
+      objectReference: {fileID: 0}
     - target: {fileID: 916393803550998654, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27692,6 +27716,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 1168546441094216101, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 1168546441094216101, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetBucketMapRounds
+      objectReference: {fileID: 0}
     - target: {fileID: 1205581464195616480, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27707,6 +27741,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 1531630302120449757, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 1531630302120449757, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 1595891485074800380, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27722,16 +27766,56 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 2450574018634862295, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 2450574018634862295, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetTunaMapRounds
+      objectReference: {fileID: 0}
+    - target: {fileID: 2761584394454721390, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 2761584394454721390, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
+    - target: {fileID: 2813822960197940296, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
     - target: {fileID: 2813822960197940296, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 8578666878580452742}
+    - target: {fileID: 2813822960197940296, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleEndless
+      objectReference: {fileID: 0}
     - target: {fileID: 2846447683380102229, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 2927653149514110486, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 2927653149514110486, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleUsageOfPlateMap
+      objectReference: {fileID: 0}
     - target: {fileID: 3050257551832544402, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27747,6 +27831,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 3760072080036836236, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 3760072080036836236, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TogglePlateMapEvent
+      objectReference: {fileID: 0}
     - target: {fileID: 3795611989577746435, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: mainLobbyUI
@@ -27767,11 +27861,31 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 4160615377435309173, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 4160615377435309173, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 4347656880473447435, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 4623971144932419222, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 4623971144932419222, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 4759476689197377292, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -27792,6 +27906,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 5019360367395686756, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 5019360367395686756, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 5066152226573972603, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_AnchorMax.x
@@ -27807,16 +27931,56 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 5583829227920071258, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 5583829227920071258, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: TogglePotMapEvent
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634433714970303647, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 5634433714970303647, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 5646060522494797288, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 5703243272015544210, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 5703243272015544210, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[2].m_MethodName
+      value: SetWinsNeeded
+      objectReference: {fileID: 0}
     - target: {fileID: 5726265696206348107, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 5845936457024985681, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 5845936457024985681, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 5906345241708017388, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27862,11 +28026,71 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 8544621731050800781}
+    - target: {fileID: 6737867311967607585, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 6737867311967607585, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleBucketMapEvent
+      objectReference: {fileID: 0}
+    - target: {fileID: 6845364615838555935, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 6845364615838555935, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetPlateMapRounds
+      objectReference: {fileID: 0}
+    - target: {fileID: 7266397775626776934, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 7266397775626776934, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleTunaMapEvent
+      objectReference: {fileID: 0}
     - target: {fileID: 7361697268088673388, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 7408538073338943928, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 7408538073338943928, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
+    - target: {fileID: 7416330762650031974, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 7416330762650031974, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
+    - target: {fileID: 7519648966729514074, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 7519648966729514074, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     - target: {fileID: 7543230272237903064, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Pivot.x
@@ -27967,6 +28191,16 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7609254204960995700, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 7609254204960995700, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleUsageOfPotMap
+      objectReference: {fileID: 0}
     - target: {fileID: 7690778077027523201, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27977,6 +28211,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 8015423433385487765, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 8015423433385487765, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleUsageOfBucketMap
+      objectReference: {fileID: 0}
     - target: {fileID: 8152389829415555092, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -27987,6 +28231,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[0].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 8376786712146600515, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 8376786712146600515, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: m_OnValueChanged.m_PersistentCalls.m_Calls.Array.data[1].m_MethodName
+      value: SetPotMapRounds
+      objectReference: {fileID: 0}
     - target: {fileID: 8601766778675430521, guid: 2f675040d1791914e974ae189aefb314,
         type: 3}
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
@@ -28012,6 +28266,16 @@ PrefabInstance:
       propertyPath: m_Delegates.Array.data[1].callback.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 6250939860849515540}
+    - target: {fileID: 9093579391178629529, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 2677499676826755453}
+    - target: {fileID: 9093579391178629529, guid: 2f675040d1791914e974ae189aefb314,
+        type: 3}
+      propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: ToggleSpellUsage
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 5537001191940813283, guid: 2f675040d1791914e974ae189aefb314, type: 3}
     m_RemovedGameObjects: []

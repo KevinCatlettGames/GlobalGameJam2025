@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.Localization.SmartFormat.Core.Parsing;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -196,7 +197,7 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
-        if(GameObject.FindWithTag("OnlineMatchmakingUI"))
+        if (GameObject.FindWithTag("OnlineMatchmakingUI"))
             GameObject.FindWithTag("OnlineMatchmakingUI").SetActive(false);
     }
 
@@ -215,11 +216,10 @@ public class LobbyManager : NetworkBehaviour
             playerContainers[player.ClientId].SetActive(true);
 
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
-
-
-        if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
-            UpdateSelectedGameModeForNewClientServerRpc();
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+        }
 
         ChangeStartButtonState(false);
 
@@ -232,6 +232,7 @@ public class LobbyManager : NetworkBehaviour
         }
         else if (IsServer)
         {
+            Debug.Log("Spawning player");
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
         }
@@ -255,6 +256,12 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (SO_Spell spell in spells)
             spell.CanUse = true;
+    }
+
+    void OnClientConnectedCallback(ulong playerIndex)
+    {
+        Debug.Log("Updating selectedgame mode");
+        ChangeSelectedGameModeServerRpc();
     }
 
     private void OnDisable()
@@ -439,7 +446,9 @@ public class LobbyManager : NetworkBehaviour
         if (index == -1)
         {
             players.Add(new PlayerLobbyState { ClientId = clientID, IsReady = false });
-            AddNewPlayerValuesClientRpc((int)clientID);
+
+          
+            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc((int)clientID, possibleSkins[clientID].Index, false);           
             index = players.Count - 1;
         }
         else
@@ -457,16 +466,6 @@ public class LobbyManager : NetworkBehaviour
         }
 
         CheckAllReady();
-    }
-
-    [ClientRpc]
-    private void AddNewPlayerValuesClientRpc(int clientID)
-    {
-        LobbyPlayerValues.Instance.playerValuesList.Add(
-            new LobbyPlayerValues.PlayerValues(clientID, null, possibleSkins[clientID], -1)
-        );
-
-        LobbyPlayerValues.Instance.SortPlayerValues();
     }
 
     [ClientRpc]
@@ -539,6 +538,23 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
+    public void UpdatePlayerUIAndOccupiedState()
+    {
+        foreach (GameObject container in playerContainers)
+            container.SetActive(false);
+
+        foreach (var player in players)
+        {
+            int index = (int)player.ClientId;
+            if (index >= 0 && index < playerContainers.Length)
+            {
+                playerContainers[index].GetComponent<PlayerContainerManager>().occupied = true;
+                emptyPlayerContainers[index].SetActive(false);
+                playerContainers[index].SetActive(true);
+            }
+        }
+    }
+
     public IEnumerator LoadGameScene()
     {
         HandleLobbyContinueServerRpc();
@@ -577,7 +593,7 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void UpdateSelectedGameModeForNewClientServerRpc()
+    public void ChangeSelectedGameModeServerRpc()
     {
         ChangeSelectedGameModeClientRpc(selectedGameMode);
     }
@@ -599,6 +615,18 @@ public class LobbyManager : NetworkBehaviour
         selectedGameMode = gameModeType;
         gameModeTypeText.text =
             selectedSO.GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
+
+        foreach (GameObject teamSelection in teamSelections)
+        {
+            teamSelection.SetActive(
+                gameModeType == GameManager.GameModeType.Team
+            );
+        }
+
+        foreach (GameObject skin in LobbyManager.instance.playerContainers)
+        {
+            skin.GetComponent<PlayerContainerSkinChange>().UpdateBlur();
+        }
     }
 
     [ClientRpc]
@@ -736,13 +764,51 @@ public class LobbyManager : NetworkBehaviour
     }
 
     public void SetWinsNeeded(float value)
+    {   
+        SetWinsNeededServerRpc((int)value);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void SetWinsNeededServerRpc(int value)
     {
-        winsNeeded = (int)value;
+        SetWinsNeededClientRpc(value);
+    }
+
+    [ClientRpc]
+    void SetWinsNeededClientRpc(int value)
+    {
+        winsNeeded = value;
         MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
     public void ToggleEndless(bool toggle)
     {
+       ToggleEndlessServerRpc(toggle);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void ToggleEndlessServerRpc(bool toggle)
+    {
+        ToggleEndlessClientRpc(toggle);
+    }
+    [ClientRpc]
+    void ToggleEndlessClientRpc(bool toggle)
+    {
         playEndless = toggle;
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateTeamServerRpc(int playerIndex)
+    {
+        UpdateTeamClientRpc(playerIndex);
+    }
+
+    [ClientRpc]
+    public void UpdateTeamClientRpc(int playerIndex)
+    {
+        playerContainers[playerIndex]
+       .GetComponentInChildren<TeamSelection>()
+       .ChangeTeam();
     }
 }

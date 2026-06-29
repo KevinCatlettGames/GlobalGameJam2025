@@ -177,12 +177,13 @@ public class LobbyPlayerInput : NetworkBehaviour
                 if (!TransportSwitcher.Instance.isUsingRelay)
                 {
                     lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
-                    lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;
+                    lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;    
                 }
                 else
                 {
                     lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainerServerRpc();
                     SetOccupiedPlayerContainerServerRpc(lobbyPlayerInputIndex, false);
+                    LobbyPlayerValues.Instance.RemovePlayerValueServerRpc(lobbyPlayerInputIndex);
                 }
 
                 lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
@@ -252,6 +253,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnTeamNavigation(InputAction.CallbackContext context)
     {
+        Debug.Log("entered team nav");
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
@@ -271,10 +273,17 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
 
         canNavigateTeam = false;
-
-        lobbyManager.playerContainers[lobbyPlayerInputIndex]
-                 .GetComponentInChildren<TeamSelection>()
-                 .ChangeTeam();
+        Debug.Log("in team nav");
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            lobbyManager.UpdateTeamServerRpc(lobbyPlayerInputIndex);
+        }
+        else
+        {
+            lobbyManager.playerContainers[lobbyPlayerInputIndex]
+                     .GetComponentInChildren<TeamSelection>()
+                     .ChangeTeam();
+        }
 
         PlaySFX(skinChangeReference);
     }

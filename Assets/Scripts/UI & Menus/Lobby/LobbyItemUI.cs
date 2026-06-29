@@ -32,7 +32,7 @@ public class LobbyItemUI : MonoBehaviour
     {
         lobbyData = lobby;
         if (lobbyNameText != null)
-            lobbyNameText.text = lobbyData.Name + "    " + lobby.Players.Count + "/" + lobby.MaxPlayers;
+            lobbyNameText.text = lobbyData.Name + " " + lobby.Players.Count + "/" + lobby.MaxPlayers;
     }
 
     /// <summary>

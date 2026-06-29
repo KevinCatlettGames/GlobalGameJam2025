@@ -136,8 +136,8 @@ public class GameManager : NetworkBehaviour
                 player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
-            Invoke(nameof(CallPlayerManagerInitialize), .4f);
-            Invoke(nameof(EnableDeathzonesServerRpc), .7f);
+            Invoke(nameof(CallPlayerManagerInitialize), .1f);
+            Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
         ItemSpawner.Instance.InitialSpawn();
     }
@@ -150,7 +150,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     void EnableDeathzonesServerRpc()
     {
         EnableDeathzonesClientRpc();
@@ -161,6 +161,19 @@ public class GameManager : NetworkBehaviour
     {
         foreach (DeathzoneWall deathZone in deathZones)
             deathZone.GetComponent<DeathzoneWall>().EnableCol();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void DisableDeathzonesServerRpc()
+    {
+        DisableDeathzonesClientRpc();
+    }
+
+    [ClientRpc]
+    void DisableDeathzonesClientRpc()
+    {
+        foreach (DeathzoneWall deathZone in deathZones)
+            deathZone.GetComponent<DeathzoneWall>().DisableCol();
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -245,7 +258,7 @@ public class GameManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void RestartGameServerRpc()
+    public void RestartGameServerRpc()
     {
         RestartGameClientRpc();
     }
@@ -253,10 +266,12 @@ public class GameManager : NetworkBehaviour
     [ClientRpc]
     private void RestartGameClientRpc()
     {
+        DisableDeathzonesServerRpc();
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
         UIManager.Instance.SetScoreScreenActive(false);
+        Invoke(nameof(EnableDeathzonesServerRpc), .5f);
     }
 
     public virtual void AddPlayer(int playerID, PlayerController player, PlayerHUD playerHUD, int teamID)

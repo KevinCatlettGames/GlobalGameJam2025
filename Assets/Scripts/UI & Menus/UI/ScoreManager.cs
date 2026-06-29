@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -360,7 +361,9 @@ public class ScoreManager : MonoBehaviour
         {
             pendingWins = new int[4];
             pendingKills = new int[4];
-            restartText.SetActive(true);
+
+            if(NetworkManager.Singleton.IsServer)
+                restartText.SetActive(true);
         }
 
         scoresResolved = true;

@@ -431,7 +431,15 @@ public class PlayerController : NetworkBehaviour
         if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
-                GameManager.Instance.RestartGame();
+            {
+                if(GameManager.Instance.PlayingLocal)
+                    GameManager.Instance.RestartGame();
+                else
+                {
+                    if(IsServer)
+                        GameManager.Instance.RestartGameServerRpc();
+                }
+            }
         }
     }
 
@@ -1163,7 +1171,7 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void DeadAnimServerRpc(bool activationState)
     {
-        mainAnimator.SetBool("IsDead", activationState);
+        DeadAnimClientRpc(activationState);
     }
 
     [ClientRpc]

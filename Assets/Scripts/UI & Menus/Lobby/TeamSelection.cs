@@ -3,8 +3,9 @@ using UnityEngine.UI;
 using EditorAttributes;
 using TMPro;
 using Unity.VisualScripting;
+using Unity.Netcode;
 
-public class TeamSelection : MonoBehaviour
+public class TeamSelection : NetworkBehaviour
 {
     [SerializeField] private int playerIndex;
     public PlayerContainerManager playerContainerManager;
@@ -12,7 +13,7 @@ public class TeamSelection : MonoBehaviour
 
     [SerializeField, ReadOnly] private int currentTeamIndex;
     public int CurrentTeamIndex
-    {  get { return currentTeamIndex; } }
+    { get { return currentTeamIndex; } }
 
     [SerializeField] private LobbyPlayerValues lobbyPlayerHandler;
 
@@ -24,8 +25,9 @@ public class TeamSelection : MonoBehaviour
 
     private void OnEnable()
     {
-        Invoke(nameof(Init), 0.2f);
+        Invoke(nameof(Init), 0.5f);
     }
+
     private void OnDisable()
     {
         if (LobbyManager.instance != null &&
@@ -43,30 +45,36 @@ public class TeamSelection : MonoBehaviour
         if (!initialSet)
         {
             initialSet = true;
-
-            int playersInTeamA = 0;
-            int playersInTeamB = 0;
-
-            foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+            if (lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex == -1)
             {
-                if (teamSelection == gameObject) continue;
-                if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 1)
-                    playersInTeamA++;
-            }
+                int playersInTeamA = 0;
+                int playersInTeamB = 0;
 
-            foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+                foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+                {
+                    if (teamSelection == gameObject) continue;
+                    if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 1)
+                        playersInTeamA++;
+                }
+
+                foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
+                {
+                    if (teamSelection == gameObject) continue;
+                    if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 2)
+                        playersInTeamB++;
+                }
+
+                if (playersInTeamA < playersInTeamB)
+                    currentTeamIndex = 1;
+                else if (playersInTeamB < playersInTeamA)
+                    currentTeamIndex = 2;
+                else if (playersInTeamA == playersInTeamB)
+                    currentTeamIndex = 1;
+            }
+            else
             {
-                if (teamSelection == gameObject) continue;
-                if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == 2)
-                    playersInTeamB++;
+                currentTeamIndex = lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex;
             }
-
-            if(playersInTeamA < playersInTeamB)
-                currentTeamIndex = 1;
-            else if(playersInTeamB < playersInTeamA)
-                currentTeamIndex = 2;
-            else if(playersInTeamA ==  playersInTeamB)
-                currentTeamIndex = 1;
         }
         SetTeam();
         UpdateTeamIndex((ulong)playerIndex, true);
@@ -75,6 +83,7 @@ public class TeamSelection : MonoBehaviour
 
     public void ChangeTeam()
     {
+        Debug.Log("In change team");
         if (playerContainerManager.isReady)
             return;
 
@@ -89,7 +98,7 @@ public class TeamSelection : MonoBehaviour
         foreach (GameObject teamSelection in LobbyManager.instance.teamSelections)
         {
             if (teamSelection == gameObject) continue;
-            if(teamSelection.GetComponent<TeamSelection>().currentTeamIndex == potentialNewTeamID)
+            if (teamSelection.GetComponent<TeamSelection>().currentTeamIndex == potentialNewTeamID)
                 playersInPotentialTeam++;
         }
 
@@ -120,7 +129,7 @@ public class TeamSelection : MonoBehaviour
 
     private void UpdateTeamIndex(ulong playerID, bool state)
     {
-        if (playerID != (ulong)playerIndex)
+        if (playerID != (ulong)playerIndex || !gameObject.activeSelf)
             return;
 
         if (state)
