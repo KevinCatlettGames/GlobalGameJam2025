@@ -25,13 +25,16 @@ public class ClamEvent : MapEvent
             {
                 int r = Random.Range(0, maxClams);
                 Clam clam = clams[r];
-
+                int tries = 0;
                 while (!clam.IsAvailble)
                 {
                     r++;
                     if (r >= clams.Length) 
                         r = 0;
                     clam = clams[r];
+                    tries++;
+                    if (tries > clams.Length)
+                        break;
                 }
                 clam.gameObject.SetActive(true);
                 clam.Rise();
