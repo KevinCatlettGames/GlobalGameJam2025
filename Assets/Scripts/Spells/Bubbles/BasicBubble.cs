@@ -118,7 +118,7 @@ public class BasicBubble : NetworkBehaviour
     {
         BubbleMovement();
     }
-    private IEnumerator Inflate()
+    protected virtual IEnumerator Inflate()
     {
         sphereCollider.excludeLayers += LayerMask.GetMask("Player");
         while (currentSize < size)

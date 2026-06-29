@@ -11,7 +11,7 @@ PrefabInstance:
     - target: {fileID: -4890849169809216911, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 1321093739
+      value: 3283734033
       objectReference: {fileID: 0}
     - target: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
@@ -113,18 +113,6 @@ ParticleSystem:
     type: 3}
   m_PrefabInstance: {fileID: 6600595476254504745}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &2259574825089366009 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 4954410157224149200, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
-    type: 3}
-  m_PrefabInstance: {fileID: 6600595476254504745}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da5ee0f7a3e00f449c5f99669ee5fa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &3353498150763746594 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8435244652520595979, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
@@ -203,6 +191,12 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 6600595476254504745}
   m_PrefabAsset: {fileID: 0}
+--- !u!198 &7896755409934834821 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 3894751290713729964, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+    type: 3}
+  m_PrefabInstance: {fileID: 6600595476254504745}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &8383584260448112766 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
@@ -257,8 +251,6 @@ MonoBehaviour:
   - {fileID: 4477406918881186461}
   - {fileID: 6199237468719491946}
   canvas: {fileID: 1412180090470021779}
-  spellIndicator1: {fileID: 8827169300299384841}
-  spellIndicator2: {fileID: 2259574825089366009}
   meshParent: {fileID: 6658085004868030784}
   statusIndicator: {fileID: 1241565775416200116}
   dashStartEffect: {fileID: 3570557506723085958}
@@ -266,6 +258,7 @@ MonoBehaviour:
   wetEffect: {fileID: 6407302574501691948}
   vulnerableEffect: {fileID: 0}
   vulnerableHitEffect: {fileID: 0}
+  trail: {fileID: 7896755409934834821}
   damageParticleSystem: {fileID: 5668327232672690628}
   damagedEffect: {fileID: 4579840826356004730}
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
@@ -311,15 +304,3 @@ MonoBehaviour:
   skin: {fileID: 0}
   dummyPlayerHUD: {fileID: 0}
   resetDelay: 3
---- !u!114 &8827169300299384841 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 2385325780975959840, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
-    type: 3}
-  m_PrefabInstance: {fileID: 6600595476254504745}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6da5ee0f7a3e00f449c5f99669ee5fa8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 

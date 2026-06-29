@@ -1,4 +1,5 @@
 using System.Collections;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Splines;
 
@@ -11,6 +12,7 @@ public class JumpingFish : MonoBehaviour
     [SerializeField] private ParticleSystem announceVFX;
     [SerializeField] private ParticleSystem dipVFX;
     [SerializeField] private float vfxDelay = .5f;
+    [SerializeField] private EventReference emergeEvent;
     void Start()
     {
         splineAnimate = fish.GetComponent<SplineAnimate>();
@@ -23,6 +25,7 @@ public class JumpingFish : MonoBehaviour
         transform.rotation = startPos.rotation;
         if (announceVFX)
             announceVFX.Play();
+        RuntimeManager.PlayOneShotAttached(emergeEvent, gameObject);
         StartCoroutine(JumpCoroutine());
     }
     private IEnumerator JumpCoroutine()

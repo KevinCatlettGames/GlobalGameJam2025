@@ -27,11 +27,31 @@ public class GiantBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         transform.position += direction * extraOffset;
     }
-    protected override void InflateOverlapChack()
+
+    protected override IEnumerator Inflate()
     {
-        StartCoroutine(Blink());
-        base.InflateOverlapChack();
+        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        bool blink = false;
+        while (currentSize < size)
+        {
+            currentSize += inflationSpeed * Time.deltaTime;
+            if (currentSize > size) currentSize = size;
+
+            transform.localScale = Vector3.one * currentSize;
+            if (!blink && currentSize > size * .9f)
+            {
+                blink = true;
+                StartCoroutine(Blink());
+            }
+            yield return null;
+        }
+
+        InflateOverlapChack();
+
+        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        hasInflated = true;
     }
+
     protected override void BubbleMovement()
     {
         if (!IsServer) return;

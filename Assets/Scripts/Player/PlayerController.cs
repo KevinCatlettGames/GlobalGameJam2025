@@ -30,8 +30,6 @@ public class PlayerController : NetworkBehaviour
     [Header("Visuals")] 
     [SerializeField] private Image[] coloredElements;
     [SerializeField] private GameObject canvas;
-    [SerializeField] private PlayerSpellIndicator spellIndicator1;
-    [SerializeField] private PlayerSpellIndicator spellIndicator2;
     [SerializeField] private Transform meshParent;
     [SerializeField] private PlayerStatusIndicator statusIndicator;
 
@@ -651,13 +649,11 @@ public class PlayerController : NetworkBehaviour
         {
             firstSpell = spell;
             playerHUD.SetSpell(1, firstSpell.SpellIcon, firstSpell.UsedSpellIcon);
-            spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
         }
         else
         {
             secondSpell = spell;
             playerHUD.SetSpell(2, secondSpell.SpellIcon, secondSpell.UsedSpellIcon);
-            spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
         }
 
         ResetSpell(spellSlotID);
@@ -857,23 +853,13 @@ public class PlayerController : NetworkBehaviour
 
         playerHUD.SetSpell(1, firstSpell.SpellIcon, firstSpell.UsedSpellIcon);
         playerHUD.SetSpell(2, secondSpell.SpellIcon, secondSpell.UsedSpellIcon);
-        spellIndicator1.SetNewSpellColor(firstSpell.IndicatorColor);
-        spellIndicator2.SetNewSpellColor(secondSpell.IndicatorColor);
     }
 
     private IEnumerator SpellCooldown(float time, int spellID)
     {
         float cooldownRate = 1f / time;
         playerHUD.SetSpellCooldown(spellID, cooldownRate);
-        if (spellID == 1)
-        {
-            spellIndicator1.SetSpellCooldown(cooldownRate);
-        }
-        else 
-        {
-            spellIndicator2.SetSpellCooldown(cooldownRate);
-        }
-
+        
         yield return new WaitForSeconds(time);
         ResetSpell(spellID);
     }
