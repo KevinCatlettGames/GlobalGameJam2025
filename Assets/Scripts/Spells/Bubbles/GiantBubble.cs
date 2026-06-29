@@ -12,6 +12,7 @@ public class GiantBubble : BasicBubble
     [SerializeField] private float knbDecreaseIncrement = .25f;
     [SerializeField] private TrailRenderer bigTrail;
     [SerializeField] private Material[] blinkMaterials;
+    [SerializeField] private MeshRenderer meshRenderer;
     [Header("Small Version")]
     [SerializeField] private float dmgMini = 3;
     [SerializeField] private float knbMod = .3f;
@@ -59,8 +60,8 @@ public class GiantBubble : BasicBubble
         base.BubbleMovement();
     }
     private IEnumerator Blink()
-    {
-        MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
+    { 
+        GetComponent<Animation>().Play();
         Material[] materials = meshRenderer.materials;
         meshRenderer.materials = blinkMaterials;
         yield return new WaitForSeconds(.15f);
