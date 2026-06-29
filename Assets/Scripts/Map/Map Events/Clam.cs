@@ -64,13 +64,13 @@ public class Clam : MonoBehaviour
             //Sound
             animator.SetTrigger("Snap");
             pearlAnimator.SetTrigger("Snap");
+            jumpParticleSystem?.Play();
         }
     }
 
     // Called by animation
     public void Snap()
     {
-        jumpParticleSystem?.Play();
         //Sound
         RuntimeManager.PlayOneShotAttached(crunchSoundEvent, gameObject);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
