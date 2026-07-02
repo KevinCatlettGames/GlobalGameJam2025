@@ -13,6 +13,7 @@ public class WallManager : MapEvent
 
     void Update()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         // Remove in final build!
         if (Input.GetKeyDown(KeyCode.B))
         {
@@ -31,6 +32,7 @@ public class WallManager : MapEvent
     }
     private void RiseWalls()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         if (wallsActive)
             return;
 
@@ -48,6 +50,7 @@ public class WallManager : MapEvent
     }
     private void SinkWalls()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         if (!wallsActive)
             return;
 
@@ -59,10 +62,12 @@ public class WallManager : MapEvent
 
     protected override void StartEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         Invoke(nameof(RiseWalls), startDelay);
     }
     protected override void StopEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         if (wallsActive)
         {
             wallFormations[currentFormation].SinkFormation();

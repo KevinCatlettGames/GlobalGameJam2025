@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class ClamEvent : MapEvent
@@ -19,6 +20,7 @@ public class ClamEvent : MapEvent
     }
     private void Update()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         if (isClaming && currentActiveClams < maxClams)
         {
             if (timer >= clamRiseCooldown)
@@ -33,8 +35,16 @@ public class ClamEvent : MapEvent
                         r = 0;
                     clam = clams[r];
                 }
-                clam.gameObject.SetActive(true);
-                clam.Rise();
+
+                if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                {
+                    ToggleClamServerRpc(r, true);
+                }
+                else
+                {
+                    clam.gameObject.SetActive(true);
+                    clam.Rise();
+                }
                 currentActiveClams++;
                 timer = 0;
             }
@@ -44,27 +54,53 @@ public class ClamEvent : MapEvent
             }
         }
     }
+
+    [ServerRpc]
+    void ToggleClamServerRpc(int index, bool value)
+    {
+        ToggleClamClientRpc(index, value);
+    }
+
+    [ClientRpc]
+    void ToggleClamClientRpc(int index, bool value)
+    {
+        if(value)
+            clams[index].gameObject.SetActive(value);
+
+        if(value)
+            clams[index].Rise();
+        else
+            clams[index].DisableClam();
+    }
+
     protected override void StartEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         isClaming = true;
     }
 
     protected override void StopEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         isClaming = false;
         for (int i = 0; i < clams.Length; i++)
         {
-            clams[i].DisableClam();
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ToggleClamServerRpc(i, false);
+            else
+                clams[i].DisableClam();          
         }
     }
 
     private void DecreaseActiveClams()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         currentActiveClams--;
     }
 
     private void OnDestroy()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         for (int i = 0; i < clams.Length; i++)
         {
             clams[i].OnSnap -= DecreaseActiveClams;

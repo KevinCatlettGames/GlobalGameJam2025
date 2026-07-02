@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -38,7 +39,10 @@ public class Clam : MonoBehaviour
         int r = Random.Range(0, materials.Length);
         meshRenderer.material = materials[r];
         clamItem.gameObject.SetActive(true);
-        clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
+
+        if(NetworkManager.Singleton.IsServer)
+            clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
+
         riseParticleSystem?.Play();
         animator.Play("Rise");
         pearlAnimator.Play("Rise");

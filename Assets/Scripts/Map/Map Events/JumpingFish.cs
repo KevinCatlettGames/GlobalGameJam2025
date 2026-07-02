@@ -1,8 +1,9 @@
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Splines;
+using Unity.Netcode; 
 
-public class JumpingFish : MonoBehaviour
+public class JumpingFish : NetworkBehaviour
 {
     private SplineAnimate splineAnimate;
     private bool isJumping = false;
@@ -18,13 +19,21 @@ public class JumpingFish : MonoBehaviour
 
     public void Jump(Transform startPos)
     {
-        if (isJumping) return;
-        transform.position = startPos.position;
-        transform.rotation = startPos.rotation;
-        if (announceVFX)
-            announceVFX.Play();
-        StartCoroutine(JumpCoroutine());
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            JumpServerRpc(startPos.position, startPos.rotation);
+        }
+        else
+        {
+            if (isJumping) return;
+            transform.position = startPos.position;
+            transform.rotation = startPos.rotation;
+            if (announceVFX)
+                announceVFX.Play();
+            StartCoroutine(JumpCoroutine());
+        }
     }
+
     private IEnumerator JumpCoroutine()
     {
         yield return new WaitForSeconds(vfxDelay);
@@ -39,5 +48,22 @@ public class JumpingFish : MonoBehaviour
         yield return new WaitForSeconds(.2f);
         fish.SetActive(false);
         isJumping = false;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void JumpServerRpc(Vector3 pos, Quaternion rot)
+    {
+        JumpClientRpc(pos, rot);
+    }
+
+    [ClientRpc]
+     void JumpClientRpc(Vector3 pos, Quaternion rot)
+    {
+        if (isJumping) return;
+        transform.position = pos;
+        transform.rotation = rot;
+        if (announceVFX)
+            announceVFX.Play();
+        StartCoroutine(JumpCoroutine());
     }
 }

@@ -260,8 +260,10 @@ public class LobbyManager : NetworkBehaviour
 
     void OnClientConnectedCallback(ulong playerIndex)
     {
+        if (!IsServer) return;
         Debug.Log("Updating selectedgame mode");
         ChangeSelectedGameModeServerRpc();
+        OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
     }
 
     private void OnDisable()
@@ -810,5 +812,20 @@ public class LobbyManager : NetworkBehaviour
         playerContainers[playerIndex]
        .GetComponentInChildren<TeamSelection>()
        .ChangeTeam();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void OnClientConnectedWinConditionUpdateServerRpc(ulong playerIndex)
+    {
+        OnClientConnectedWinConditionUpdateClientRpc(playerIndex, this.playEndless, this.winsNeeded);
+    }
+
+    [ClientRpc]
+    public void OnClientConnectedWinConditionUpdateClientRpc(ulong playerIndex, bool playEndless, int winsNeeded)
+    {
+        if (NetworkManager.Singleton.LocalClientId != playerIndex) return; 
+
+        this.playEndless = playEndless;
+        this.winsNeeded = winsNeeded;
     }
 }

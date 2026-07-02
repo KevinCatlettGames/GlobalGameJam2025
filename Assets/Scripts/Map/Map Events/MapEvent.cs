@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public abstract class MapEvent : MonoBehaviour
+public abstract class MapEvent : NetworkBehaviour
 {
     [SerializeField] private float firstStartDelay = 5f;
     [SerializeField] private int mapID = 0;

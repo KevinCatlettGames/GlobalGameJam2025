@@ -32,9 +32,21 @@ public class Puddle : NetworkBehaviour
     private IEnumerator DespawnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay - fadeDuration);
-        animator.SetTrigger("Fade");
+        SetFadeAnimServerRpc();
         yield return new WaitForSeconds(fadeDuration);
         NetworkObject.Despawn();
         Destroy(gameObject);
+    }
+
+    [ServerRpc]
+    void SetFadeAnimServerRpc()
+    {
+        SetFadeAnimClientRpc();
+    }
+
+    [ClientRpc]
+    void SetFadeAnimClientRpc()
+    {
+        animator.SetTrigger("Fade");
     }
 }

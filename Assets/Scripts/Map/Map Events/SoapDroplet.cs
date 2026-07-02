@@ -1,7 +1,8 @@
-using System.Collections;
 using FMODUnity;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 public class SoapDroplet : NetworkBehaviour
 {
@@ -36,16 +37,39 @@ public class SoapDroplet : NetworkBehaviour
 
     public void ActivateDroplet(Vector3 position, float time)
     {
-        gameObject.SetActive(true);
-        size = Random.Range(minSize, maxSize);
-        transform.localScale = Vector3.one * size;
-        transform.position = position;
-        StartCoroutine(Fall(time));
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer)
+            ActivateDropletServerRpc(position, time);
+        else
+        {
+            gameObject.SetActive(true);
+            size = Random.Range(minSize, maxSize);
+            transform.localScale = Vector3.one * size;
+            transform.position = position;
+            float delay = Random.Range(0f, time);
+            StartCoroutine(Fall(delay));
+        }
     }
 
-    private IEnumerator Fall(float maxDelay)
+    [ServerRpc]
+    void ActivateDropletServerRpc(Vector3 position, float time)
     {
-        float delay = Random.Range(0f, maxDelay);
+        size = Random.Range(minSize, maxSize);
+        float delay = Random.Range(0f, time);
+        ActivateDropletClientRpc(position, delay, size);
+    }
+
+    [ClientRpc]
+    void ActivateDropletClientRpc(Vector3 position, float delay, float size)
+    {
+        this.size = size;
+        gameObject.SetActive(true);
+        transform.localScale = Vector3.one * size;
+        transform.position = position;
+        StartCoroutine(Fall(delay));
+    }
+
+    private IEnumerator Fall(float delay)
+    {
         yield return new WaitForSeconds(delay);
         dropletTransform.gameObject.SetActive(true);
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
@@ -59,11 +83,14 @@ public class SoapDroplet : NetworkBehaviour
             dropletTransform.position = dropletTransform.position + fallSpeed * Time.deltaTime * Vector3.down;
             yield return null;
         }
-        
-        GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
-        splash.transform.localScale = Vector3.one * size;
-        splash.GetComponent<NetworkObject>()?.Spawn();
-        
+
+        if (IsServer)
+        {
+            GameObject splash = Instantiate(soapSplash, transform.position, Quaternion.identity);
+            splash.transform.localScale = Vector3.one * size;
+            splash.GetComponent<NetworkObject>()?.Spawn();
+        }
+
         RuntimeManager.PlayOneShotAttached(splatEvent, gameObject);
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
