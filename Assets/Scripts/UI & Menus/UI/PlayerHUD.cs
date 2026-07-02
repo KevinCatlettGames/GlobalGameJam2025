@@ -27,6 +27,8 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private float shakeAmplitude = 2f;
     [SerializeField] private RectTransform firstSpellTransform;
     [SerializeField] private RectTransform secondSpellTransform;
+    [SerializeField] private Animator highDamageIndicator;
+    [SerializeField] private float highDamageThreshold = 100f;
     private Coroutine firstSpellShake;
     private Coroutine secondSpellShake;
 
@@ -236,9 +238,10 @@ public class PlayerHUD : NetworkBehaviour
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
             damageTypewriter.enabled = true;
         }
-        if (damage >= 100 && currentPortraitIndex != 2)
+        if (damage >= highDamageThreshold && currentPortraitIndex != 2)
         {
             SetPortrait(1);
+            highDamageIndicator.SetBool("hasHighDamage", true);
         }
     }
 
@@ -246,6 +249,7 @@ public class PlayerHUD : NetworkBehaviour
     {
         SetPortrait(2);
         UICover.SetActive(true);
+        highDamageIndicator.SetBool("hasHighDamage", false);
         if (maxLifes != -1 && maxLifes > 1)
         {
             lifes--;
@@ -269,6 +273,7 @@ public class PlayerHUD : NetworkBehaviour
         SetPortrait(0);
         ChargeUlt(false);
         SetUltSlider(0);
+        highDamageIndicator.SetBool("hasHighDamage", false);
     }
 
     private void SetPortrait(int portaritIndex)
