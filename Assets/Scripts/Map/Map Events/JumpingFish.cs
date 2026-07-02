@@ -1,9 +1,10 @@
 using System.Collections;
+using FMODUnity;
 using UnityEngine;
 using UnityEngine.Splines;
 using Unity.Netcode; 
 
-public class JumpingFish : NetworkBehaviour
+public class JumpingFish : MonoBehaviour
 {
     private SplineAnimate splineAnimate;
     private bool isJumping = false;
@@ -12,6 +13,7 @@ public class JumpingFish : NetworkBehaviour
     [SerializeField] private ParticleSystem announceVFX;
     [SerializeField] private ParticleSystem dipVFX;
     [SerializeField] private float vfxDelay = .5f;
+    [SerializeField] private EventReference emergeEvent;
     void Start()
     {
         splineAnimate = fish.GetComponent<SplineAnimate>();
@@ -30,6 +32,7 @@ public class JumpingFish : NetworkBehaviour
             transform.rotation = startPos.rotation;
             if (announceVFX)
                 announceVFX.Play();
+            RuntimeManager.PlayOneShotAttached(emergeEvent, gameObject);
             StartCoroutine(JumpCoroutine());
         }
     }
@@ -64,6 +67,7 @@ public class JumpingFish : NetworkBehaviour
         transform.rotation = rot;
         if (announceVFX)
             announceVFX.Play();
+        RuntimeManager.PlayOneShotAttached(emergeEvent, gameObject);
         StartCoroutine(JumpCoroutine());
     }
 }
