@@ -2081,7 +2081,7 @@ PrefabInstance:
     - target: {fileID: 4799993678396199993, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: orthographic size
-      value: 19.75
+      value: 18
       objectReference: {fileID: 0}
     - target: {fileID: 5875625888587195999, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
@@ -3030,6 +3030,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1346659141}
+  - component: {fileID: 1346659143}
   - component: {fileID: 1346659142}
   m_Layer: 0
   m_Name: MapEvent
@@ -3068,6 +3069,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c58ef26123603d74cb89bdba8d192a5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   firstStartDelay: 5
   mapID: 3
   jumpingFish: {fileID: 1435557998}
@@ -3080,6 +3082,31 @@ MonoBehaviour:
   - {fileID: 1495729898}
   startDelay: 3
   jumpDelay: 10
+--- !u!114 &1346659143
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1346659140}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 3707356487
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &1384789615
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -3223,6 +3250,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1435557997}
+  - component: {fileID: 1435557999}
   - component: {fileID: 1435557998}
   m_Layer: 0
   m_Name: JumpingFish
@@ -3261,6 +3289,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4361f8221f4cd6f42baa73d76440b272, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   fish: {fileID: 2052801818}
   jumpVFX: {fileID: 320674141}
   announceVFX: {fileID: 1617535057}
@@ -3273,6 +3302,31 @@ MonoBehaviour:
       Data3: -151826800
       Data4: 791412925
     Path: event:/sfx/map/fish_emerge
+--- !u!114 &1435557999
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1435557996}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 4283552411
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1 &1495729897
 GameObject:
   m_ObjectHideFlags: 0

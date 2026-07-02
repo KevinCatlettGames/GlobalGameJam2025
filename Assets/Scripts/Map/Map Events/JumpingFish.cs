@@ -4,7 +4,7 @@ using UnityEngine;
 using UnityEngine.Splines;
 using Unity.Netcode; 
 
-public class JumpingFish : MonoBehaviour
+public class JumpingFish : NetworkBehaviour
 {
     private SplineAnimate splineAnimate;
     private bool isJumping = false;

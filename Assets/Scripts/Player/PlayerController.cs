@@ -1118,7 +1118,7 @@ public class PlayerController : NetworkBehaviour
     {
         EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Flinch");
         float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
         float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
         int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
@@ -1347,8 +1347,36 @@ public class PlayerController : NetworkBehaviour
     {
         if (isStunned || duration <= 0)
             return;
-        StartCoroutine(StunCoroutine(duration));
+
+        if (GameManager.Instance.PlayingLocal)
+            StartCoroutine(StunCoroutine(duration));
+        else
+            StunServerRpc(duration);
+
     }
+
+    [ServerRpc]
+    void StunServerRpc(float duration)
+    {
+        StunClientRpc(duration);
+    }
+
+    [ClientRpc]
+    void StunClientRpc(float duration)
+    {
+        NetcodeStunCoroutine(duration);
+    }
+
+    IEnumerator NetcodeStunCoroutine(float duration)
+    {
+        isStunned = true;
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", true);
+        controllerRumbler?.Rumble(duration, 1f, 5f);
+        yield return new WaitForSeconds(duration);
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", false);
+        isStunned = false;
+    }
+
     private IEnumerator StunCoroutine(float duration)
     {
         isStunned = true;
@@ -1473,7 +1501,6 @@ public class PlayerController : NetworkBehaviour
             // 1. Get the animator from your newly spawned skin
             mainAnimator = GetComponent<Animator>();
             SetupProxyAnimatorClientRpc();
-            shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
         }
         else
         {
@@ -1501,7 +1528,8 @@ public class PlayerController : NetworkBehaviour
             }
 
             mainAnimator = childAnimatorObject.GetComponent<Animator>();
-            shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>(); 
+            shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
+            shaderManager?.SetStatusIndicator(statusIndicator);
         }
         
         playerHUD.UpdateDamageText((int)damage);
@@ -1519,6 +1547,8 @@ public class PlayerController : NetworkBehaviour
     void SetupProxyAnimatorClientRpc()
     {
         GetComponent<NetworkAnimatorProxy>().RegisterChildAnimator(childAnimatorObject.GetComponent<Animator>());
+        shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
+        shaderManager?.SetStatusIndicator(statusIndicator);
     }
 
     [ServerRpc(RequireOwnership = false)]

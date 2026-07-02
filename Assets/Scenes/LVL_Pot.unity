@@ -312,6 +312,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 80490556}
+  - component: {fileID: 80490558}
   - component: {fileID: 80490557}
   m_Layer: 0
   m_Name: MapEvent
@@ -352,6 +353,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c578e7be15a3fb24984e0f5906107722, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   firstStartDelay: 5
   mapID: 1
   wallFormations:
@@ -363,6 +365,31 @@ MonoBehaviour:
   stayTime: 20
   sinkTime: 3
   startDelay: 5
+--- !u!114 &80490558
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 80490555}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 1740085268
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!4 &81884238 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3502345941096782607, guid: 0ec2ba7b4a5f947498736da14883745a,
@@ -491,6 +518,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef20475f60cc7b64684480000119d61d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &228776523
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -886,6 +914,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef20475f60cc7b64684480000119d61d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &350670516
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -6765,6 +6794,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef20475f60cc7b64684480000119d61d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1 &920124985 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 3661656067799943252, guid: ef310da78073cd04982db8f49e852300,
@@ -17587,6 +17617,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef20475f60cc7b64684480000119d61d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
 --- !u!1001 &1818541699
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -18549,6 +18580,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2144237091}
+  - component: {fileID: 2144237093}
   - component: {fileID: 2144237092}
   m_Layer: 0
   m_Name: Formation1
@@ -18589,6 +18621,32 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ef20475f60cc7b64684480000119d61d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+--- !u!114 &2144237093
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2144237090}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  GlobalObjectIdHash: 2092944631
+  InScenePlacedSourceGlobalObjectIdHash: 0
+  DeferredDespawnTick: 0
+  Ownership: 1
+  AlwaysReplicateAsRoot: 0
+  SynchronizeTransform: 1
+  ActiveSceneSynchronization: 0
+  SceneMigrationSynchronization: 0
+  SpawnWithObservers: 1
+  DontDestroyWithOwner: 0
+  AutoObjectParentSync: 1
+  SyncOwnerTransformWhenParented: 1
+  AllowOwnerToParent: 0
 --- !u!1001 &1608606915266651741
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -23700,6 +23758,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_RenderingLayerMask
       value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5634872091706117420, guid: 88dc1d66c30f3504e9f67d62de862b50,
+        type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -2.5
       objectReference: {fileID: 0}
     - target: {fileID: 5642987130157179827, guid: 88dc1d66c30f3504e9f67d62de862b50,
         type: 3}
