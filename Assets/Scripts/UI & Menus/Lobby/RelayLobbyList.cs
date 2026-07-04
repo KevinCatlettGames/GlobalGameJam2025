@@ -13,7 +13,7 @@ public class RelayLobbyList : MonoBehaviour
     [Header("UI References")]
     public GameObject publicLobbyListPrefab; // Prefab representing each lobby entry
     public Transform lobbyListContainer;     // Parent transform for instantiated lobby items
-
+    public GameObject noLobbiesText;
     /// <summary>
     /// List of currently fetched lobbies.
     /// </summary>
@@ -43,6 +43,9 @@ public class RelayLobbyList : MonoBehaviour
         lobbyItems.Clear();
         CurrentLobbies = await GetPublicLobbiesAsync(20);
         PopulateLobbyList();
+
+        int lobbyAmountinList = lobbyListContainer.childCount;
+        noLobbiesText.SetActive(lobbyAmountinList <= 0);
     }
 
     /// <summary>

@@ -11,7 +11,6 @@ public class OnlineCreationUI : MonoBehaviour
     [SerializeField] private Button joinCodeButton;
     [SerializeField] private Button createPublicButton;
     [SerializeField] private Button createPrivateButton;
-    [SerializeField] private Button refreshButton;
 
     [Header("UI Panels & Inputs")]
     [SerializeField] private GameObject lobbyList;
@@ -51,7 +50,6 @@ public class OnlineCreationUI : MonoBehaviour
         serverNameInputField.gameObject.SetActive(true);
         createPublicButton.gameObject.SetActive(true);
         createPrivateButton.gameObject.SetActive(true);
-        refreshButton.gameObject.SetActive(false);
         lobbyList.SetActive(true);
     }
 

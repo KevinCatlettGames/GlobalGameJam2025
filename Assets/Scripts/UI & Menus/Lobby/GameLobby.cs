@@ -65,8 +65,7 @@ public class GameLobby : MonoBehaviour
 
     public GameObject lobby;
     public GameObject onlineMatchmakingParent;
-
-
+    public GameObject lobbyNotFoundText;
 
     /// <summary>
     /// Unity Awake method. Initializes singleton and Unity Authentication.
@@ -116,8 +115,8 @@ public class GameLobby : MonoBehaviour
             ConfigureTransport(allocation);
 
             NetworkManager.Singleton.StartHost();
+            relayServerHeartbeat.gameObject.SetActive(true);
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
-
             //NetworkManager.Singleton.SceneManager.LoadScene("UI_Lobby", LoadSceneMode.Single);
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
@@ -158,7 +157,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
-            Debug.LogError(e);
+            lobbyNotFoundText.SetActive(true);
         }
     }
 
@@ -209,7 +208,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
-            Debug.LogError(e);
+            lobbyNotFoundText.SetActive(true);
         }       
     }
 
@@ -228,7 +227,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
-            Debug.LogError($"Failed to join lobby: {e}");
+            lobbyNotFoundText.SetActive(true);
         }
     }
 
