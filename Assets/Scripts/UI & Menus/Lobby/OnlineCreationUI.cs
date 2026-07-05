@@ -20,6 +20,7 @@ public class OnlineCreationUI : MonoBehaviour
     [Header("Settings")]
     [SerializeField] private EventSystem eventSystem;
     public GameObject lobbyUI;
+
     private void Awake()
     {
         joinCodeButton.onClick.AddListener(() =>
@@ -45,7 +46,6 @@ public class OnlineCreationUI : MonoBehaviour
 
     private void OnEnable()
     {
-        joinCodeButton.gameObject.SetActive(true);
         joinCodeInputField.gameObject.SetActive(true);
         serverNameInputField.gameObject.SetActive(true);
         createPublicButton.gameObject.SetActive(true);
