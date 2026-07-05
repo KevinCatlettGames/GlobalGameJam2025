@@ -56,7 +56,6 @@ public class Countdown : MonoBehaviour
             if (spriteIndex >= 0 && spriteIndex < countdownSprites.Length)
             {
                 countdownImage.sprite = countdownSprites[spriteIndex];
-                //countdownEmitters[spriteIndex].Play();
             }
 
             yield return new WaitForSeconds(timeBetweenElements);
@@ -66,9 +65,7 @@ public class Countdown : MonoBehaviour
         if (goSprite != null)
         {
             countdownImage.sprite = goSprite;
-            //goEmitter.Play();
         }
-        Debug.Log("Invoking event");
         onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);

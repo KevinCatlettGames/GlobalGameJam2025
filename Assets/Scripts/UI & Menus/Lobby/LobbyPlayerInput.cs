@@ -253,7 +253,6 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnTeamNavigation(InputAction.CallbackContext context)
     {
-        Debug.Log("entered team nav");
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
@@ -273,7 +272,6 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
 
         canNavigateTeam = false;
-        Debug.Log("in team nav");
         if (TransportSwitcher.Instance.isUsingRelay)
         {
             lobbyManager.UpdateTeamServerRpc(lobbyPlayerInputIndex);

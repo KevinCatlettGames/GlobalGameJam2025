@@ -89,7 +89,6 @@ public class GameManager : NetworkBehaviour
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            Debug.Log("Event subsribed to");
             countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
         }
         else
@@ -111,14 +110,12 @@ public class GameManager : NetworkBehaviour
     {
         if (LobbyManager.instance && countdown)
         {
-            Debug.Log("Unsubscribed");
             countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);
         }
     }
 
     private void StartGameAfterDelay()
     {
-        Debug.Log("In start game");
         if (!TransportSwitcher.Instance && NetworkManager.Singleton.ConnectedClients.Count < 2)
         {
             ChangePlayerStatesLocal(playerStates);
@@ -127,7 +124,6 @@ public class GameManager : NetworkBehaviour
         }
         else if (IsServer || NetworkManager.Singleton.ConnectedClients.Count == 1)
         {
-            Debug.Log("initializing game");
             ChangePlayerStatesServerRpc(playerStates);
 
             foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
@@ -209,13 +205,11 @@ public class GameManager : NetworkBehaviour
             
             if (index == playerController.PlayerID)
             {
-                // Found the player that caused a hit on an enemy
                 playerController.UnlockShotsHitInARowAchievement(true);
             }
 
             if (playerHitID == playerController.PlayerID)
             {
-                // Found the player that was hit by an enemy
                 playerController.UnlockShotsHitInARowAchievement(false);
             }
         }
@@ -317,7 +311,6 @@ public class GameManager : NetworkBehaviour
 
         if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
-            // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
             IncrementSlipperyKillAchievement(killCredit);
@@ -350,7 +343,6 @@ public class GameManager : NetworkBehaviour
         
         if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
-            // Debug.Log("Kill registered by player "+ killCredit +", killing player "+ hitReferences[killCredit].playerHitID  +", with the spell " + hitReferences[killCredit].spellType);
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
             IncrementSlipperyKillAchievement(killCredit);

@@ -197,7 +197,10 @@ public class BasicBubble : NetworkBehaviour
             if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+            {
+                if(IsOwner)
+                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+            }
 
             gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
             if(!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);

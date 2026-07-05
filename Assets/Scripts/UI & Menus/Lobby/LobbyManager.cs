@@ -232,7 +232,6 @@ public class LobbyManager : NetworkBehaviour
         }
         else if (IsServer)
         {
-            Debug.Log("Spawning player");
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
         }
@@ -261,7 +260,6 @@ public class LobbyManager : NetworkBehaviour
     void OnClientConnectedCallback(ulong playerIndex)
     {
         if (!IsServer) return;
-        Debug.Log("Updating selectedgame mode");
         ChangeSelectedGameModeServerRpc();
         OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
     }

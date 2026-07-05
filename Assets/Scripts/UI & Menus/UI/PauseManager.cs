@@ -47,14 +47,12 @@ public class PauseManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to NGO disconnects as fallback
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
     }
     
     private void OnClientDisconnect(ulong clientId)
     {
-        // Fired for any disconnect; only care if host disconnects
         if (clientId == 1)
         {
             Debug.Log("Host disconnected — returning to main menu...");
@@ -64,7 +62,6 @@ public class PauseManager : MonoBehaviour
 
     private void OnDisable()
     {
-        // Unsubscribe NGO disconnects
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
     }
@@ -170,7 +167,7 @@ public class PauseManager : MonoBehaviour
                 {
                     var options = new UpdateLobbyOptions { IsPrivate = true };
                     await LobbyService.Instance.UpdateLobbyAsync(lobbyId, options);
-                    await Task.Delay(100); // tiny pause to ensure update propagates
+                    await Task.Delay(100);
                     await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
                 }
                 else

@@ -1,4 +1,4 @@
-using FMOD.Studio;
+﻿using FMOD.Studio;
 using FMODUnity;
 using System;
 using System.Collections;
@@ -202,7 +202,6 @@ public class PlayerController : NetworkBehaviour
         if (IsOwner)
         {
             var netObj = GetComponent<NetworkObject>();
-            //PlayerManager.Instance?.AddPlayerServerRpc(new NetworkObjectReference(netObj));
             EnableInput();
         }
 
@@ -565,7 +564,6 @@ public class PlayerController : NetworkBehaviour
     private void SlapAnimClientRpc(bool isFirstSpell)
     {
         GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
-        //mainAnimator.SetTrigger("SlapTrigger");
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
@@ -788,7 +786,6 @@ public class PlayerController : NetworkBehaviour
     private void EmoteAnimServerRpc(Vector2 value)
     {
         EmoteAnimClientRpc(value);
-        //mainAnimator.SetTrigger("Emote");
     }
 
     [ClientRpc]
@@ -940,92 +937,6 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += direction * force; 
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
-    {
-        ApplyKnockbackClientRpc(ID, direction, force, dmg);
-    }
-
-    [ClientRpc]
-    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
-    {
-        if (isDead && !IsOwner) return;
-
-        if (isVulnerable)
-        {
-            if(vulnerableHitEffect)
-                vulnerableHitEffect.Play();
-            dmg *= vulnerableFactor;
-            force *= vulnerableFactor;
-
-            EventInstance fmodEvent = RuntimeManager.CreateInstance(vulnerableDamageEvent);
-            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-            fmodEvent.start();
-            fmodEvent.release();
-
-            StopVulnerable();
-        }
-
-        if (isSlippery)
-        {
-            force *= slipperyModifier;
-            splashEffect.Play();
-        }
-        
-        direction.y = 0;
-        // Fixed knockback for -2 ID
-        float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
-        Vector3 knockback = mul * force * direction.normalized;
-
-        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
-            killCreditID = ID;
-
-        knockbackVelocity += knockback;
-        damage += dmg;
-
-        if(dmg > 0)
-        {
-            damageGenerator?.SpawnDamagePopup((int)dmg);
-            playerHUD.UpdateDamageText((int)damage);
-            damagedEffect.UpdateParticleSystem(damage);
-            damageParticleSystem.Play();
-            GainUltCharge(dmg, false);
-
-            if (GameManager.Instance.PlayingLocal)
-            {
-                mainAnimator.SetTrigger("Flinch");
-                if (force != 0)
-                {
-                    EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-                    RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-                    float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
-                    float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-                    int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-                    fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-                    fmodEvent.start();
-                    fmodEvent.release();
-                }
-                else
-                {
-                    RuntimeManager.PlayOneShotAttached(tickDamageEvent, gameObject);
-                }
-                
-                shaderManager?.DamageEffect(damageColorEffectDuration);
-                
-                float knbMagnitude = knockbackVelocity.magnitude;
-                float duration = knbMagnitude * rumbleDurationFactor;
-                controllerRumbler?.Rumble(duration, force, dmg);
-            }
-            else
-            {
-                FlinchAnimServerRpc(force, dmg);
-                
-                float knbMagnitude = knockbackVelocity.magnitude;
-                float duration = knbMagnitude * rumbleDurationFactor;
-                controllerRumbler?.Rumble(duration, force, dmg);
-            }
-        }
-    }
     public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
     {
         if (isDead) return;
@@ -1070,64 +981,113 @@ public class PlayerController : NetworkBehaviour
             damagedEffect.UpdateParticleSystem(damage);
             GainUltCharge(dmg, false);
 
-            if (GameManager.Instance.PlayingLocal)
+            mainAnimator.SetTrigger("Flinch");
+
+            if (force != 0)
             {
-                mainAnimator.SetTrigger("Flinch");
-
-                if (force != 0)
-                {
-                    EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-                    RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-                    float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
-                    float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-                    int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-                    fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-                    fmodEvent.start();
-                    fmodEvent.release();
-                }
-                else
-                {
-                    RuntimeManager.PlayOneShotAttached(tickDamageEvent, gameObject);
-                }
-
-                shaderManager?.DamageEffect(damageColorEffectDuration);
-
-                float knbMagnitude = knockbackVelocity.magnitude;
-                float duration = knbMagnitude * rumbleDurationFactor;
-                controllerRumbler?.Rumble(duration, force, dmg);
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+                float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, knockback.magnitude);
+                float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+                int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+                fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+                fmodEvent.start();
+                fmodEvent.release();
             }
             else
             {
-                FlinchAnimServerRpc(force, dmg);
-
-                float knbMagnitude = knockbackVelocity.magnitude;
-                float duration = knbMagnitude * rumbleDurationFactor;
-                controllerRumbler?.Rumble(duration, force, dmg);
+                RuntimeManager.PlayOneShotAttached(tickDamageEvent, gameObject);
             }
+
+            shaderManager?.DamageEffect(damageColorEffectDuration);
+
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void FlinchAnimServerRpc(float force, float dmg)
-    {       
-        FlinchAnimClientRpc(force, dmg);
+    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
+    {
+        ApplyKnockbackClientRpc(ID, direction, force, dmg);
     }
 
     [ClientRpc]
-    void FlinchAnimClientRpc(float force, float dmg)
+    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
     {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
-        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
-        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Flinch");
-        float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
-        float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
-        int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
-        fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
-        fmodEvent.start();
-        fmodEvent.release();
+        if (isDead && !IsOwner) return;
 
-        shaderManager?.DamageEffect(damageColorEffectDuration);
+        if (isVulnerable)
+        {
+            if (vulnerableHitEffect)
+                vulnerableHitEffect.Play();
+            dmg *= vulnerableFactor;
+            force *= vulnerableFactor;
+
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(vulnerableDamageEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.start();
+            fmodEvent.release();
+
+            StopVulnerable();
+        }
+
+        if (isSlippery)
+        {
+            force *= slipperyModifier;
+            splashEffect.Play();
+        }
+
+        direction.y = 0;
+        // Fixed knockback for -2 ID
+        float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
+        Vector3 knockback = mul * force * direction.normalized;
+
+        if (knockback.sqrMagnitude >= knockbackVelocity.sqrMagnitude)
+            killCreditID = ID;
+
+        knockbackVelocity += knockback;
+        damage += dmg;
+
+        if (dmg > 0)
+        {
+            // Spawns exactly once per client network broadcast
+            damageGenerator?.SpawnDamagePopup((int)dmg);
+            playerHUD.UpdateDamageText((int)damage);
+            damagedEffect.UpdateParticleSystem(damage);
+            damageParticleSystem.Play();
+            GainUltCharge(dmg, false);
+
+            // Trigger animation safely through your proxy split gates
+            GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Flinch");
+
+            // 🟢 FIX: Move the audio & shader logic directly here. No more FlinchServerRpc!
+            if (force != 0)
+            {
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(knockBackEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+                float normalized = Mathf.InverseLerp(0f, knockBackEventMaxIntensity, force);
+                float knockBackEventValue = Mathf.Clamp(normalized * 2f, 0f, 2f);
+                int knockBackEventInt = Mathf.RoundToInt(knockBackEventValue);
+                fmodEvent.setParameterByName(knockBackEventIntensityParam, knockBackEventInt);
+                fmodEvent.start();
+                fmodEvent.release();
+            }
+            else
+            {
+                RuntimeManager.PlayOneShotAttached(tickDamageEvent, gameObject);
+            }
+
+            shaderManager?.DamageEffect(damageColorEffectDuration);
+
+            float knbMagnitude = knockbackVelocity.magnitude;
+            float duration = knbMagnitude * rumbleDurationFactor;
+            controllerRumbler?.Rumble(duration, force, dmg);
+        }
     }
+
+    // 🟢 DELETED: FlinchServerRpc and FlinchClientRpc are no longer needed!
 
     [ServerRpc(RequireOwnership = false)]
     void DeadAnimServerRpc(bool activationState)

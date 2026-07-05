@@ -20,7 +20,7 @@ public class ClamEvent : MapEvent
     }
     private void Update()
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
         if (isClaming && currentActiveClams < maxClams)
         {
             if (timer >= clamRiseCooldown)
@@ -103,7 +103,7 @@ public class ClamEvent : MapEvent
 
     private void OnDestroy()
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
         for (int i = 0; i < clams.Length; i++)
         {
             clams[i].OnSnap -= DecreaseActiveClams;

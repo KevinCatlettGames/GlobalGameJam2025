@@ -100,7 +100,6 @@ public class LobbyPlayerValues : NetworkBehaviour
             if(values.PlayerIndex == (int)clientId)
                 disconnectedPlayerValues = values;
         }
-        Debug.Log("Removal");
         if(disconnectedPlayerValues != null)
             playerValuesList.Remove(disconnectedPlayerValues);
     }
