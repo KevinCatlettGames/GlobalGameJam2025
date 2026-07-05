@@ -313,13 +313,7 @@ public class GameManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     public virtual void DeathReportServerRpc(int playerID, int killCredit)
     {
-        if (killCredit >= 0 && killCredit < maxPlayers)
-        {
-            if (gameModeType == GameModeType.Standard)
-                ScoreManager.Instance.AddPendingScore(killCredit, false);
-            else if (gameModeType == GameModeType.Team)
-                ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
-        }
+        DeathReportClientRpc(playerID, killCredit);
 
         if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
@@ -330,6 +324,18 @@ public class GameManager : NetworkBehaviour
             IncrementReflectedKillAchievement(killCredit);
         }
         CheckForRoundEndServerRpc();       
+    }
+
+    [ClientRpc]
+    void DeathReportClientRpc(int playerID, int killCredit)
+    {
+        if (killCredit >= 0 && killCredit < maxPlayers)
+        {
+            if (gameModeType == GameModeType.Standard)
+                ScoreManager.Instance.AddPendingScore(killCredit, false);
+            else if (gameModeType == GameModeType.Team)
+                ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
+        }
     }
 
     public virtual void DeathReportLocal(int playerID, int killCredit)

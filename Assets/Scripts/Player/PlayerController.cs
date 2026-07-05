@@ -1169,7 +1169,9 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);
+            if(IsOwner)
+                GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);
+
             DisableUIElementsServerRpc();
         }
 
