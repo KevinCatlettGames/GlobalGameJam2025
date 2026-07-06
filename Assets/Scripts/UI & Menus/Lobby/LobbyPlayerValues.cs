@@ -112,42 +112,28 @@ public class LobbyPlayerValues : NetworkBehaviour
                 .GetComponent<PlayerContainerManager>()
                 .isReady;
 
-            SharePlayerValuesServerRpc(pv.PlayerIndex, pv.Skin.Index, isReady, clientIDToShareTo, pv.TeamIndex);
+            SharePlayerValuesServerRpc(pv.PlayerIndex, isReady, clientIDToShareTo, pv.TeamIndex);
         }
     }
 
     [ServerRpc(RequireOwnership = true)]
-    public void SharePlayerValuesServerRpc(int playerIndex, int skinIndex, bool isReady, ulong clientIDToShareTo, int teamIndex)
+    public void SharePlayerValuesServerRpc(int playerIndex, bool isReady, ulong clientIDToShareTo, int teamIndex)
     {
-        SharePlayerValuesClientRpc(playerIndex, skinIndex, isReady, clientIDToShareTo, teamIndex);
+        SharePlayerValuesClientRpc(playerIndex, isReady, clientIDToShareTo, teamIndex);
     }
 
     [ClientRpc]
-    private void SharePlayerValuesClientRpc(int playerIndex, int skinIndex, bool isReady, ulong clientIDToShareTo, int teamIndex)
+    private void SharePlayerValuesClientRpc(int playerIndex, bool isReady, ulong clientIDToShareTo, int teamIndex)
     {
         if (IsServer || NetworkManager.Singleton.LocalClientId != clientIDToShareTo)
             return;
 
-        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[0];
-
-        foreach (SkinSO skin in LobbyManager.instance.PossibleSkins)
-        {
-            if (skin.Index == skinIndex)
-            {
-                skinToUse = skin;
-                break;
-            }
-        }
-
-        playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse, teamIndex));
+        playerValuesList.Add(new PlayerValues(playerIndex, null, LobbyManager.instance.PossibleSkins[0], teamIndex));
 
         SortPlayerValues();
-        LobbyManager.instance.UpdatePlayerUIAndOccupiedState();
 
         var skinChange = LobbyManager.instance.playerContainers[playerIndex]
-            .GetComponent<PlayerContainerSkinChange>();
-
-        skinChange.currentColorIndex = skinToUse.Index;
+    .GetComponent<PlayerContainerSkinChange>();
 
         if (isReady &&
             !LobbyManager.instance.playerContainers[playerIndex]
@@ -158,6 +144,8 @@ public class LobbyPlayerValues : NetworkBehaviour
                 .GetComponent<PlayerContainerManager>()
                 .ReadyStateUpdated(playerIndex, false);
         }
+
+        LobbyManager.instance.UpdatePlayerUIAndOccupiedState();
     }
 
     [ServerRpc]

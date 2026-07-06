@@ -10,6 +10,7 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinButtonHandler topSkinSelection;
     public SkinButtonHandler bottomSkinSelection;
 
+    public int skinButtonHandlerIndex = -1;
     public Image[] selectionimages;
     public TextMeshProUGUI[] selectionTexts;
 

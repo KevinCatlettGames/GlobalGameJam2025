@@ -2,6 +2,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using FMODUnity;
+using Unity.VisualScripting;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
@@ -37,6 +38,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     private void OnEnable()
     {
+        Invoke(nameof(Init), .2f);
+    }
+
+    void Init()
+    {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.AddListener(ReadyStateUpdated);
 
@@ -51,7 +57,35 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         init = true;
         UpdateBlur();
+    }
 
+
+    private void Start()
+    {
+        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+        }
+    }
+
+    void OnClientConnectedCallback(ulong clientID)
+    {
+        ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
+    }
+
+    [ClientRpc]
+    void ShareValuesClientRpc(ulong clientID, int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientID) return;
+        init = true;
+        wasInit = true;
+        this.currentColorIndex = currentColorIndex;
+        this.currentlyOnLocked = currentlyOnLocked;
+        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        avatar.GetComponent<ScaleToCorrectSize>().Play();
+        UpdateSkin();
+        UpdateBlur();
     }
 
     public void ReadyStateUpdated(int playerIndex, bool state)

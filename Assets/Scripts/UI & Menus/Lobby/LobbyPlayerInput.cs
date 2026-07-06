@@ -71,11 +71,13 @@ public class LobbyPlayerInput : NetworkBehaviour
             else
             {
                 playerIndex = go.GetComponent<PlayerContainerManager>().uiIndex;
-
-                if(!TransportSwitcher.Instance.isUsingRelay)
+                if (!TransportSwitcher.Instance.isUsingRelay)
                     go.GetComponent<PlayerContainerManager>().occupied = true;
                 else
+                {
+                    go.GetComponent<PlayerContainerManager>().ToggleYouText(true);
                     SetOccupiedPlayerContainerServerRpc(playerIndex, true);
+                }
 
                 break;
             }
@@ -198,6 +200,8 @@ public class LobbyPlayerInput : NetworkBehaviour
                 else
                 {
                     lobbyManager.playerContainers[playerIndex].GetComponent<PlayerContainerSkinChange>().ResetContainerServerRpc();
+                    lobbyManager.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().ToggleYouText(false);
+
                     SetOccupiedPlayerContainerServerRpc(playerIndex, false);
                     LobbyPlayerValues.Instance.RemovePlayerValueServerRpc(playerIndex);
                 }

@@ -11,6 +11,7 @@ public class PlayerContainerManager : MonoBehaviour
     [SerializeField] private Image readyImage;
     [SerializeField] private TextMeshProUGUI unreadyText;
     [SerializeField] private TextMeshProUGUI readyText;
+    [SerializeField] private TextMeshProUGUI youText;
 
     public bool isReady = false;
     public bool occupied = false;
@@ -61,5 +62,10 @@ public class PlayerContainerManager : MonoBehaviour
             unreadyText.enabled = true;
             readyText.enabled = false;
         }
+    }
+
+    public void ToggleYouText(bool value)
+    {
+        youText.enabled = value;
     }
 }
