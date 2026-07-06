@@ -148,7 +148,6 @@ public class LobbyPlayerValues : NetworkBehaviour
             .GetComponent<PlayerContainerSkinChange>();
 
         skinChange.currentColorIndex = skinToUse.Index;
-        skinChange.UpdateSkinServerRpc();
 
         if (isReady &&
             !LobbyManager.instance.playerContainers[playerIndex]
@@ -157,7 +156,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         {
             LobbyManager.instance.playerContainers[playerIndex]
                 .GetComponent<PlayerContainerManager>()
-                .ReadyStateUpdated((ulong)playerIndex, false);
+                .ReadyStateUpdated(playerIndex, false);
         }
     }
 
@@ -191,7 +190,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         }
     }
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void RemovePlayerValueServerRpc(int playerIndex)
     {
         RemovePlayerValueClientRpc(playerIndex);

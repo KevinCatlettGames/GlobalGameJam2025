@@ -54,9 +54,9 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     }
 
-    public void ReadyStateUpdated(ulong clientId, bool state)
+    public void ReadyStateUpdated(int playerIndex, bool state)
     {
-        if ((int)clientId == playerIndex)
+        if (playerIndex == this.playerIndex)
         {
             currentSkinSelection.ToggleReadyVisuals();
         }
@@ -192,7 +192,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     [ClientRpc]
     public void ChangeSkinClientRpc(Vector2 skinChangeInput)
     {
-        if ((int)NetworkManager.Singleton.LocalClientId == playerIndex) return; 
         ChangeSkin(skinChangeInput);
     }
 

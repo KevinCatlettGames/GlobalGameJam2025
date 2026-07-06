@@ -30,7 +30,7 @@ public class PlayerContainerManager : MonoBehaviour
     {
         foreach (var player in LobbyManager.instance.players)
         {
-            if ((int)player.ClientId == uiIndex)
+            if (player.PlayerIndex == uiIndex)
             {
                 isReady = player.IsReady;
                 readyImage.enabled = isReady ? false : true;
@@ -43,9 +43,9 @@ public class PlayerContainerManager : MonoBehaviour
         gameObject.SetActive(false);
     }
 
-    public void ReadyStateUpdated(ulong clientId, bool state)
+    public void ReadyStateUpdated(int playerIndex, bool state)
     {
-        if ((int)clientId != uiIndex) return;   
+        if (playerIndex != uiIndex) return;   
 
         if(state)
         {

@@ -119,7 +119,7 @@ public class LobbyManager : NetworkBehaviour
     /// <summary>
     /// Invoked when a player's ready state changes.
     /// </summary>
-    public UnityEvent<ulong, bool> OnReadyStateUpdated;
+    public UnityEvent<int, bool> OnReadyStateUpdated;
 
     /// <summary>
     /// Invoked when all players finished loading a scene.
@@ -213,12 +213,13 @@ public class LobbyManager : NetworkBehaviour
             gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
-            playerContainers[player.ClientId].SetActive(true);
+            playerContainers[player.PlayerIndex].SetActive(true);
 
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
         }
 
         ChangeStartButtonState(false);
@@ -262,6 +263,15 @@ public class LobbyManager : NetworkBehaviour
         if (!IsServer) return;
         ChangeSelectedGameModeServerRpc();
         OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
+    }
+
+
+    void OnClientDisconnectedCallback(ulong playerIndex)
+    {
+        if (!IsServer) return;
+        {
+            
+        }
     }
 
     private void OnDisable()
@@ -326,18 +336,20 @@ public class LobbyManager : NetworkBehaviour
 
     public struct PlayerLobbyState : INetworkSerializable, IEquatable<PlayerLobbyState>
     {
-        public ulong ClientId;
+        public int PlayerIndex;
+        public ulong ClientIndex;
         public bool IsReady;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
-            serializer.SerializeValue(ref ClientId);
+            serializer.SerializeValue(ref PlayerIndex);
+            serializer.SerializeValue(ref ClientIndex);
             serializer.SerializeValue(ref IsReady);
         }
 
         public bool Equals(PlayerLobbyState other)
         {
-            return ClientId == other.ClientId;
+            return PlayerIndex == other.PlayerIndex && ClientIndex == other.ClientIndex && IsReady == other.IsReady;
         }
     }
 
@@ -347,7 +359,7 @@ public class LobbyManager : NetworkBehaviour
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].ClientId == (ulong)playerIndex)
+            if (players[i].PlayerIndex == playerIndex)
             {
                 index = i;
                 break;
@@ -355,7 +367,8 @@ public class LobbyManager : NetworkBehaviour
         }
         if (index == -1)
         {
-            players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+            int zero = 0;
+            players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = (ulong)zero, IsReady = false });
 
             CheckAllReady();
             UpdatePlayerUI();
@@ -373,7 +386,7 @@ public class LobbyManager : NetworkBehaviour
             player.IsReady = true;
             players[index] = player;
 
-            OnReadyStateUpdated?.Invoke((ulong)playerIndex, true);
+            OnReadyStateUpdated?.Invoke(playerIndex, true);
             CheckAllReady();
             UpdatePlayerUI();
         }
@@ -383,7 +396,7 @@ public class LobbyManager : NetworkBehaviour
             players[index] = player;
 
 
-            OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+            OnReadyStateUpdated?.Invoke(playerIndex, false);
             CheckAllReady();
             UpdatePlayerUI();
         }
@@ -395,13 +408,13 @@ public class LobbyManager : NetworkBehaviour
         {
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i].ClientId == (ulong)playerIndex)
+                if (players[i].PlayerIndex == playerIndex)
                 {
                     var state = players[i];
                     state.IsReady = false;
                     players[i] = state;
 
-                    OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+                    OnReadyStateUpdated?.Invoke(playerIndex, false);
                     return;
                 }
             }
@@ -415,28 +428,38 @@ public class LobbyManager : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     void RemovePlayerServerRpc(int playerIndex)
     {
+        Debug.Log("In remove");
+        PlayerLobbyState playerToRemove = new PlayerLobbyState();
+
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].ClientId == (ulong)playerIndex)
+            if (players[i].PlayerIndex == playerIndex)
             {
+                Debug.Log("Found player");
                 var state = players[i];
                 state.IsReady = false;
                 players[i] = state;
-
-                OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
-                return;
+                playerToRemove = players[i];
+                OnReadyStateUpdated?.Invoke(playerIndex, false);
+                break;
             }
+        }
+
+        if (playerToRemove.PlayerIndex == playerIndex)
+        {
+            Debug.Log("Found player to remove");
+            players.Remove(playerToRemove);
         }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(ulong clientID, bool state)
+    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state)
     {
         int index = -1;
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].ClientId == clientID)
+            if (players[i].PlayerIndex == playerIndex)
             {
                 index = i;
                 break;
@@ -445,10 +468,9 @@ public class LobbyManager : NetworkBehaviour
 
         if (index == -1)
         {
-            players.Add(new PlayerLobbyState { ClientId = clientID, IsReady = false });
-
+            players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = clientIndex, IsReady = false });
           
-            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc((int)clientID, possibleSkins[clientID].Index, false);           
+            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false);           
             index = players.Count - 1;
         }
         else
@@ -461,7 +483,7 @@ public class LobbyManager : NetworkBehaviour
             {
                 player.IsReady = state;
                 players[index] = player;
-                InvokeOnReadyStateUpdatedClientRpc(clientID, state);
+                InvokeOnReadyStateUpdatedClientRpc(playerIndex, state);
             }
         }
 
@@ -469,9 +491,9 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void InvokeOnReadyStateUpdatedClientRpc(ulong clientID, bool state)
+    private void InvokeOnReadyStateUpdatedClientRpc(int playerIndex, bool state)
     {
-        OnReadyStateUpdated?.Invoke(clientID, state);
+        OnReadyStateUpdated?.Invoke(playerIndex, state);
     }
 
     public void CheckAllReady()
@@ -526,7 +548,7 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (var player in players)
         {
-            int index = (int)player.ClientId;
+            int index = (int)player.PlayerIndex;
             if (index >= 0 && index < playerContainers.Length)
             {
                 if (playerContainers[index].GetComponent<PlayerContainerManager>().occupied)
@@ -545,7 +567,7 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (var player in players)
         {
-            int index = (int)player.ClientId;
+            int index = (int)player.PlayerIndex;
             if (index >= 0 && index < playerContainers.Length)
             {
                 playerContainers[index].GetComponent<PlayerContainerManager>().occupied = true;
@@ -813,15 +835,15 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void OnClientConnectedWinConditionUpdateServerRpc(ulong playerIndex)
+    public void OnClientConnectedWinConditionUpdateServerRpc(ulong clientID)
     {
-        OnClientConnectedWinConditionUpdateClientRpc(playerIndex, this.playEndless, this.winsNeeded);
+        OnClientConnectedWinConditionUpdateClientRpc(clientID, this.playEndless, this.winsNeeded);
     }
 
     [ClientRpc]
-    public void OnClientConnectedWinConditionUpdateClientRpc(ulong playerIndex, bool playEndless, int winsNeeded)
+    public void OnClientConnectedWinConditionUpdateClientRpc(ulong clientID, bool playEndless, int winsNeeded)
     {
-        if (NetworkManager.Singleton.LocalClientId != playerIndex) return; 
+        if (NetworkManager.Singleton.LocalClientId != clientID) return; 
 
         this.playEndless = playEndless;
         this.winsNeeded = winsNeeded;

@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class GameManager : NetworkBehaviour
@@ -126,12 +126,13 @@ public class GameManager : NetworkBehaviour
         {
             ChangePlayerStatesServerRpc(playerStates);
 
-            foreach (ulong clientId in NetworkManager.Singleton.ConnectedClientsIds)
+            for (int i = 0; i < LobbyManager.instance.players.Count; i++) 
             {
                 GameObject player = Instantiate(playerPrefab);
-                player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+                player.GetComponent<NetworkObject>().SpawnAsPlayerObject(LobbyManager.instance.players[i].ClientIndex, true);
                 PlayerManager.Instance.AddPlayerServerRpc(player);
             }
+
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }

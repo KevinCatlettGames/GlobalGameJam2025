@@ -77,7 +77,7 @@ public class TeamSelection : NetworkBehaviour
             }
         }
         SetTeam();
-        UpdateTeamIndex((ulong)playerIndex, true);
+        UpdateTeamIndex(playerIndex, true);
         LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
     }
 
@@ -127,9 +127,9 @@ public class TeamSelection : NetworkBehaviour
         playerContainerSkinChange.UpdateBlur();
     }
 
-    private void UpdateTeamIndex(ulong playerID, bool state)
+    private void UpdateTeamIndex(int playerID, bool state)
     {
-        if (playerID != (ulong)playerIndex || !gameObject.activeSelf)
+        if (playerID != playerIndex || !gameObject.activeSelf)
             return;
 
         if (state)
