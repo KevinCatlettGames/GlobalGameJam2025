@@ -250,7 +250,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7543230272237903064}
-  - component: {fileID: 5537001191940813283}
   - component: {fileID: 3795611989577746435}
   - component: {fileID: 1156564344192090336}
   m_Layer: 5
@@ -288,31 +287,6 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
---- !u!114 &5537001191940813283
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 113559200372554485}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 1131776047
-  InScenePlacedSourceGlobalObjectIdHash: 3982124674
-  DeferredDespawnTick: 0
-  Ownership: 1
-  AlwaysReplicateAsRoot: 0
-  SynchronizeTransform: 1
-  ActiveSceneSynchronization: 0
-  SceneMigrationSynchronization: 0
-  SpawnWithObservers: 1
-  DontDestroyWithOwner: 0
-  AutoObjectParentSync: 1
-  SyncOwnerTransformWhenParented: 1
-  AllowOwnerToParent: 0
 --- !u!114 &3795611989577746435
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -4533,6 +4507,7 @@ GameObject:
   - component: {fileID: 8601766778675430521}
   - component: {fileID: 490405935825180792}
   - component: {fileID: 3484755105896691185}
+  - component: {fileID: 5698687577141923402}
   m_Layer: 5
   m_Name: TunaMapRoundsSlider
   m_TagString: Untagged
@@ -4803,6 +4778,18 @@ MonoBehaviour:
   targetText: {fileID: 1768915193985729237}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.12941177, g: 0.95294124, b: 0.654902, a: 1}
+--- !u!114 &5698687577141923402
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1960568934659745126}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1993649377274218451
 GameObject:
   m_ObjectHideFlags: 0
@@ -5015,7 +5002,7 @@ RectTransform:
   m_Father: {fileID: 4755136173826325152}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.25, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -5857,6 +5844,7 @@ GameObject:
   - component: {fileID: 4078958821558949552}
   - component: {fileID: 3861858481422478}
   - component: {fileID: 1589346843536687867}
+  - component: {fileID: 3900375204290560621}
   m_Layer: 5
   m_Name: BucketMapRoundsSlider
   m_TagString: Untagged
@@ -6127,6 +6115,18 @@ MonoBehaviour:
   targetText: {fileID: 2018204736902325162}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.92549026, g: 0.7568628, b: 0.4156863, a: 1}
+--- !u!114 &3900375204290560621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2446463596318520883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2484055293123390294
 GameObject:
   m_ObjectHideFlags: 0
@@ -6599,6 +6599,7 @@ GameObject:
   - component: {fileID: 8940970596582312385}
   - component: {fileID: 3132513691953938687}
   - component: {fileID: 2308521789380999602}
+  - component: {fileID: 1181152475409575808}
   m_Layer: 5
   m_Name: BucketMapEventToggle
   m_TagString: Untagged
@@ -6838,6 +6839,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &1181152475409575808
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2524882272160367431}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2568911774830168921
 GameObject:
   m_ObjectHideFlags: 0
@@ -6928,6 +6941,7 @@ GameObject:
   - component: {fileID: 1516833951133292973}
   - component: {fileID: 6355769785550748062}
   - component: {fileID: 9067441512796626468}
+  - component: {fileID: 8967268679744709435}
   m_Layer: 5
   m_Name: TunaMapUsageToggle
   m_TagString: Untagged
@@ -7167,6 +7181,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &8967268679744709435
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2724196029847932382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2775485865790171723
 GameObject:
   m_ObjectHideFlags: 0
@@ -7312,6 +7338,7 @@ GameObject:
   - component: {fileID: 5726265696206348107}
   - component: {fileID: 1592812304360399459}
   - component: {fileID: 8827449943574472424}
+  - component: {fileID: 7582119813909747463}
   m_Layer: 5
   m_Name: CactusToggle
   m_TagString: Untagged
@@ -7575,6 +7602,18 @@ MonoBehaviour:
   normalFontSize: 36
   selectedFontSize: 40
   forceSelectOnEnable: 0
+--- !u!114 &7582119813909747463
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2888618102793609469}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2934564741467460780
 GameObject:
   m_ObjectHideFlags: 0
@@ -7608,7 +7647,7 @@ RectTransform:
   m_Father: {fileID: 3745794432701347155}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -8325,6 +8364,7 @@ GameObject:
   - component: {fileID: 7361697268088673388}
   - component: {fileID: 5262214608109159975}
   - component: {fileID: 8026297465885203233}
+  - component: {fileID: 5477948224292753017}
   m_Layer: 5
   m_Name: PlateMapRoundsSlider
   m_TagString: Untagged
@@ -8595,6 +8635,18 @@ MonoBehaviour:
   targetText: {fileID: 3715779539588677205}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.050980397, g: 0.94117653, b: 0.9803922, a: 1}
+--- !u!114 &5477948224292753017
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3105446049328904267}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3207460554908052405
 GameObject:
   m_ObjectHideFlags: 0
@@ -12700,6 +12752,7 @@ GameObject:
   - component: {fileID: 3050257551832544402}
   - component: {fileID: 3684507945240629256}
   - component: {fileID: 4749559114267751470}
+  - component: {fileID: 604876905892182259}
   m_Layer: 5
   m_Name: PlateMapEventToggle
   m_TagString: Untagged
@@ -12939,6 +12992,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &604876905892182259
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4585926803899691041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4593927031169959858
 GameObject:
   m_ObjectHideFlags: 0
@@ -13978,7 +14043,7 @@ RectTransform:
   m_Father: {fileID: 1329975888429295258}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.25, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -14035,6 +14100,7 @@ GameObject:
   - component: {fileID: 8880003850607867480}
   - component: {fileID: 4952500130962134061}
   - component: {fileID: 2432072551921386777}
+  - component: {fileID: 3627182321634847149}
   m_Layer: 5
   m_Name: GrenadeToggle
   m_TagString: Untagged
@@ -14298,6 +14364,18 @@ MonoBehaviour:
   normalFontSize: 36
   selectedFontSize: 40
   forceSelectOnEnable: 0
+--- !u!114 &3627182321634847149
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5111728313932681328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5512179242474841283
 GameObject:
   m_ObjectHideFlags: 0
@@ -14515,6 +14593,7 @@ GameObject:
   - component: {fileID: 8753609068622165221}
   - component: {fileID: 4402195138918243277}
   - component: {fileID: 2023508723666490675}
+  - component: {fileID: 6456502412135939228}
   m_Layer: 5
   m_Name: PotMapUsageToggle
   m_TagString: Untagged
@@ -14754,6 +14833,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &6456502412135939228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5698675589514066700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5704727527037784534
 GameObject:
   m_ObjectHideFlags: 0
@@ -14769,6 +14860,7 @@ GameObject:
   - component: {fileID: 3365859998658957312}
   - component: {fileID: 295317827448555520}
   - component: {fileID: 4926844492209218866}
+  - component: {fileID: 8925142090626789332}
   m_Layer: 5
   m_Name: PlateMapUsageToggle
   m_TagString: Untagged
@@ -15008,6 +15100,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &8925142090626789332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5704727527037784534}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &5726783495672248121
 GameObject:
   m_ObjectHideFlags: 0
@@ -15154,7 +15258,7 @@ RectTransform:
   m_Father: {fileID: 7498207201131850562}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.25, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17062,7 +17166,7 @@ RectTransform:
   m_Father: {fileID: 6654149793224333440}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.25, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -17232,6 +17336,7 @@ GameObject:
   - component: {fileID: 5646060522494797288}
   - component: {fileID: 2084122167960897650}
   - component: {fileID: 3191282467044924617}
+  - component: {fileID: 3197579962169709921}
   m_Layer: 5
   m_Name: BucketMapUsageToggle
   m_TagString: Untagged
@@ -17471,6 +17576,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &3197579962169709921
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6520928122157909755}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6559025203363482766
 GameObject:
   m_ObjectHideFlags: 0
@@ -20033,6 +20150,7 @@ GameObject:
   - component: {fileID: 3811485534555323288}
   - component: {fileID: 877867661249356321}
   - component: {fileID: 2160569698632425892}
+  - component: {fileID: 4508825747140919501}
   m_Layer: 5
   m_Name: PotMapEventToggle
   m_TagString: Untagged
@@ -20272,6 +20390,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &4508825747140919501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7515550359588034943}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7532944258445550093
 GameObject:
   m_ObjectHideFlags: 0
@@ -21202,6 +21332,7 @@ GameObject:
   - component: {fileID: 8756526131553691547}
   - component: {fileID: 472835702436452183}
   - component: {fileID: 4207328893662855814}
+  - component: {fileID: 6755099293814721651}
   m_Layer: 5
   m_Name: PotMapRoundsSlider
   m_TagString: Untagged
@@ -21472,6 +21603,18 @@ MonoBehaviour:
   targetText: {fileID: 3879524626488773837}
   normalFontColor: {r: 1, g: 1, b: 1, a: 1}
   selectedFontColor: {r: 0.9921569, g: 0.61960787, b: 0, a: 1}
+--- !u!114 &6755099293814721651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7804778815732937989}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &7806838849952702760
 GameObject:
   m_ObjectHideFlags: 0
@@ -23437,7 +23580,7 @@ RectTransform:
   m_Father: {fileID: 363687897364335157}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -23672,6 +23815,7 @@ GameObject:
   - component: {fileID: 916393803550998654}
   - component: {fileID: 5703309689730724850}
   - component: {fileID: 3858856884180179483}
+  - component: {fileID: 6211785762880847227}
   m_Layer: 5
   m_Name: SlasherToggle
   m_TagString: Untagged
@@ -23935,6 +24079,18 @@ MonoBehaviour:
   normalFontSize: 36
   selectedFontSize: 40
   forceSelectOnEnable: 0
+--- !u!114 &6211785762880847227
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8159455514045657716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8191351155173328741
 GameObject:
   m_ObjectHideFlags: 0
@@ -25100,7 +25256,6 @@ GameObject:
   - component: {fileID: 3320512776891795401}
   - component: {fileID: 2683277312761712402}
   - component: {fileID: 6643159092149659119}
-  - component: {fileID: 3160049572968002595}
   m_Layer: 5
   m_Name: MapsButton
   m_TagString: Untagged
@@ -25325,18 +25480,6 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
---- !u!114 &3160049572968002595
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8544999189686426408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &8568879868129496559
 GameObject:
   m_ObjectHideFlags: 0
@@ -25530,6 +25673,7 @@ GameObject:
   - component: {fileID: 4347656880473447435}
   - component: {fileID: 9159297679050944644}
   - component: {fileID: 3940406613841056249}
+  - component: {fileID: 4219482999312634137}
   m_Layer: 5
   m_Name: SnotToggle
   m_TagString: Untagged
@@ -25793,6 +25937,18 @@ MonoBehaviour:
   normalFontSize: 36
   selectedFontSize: 40
   forceSelectOnEnable: 0
+--- !u!114 &4219482999312634137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8601264380180813791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8638947147944161966
 GameObject:
   m_ObjectHideFlags: 0
@@ -25920,6 +26076,7 @@ GameObject:
   - component: {fileID: 4802676837647102795}
   - component: {fileID: 8726167984348644840}
   - component: {fileID: 6600192094775092565}
+  - component: {fileID: 3778033388692193747}
   m_Layer: 5
   m_Name: TunaMapEventToggle
   m_TagString: Untagged
@@ -26159,6 +26316,18 @@ MonoBehaviour:
   normalFontSize: 17
   selectedFontSize: 21
   forceSelectOnEnable: 0
+--- !u!114 &3778033388692193747
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8684468955185298210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &8714566599110851049
 GameObject:
   m_ObjectHideFlags: 0
@@ -26701,7 +26870,7 @@ RectTransform:
   m_Father: {fileID: 2458439659334613246}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
@@ -27314,7 +27483,7 @@ RectTransform:
   m_Father: {fileID: 2109716835474128404}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 0.25, y: 0}
+  m_AnchorMax: {x: 0.25, y: 1}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 10, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}

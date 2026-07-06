@@ -77,6 +77,16 @@ public class LobbyPlayerInput : NetworkBehaviour
                 {
                     go.GetComponent<PlayerContainerManager>().ToggleYouText(true);
                     SetOccupiedPlayerContainerServerRpc(playerIndex, true);
+
+                    string userName = "default";
+                    if (SteamIntegration.instance && SteamIntegration.instance.SteamInitialized)
+                    {
+                        string fullName = Steamworks.SteamClient.Name;
+                        userName = fullName.Substring(0, Mathf.Min(fullName.Length, 7));
+                        if (fullName.Length > 7) 
+                            userName = userName + ".";
+                    }
+                    UpdateUserNameServerRpc(true, userName);
                 }
 
                 break;
@@ -113,6 +123,18 @@ public class LobbyPlayerInput : NetworkBehaviour
     void SetOccupiedPlayerContainerClientRpc(int id, bool value)
     {
         lobbyManager.playerContainers[id].GetComponent<PlayerContainerManager>().occupied = value;
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void UpdateUserNameServerRpc(bool isActive, string userName)
+    {
+        UpdateUserNameClientRpc(isActive, userName);
+    }
+
+    [ClientRpc]
+    void UpdateUserNameClientRpc(bool isActive, string userName)
+    {
+        lobbyManager.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().ToggleYouText(isActive, userName);
     }
 
     public void OnConfirmed(InputAction.CallbackContext context)
@@ -202,6 +224,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                     lobbyManager.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().ToggleYouText(false);
 
                     SetOccupiedPlayerContainerServerRpc(playerIndex, false);
+                    UpdateUserNameServerRpc(false, "default");
                     LobbyPlayerValues.Instance.RemovePlayerValueServerRpc(playerIndex);
                 }
 

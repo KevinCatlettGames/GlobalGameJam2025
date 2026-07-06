@@ -68,4 +68,10 @@ public class PlayerContainerManager : MonoBehaviour
     {
         youText.enabled = value;
     }
+
+    public void ToggleYouText(bool value, string userName)
+    {
+        youText.enabled = value;
+        youText.text = userName;
+    }
 }
