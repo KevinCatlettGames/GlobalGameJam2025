@@ -218,14 +218,15 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ChangeSkinServerRpc(Vector2 skinChangeInput)
+    public void ChangeSkinServerRpc(Vector2 skinChangeInput, ulong clientThatCalledThis)
     {
-        ChangeSkinClientRpc(skinChangeInput);
+        ChangeSkinClientRpc(skinChangeInput, clientThatCalledThis);
     }
 
     [ClientRpc]
-    public void ChangeSkinClientRpc(Vector2 skinChangeInput)
+    public void ChangeSkinClientRpc(Vector2 skinChangeInput, ulong clientThatCalledThis)
     {
+        if (NetworkManager.Singleton.LocalClientId == clientThatCalledThis) return;
         ChangeSkin(skinChangeInput);
     }
 

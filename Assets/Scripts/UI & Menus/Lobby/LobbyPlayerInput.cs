@@ -253,12 +253,18 @@ public class LobbyPlayerInput : NetworkBehaviour
                 .ChangeSkin(context.ReadValue<Vector2>());
         else
         {
+
             lobbyManager.playerContainers[playerIndex]
             .GetComponent<PlayerContainerSkinChange>()
-            .ChangeSkinServerRpc(context.ReadValue<Vector2>());
+            .ChangeSkin(context.ReadValue<Vector2>());
+
+            lobbyManager.playerContainers[playerIndex]
+            .GetComponent<PlayerContainerSkinChange>()
+            .ChangeSkinServerRpc(context.ReadValue<Vector2>(), NetworkManager.Singleton.LocalClientId);
         }
 
         PlaySFX(skinChangeReference);
+
     }
 
     private bool canNavigateTeam = true;
