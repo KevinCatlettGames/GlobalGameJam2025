@@ -101,7 +101,6 @@ public class LobbyPlayerInput : NetworkBehaviour
 
         PlaySFX(joinReference);
         joined = true;
-        Debug.Log("New player registered with index " + playerIndex);
     }
 
     [ServerRpc(RequireOwnership = false)]

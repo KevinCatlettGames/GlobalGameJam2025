@@ -38,7 +38,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     private void OnEnable()
     {
-        Invoke(nameof(Init), .2f);
+        Init();
     }
 
     void Init()

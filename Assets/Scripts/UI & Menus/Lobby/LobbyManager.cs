@@ -235,6 +235,10 @@ public class LobbyManager : NetworkBehaviour
         {
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
+            if (Gamepad.all.Count > 0)
+            {            
+                player.GetComponent<PlayerInput>().SwitchCurrentControlScheme(Gamepad.all[0]);
+            }
         }
     }
 

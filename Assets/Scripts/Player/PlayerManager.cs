@@ -59,7 +59,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void StartPlayerJoining()
     {
-      Invoke(nameof(StartPlayerJoiningMethod), .5f);
+      Invoke(nameof(StartPlayerJoiningMethod), .1f);
     }
 
     void StartPlayerJoiningMethod()

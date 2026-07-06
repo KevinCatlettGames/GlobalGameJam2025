@@ -16762,6 +16762,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 774931513}
+  - component: {fileID: 774931514}
   m_Layer: 5
   m_Name: HostGame
   m_TagString: Untagged
@@ -16794,6 +16795,90 @@ RectTransform:
   m_AnchoredPosition: {x: 3.8000126, y: 2}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &774931514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 774931512}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8283d0e94f60d2488ed591da674d5f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActionProperty:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Exit Game Mode Selection Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 87be2750-62ac-432f-909d-cc35c449112e
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+        m_Path: <Keyboard>/escape
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
+  requireFreshPressOnEnable: 1
+  allowOnSwitch: 1
+  freshPressBlockDuration: 0.5
+  OnInputActionPerformed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1982727732}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 623553324}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 774931512}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  oneTimeUsePerActivation: 1
 --- !u!1 &789470628 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 6734031684909783376, guid: 4ebdd4428f8344040bdac6427535e84f,
@@ -18480,6 +18565,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1039072485}
+  - component: {fileID: 1039072486}
   m_Layer: 5
   m_Name: JoinGame
   m_TagString: Untagged
@@ -18510,6 +18596,90 @@ RectTransform:
   m_AnchoredPosition: {x: 4.700012, y: -1.7999878}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1039072486
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1039072484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8283d0e94f60d2488ed591da674d5f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActionProperty:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Exit Game Mode Selection Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 87be2750-62ac-432f-909d-cc35c449112e
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+        m_Path: <Keyboard>/escape
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
+  requireFreshPressOnEnable: 1
+  allowOnSwitch: 1
+  freshPressBlockDuration: 0.5
+  OnInputActionPerformed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1982727732}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 623553324}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1039072484}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  oneTimeUsePerActivation: 1
 --- !u!1 &1042356993
 GameObject:
   m_ObjectHideFlags: 0
@@ -21457,6 +21627,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1353357750}
+  - component: {fileID: 1353357751}
   m_Layer: 5
   m_Name: OpenLobbies
   m_TagString: Untagged
@@ -21488,6 +21659,90 @@ RectTransform:
   m_AnchoredPosition: {x: 4.4, y: -1.8}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1353357751
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1353357749}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8283d0e94f60d2488ed591da674d5f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActionProperty:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Exit Game Mode Selection Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 87be2750-62ac-432f-909d-cc35c449112e
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+        m_Path: <Keyboard>/escape
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
+  requireFreshPressOnEnable: 1
+  allowOnSwitch: 1
+  freshPressBlockDuration: 0.5
+  OnInputActionPerformed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1982727732}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 623553324}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1353357749}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  oneTimeUsePerActivation: 1
 --- !u!1 &1360547272
 GameObject:
   m_ObjectHideFlags: 0
@@ -27092,6 +27347,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1982727733}
+  - component: {fileID: 1982727734}
   m_Layer: 5
   m_Name: Options
   m_TagString: Untagged
@@ -27122,6 +27378,90 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1982727734
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1982727732}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a8283d0e94f60d2488ed591da674d5f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inputActionProperty:
+    m_UseReference: 1
+    m_Action:
+      m_Name: Exit Game Mode Selection Input
+      m_Type: 0
+      m_ExpectedControlType: 
+      m_Id: 87be2750-62ac-432f-909d-cc35c449112e
+      m_Processors: 
+      m_Interactions: 
+      m_SingletonActionBindings:
+      - m_Name: 
+        m_Id: 8c3d4bf9-9a30-4c06-89b5-79e6230c5ba0
+        m_Path: <Keyboard>/escape
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      - m_Name: 
+        m_Id: 0d1215c3-ec78-4293-ab60-758ee408a230
+        m_Path: <NPad>/buttonSouth
+        m_Interactions: 
+        m_Processors: 
+        m_Groups: 
+        m_Action: Exit Game Mode Selection Input
+        m_Flags: 0
+      m_Flags: 0
+    m_Reference: {fileID: -7523625129231821997, guid: 65525ca92864d594f832e5320b39cf90,
+      type: 3}
+  requireFreshPressOnEnable: 1
+  allowOnSwitch: 1
+  freshPressBlockDuration: 0.5
+  OnInputActionPerformed:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1615264941}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+      - m_Target: {fileID: 623553324}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 762469770}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  oneTimeUsePerActivation: 1
 --- !u!1 &1996974312
 GameObject:
   m_ObjectHideFlags: 0
