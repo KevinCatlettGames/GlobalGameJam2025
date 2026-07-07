@@ -1,4 +1,5 @@
 using FMODUnity;
+using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -588,9 +589,13 @@ public class LobbyManager : NetworkBehaviour
         yield return new WaitForSeconds(1f);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
+        {
+            SteamJoinHandler.instance.ClearRichPresence();
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+        }
         else
         {
+            SteamJoinHandler.instance.ClearRichPresence();
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }
     }

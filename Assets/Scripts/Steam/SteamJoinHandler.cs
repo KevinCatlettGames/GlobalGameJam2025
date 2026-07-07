@@ -4,11 +4,14 @@ using UnityEngine;
 public class SteamJoinHandler : MonoBehaviour
 {
     public static SteamJoinHandler instance;
+    public GameObject onlineUI;
 
     private void Awake()
     {
         if (instance == null)
             instance = this; 
+
+        ClearRichPresence();
     }
 
     void OnEnable()
@@ -27,7 +30,8 @@ public class SteamJoinHandler : MonoBehaviour
     /// <param name="lobbyId">The Steam ID of your lobby/room</param>
     public void SetPlayerReadyToBeJoined(string lobbyId)
     {
-        if (!SteamClient.IsValid) return;
+        Debug.Log("In method");
+        if (!SteamIntegration.instance.SteamInitialized) return;
 
         // 1. Tell Steam how a friend should connect to this player
         // The key MUST be "connect" for Steam's overlay to recognize it
@@ -43,7 +47,7 @@ public class SteamJoinHandler : MonoBehaviour
     /// </summary>
     public void ClearRichPresence()
     {
-        if (!SteamClient.IsValid) return;
+        if (!SteamIntegration.instance.SteamInitialized) return;
 
         SteamFriends.ClearRichPresence();
     }
@@ -57,7 +61,7 @@ public class SteamJoinHandler : MonoBehaviour
 
     private void ConnectToLobby(string connectionData)
     {
-        // Your actual transport/multiplayer connection logic goes here
-        // 'connectionData' will be the lobbyId string you passed in SetRichPresence
+        onlineUI.SetActive(true);
+        GameLobby.instance.JoinWithCode(connectionData);
     }
 }

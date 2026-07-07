@@ -73,7 +73,6 @@ public class GameLobby : MonoBehaviour
 
             var allocation = await AllocateRelay();
             string joinCode = await GetRelayJoinCode(allocation);
-
             await UpdateLobbyWithRelayCode(joinCode);
             ConfigureTransport(allocation);
 
@@ -82,6 +81,7 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
+            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(joinCode);
         }
         catch (LobbyServiceException e)
         {
@@ -182,7 +182,6 @@ public class GameLobby : MonoBehaviour
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
             ChangeJoinTextState(false);
-            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(joinCode);
             onlineCreationUI.lobbyUI.SetActive(false);
         }
         catch (LobbyServiceException e)
