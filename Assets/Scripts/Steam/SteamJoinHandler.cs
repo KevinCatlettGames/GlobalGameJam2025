@@ -4,7 +4,8 @@ using UnityEngine;
 public class SteamJoinHandler : MonoBehaviour
 {
     public static SteamJoinHandler instance;
-    public GameObject onlineUI;
+    public GameObject[] objectsToDisable;
+    public GameObject[] objectsToEnable;
 
     private void Awake()
     {
@@ -61,7 +62,20 @@ public class SteamJoinHandler : MonoBehaviour
 
     private void ConnectToLobby(string connectionData)
     {
-        onlineUI.SetActive(true);
+        Debug.Log(connectionData);
+
+        foreach (GameObject obj in objectsToEnable)
+        {
+            if (obj == null) continue;
+            obj.SetActive(true);
+        }
+
+        foreach (GameObject obj in objectsToDisable)
+        {
+            if (obj == null) continue;
+            obj.SetActive(false);
+        }
+
         GameLobby.instance.JoinWithCode(connectionData);
     }
 }

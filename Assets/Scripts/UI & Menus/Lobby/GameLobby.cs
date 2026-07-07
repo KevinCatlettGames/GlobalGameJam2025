@@ -81,7 +81,8 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
-            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(joinCode);
+            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(GlobalLobby.CurrentLobby.LobbyCode);
+            Debug.Log(GlobalLobby.CurrentLobby.LobbyCode);
         }
         catch (LobbyServiceException e)
         {
