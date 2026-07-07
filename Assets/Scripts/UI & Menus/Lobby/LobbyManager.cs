@@ -158,6 +158,7 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Start game button.")]
     [SerializeField] private Button startButton;
+    [SerializeField] private GameObject waitingForHost;
 
     [Tooltip("Image component of start button.")]
     [SerializeField] private Image startButtonImage;
@@ -616,6 +617,24 @@ public class LobbyManager : NetworkBehaviour
         startButton.gameObject.SetActive(enable);
         startButtonImage.color = enable ? startButtonColorWhenEnabled : Color.gray;
         startButton.interactable = enable;
+
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            ToggleWaitingForHostTextServerRpc(enable);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void ToggleWaitingForHostTextServerRpc(bool value)
+    {
+        ToggleWaitingForHostTextClientRpc(value);
+    }
+
+    [ClientRpc]
+    void ToggleWaitingForHostTextClientRpc(bool value)
+    {
+        if (IsHost || IsServer) return;
+        waitingForHost.SetActive(value);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -747,6 +766,8 @@ public class LobbyManager : NetworkBehaviour
 
     private void HandleMapUsageToggleActiveState()
     {
+        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion) return;
+
         int disabledCount = 0;
 
         foreach (MapSettingsSO mapSetting in mapSettings)
@@ -774,18 +795,36 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                activeCount++;
+            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    activeCount++;
+            }
+            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    activeCount++;
+            }
         }
 
         bool lockActive = activeCount < 2;
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                toggle.interactable = !lockActive;
-            else
-                toggle.interactable = true;
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    toggle.interactable = !lockActive;
+                else
+                    toggle.interactable = true;
+            }
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = !lockActive;
+                else if(!toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = true;
+            }
         }
     }
 

@@ -1,9 +1,12 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class UninteractableOnDemo : MonoBehaviour
 {
-    void Start()
+    public bool turnOffIfToggle = true; 
+
+    private void OnEnable()
     {
         if (SteamIntegration.instance != null)
         {
@@ -14,6 +17,11 @@ public class UninteractableOnDemo : MonoBehaviour
                 if (uiElement != null)
                 {
                     uiElement.interactable = false;
+
+                    if (uiElement is Toggle toggleElement && turnOffIfToggle)
+                    {
+                        toggleElement.isOn = false;
+                    }
                 }
                 else
                 {

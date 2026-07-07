@@ -1,9 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using FMODUnity;
 using Unity.Netcode;
-using UnityEngine.Rendering;
 
 [CreateAssetMenu(fileName = "new Spell", menuName = "Scriptable Objects/SO_Spell/Simple")]
 public class SO_Spell : ScriptableObject
@@ -40,7 +37,10 @@ public class SO_Spell : ScriptableObject
     
     [SerializeField] private bool canUse = true;
     public bool CanUse { get => canUse; set => canUse = value; }
-    
+
+    [SerializeField] private bool availableInDemo = true;
+    public bool AvailableInDemo { get => availableInDemo; set => availableInDemo = value; }
+
     virtual public float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt)
     {
         dir.Normalize();
