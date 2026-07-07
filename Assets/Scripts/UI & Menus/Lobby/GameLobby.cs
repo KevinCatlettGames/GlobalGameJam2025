@@ -184,7 +184,7 @@ public class GameLobby : MonoBehaviour
             NetworkManager.Singleton.StartClient();
             onlineCreationUI.lobbyUI.SetActive(false);
             ChangeJoinTextState(false);
-
+            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(joinCode);
         }
         catch (LobbyServiceException e)
         {
