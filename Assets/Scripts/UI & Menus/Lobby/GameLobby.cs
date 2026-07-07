@@ -179,12 +179,11 @@ public class GameLobby : MonoBehaviour
         try
         {
             var joinAllocation = await JoinRelay(joinCode);
-
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
-            onlineCreationUI.lobbyUI.SetActive(false);
             ChangeJoinTextState(false);
             SteamJoinHandler.instance.SetPlayerReadyToBeJoined(joinCode);
+            onlineCreationUI.lobbyUI.SetActive(false);
         }
         catch (LobbyServiceException e)
         {
