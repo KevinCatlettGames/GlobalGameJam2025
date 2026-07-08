@@ -3,6 +3,7 @@ using UnityEngine;
 
 public class SteamJoinHandler : MonoBehaviour
 {
+#if !UNITY_SWITCH
     public static SteamJoinHandler instance;
     public GameObject[] objectsToDisable;
     public GameObject[] objectsToEnable;
@@ -78,4 +79,5 @@ public class SteamJoinHandler : MonoBehaviour
 
         GameLobby.instance.JoinWithCode(connectionData);
     }
+#endif
 }

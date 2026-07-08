@@ -10,7 +10,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     LobbyManager lobbyManager;
     LobbyButtons lobbyButtons;
     private PlayerInput playerInput;
-
     [SerializeField] EventReference[] eventReferences;
     bool firstJoined = true;
     private bool isQuitting;
@@ -20,7 +19,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     private void OnEnable()
     {
         playerInput = GetComponent<PlayerInput>();
-
         lobbyManager = LobbyManager.instance;
         if (!lobbyManager.allLobbyPlayerInputs.Contains(this))
         {
@@ -43,7 +41,10 @@ public class LobbyPlayerInput : NetworkBehaviour
     {
         if (clientID == NetworkManager.Singleton.LocalClientId) return;
         if (playerIndex == -1) return;
+
+#if !UNITY_SWITCH
         UpdateUserNameServerRpc(playerIndex, true, GetSteamUserName());
+#endif
     }
 
     private void DestroySelf()
@@ -82,7 +83,10 @@ public class LobbyPlayerInput : NetworkBehaviour
                 {
                     go.GetComponent<PlayerContainerManager>().ToggleYouText(true);
                     SetOccupiedPlayerContainerServerRpc(playerIndex, true);
+
+#if !UNITY_SWITCH
                     UpdateUserNameServerRpc(playerIndex, true, GetSteamUserName());
+#endif
                 }
 
                 break;
@@ -381,6 +385,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
     }
 
+#if !UNITY_SWITCH
     string GetSteamUserName()
     {
         string userName = "default";
@@ -393,4 +398,5 @@ public class LobbyPlayerInput : NetworkBehaviour
         }
         return userName;
     }
+#endif
 }

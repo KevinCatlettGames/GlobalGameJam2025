@@ -851,7 +851,7 @@
                     "path": "<Gamepad>/leftStick/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UINavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -862,7 +862,7 @@
                     "path": "<Gamepad>/leftStick/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UINavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -873,7 +873,7 @@
                     "path": "<Gamepad>/leftStick/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UINavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -884,7 +884,7 @@
                     "path": "<Gamepad>/leftStick/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UINavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1016,7 +1016,7 @@
                     "path": "<Gamepad>/rightStick/up",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UITeamNavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1027,7 +1027,7 @@
                     "path": "<Gamepad>/rightStick/down",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UITeamNavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1038,7 +1038,7 @@
                     "path": "<Gamepad>/rightStick/left",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UITeamNavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1049,7 +1049,7 @@
                     "path": "<Gamepad>/rightStick/right",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UITeamNavigation",
                     "isComposite": false,
                     "isPartOfComposite": true
@@ -1192,7 +1192,7 @@
                     "path": "<Gamepad>/buttonNorth",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "UIMatchSettingsToggle",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -1254,6 +1254,17 @@
                 },
                 {
                     "name": "",
+                    "id": "c8429c43-2183-4c03-bf0d-48834cbfc34d",
+                    "path": "<NPad>/select",
+                    "interactions": "Press(behavior=1)",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "UIJoinAction",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
                     "id": "37025c2c-6436-4db6-bee7-db81d75bf257",
                     "path": "<NPad>/buttonEast",
                     "interactions": "Press(behavior=1)",
@@ -1297,13 +1308,7 @@
         {
             "name": "Switch",
             "bindingGroup": "Switch",
-            "devices": [
-                {
-                    "devicePath": "<NPad>",
-                    "isOptional": false,
-                    "isOR": false
-                }
-            ]
+            "devices": []
         }
     ]
 }

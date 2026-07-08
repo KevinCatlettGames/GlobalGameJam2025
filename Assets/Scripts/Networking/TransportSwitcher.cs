@@ -54,7 +54,11 @@ public class TransportSwitcher : MonoBehaviour
     private void Start()
     {
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
+#if !UNITY_SWITCH
         currentTransport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as MonoBehaviour;
+#else
+        currentTransport = unityTransport;
+#endif
     }
 
     /// <summary>

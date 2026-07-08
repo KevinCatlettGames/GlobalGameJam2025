@@ -471,12 +471,111 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "Switch",
+                    "id": "58c52c46-05c9-444a-a9a6-0816eb28a450",
+                    "path": "2DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Navigate",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "25ce3e4e-1220-4e91-a246-1a2c1a01de76",
+                    "path": "<NPad>/leftStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "up",
+                    "id": "233f12a6-92ff-46a8-9b3d-f02fefe97c1b",
+                    "path": "<NPad>/rightStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "9b733440-4d2b-4950-9c8b-aa8600daee2e",
+                    "path": "<NPad>/leftStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "86b4bf94-9ad8-47e5-a071-f94d3bd1d1de",
+                    "path": "<NPad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "032de61f-f88e-4e7f-a639-85985cafb7f7",
+                    "path": "<NPad>/leftStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "1f34a111-2509-49b1-8a9c-acff4f94c828",
+                    "path": "<NPad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "ae09779b-ea33-4ab8-96bf-a080ca20741b",
+                    "path": "<NPad>/leftStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "2c613855-98e5-4e33-bc3a-933c300e5da4",
+                    "path": "<NPad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": ";Switch",
+                    "action": "Navigate",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
                     "name": "",
                     "id": "fb8277d4-c5cd-4663-9dc7-ee3f0b506d90",
                     "path": "<Gamepad>/dpad",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad",
+                    "groups": ";Gamepad;Switch",
                     "action": "Navigate",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -608,7 +707,7 @@
                     "path": "<NPad>/buttonEast",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
+                    "groups": ";Switch",
                     "action": "Submit",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -663,7 +762,7 @@
                     "path": "<NPad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": "Keyboard&Mouse;Gamepad;Touch;Joystick;XR",
+                    "groups": ";Switch",
                     "action": "Cancel",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -806,7 +905,7 @@
                     "path": "<Gamepad>/select",
                     "interactions": "",
                     "processors": "",
-                    "groups": "",
+                    "groups": ";Gamepad",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -817,7 +916,7 @@
                     "path": "<NPad>/start",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad;Joystick",
+                    "groups": ";Switch",
                     "action": "Pause",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -861,7 +960,7 @@
                     "path": "<NPad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
-                    "groups": ";Gamepad;Joystick",
+                    "groups": ";Switch",
                     "action": "Back",
                     "isComposite": false,
                     "isPartOfComposite": false
@@ -929,6 +1028,11 @@
                     "isOR": false
                 }
             ]
+        },
+        {
+            "name": "Switch",
+            "bindingGroup": "Switch",
+            "devices": []
         }
     ]
 }

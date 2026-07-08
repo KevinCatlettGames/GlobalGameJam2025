@@ -225,11 +225,13 @@ public class LobbyManager : NetworkBehaviour
         }
 
         ChangeStartButtonState(false);
-
+#if !UNITY_SWITCH
         if (!TransportSwitcher.Instance.isUsingRelay)
         {
+            Debug.Log("Devices: " + InputSystem.devices.Count.ToString());
             foreach (var device in InputSystem.devices)
             {
+                Debug.Log("Spawning player");
                 PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
             }
         }
@@ -242,6 +244,7 @@ public class LobbyManager : NetworkBehaviour
                 player.GetComponent<PlayerInput>().SwitchCurrentControlScheme(Gamepad.all[0]);
             }
         }
+#endif
     }
 
     private void OnEnable()
@@ -291,8 +294,6 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        if (!canAddNewDevices || !TransportSwitcher.Instance.isUsingRelay) return; 
-
         switch (change)
         {
             case InputDeviceChange.Added:
@@ -590,12 +591,16 @@ public class LobbyManager : NetworkBehaviour
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
         {
+#if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
+#endif
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         }
         else
         {
+#if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
+#endif
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }
     }

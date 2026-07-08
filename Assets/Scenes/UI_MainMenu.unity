@@ -14784,6 +14784,7 @@ GameObject:
   - component: {fileID: 571817795}
   - component: {fileID: 571817794}
   - component: {fileID: 571817796}
+  - component: {fileID: 571817797}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -14863,6 +14864,19 @@ MonoBehaviour:
   m_PointerBehavior: 0
   m_CursorLockBehavior: 0
   m_ScrollDeltaPerTick: 6
+--- !u!114 &571817797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 571817792}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9bae899e7e89d244911d261897a98e3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  switchControlSchemeName: Switch
 --- !u!1 &613780885
 GameObject:
   m_ObjectHideFlags: 0
@@ -16871,7 +16885,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &762469771
 Transform:
   m_ObjectHideFlags: 0
@@ -27507,7 +27521,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1982727733
 RectTransform:
   m_ObjectHideFlags: 0
@@ -28513,18 +28527,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2f6bfeb3a66a67c4ebfaca6c3edbf5f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  objectsToDisable:
-  - {fileID: 803672585}
-  - {fileID: 128647767}
-  - {fileID: 1615264941}
-  - {fileID: 2126803317}
-  - {fileID: 1889910947}
-  - {fileID: 762469770}
-  - {fileID: 1518323747}
-  - {fileID: 1982727732}
-  objectsToEnable:
-  - {fileID: 762469770}
-  - {fileID: 1620284533}
+  objectsToDisable: []
+  objectsToEnable: []
 --- !u!1 &2076384351
 GameObject:
   m_ObjectHideFlags: 0
@@ -29132,7 +29136,6 @@ GameObject:
   - component: {fileID: 2138006271}
   - component: {fileID: 2138006275}
   - component: {fileID: 2138006270}
-  - component: {fileID: 2138006274}
   - component: {fileID: 2138006273}
   m_Layer: 0
   m_Name: NetworkManager
@@ -29250,21 +29253,6 @@ MonoBehaviour:
       m_Calls: []
   canSwitch: 1
   mainMenuSceneName: MainMenu
---- !u!114 &2138006274
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2138006269}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 44dd247a00edbfa44b77868d755af6ea, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  steamAppId: 3670670
-  targetSteamId: 0
-  userSteamId: 0
 --- !u!114 &2138006275
 MonoBehaviour:
   m_ObjectHideFlags: 0

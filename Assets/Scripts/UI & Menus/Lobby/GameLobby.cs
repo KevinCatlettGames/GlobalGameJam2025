@@ -44,7 +44,10 @@ public class GameLobby : MonoBehaviour
     private void Awake()
     {
         instance = this;
+
+#if !UNITY_SWITCH
         InitializeUnityAuth();
+#endif
     }
 
     private async void InitializeUnityAuth()
@@ -81,7 +84,10 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
+
+#if !UNITY_SWITCH
             SteamJoinHandler.instance.SetPlayerReadyToBeJoined(GlobalLobby.CurrentLobby.LobbyCode);
+#endif
             Debug.Log(GlobalLobby.CurrentLobby.LobbyCode);
         }
         catch (LobbyServiceException e)
