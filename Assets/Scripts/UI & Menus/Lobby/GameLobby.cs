@@ -157,6 +157,7 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
+            Debug.Log("Joining with code");
             GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
             ChangeJoinTextState(true);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);

@@ -1,12 +1,13 @@
 using Steamworks;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class SteamJoinHandler : MonoBehaviour
 {
-#if !UNITY_SWITCH
     public static SteamJoinHandler instance;
-    public GameObject[] objectsToDisable;
-    public GameObject[] objectsToEnable;
+    string currentConnectString; 
+    bool cameFromLevel = false; 
 
     private void Awake()
     {
@@ -19,11 +20,20 @@ public class SteamJoinHandler : MonoBehaviour
     void OnEnable()
     {
         SteamFriends.OnGameRichPresenceJoinRequested += OnJoinRequested;
+        SceneManager.sceneLoaded += OnSceneLoadedCallback; 
     }
+
 
     void OnDisable()
     {
         SteamFriends.OnGameRichPresenceJoinRequested -= OnJoinRequested;
+        SceneManager.sceneLoaded -= OnSceneLoadedCallback; 
+    }
+
+    void OnSceneLoadedCallback(Scene scene, LoadSceneMode loadSceneMode)
+    {
+        if (cameFromLevel)
+            StartCoroutine(Join());
     }
 
     /// <summary>
@@ -56,28 +66,38 @@ public class SteamJoinHandler : MonoBehaviour
 
     private void OnJoinRequested(Friend friend, string connectString)
     {
-        Debug.Log($"Join requested by friend: {friend.Name}");
-        Debug.Log($"Connection data passed by Steam: {connectString}");
-        ConnectToLobby(connectString);
+        currentConnectString = connectString;
+        PrepareForJoining();
     }
 
-    private void ConnectToLobby(string connectionData)
+    private void PrepareForJoining()
     {
-        Debug.Log(connectionData);
-
-        foreach (GameObject obj in objectsToEnable)
+        if (SceneManager.GetActiveScene().name != "UI_MainMenu")
         {
-            if (obj == null) continue;
-            obj.SetActive(true);
+            if (PauseManager.Instance)
+            {
+                cameFromLevel = true;
+                PauseManager.Instance.ReturnToMainMenu();
+            }     
         }
-
-        foreach (GameObject obj in objectsToDisable)
+        else if(!LobbyManager.instance)
         {
-            if (obj == null) continue;
-            obj.SetActive(false);
+            StartCoroutine(Join());
         }
-
-        GameLobby.instance.JoinWithCode(connectionData);
     }
-#endif
+
+    private IEnumerator Join()
+    {
+        if (MenuSelection.Instance.startScreen.activeSelf)
+        {
+            MenuSelection.Instance.startScreen.GetComponent<CallUnityEventOnInputAction>().OnInputActionPerformed.Invoke();
+            MenuSelection.Instance.MakeCamPriority(3);
+        }
+        MenuSelection.Instance.startScreen.SetActive(false);
+        MenuSelection.Instance.mainMenu.SetActive(false);
+        MenuSelection.Instance.localOnline.SetActive(false);
+        MenuSelection.Instance.onlineMatchmaking.SetActive(true);
+        yield return new WaitForSeconds(.5f);
+        GameLobby.instance.JoinWithCode(currentConnectString);
+    }
 }
