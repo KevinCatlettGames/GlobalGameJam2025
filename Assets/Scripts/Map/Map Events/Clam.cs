@@ -5,7 +5,7 @@ using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class Clam : MonoBehaviour
+public class Clam : NetworkBehaviour
 {
     [Header("Stats")]
     [SerializeField] private float damage = 56;
@@ -94,8 +94,8 @@ public class Clam : MonoBehaviour
                     if (GameManager.Instance.PlayingLocal)
                         player.ApplyKnockbackLocal(-1, direction, knockback, damage);
 
-                    else
-                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
+                    else if(!GameManager.Instance.PlayingLocal && IsServer)
+                        player.ApplyKnockbackClientRpc(-1, direction, knockback, damage);
 
                     player.Stun(stunDuration);
                 }         
