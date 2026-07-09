@@ -66,8 +66,8 @@ public class Clam : MonoBehaviour
             isActive = false;
             //Effects
             //Sound
-            animator.SetTrigger("Snap");
-            pearlAnimator.SetTrigger("Snap");
+            animator.Play("Snap", 0, 0);
+            pearlAnimator.Play("Snap", 0, 0);
             jumpParticleSystem?.Play();
         }
     }
