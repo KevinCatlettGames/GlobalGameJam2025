@@ -1419,6 +1419,7 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
+        mainAnimator.Play("Entrance", 0, 0);
         trail.Play();
         isDead = false;
     }
