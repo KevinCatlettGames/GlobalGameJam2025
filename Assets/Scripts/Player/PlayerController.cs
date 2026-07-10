@@ -758,6 +758,35 @@ public class PlayerController : NetworkBehaviour
         ResetSpell(spellSlotID);
     }
 
+    /// <summary>
+    /// Starts the handoff sequence from a safe, always-active Monobehaviour
+    /// </summary>
+    public void TriggerHandoff(BasicBubble realNetworkBubble, int castID)
+    {
+        StartCoroutine(HandOffCountdownRoutine(realNetworkBubble, castID));
+    }
+
+    private IEnumerator HandOffCountdownRoutine(BasicBubble realNetworkBubble, int castID)
+    {
+        yield return new WaitForSeconds(0.12f);
+        Debug.LogError("Handing off from PlayerController!");
+
+        BasicBubble localFake = GetLocalFakeByCastID(castID);
+        if (localFake != null)
+        {
+            Debug.LogError("Found localfake");
+            localFake.HideVisualsAndDisablePhysics();
+            Destroy(localFake.gameObject);
+        }
+
+        // Safely reactivate the real network bubble's visuals
+        if (realNetworkBubble != null)
+        {
+            realNetworkBubble.SetMeshVisibility(true);
+            realNetworkBubble.isMeshHiddenForOwner = false;
+        }
+    }
+
     #endregion
 
     #region Sprinting
