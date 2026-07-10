@@ -15,7 +15,6 @@ GameObject:
   - component: {fileID: -5092228933000444492}
   - component: {fileID: 1358848946781494922}
   - component: {fileID: 7851107246225785131}
-  - component: {fileID: 5322878072674992179}
   - component: {fileID: 412470701117448623}
   - component: {fileID: 2132926942968575154}
   m_Layer: 7
@@ -211,20 +210,6 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &5322878072674992179
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cc28bd603229541a5effc24b60804d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  childObject: {fileID: 0}
 --- !u!114 &412470701117448623
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -259,9 +244,9 @@ MonoBehaviour:
       Data3: 60858797
       Data4: 572528128
     Path: event:/sfx/spells/slow_spell
-  stationaryParticleSystem: {fileID: 4320057226305096380}
-  bigParticleSystem: {fileID: 2840556685736890550}
-  smallParticleSystem: {fileID: 6530893245644555665}
+  stationaryParticleSystem: {fileID: 6530893245644555665}
+  bigParticleSystem: {fileID: 4320057226305096380}
+  smallParticleSystem: {fileID: 2840556685736890550}
   extraOffset: 4.5
   knbDecreaseAngle: 45
   knbDecreaseIncrement: 0.25
@@ -5540,7 +5525,7 @@ GameObject:
   - component: {fileID: 4320057226305096380}
   - component: {fileID: 6959502388743674719}
   m_Layer: 0
-  m_Name: FrontWave
+  m_Name: FrontWaveBig
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -10374,7 +10359,7 @@ GameObject:
   - component: {fileID: 2840556685736890550}
   - component: {fileID: 4496642961657447575}
   m_Layer: 0
-  m_Name: FrontWave
+  m_Name: FrontWaveSmall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15208,7 +15193,7 @@ GameObject:
   - component: {fileID: 6530893245644555665}
   - component: {fileID: 3425391675236855124}
   m_Layer: 0
-  m_Name: Particle System
+  m_Name: Inflate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -15238,7 +15223,7 @@ ParticleSystem:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6821573043104673142}
   serializedVersion: 8
-  lengthInSec: 1
+  lengthInSec: 0.2
   simulationSpeed: 1
   stopAction: 0
   cullingMode: 0
