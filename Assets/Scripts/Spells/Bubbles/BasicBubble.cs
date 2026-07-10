@@ -123,7 +123,12 @@ public class BasicBubble : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
-        Debug.Log("On network spawned");
+        Invoke(nameof(InitHandOff), .2f);
+    }
+
+    void InitHandOff()
+    {
+        Debug.LogError("On network spawned");
         // Fakes do not spawn on the network, so this will only ever run on real bubbles
         if (!IsServer && NetworkManager.Singleton != null)
         {
@@ -140,7 +145,7 @@ public class BasicBubble : NetworkBehaviour
     {
         // Wait a tiny fraction of a second for the network position and variables to settle
         yield return new WaitForSeconds(0.12f);
-        Debug.Log("Handing off");
+        Debug.LogError("Handing off");
 
         if (playerCollider != null)
         {
@@ -150,7 +155,7 @@ public class BasicBubble : NetworkBehaviour
                 BasicBubble localFake = playerCtrl.GetLocalFakeByCastID(this.castID);
                 if (localFake != null)
                 {
-                    Debug.Log("Found localfake");
+                    Debug.LogError("Found localfake");
                     localFake.HideVisualsAndDisablePhysics();
                     Destroy(localFake.gameObject);
                 }
@@ -168,7 +173,7 @@ public class BasicBubble : NetworkBehaviour
         {
             renderer.enabled = visible;
         }
-        Debug.Log("Change mesh visibility: " + visible);
+        Debug.LogError("Change mesh visibility: " + visible);
     }
 
     private void FixedUpdate()
