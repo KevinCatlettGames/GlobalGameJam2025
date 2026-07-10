@@ -30,12 +30,24 @@ public class SoapBubble : BasicBubble
 
     private void DropSoapPuddle(bool hitPlayer)
     {
-        if (IsServer)
+        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
-            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
+            GameObject prefabToSpawn = hitPlayer ? soapSplatObject : soapPuddleObject;
+            if (prefabToSpawn == null) return;
+
+            if (isLocalFake)
             {
-                GameObject prefabToSpawn = hitPlayer ? soapSplatObject : soapPuddleObject;
-                if (prefabToSpawn == null) return;
+                // Instantiate a purely local visual asset that disappears automatically on the client's screen
+                GameObject localPuddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
+
+                // Strip off the NetworkObject component locally so it doesn't cause tracking warnings
+                if (localPuddle.TryGetComponent<NetworkObject>(out var netObj))
+                {
+                    Destroy(netObj);
+                }
+            }
+            else if (IsServer)
+            {
                 GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
             }

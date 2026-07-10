@@ -73,7 +73,6 @@ public class SO_Spell : ScriptableObject
 
             if (!GameManager.Instance.PlayingLocal)
             {
-                if(netObj !=null) bubbleInstance.GetComponent<BasicBubble>().InitHandOff();
                 if (netObj != null) netObj.NetworkHide(senderClientId);
             }
         }

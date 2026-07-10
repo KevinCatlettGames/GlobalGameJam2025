@@ -78,7 +78,7 @@ public class BasicBubble : NetworkBehaviour
             else if (IsServer) syncedCastID.Value = value;
         }
     }
-    public bool isMeshHiddenForOwner = false;
+    private bool isMeshHiddenForOwner = false;
     private void Start()
     {
         GameManager.Instance.OnGameEnded += DestroyBubble;
@@ -119,28 +119,74 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    public void InitHandOff()
+    // --- FIXED: NATIVE NETCODE ENTRY POINT FOR PERFECT TIMING HANDOFFS ---
+    public override void OnNetworkSpawn()
     {
-        if (!IsServer && GetComponent<NetworkObject>().IsSpawned)
+        base.OnNetworkSpawn();
+        Debug.Log("On network spawned");
+        // Fakes do not spawn on the network, so this will only ever run on real bubbles
+        if (!IsServer && NetworkManager.Singleton != null)
         {
-            // Find the local player controller instance
-            PlayerController localPlayer = playerCollider.GetComponent<PlayerController>();
+            // Fallback: If playerCollider wasn't set locally yet, find it via the OwnerID 
+            if (playerCollider == null)
+            {
+                var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+                foreach (var p in players)
+                {
+                    if (p.PlayerID == OwnerID)
+                    {
+                        playerCollider = p.Controller;
+                        break;
+                    }
+                }
+            }
 
-            SetMeshVisibility(false);
-            isMeshHiddenForOwner = true;
+            // Check if this incoming real bubble belongs to us!
+            if (NetworkManager.Singleton.LocalClientId == (ulong)OwnerID)
+            {
+                SetMeshVisibility(false); // Hide the real bubble mesh instantly
+                isMeshHiddenForOwner = true;
 
-            // Hand the countdown responsibility over to the player controller so it isn't killed
-            localPlayer.TriggerHandoff(this, this.castID);
+                // Start the brief countdown to swap the fake out for this real one
+                StartCoroutine(HandOffCountdown());
+            }
         }
     }
 
-    public void SetMeshVisibility(bool visible)
+
+    private IEnumerator HandOffCountdown()
+    {
+        // Wait a tiny fraction of a second for the network position and variables to settle
+        yield return new WaitForSeconds(0.12f);
+        Debug.Log("Handing off");
+
+        if (playerCollider != null)
+        {
+            var playerCtrl = playerCollider.GetComponent<PlayerController>();
+            if (playerCtrl != null)
+            {
+                BasicBubble localFake = playerCtrl.GetLocalFakeByCastID(this.castID);
+                if (localFake != null)
+                {
+                    Debug.Log("Found localfake");
+                    localFake.HideVisualsAndDisablePhysics();
+                    Destroy(localFake.gameObject);
+                }
+            }
+        }
+
+        // Show the real server-authoritative bubble mesh now!
+        SetMeshVisibility(true);
+        isMeshHiddenForOwner = false;
+    }
+
+    private void SetMeshVisibility(bool visible)
     {
         foreach (var renderer in GetComponentsInChildren<Renderer>())
         {
             renderer.enabled = visible;
         }
-        Debug.LogError("Change mesh visibility: " + visible);
+        Debug.Log("Change mesh visibility: " + visible);
     }
 
     private void FixedUpdate()
