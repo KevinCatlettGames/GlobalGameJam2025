@@ -119,12 +119,9 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    public override void OnNetworkSpawn()
+    public void InitHandOff()
     {
-        base.OnNetworkSpawn();
-        Debug.LogError("On network spawned");
-
-        if (!IsServer)
+        if (!IsServer && GetComponent<NetworkObject>().IsSpawned)
         {
             // Find the local player controller instance
             PlayerController localPlayer = playerCollider.GetComponent<PlayerController>();
