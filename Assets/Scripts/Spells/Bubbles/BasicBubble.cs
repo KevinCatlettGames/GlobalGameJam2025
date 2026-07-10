@@ -127,29 +127,11 @@ public class BasicBubble : NetworkBehaviour
         // Fakes do not spawn on the network, so this will only ever run on real bubbles
         if (!IsServer && NetworkManager.Singleton != null)
         {
-            // Fallback: If playerCollider wasn't set locally yet, find it via the OwnerID 
-            if (playerCollider == null)
-            {
-                var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-                foreach (var p in players)
-                {
-                    if (p.PlayerID == OwnerID)
-                    {
-                        playerCollider = p.Controller;
-                        break;
-                    }
-                }
-            }
+            SetMeshVisibility(false); // Hide the real bubble mesh instantly
+            isMeshHiddenForOwner = true;
 
-            // Check if this incoming real bubble belongs to us!
-            if (NetworkManager.Singleton.LocalClientId == (ulong)OwnerID)
-            {
-                SetMeshVisibility(false); // Hide the real bubble mesh instantly
-                isMeshHiddenForOwner = true;
-
-                // Start the brief countdown to swap the fake out for this real one
-                StartCoroutine(HandOffCountdown());
-            }
+            // Start the brief countdown to swap the fake out for this real one
+            StartCoroutine(HandOffCountdown());
         }
     }
 
