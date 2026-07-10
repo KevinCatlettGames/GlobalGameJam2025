@@ -71,35 +71,35 @@ public class SO_Spell : ScriptableObject
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
 
-            //if (!GameManager.Instance.PlayingLocal)
-            //{
-            //    if (netObj != null) netObj.NetworkHide(senderClientId);
-            //}
+            if (!GameManager.Instance.PlayingLocal)
+            {
+                if (netObj != null) netObj.NetworkHide(senderClientId);
+            }
         }
 
-        //// --- LOCAL CASTING CLIENT SIDE ---
-        //if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
-        //{
-        //    GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
+        // --- LOCAL CASTING CLIENT SIDE ---
+        if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
+        {
+            GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
 
-        //    fakeInstance.layer = LayerMask.NameToLayer("FakeProjectiles");
+            fakeInstance.layer = LayerMask.NameToLayer("FakeProjectiles");
 
-        //    BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
-        //    if (fakeScript != null)
-        //    {
-        //        fakeScript.isLocalFake = true;
+            BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
+            if (fakeScript != null)
+            {
+                fakeScript.isLocalFake = true;
 
-        //        // --- FIX: ASSIGN THE INT ID ---
-        //        fakeScript.castID = assignedCastID;
-        //        fakeScript.InitialiseBubble(ID, dir, playerCollider);
-        //    }
+                // --- FIX: ASSIGN THE INT ID ---
+                fakeScript.castID = assignedCastID;
+                fakeScript.InitialiseBubble(ID, dir, playerCollider);
+            }
 
-        //    var playerCtrl = playerCollider.GetComponent<PlayerController>();
-        //    if (playerCtrl != null && fakeScript != null)
-        //    {
-        //        playerCtrl.RegisterLocalFake(fakeScript);
-        //    }
-        //}
+            var playerCtrl = playerCollider.GetComponent<PlayerController>();
+            if (playerCtrl != null && fakeScript != null)
+            {
+                playerCtrl.RegisterLocalFake(fakeScript);
+            }
+        }
 
         return spellCooldown;
     }
