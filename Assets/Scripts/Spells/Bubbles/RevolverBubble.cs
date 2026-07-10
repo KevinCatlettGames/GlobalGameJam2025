@@ -11,15 +11,20 @@ public class RevolverBubble : BasicBubble
     [SerializeField] private float spread = 2f;
     [SerializeField] private GameObject bubblePrefab;
     [SerializeField] private MeshRenderer revolverMesh;
-   
+
     private int hitCount = 0;
     private Vector3 offset;
-    
+
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID = ID;
         direction = dir;
-        offset = transform.position - playerCollider.transform.position;
+
+        // Safety: ensure playerCollider isn't null before computing offset
+        if (playerCollider != null)
+        {
+            offset = transform.position - playerCollider.transform.position;
+        }
         this.playerCollider = playerCollider;
 
         StartCoroutine(EmptyBarrel());
@@ -27,7 +32,10 @@ public class RevolverBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        transform.position = playerCollider.transform.position + offset;
+        if (playerCollider != null)
+        {
+            transform.position = playerCollider.transform.position + offset;
+        }
     }
 
     private IEnumerator EmptyBarrel()
@@ -35,34 +43,67 @@ public class RevolverBubble : BasicBubble
         Vector3 pos;
         float rotation = -(maxAmmo - 1);
         rotation *= .5f;
-        
-        for (int i = 0; i < maxAmmo; i++) 
+
+        for (int i = 0; i < maxAmmo; i++)
         {
-            
             Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
             pos = transform.position + direction;
             GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
-            bubbleObj.GetComponent<RevolverBulletBubble>().RevolverBubble = this; 
-            
-            NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-            if (netObj != null)
-                netObj.Spawn();
+
+            var bulletScript = bubbleObj.GetComponent<RevolverBulletBubble>();
+            if (bulletScript != null)
+            {
+                bulletScript.RevolverBubble = this;
+            }
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, dir, playerCollider);
+
+            // --- CLIENT / SERVER SPAWN GATE ---
+            if (isLocalFake)
+            {
+                Destroy(bubbleObj.GetComponent<NetworkObject>());
+                bubbleObj.layer = LayerMask.NameToLayer("FakeProjectiles");
+
+                if (bubbleScript != null)
+                {
+                    bubbleScript.isLocalFake = true;
+                    bubbleScript.castID = this.castID;
+
+                    var playerCtrl = playerCollider?.GetComponent<PlayerController>();
+                    if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
+                }
+            }
+            else if (IsServer)
+            {
+                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+                if (netObj != null) netObj.Spawn();
+
+                if (bubbleScript != null)
+                {
+                    bubbleScript.castID = this.castID;
+                }
+            }
+
+            if (bubbleScript != null)
+            {
+                bubbleScript.InitialiseBubble(OwnerID, dir, playerCollider);
+            }
 
             yield return new WaitForSeconds(delayBetweenShots);
             rotation++;
-            
         }
+
         yield return new WaitForSeconds(.1f);
-        revolverMesh.enabled = false;
+        if (revolverMesh != null) revolverMesh.enabled = false;
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }
 
     public void AddToHitCount()
     {
+        // Fakes can track hit count locally if desired, but achievements stay server-authoritative
+        if (isLocalFake) return;
+
         hitCount++;
         if (hitCount >= maxAmmo)
         {
@@ -72,9 +113,11 @@ public class RevolverBubble : BasicBubble
 
     private void CheckAllShotsHitAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
+        if (!IsServer) return; // Strict safety check
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID
             || !SteamIntegration.instance) return;
-        
+
         SteamIntegration steamIntegration = SteamIntegration.instance;
         steamIntegration.IncrementIntSteamStat(steamIntegration.allShotsHitStatID, 1, steamIntegration.StatThresholds[steamIntegration.allShotsHitStatID], steamIntegration.allRevolverShotsHitAchievementID);
     }

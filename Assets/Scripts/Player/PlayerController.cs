@@ -418,9 +418,42 @@ public class PlayerController : NetworkBehaviour
     }
 
     #endregion
-    
-    #region Spell System
 
+
+    #region Spell System
+    // Keep track of all active local fake bubbles running on this client's screen
+    private System.Collections.Generic.List<BasicBubble> activeLocalFakes = new System.Collections.Generic.List<BasicBubble>();
+    private int localSpellCounter = 0;
+
+    // --- FIX: UPDATED TO ACCEPT INT ID FOR INSTANT LOOKUP ---
+    [ClientRpc]
+    public void DestroyLocalFakeBubbleClientRpc(int targetCastID)
+    {
+        // Directly look up the local fake projectile via its integer ID
+        BasicBubble localFake = GetLocalFakeByCastID(targetCastID);
+        if (localFake != null)
+        {
+            localFake.HideVisualsAndDisablePhysics();
+            Destroy(localFake.gameObject);
+        }
+    }
+
+    // Call this right before you execute your SO_Spell.CastSpell method
+    public int GenerateNextCastID()
+    {
+        localSpellCounter++;
+
+        // Create a composite ID: (PlayerID * 10000) + counter
+        // If Player 2 casts their 5th spell, the ID is 20005. 
+        // Both client and server can calculate this identically without talking!
+        return ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
+    }
+
+    // Helper method to keep our tracking list clean when fakes die naturally
+    public void RegisterLocalFake(BasicBubble fakeBubble)
+    {
+        activeLocalFakes.Add(fakeBubble);
+    }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
@@ -460,34 +493,78 @@ public class PlayerController : NetworkBehaviour
             controllerRumbler?.Rumble(.15f, 1f, 5f);
     }
 
+    // Finds and returns a specific live fake bubble based on its unique integer cast ID
+    public BasicBubble GetLocalFakeByCastID(int id)
+    {
+        // Clean out any fakes that were already destroyed or popped naturally
+        activeLocalFakes.RemoveAll(item => item == null);
+
+        // Find the matching bubble in our tracked list
+        foreach (BasicBubble fake in activeLocalFakes)
+        {
+            if (fake.castID == id)
+            {
+                return fake;
+            }
+        }
+
+        return null; // Return null if it was already popped or doesn't exist
+    }
+
     private void CastSpell(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
 
         if (GameManager.Instance.PlayingLocal)
+        {
             CastSpellLocal(isFirstSpell);
+        }
         else
-            CastSpellServerRpc(isFirstSpell);
+        {
+            // Calculate what our local sequence ID is going to be
+            int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
 
-        if (isFirstSpell)
-            isFirstSpellReady = false;
-        else
-            isSecondSpellReady = false;
+            // Fire the network command to notify the server/other players
+            CastSpellServerRpc(isFirstSpell, assignedID);
 
-        if (GameManager.Instance.PlayingLocal)
+            // Fire locally immediately for instant responsive client-side prediction
+            CastSpellLocal(isFirstSpell);
+        }
+
+        if (isFirstSpell) isFirstSpellReady = false;
+        else isSecondSpellReady = false;
+
+        // --- FIXED: Update animation rules for Host vs Client ---
+        if (GameManager.Instance.PlayingLocal || NetworkManager.Singleton.IsServer)
         {
             mainAnimator.SetTrigger("SlapTrigger");
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
         }
-        else
-            SlapAnimServerRpc(isFirstSpell);
 
+        if (!GameManager.Instance.PlayingLocal)
+        {
+            SlapAnimServerRpc(isFirstSpell);
+        }
     }
 
     private void CastSpellLocal(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged);
+
+        // Calculate the assigned ID matching exactly what CastSpell calculated
+        localSpellCounter++;
+        int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
+
+        // IMPORTANT: If this is rapid fire, tick the counter again so the NEXT spell cast 
+        // doesn't accidentally reuse the second bubble's ID slot!
+        if (spell is SO_Rapid)
+        {
+            localSpellCounter++;
+        }
+
+        // Pass the cleanly synchronized ID down
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged, NetworkManager.Singleton.LocalClientId, assignedID);
+
         if (isUltCharged)
         {
             currentUltCharge = 0;
@@ -499,7 +576,7 @@ public class PlayerController : NetworkBehaviour
         {
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
         }
-        else 
+        else
         {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
@@ -515,16 +592,27 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CastSpellServerRpc(bool isFirstSpell)
+    private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, ServerRpcParams rpcParams = default)
     {
-        CastSpellClientRpc(isFirstSpell);
+        // Receive the client's generated ID and forward it to everyone else
+        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
     }
 
     [ClientRpc]
-    private void CastSpellClientRpc(bool isFirstSpell)
+    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID)
     {
+        // --- FIXED: PERFECT HOST & CLIENT DOUBLE-SPAWN GUARD ---
+        // If this machine is the one who originally shot the bubble, 
+        // it already handled its own spawning via CastSpellLocal. Stop here!
+        if (NetworkManager.Singleton.LocalClientId == senderClientId)
+        {
+            return;
+        }
+
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged);
+
+        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged, senderClientId, assignedID);
+
         if (isUltCharged)
         {
             currentUltCharge = 0;
@@ -532,25 +620,20 @@ public class PlayerController : NetworkBehaviour
             playerHUD.ChargeUlt(false);
             playerHUD.SetUltSlider(0);
         }
+
         if (isFirstSpell)
-        {
             firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
-        }
         else
-        {
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
-        }
 
-        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        // This block only runs for remote players now, so we can clean this check up
+        if (!usedSpell.Contains(spell))
+            usedSpell.Add(spell);
+
+        if (SteamIntegration.instance)
         {
-            if (!usedSpell.Contains(spell))
-                usedSpell.Add(spell);
-
-            if (SteamIntegration.instance)
-            {
-                if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-            }
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
         }
     }
 

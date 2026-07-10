@@ -12,10 +12,14 @@ public class SoapBubble : BasicBubble
     private const float raycastDistance = 5f;
 
     private float timer = 0;
-    
+
     private void Update()
     {
+        // --- PREDICTION FILTER ---
+        // Only allow execution for the authoritative server instance and your client-side visual prediction fake
+        if (!IsServer && !isLocalFake) return;
         if (soapPuddleObject == null) return;
+
         timer += Time.deltaTime;
         if (timer >= soapDropInterval)
         {
@@ -28,13 +32,23 @@ public class SoapBubble : BasicBubble
     {
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
-            if (IsServer)
+            GameObject prefabToSpawn = hitPlayer ? soapSplatObject : soapPuddleObject;
+            if (prefabToSpawn == null) return;
+
+            if (isLocalFake)
             {
-                GameObject puddle;
-                if (hitPlayer) 
-                    puddle = Instantiate(soapSplatObject, hitInfo.point, transform.rotation);
-                else
-                    puddle = Instantiate(soapPuddleObject, hitInfo.point, transform.rotation);
+                // Instantiate a purely local visual asset that disappears automatically on the client's screen
+                GameObject localPuddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
+
+                // Strip off the NetworkObject component locally so it doesn't cause tracking warnings
+                if (localPuddle.TryGetComponent<NetworkObject>(out var netObj))
+                {
+                    Destroy(netObj);
+                }
+            }
+            else if (IsServer)
+            {
+                GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
             }
         }
@@ -42,12 +56,30 @@ public class SoapBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return; // Allow processing for the server and local fakes
 
+        // --- LOCAL FAKE SHORT CIRCUIT ---
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Player"))
+            {
+                DropSoapPuddle(true);
+                Pop();
+            }
+            else if (other.CompareTag("Wall") || other.CompareTag("Environment"))
+            {
+                Pop();
+            }
+            return;
+        }
+
+        // --- AUTHORITATIVE SERVER COLLISION ---
         if (other.CompareTag("Player"))
         {
             DropSoapPuddle(true);
         }
+
         base.BubbleCollision(other);
     }
 

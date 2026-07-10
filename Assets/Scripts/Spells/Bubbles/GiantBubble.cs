@@ -1,7 +1,6 @@
 using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -31,7 +30,7 @@ public class GiantBubble : BasicBubble
 
     protected override IEnumerator Inflate()
     {
-        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        if (sphereCollider != null) sphereCollider.excludeLayers += LayerMask.GetMask("Player");
         bool blink = false;
         while (currentSize < size)
         {
@@ -49,41 +48,67 @@ public class GiantBubble : BasicBubble
 
         InflateOverlapChack();
 
-        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        if (sphereCollider != null) sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
         hasInflated = true;
     }
 
     protected override void BubbleMovement()
     {
-        if (!IsServer) return;
+        // --- PREDICTION FILTER ---
+        // Allow movement processing for both the Server and client-side prediction fakes
+        if (!IsServer && !isLocalFake) return;
         if (!hasInflated) return;
+
         base.BubbleMovement();
     }
+
     private IEnumerator Blink()
-    { 
-        GetComponent<Animation>().Play();
-        Material[] materials = meshRenderer.materials;
-        meshRenderer.materials = blinkMaterials;
-        yield return new WaitForSeconds(.15f);
-        meshRenderer.materials = materials;
+    {
+        if (GetComponent<Animation>() != null) GetComponent<Animation>().Play();
+        if (meshRenderer != null)
+        {
+            Material[] materials = meshRenderer.materials;
+            meshRenderer.materials = blinkMaterials;
+            yield return new WaitForSeconds(.15f);
+            meshRenderer.materials = materials;
+        }
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
+
+        // --- STATE CHANGE: HIT ANOTHER BUBBLE ---
         if (!isSmall && other.CompareTag("Bubble"))
         {
             isSmall = true;
-            damage = dmgMini;
-            knockback *= knbMod;
             speed *= speedMod;
             hitEffect = smallHitEffect;
             spellType = SpellType.SmallerGiant;
-            bigTrail.emitting = false;
-            smallTrail.emitting = true;
             size *= sizMod;
             transform.localScale = Vector3.one * size;
+
+            if (bigTrail != null) bigTrail.emitting = false;
+            if (smallTrail != null) smallTrail.emitting = true;
+
+            if (IsServer)
+            {
+                damage = dmgMini;
+                knockback *= knbMod;
+            }
+            return; // Don't pop yet, it transformed into a tiny fast bubble!
+        }
+
+        // --- LOCAL FAKE SEPARATION ---
+        if (isLocalFake)
+        {
+            // If it hits a player or environment wall as either big/small, trigger instant visual destruction
+            Pop();
             return;
         }
+
+        // --- AUTHORITATIVE SERVER HIT CALCULATIONS ---
         if (!isSmall && other.CompareTag("Player"))
         {
             Vector3 v = other.transform.position - transform.position;
@@ -98,7 +123,7 @@ public class GiantBubble : BasicBubble
                 knockback *= 1 - (knbDecreaseIncrement * i);
             }
         }
-        
+
         base.BubbleCollision(other);
     }
 }

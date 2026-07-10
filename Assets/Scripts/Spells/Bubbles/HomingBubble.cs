@@ -19,46 +19,71 @@ public class HomingBubble : BasicBubble
         homingTargeting = GetComponentInChildren<HomingTargeting>();
         if (homingTargeting != null)
         {
+            // Allow targeting setups to be initialized for both server and local client prediction fakes
             homingTargeting.SetTargeting(homingRadius / size, playerCollider, ID);
         }
         else
         {
             Debug.LogWarning("HomingTargeting component not found on HomingBubble.");
-        }   
+        }
     }
+
     protected override void BubbleMovement()
     {
+        // --- PREDICTION FILTER ---
+        // Allow movement processing for both the Server and our client-side prediction fake
+        if (!IsServer && !isLocalFake) return;
+
         if (!hasInflated)
         {
             base.BubbleMovement();
             return;
         }
 
-        Vector3 targetVector = homingTargeting.GetTargetVector();
-
-        if (targetVector != Vector3.zero)
+        // Run homing track math locally so the fake bubble bends gracefully on screen
+        if (homingTargeting != null)
         {
-            Quaternion targetRotation = Quaternion.LookRotation(targetVector);
-            transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
-            direction = transform.forward;
+            Vector3 targetVector = homingTargeting.GetTargetVector();
+
+            if (targetVector != Vector3.zero)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(targetVector);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.fixedDeltaTime * rotationSpeed);
+                direction = transform.forward;
+            }
         }
-        
+
         base.BubbleMovement();
     }
+
     public override void BubbleCollision(GameObject other)
     {
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
+
         if (other.CompareTag("Player"))
         {
             playerHit = other.GetComponent<PlayerController>();
         }
+
+        if (isLocalFake)
+        {
+            // Visual local fakes pop cleanly upon intersecting any collider
+            Pop();
+            return;
+        }
+
         base.BubbleCollision(other);
     }
+
     [ClientRpc]
     protected override void SpawnPopEffectClientRpc(Vector3 pos)
     {
-        if (fizzleEffect == null)
-            return;
+        if (fizzleEffect == null) return;
+
         var effect = Instantiate(fizzleEffect, pos, Quaternion.identity);
+
+        // This authoritative damage pipeline remains totally safe on connected network game clients
         if (playerHit != null && hasHitPlayer)
         {
             effect.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(playerHit, OwnerID, damage, damageDelay);

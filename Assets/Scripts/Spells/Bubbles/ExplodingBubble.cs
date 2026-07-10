@@ -18,29 +18,49 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         canMiss = false;
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
-        if (other.CompareTag("Bubble") && popOnBubbleHit)
+        if (hasPopped) return;
+        if (!IsServer && !isLocalFake) return; // Allow processing for the server and our local prediction fakes
+
+        if (isLocalFake)
         {
-            OwnerID = other.GetComponent<BasicBubble>().OwnerID;
+            // Local fakes process the visual collision marker instantly and pop
+            fizzleEffect = hitEffect;
+            Pop();
+            return;
         }
-        else if (other.CompareTag("Player"))
+
+        // --- AUTHORITATIVE SERVER LOGIC ---
+        if (other != null && other.CompareTag("Bubble") && popOnBubbleHit)
+        {
+            var otherBubble = other.GetComponent<BasicBubble>();
+            if (otherBubble != null) OwnerID = otherBubble.OwnerID;
+        }
+        else if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
         fizzleEffect = hitEffect;
         Pop();
     }
+
     protected override void InflateOverlapChack()
     {
         isReadyToExpode = true;
         base.InflateOverlapChack();
     }
+
     public void Explode()
     {
         if (hasExploded) return;
         hasExploded = true;
+
+        // If it's a local fake, we don't calculate or apply radial blast forces to players or other network objects
+        if (isLocalFake) return;
+
+        // --- AUTHORITATIVE SERVER EXPLOSION FORCE LOGIC ---
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -58,11 +78,18 @@ public class ExplodingBubble : BasicBubble
                     {
                         if (col.gameObject == primaryTarget)
                             knockback *= primaryKnockbackIncrease;
+
                         if (GameManager.Instance.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+
+                        if (playerCollider != null)
+                        {
+                            var controller = playerCollider.GetComponent<PlayerController>();
+                            if (controller != null) controller.GainUltCharge(damage, true);
+                        }
+
                         if (col.gameObject == primaryTarget)
                             knockback /= primaryKnockbackIncrease;
                     }
@@ -75,16 +102,19 @@ public class ExplodingBubble : BasicBubble
                         bubble.BubbleCollision(this.gameObject);
                     }
                 }
-
             }
         }
     }
+
     protected override void Pop()
     {
         if (hasPopped) return;
-        if(isReadyToExpode) Explode();
+
+        if (isReadyToExpode) Explode();
         else fizzleEffect = earlyFizzleEffect;
+
+        // base.Pop() handles running the client RPC effects on the server, 
+        // or instant visual culling if it's the client's local fake bubble.
         base.Pop();
     }
-
 }
