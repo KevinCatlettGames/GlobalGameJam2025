@@ -452,6 +452,7 @@ public class PlayerController : NetworkBehaviour
     // Helper method to keep our tracking list clean when fakes die naturally
     public void RegisterLocalFake(BasicBubble fakeBubble)
     {
+        Debug.Log("Local fake added");
         activeLocalFakes.Add(fakeBubble);
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
@@ -535,7 +536,7 @@ public class PlayerController : NetworkBehaviour
         else isSecondSpellReady = false;
 
         // --- FIXED: Update animation rules for Host vs Client ---
-        if (GameManager.Instance.PlayingLocal || NetworkManager.Singleton.IsServer)
+        if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
@@ -543,6 +544,9 @@ public class PlayerController : NetworkBehaviour
 
         if (!GameManager.Instance.PlayingLocal)
         {
+            GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
+            if (spell != null)
+                RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
             SlapAnimServerRpc(isFirstSpell);
         }
     }
@@ -646,6 +650,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void SlapAnimClientRpc(bool isFirstSpell)
     {
+        if (IsOwner) return;
         GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
@@ -758,9 +763,6 @@ public class PlayerController : NetworkBehaviour
         ResetSpell(spellSlotID);
     }
 
-    /// <summary>
-    /// Starts the handoff sequence from a safe, always-active Monobehaviour
-    /// </summary>
     public void TriggerHandoff(BasicBubble realNetworkBubble, int castID)
     {
         StartCoroutine(HandOffCountdownRoutine(realNetworkBubble, castID));
@@ -768,22 +770,17 @@ public class PlayerController : NetworkBehaviour
 
     private IEnumerator HandOffCountdownRoutine(BasicBubble realNetworkBubble, int castID)
     {
-        yield return new WaitForSeconds(0.12f);
-        Debug.LogError("Handing off from PlayerController!");
+        yield return null; // Wait 1 frame
 
         BasicBubble localFake = GetLocalFakeByCastID(castID);
-        if (localFake != null)
-        {
-            Debug.LogError("Found localfake");
-            localFake.HideVisualsAndDisablePhysics();
-            Destroy(localFake.gameObject);
-        }
 
-        // Safely reactivate the real network bubble's visuals
-        if (realNetworkBubble != null)
+        if (localFake != null && realNetworkBubble != null)
         {
-            realNetworkBubble.SetMeshVisibility(true);
-            realNetworkBubble.isMeshHiddenForOwner = false;
+            // Use our new relative offset initializer!
+            localFake.InitializeReconciliation(realNetworkBubble.transform);
+
+            realNetworkBubble.SetMeshVisibility(false);
+            realNetworkBubble.isMeshHiddenForOwner = true;
         }
     }
 

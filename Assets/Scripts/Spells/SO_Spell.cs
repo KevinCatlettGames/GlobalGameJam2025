@@ -44,7 +44,6 @@ public class SO_Spell : ScriptableObject
     [SerializeField] private bool availableInDemo = true;
     public bool AvailableInDemo { get => availableInDemo; set => availableInDemo = value; }
 
-    // --- FIX: ADDED assignedCastID PARAMETER ---
     public virtual float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt, ulong senderClientId, int assignedCastID)
     {
         dir.Normalize();
@@ -58,23 +57,19 @@ public class SO_Spell : ScriptableObject
             float oneWayTime = (rttInMs / 2f) / 1000f + (Time.fixedDeltaTime / 2f);
 
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
-
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
-            serverScript.InitialiseBubble(ID, dir, playerCollider);
 
-            // --- FIX: ASSIGN THE INT ID ---
-            serverScript.castID = assignedCastID;
-
-            // Fast-Forward position based on RTT lag
+            // 1. FAST-FORWARD position calculations
             bubbleInstance.transform.position += dir * (serverScript.Speed * oneWayTime);
 
+            // 2. SPAWN THE OBJECT ONTO THE NETWORK FIRST
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
 
-            if (!GameManager.Instance.PlayingLocal)
-            {
-                if (netObj != null) netObj.NetworkHide(senderClientId);
-            }
+            // 3. --- FIX: ASSIGN NETWORKED PROPERTIES AFTER NETWORK SPAWN ---
+            // This forces Netcode to dirty the state buffer and broadcast the ID cleanly!
+            serverScript.castID = assignedCastID;
+            serverScript.InitialiseBubble(ID, dir, playerCollider);
         }
 
         // --- LOCAL CASTING CLIENT SIDE ---
@@ -89,7 +84,7 @@ public class SO_Spell : ScriptableObject
             {
                 fakeScript.isLocalFake = true;
 
-                // --- FIX: ASSIGN THE INT ID ---
+                // Assign IDs before initialization
                 fakeScript.castID = assignedCastID;
                 fakeScript.InitialiseBubble(ID, dir, playerCollider);
             }

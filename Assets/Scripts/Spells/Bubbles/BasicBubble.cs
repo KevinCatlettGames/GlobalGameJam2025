@@ -1,4 +1,5 @@
 using FMODUnity;
+using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -59,7 +60,6 @@ public class BasicBubble : NetworkBehaviour
     protected bool hasHitPlayer = false;
 
     [HideInInspector] public bool isLocalFake = false;
-    // --- BACK TO SIMPLE PRIMITIVES ---
     [HideInInspector]
     public NetworkVariable<int> syncedCastID = new NetworkVariable<int>(
         0,
@@ -68,7 +68,10 @@ public class BasicBubble : NetworkBehaviour
     );
 
     private int _localFakeCastID;
-
+    [HideInInspector] public Transform serverBubbleTarget;
+    [SerializeField] private Transform visualChildMesh;
+    [SerializeField] private float visualBlendSpeed = 3f;
+    private Vector3 visualOffset;
     public int castID
     {
         get => isLocalFake ? _localFakeCastID : syncedCastID.Value;
@@ -79,6 +82,7 @@ public class BasicBubble : NetworkBehaviour
         }
     }
     public bool isMeshHiddenForOwner = false;
+
     private void Start()
     {
         GameManager.Instance.OnGameEnded += DestroyBubble;
@@ -89,11 +93,8 @@ public class BasicBubble : NetworkBehaviour
         OwnerID = ID;
         direction = dir;
         this.playerCollider = playerCollider;
-
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
-
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
@@ -119,18 +120,50 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    public void InitHandOff()
+    public void InitializeReconciliation(Transform serverTarget)
     {
-        if (!IsServer && GetComponent<NetworkObject>().IsSpawned)
+        serverBubbleTarget = serverTarget;
+        if (visualChildMesh != null && serverTarget != null)
         {
-            // Find the local player controller instance
-            PlayerController localPlayer = playerCollider.GetComponent<PlayerController>();
+            Vector3 worldOffset = serverTarget.position - transform.position;
+            visualOffset = transform.InverseTransformDirection(worldOffset);
+        }
+    }
 
-            SetMeshVisibility(false);
-            isMeshHiddenForOwner = true;
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        if (!IsServer && NetworkManager.Singleton != null)
+        {
+            if (syncedCastID.Value != 0)
+            {
+                OnCastIDSynced();
+            }
+            else
+            {
+                syncedCastID.OnValueChanged += HandleCastIDChange;
+            }
+        }
+    }
 
-            // Hand the countdown responsibility over to the player controller so it isn't killed
-            localPlayer.TriggerHandoff(this, this.castID);
+    private void HandleCastIDChange(int previousValue, int newValue)
+    {
+        syncedCastID.OnValueChanged -= HandleCastIDChange;
+        OnCastIDSynced();
+    }
+
+    private void OnCastIDSynced()
+    {
+        SetMeshVisibility(false);
+        isMeshHiddenForOwner = true;
+        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
+        foreach (var p in players)
+        {
+            if (p.IsLocalPlayer)
+            {
+                p.TriggerHandoff(this, this.castID);
+                break;
+            }
         }
     }
 
@@ -140,13 +173,11 @@ public class BasicBubble : NetworkBehaviour
         {
             renderer.enabled = visible;
         }
-        Debug.LogError("Change mesh visibility: " + visible);
+        Debug.Log("Change mesh visibility: " + visible);
     }
 
     private void FixedUpdate()
     {
-        // --- FIXED: MODERN NETCODE PERMISSION ENGINE CHECKS ---
-        // Checks NetworkManager status safely to prevent early-frame freeze glitches
         if (isLocalFake)
         {
             BubbleMovement();
@@ -157,6 +188,37 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
+    private bool isInitialized = false;
+    private float trackingSpeed = 0f;
+    private float catchUpTime = 100;
+
+    private void Update()
+    {
+        if (isLocalFake && serverBubbleTarget != null && visualChildMesh != null)
+        {
+            Vector3 worldOffset = serverBubbleTarget.position - transform.position;
+            Vector3 currentLocalTarget = transform.InverseTransformDirection(worldOffset);
+
+            if (!isInitialized)
+            {
+                float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
+                trackingSpeed = initialDistance / catchUpTime;
+                isInitialized = true;
+            }
+
+            visualChildMesh.localPosition = Vector3.MoveTowards(
+                visualChildMesh.localPosition,
+                currentLocalTarget,
+                trackingSpeed * Time.deltaTime
+            );
+        }
+        else if (visualChildMesh != null)
+        {
+            visualChildMesh.localPosition = Vector3.zero;
+            isInitialized = false;
+        }
+    }
+
     protected virtual IEnumerator Inflate()
     {
         if (sphereCollider != null) sphereCollider.excludeLayers += LayerMask.GetMask("Player");
@@ -164,13 +226,10 @@ public class BasicBubble : NetworkBehaviour
         {
             currentSize += inflationSpeed * Time.deltaTime;
             if (currentSize > size) currentSize = size;
-
             transform.localScale = Vector3.one * currentSize;
             yield return null;
         }
-
         InflateOverlapChack();
-
         if (sphereCollider != null) sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
         hasInflated = true;
     }
@@ -178,7 +237,6 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void InflateOverlapChack()
     {
         Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
-
         foreach (Collider col in overlaps)
         {
             if (ignoredColliders.Contains(col)) continue;
@@ -189,22 +247,16 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void BubbleMovement()
     {
-        transform.position += direction * speed * Time.fixedDeltaTime;
-
-        if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
-        {
-            lastPosition = transform.position;
-        }
+        Vector3 nextPosition = transform.position + (direction * speed * Time.fixedDeltaTime);
+        transform.position = nextPosition;
     }
 
     protected virtual IEnumerator BubbleRangeLimit()
     {
         float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
-
         if (canMiss)
             IncrementMissedShotAchievement();
-
         Pop();
     }
 
@@ -212,7 +264,6 @@ public class BasicBubble : NetworkBehaviour
     {
         if (hasPopped) return;
         if (!IsServer && !isLocalFake) return;
-
         HandleCollision(collision);
     }
 
@@ -220,11 +271,9 @@ public class BasicBubble : NetworkBehaviour
     {
         if (hasPopped || other == null) return;
         if (!IsServer && !isLocalFake) return;
-
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             OwnerID = reflector.OwnerID;
-            // Approximate a normal vector since triggers don't have contact points
             Vector3 approximateNormal = (transform.position - other.transform.position).normalized;
             Reflect(approximateNormal);
         }
@@ -239,45 +288,28 @@ public class BasicBubble : NetworkBehaviour
             Reflect(reflectNormal);
             return;
         }
-
         BubbleCollision(collision.gameObject);
     }
 
     public virtual void BubbleCollision(GameObject other)
     {
         if (hasPopped) return;
-
-        if (isLocalFake)
-        {
-            if (other != null && other.CompareTag("Player"))
-            {
-                if (!ignoredColliders.Contains(other.GetComponent<Collider>()))
-                {
-                    Pop();
-                }
-            }
-            else
-            {
-                Pop();
-            }
-            return;
-        }
-
         if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
             GameManager gameManager = GameManager.Instance;
-
             if (gameManager.PlayingLocal)
                 player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
             else
             {
-                if (IsOwner)
+                if (IsOwner && !isLocalFake)
                     player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
             }
-
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-            if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+            if (!isLocalFake)
+            {
+                gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+            }
             fizzleEffect = hitEffect;
             hasHitPlayer = true;
             if (popOnPlayerHit)
@@ -296,25 +328,18 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void Pop()
     {
-        if (hasPopped) return;
+        if (hasPopped || !IsServer) return;
         hasPopped = true;
-
         StopAllCoroutines();
-
-        // --- FIXED: LOCAL INSTANTIATION GUARD FOR FAKES vs SERVER REAL BUBBLES ---
         if (isLocalFake)
         {
-            // If it's our local fake, spawn the effect immediately on our screen
             if (fizzleEffect != null) Instantiate(fizzleEffect, transform.position, Quaternion.identity);
-
             HideVisualsAndDisablePhysics();
             Destroy(gameObject, 0.05f);
         }
         else if (IsServer)
         {
-            // The server tells EVERYONE (including the host and other clients) to spawn the effect
             SpawnPopEffectClientRpc(transform.position);
-
             if (playerCollider != null && !GameManager.Instance.PlayingLocal)
             {
                 var shooterController = playerCollider.GetComponent<PlayerController>();
@@ -323,7 +348,6 @@ public class BasicBubble : NetworkBehaviour
                     shooterController.DestroyLocalFakeBubbleClientRpc(castID);
                 }
             }
-
             NetworkObject.Despawn(true);
             Destroy(gameObject);
         }
@@ -335,7 +359,6 @@ public class BasicBubble : NetworkBehaviour
         {
             renderer.enabled = false;
         }
-
         foreach (var col in GetComponentsInChildren<Collider>())
         {
             col.enabled = false;
@@ -345,11 +368,9 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void Reflect(Vector3 normal)
     {
         if (!IsServer && !isLocalFake) return;
-
         if (playerCollider != null && sphereCollider != null)
             Physics.IgnoreCollision(sphereCollider, playerCollider, false);
 
-        // Calculate bounce direction
         direction = Vector3.Reflect(direction, normal).normalized;
         direction.y = 0;
         transform.rotation = Quaternion.LookRotation(direction);
@@ -358,7 +379,6 @@ public class BasicBubble : NetworkBehaviour
             StopCoroutine(rangeCoroutine);
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-
         if (IsServer)
         {
             damage *= reflectDmgIncrease;
@@ -373,7 +393,6 @@ public class BasicBubble : NetworkBehaviour
     public virtual void SetSlippy()
     {
         if (!IsServer) return;
-
         if (isSoaped)
         {
             speed += soapSecSpeedIncrease;
@@ -395,13 +414,10 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
-        // --- FIXED: PREVENT DOUBLE EFFECTS FOR THE CASTER ---
-        // If this client already predicted and spawned the pop particle via their local fake, stop here!
         if (!IsServer && NetworkManager.Singleton.LocalClientId == (ulong)OwnerID)
         {
             return;
         }
-
         if (fizzleEffect == null) return;
         Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
@@ -422,8 +438,7 @@ public class BasicBubble : NetworkBehaviour
     protected void IncrementMissedShotAchievement()
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID
-            || !SteamIntegration.instance) return;
+            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
         SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID,
