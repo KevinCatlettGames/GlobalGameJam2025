@@ -64,6 +64,13 @@ public class HomingBubble : BasicBubble
         if (other.CompareTag("Player"))
         {
             playerHit = other.GetComponent<PlayerController>();
+
+            // FIX 1: Ensure the local fake swaps to the hit effect right now
+            if (isLocalFake)
+            {
+                fizzleEffect = hitEffect;
+                hasHitPlayer = true;
+            }
         }
 
         if (isLocalFake)
@@ -88,5 +95,28 @@ public class HomingBubble : BasicBubble
         {
             effect.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(playerHit, OwnerID, damage, damageDelay);
         }
+    }
+
+    protected override void Pop()
+    {
+        // We only need to override this to hook into the local fake's visual explosion lifecycle
+        if (isLocalFake && !hasPopped)
+        {
+            hasPopped = true;
+            StopAllCoroutines();
+
+            if (fizzleEffect != null)
+            {
+                // Spawn the particle effect instantly on our screen
+                GameObject effect = Instantiate(fizzleEffect, transform.position, Quaternion.identity);
+            }
+
+            HideVisualsAndDisablePhysics();
+            Destroy(gameObject, 0.05f);
+            return;
+        }
+
+        // Otherwise, let the authoritative server version run the normal base Pop logic
+        base.Pop();
     }
 }

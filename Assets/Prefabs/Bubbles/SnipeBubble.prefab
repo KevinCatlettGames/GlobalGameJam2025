@@ -16,9 +16,9 @@ GameObject:
   - component: {fileID: 3987040592755437697}
   - component: {fileID: 7893774334514522463}
   - component: {fileID: -7592650989984657302}
-  - component: {fileID: 3080708365895276670}
-  - component: {fileID: 2432993714111853255}
   - component: {fileID: 8380620584171205850}
+  - component: {fileID: -2152815531034944035}
+  - component: {fileID: -709415337100710187}
   m_Layer: 7
   m_Name: SnipeBubble
   m_TagString: Bubble
@@ -203,6 +203,13 @@ MonoBehaviour:
       Data3: -1882999902
       Data4: -202881918
     Path: event:/sfx/spells/fast_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 15
+  isMeshHiddenForOwner: 0
   minDamage: 13
   damageRampUpDistance: 30
 --- !u!114 &-7592650989984657302
@@ -236,7 +243,7 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
---- !u!114 &3080708365895276670
+--- !u!114 &8380620584171205850
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -245,11 +252,25 @@ MonoBehaviour:
   m_GameObject: {fileID: 449082112856618060}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c6e1a71b38563254c85c541960771b10, type: 3}
+  m_Script: {fileID: 11500000, guid: 18cc28bd603229541a5effc24b60804d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  NetworkTransformExpanded: 1
+  childObject: {fileID: 5700073792834702181}
+--- !u!114 &-2152815531034944035
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 449082112856618060}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e96cb6065543e43c4a752faaa1468eb1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  NetworkTransformExpanded: 0
   AutoOwnerAuthorityTickOffset: 1
   PositionInterpolationType: 1
   RotationInterpolationType: 1
@@ -272,9 +293,9 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
@@ -282,7 +303,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &2432993714111853255
+--- !u!114 &-709415337100710187
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -299,20 +320,6 @@ MonoBehaviour:
   UseRigidBodyForMotion: 0
   AutoUpdateKinematicState: 1
   AutoSetKinematicOnDespawn: 1
---- !u!114 &8380620584171205850
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 449082112856618060}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 18cc28bd603229541a5effc24b60804d, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  ShowTopMostFoldoutHeaderGroup: 1
-  childObject: {fileID: 5700073792834702181}
 --- !u!1 &7170327632841725035
 GameObject:
   m_ObjectHideFlags: 0

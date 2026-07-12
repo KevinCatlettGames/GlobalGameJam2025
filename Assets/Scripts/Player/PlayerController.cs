@@ -772,15 +772,26 @@ public class PlayerController : NetworkBehaviour
     {
         yield return null; // Wait 1 frame
 
+        if (realNetworkBubble == null) yield break;
+
         BasicBubble localFake = GetLocalFakeByCastID(castID);
 
-        if (localFake != null && realNetworkBubble != null)
+        // CRITICAL CONDITIONAL HOOK: Only hide the server bubble if it matches a local prediction fake!
+        if (localFake != null)
         {
-            // Use our new relative offset initializer!
+            // Use our relative offset initializer to smooth out the client's local fake
             localFake.InitializeReconciliation(realNetworkBubble.transform);
 
+            // Hide the server twin because our local client is driving the visual prediction fake
             realNetworkBubble.SetMeshVisibility(false);
             realNetworkBubble.isMeshHiddenForOwner = true;
+        }
+        else
+        {
+            // If no local fake matches, this bubble was shot by someone else! 
+            // Ensure it is explicitly visible to this client.
+            realNetworkBubble.SetMeshVisibility(true);
+            realNetworkBubble.isMeshHiddenForOwner = false;
         }
     }
 

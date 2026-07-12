@@ -127,6 +127,12 @@ public class BasicBubble : NetworkBehaviour
         serverBubbleTarget = serverTarget;
         if (visualChildMesh != null && serverTarget != null)
         {
+            // FIX: Grab the server bubble's script component and copy its exact cast ID!
+            if (serverTarget.TryGetComponent<BasicBubble>(out var serverBubble))
+            {
+                this.castID = serverBubble.castID;
+            }
+
             Vector3 worldOffset = serverTarget.position - transform.position;
             visualOffset = transform.InverseTransformDirection(worldOffset);
 
@@ -172,8 +178,6 @@ public class BasicBubble : NetworkBehaviour
 
     private void OnCastIDSynced()
     {
-        SetMeshVisibility(false);
-        isMeshHiddenForOwner = true;
         var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
         foreach (var p in players)
         {
