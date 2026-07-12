@@ -1,6 +1,7 @@
 using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -30,7 +31,7 @@ public class GiantBubble : BasicBubble
 
     protected override IEnumerator Inflate()
     {
-        if (sphereCollider != null) sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
         bool blink = false;
         while (currentSize < size)
         {
@@ -48,84 +49,42 @@ public class GiantBubble : BasicBubble
 
         InflateOverlapChack();
 
-        if (sphereCollider != null) sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
         hasInflated = true;
     }
 
     protected override void BubbleMovement()
     {
-        // --- PREDICTION FILTER ---
-        // Allow movement processing for both the Server and client-side prediction fakes
         if (!IsServer && !isLocalFake) return;
         if (!hasInflated) return;
-
         base.BubbleMovement();
     }
-
     private IEnumerator Blink()
     {
-        if (GetComponent<Animation>() != null) GetComponent<Animation>().Play();
-        if (meshRenderer != null)
-        {
-            Material[] materials = meshRenderer.materials;
-            meshRenderer.materials = blinkMaterials;
-            yield return new WaitForSeconds(.15f);
-            meshRenderer.materials = materials;
-        }
+        GetComponent<Animation>().Play();
+        Material[] materials = meshRenderer.materials;
+        meshRenderer.materials = blinkMaterials;
+        yield return new WaitForSeconds(.15f);
+        meshRenderer.materials = materials;
     }
-
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return;
-
-        // --- BUBBLE-ON-BUBBLE PASS FILTER ---
-        if (other.CompareTag("Bubble"))
+        if (isLocalFake) return;
+        if (hasPopped) return;
+        if (!isSmall && other.CompareTag("Bubble"))
         {
-            // ALWAYS IGNORE YOUR OWN TWIN: Check this first before anything else!
-            if (other.TryGetComponent<BasicBubble>(out var otherBubble))
-            {
-                if (otherBubble.castID == this.castID)
-                {
-                    return; // Bypass completely so it never falls through to Pop()
-                }
-            }
-
-            // --- STATE CHANGE: HIT A LEGITIMATE ENEMY BUBBLE ---
-            if (!isSmall)
-            {
-                isSmall = true;
-                speed *= speedMod;
-                hitEffect = smallHitEffect;
-                spellType = SpellType.SmallerGiant;
-                size *= sizMod;
-                transform.localScale = Vector3.one * size;
-
-                if (bigTrail != null) bigTrail.emitting = false;
-                if (smallTrail != null) smallTrail.emitting = true;
-
-                if (IsServer)
-                {
-                    damage = dmgMini;
-                    knockback *= knbMod;
-                }
-                return; // Transform and keep flying!
-            }
-        }
-
-        // --- LOCAL FAKE SEPARATION ---
-        if (isLocalFake)
-        {
-            if (other.CompareTag("Player"))
-            {
-                fizzleEffect = hitEffect;
-            }
-
-            Pop();
+            isSmall = true;
+            damage = dmgMini;
+            knockback *= knbMod;
+            speed *= speedMod;
+            hitEffect = smallHitEffect;
+            spellType = SpellType.SmallerGiant;
+            bigTrail.emitting = false;
+            smallTrail.emitting = true;
+            size *= sizMod;
+            transform.localScale = Vector3.one * size;
             return;
         }
-
-        // --- AUTHORITATIVE SERVER HIT CALCULATIONS ---
         if (!isSmall && other.CompareTag("Player"))
         {
             Vector3 v = other.transform.position - transform.position;
@@ -142,19 +101,5 @@ public class GiantBubble : BasicBubble
         }
 
         base.BubbleCollision(other);
-    }
-
-    protected override void InflateOverlapChack()
-    {
-        // Use the bubble's configuration size to check for birth-overlaps
-        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
-        foreach (Collider col in overlaps)
-        {
-            // FIX: Explicitly ignore our shooter so the fake bubble doesn't detonate on launch!
-            if (ignoredColliders.Contains(col)) continue;
-
-            BubbleCollision(col.gameObject);
-            break;
-        }
     }
 }
