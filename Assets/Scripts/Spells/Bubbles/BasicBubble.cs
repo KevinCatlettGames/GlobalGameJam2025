@@ -1,5 +1,4 @@
 using FMODUnity;
-using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -93,7 +92,10 @@ public class BasicBubble : NetworkBehaviour
         OwnerID = ID;
         direction = dir;
         this.playerCollider = playerCollider;
+
+        // Start full baseline countdown immediately for the fake bubble launch
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
@@ -127,6 +129,22 @@ public class BasicBubble : NetworkBehaviour
         {
             Vector3 worldOffset = serverTarget.position - transform.position;
             visualOffset = transform.InverseTransformDirection(worldOffset);
+
+            // 1. Terminate the original muzzle-flash countdown
+            if (rangeCoroutine != null)
+                StopCoroutine(rangeCoroutine);
+
+            // 2. Calculate exactly how many seconds of flight distance separate the two bubbles.
+            float trueTimeSpent = worldOffset.magnitude / speed;
+
+            // 3. Subtract that precise flight time from the total statutory lifetime
+            float remainingServerLifetime = (range / speed) - trueTimeSpent;
+
+            // Safety clamp to ensure it doesn't pop instantly on extreme spikes
+            remainingServerLifetime = Mathf.Max(remainingServerLifetime, 0.05f);
+
+            // 4. Restart the countdown with the perfectly reconciled remaining time
+            rangeCoroutine = StartCoroutine(BubbleRangeLimit(remainingServerLifetime));
         }
     }
 
@@ -251,12 +269,15 @@ public class BasicBubble : NetworkBehaviour
         transform.position = nextPosition;
     }
 
-    protected virtual IEnumerator BubbleRangeLimit()
+    protected virtual IEnumerator BubbleRangeLimit(float customLifetime = 0f)
     {
-        float lifetime = range / speed;
+        float lifetime = (customLifetime > 0f) ? customLifetime : (range / speed);
+
         yield return new WaitForSeconds(lifetime);
-        if (canMiss)
+
+        if (canMiss && isLocalFake)
             IncrementMissedShotAchievement();
+
         Pop();
     }
 
@@ -305,11 +326,14 @@ public class BasicBubble : NetworkBehaviour
                 if (IsOwner && !isLocalFake)
                     player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
             }
+
             if (!isLocalFake)
             {
                 gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                 if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             }
+
+            // Assign the visual effect type before running Pop()
             fizzleEffect = hitEffect;
             hasHitPlayer = true;
             if (popOnPlayerHit)
@@ -328,18 +352,28 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void Pop()
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped) return;
+        if (!isLocalFake && !IsServer) return;
+
         hasPopped = true;
         StopAllCoroutines();
+
         if (isLocalFake)
         {
-            if (fizzleEffect != null) Instantiate(fizzleEffect, transform.position, Quaternion.identity);
+            // INSTANT LOCAL VFX: Local fake runs its visual hit/fizzle explosion immediately on the shooter's screen
+            if (fizzleEffect != null)
+            {
+                Instantiate(fizzleEffect, transform.position, Quaternion.identity);
+            }
+
             HideVisualsAndDisablePhysics();
             Destroy(gameObject, 0.05f);
         }
         else if (IsServer)
         {
+            // Tell all remote clients to spawn the pop explosion
             SpawnPopEffectClientRpc(transform.position);
+
             if (playerCollider != null && !GameManager.Instance.PlayingLocal)
             {
                 var shooterController = playerCollider.GetComponent<PlayerController>();
@@ -414,10 +448,13 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
-        if (!IsServer && NetworkManager.Singleton.LocalClientId == (ulong)OwnerID)
+        // FIX: If this client owns the local handoff mesh, it already generated the 
+        // instant visual explosion locally. Drop the packet to avoid duplicates.
+        if (isMeshHiddenForOwner)
         {
             return;
         }
+
         if (fizzleEffect == null) return;
         Instantiate(fizzleEffect, pos, Quaternion.identity);
     }

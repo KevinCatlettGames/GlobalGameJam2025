@@ -47,7 +47,7 @@ public class SlashBubble : BasicBubble
         }
     }
 
-    protected override IEnumerator BubbleRangeLimit()
+    protected override IEnumerator BubbleRangeLimit(float customLifetime = 0f)
     {
         while (!hasInflated)
             yield return null;

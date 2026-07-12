@@ -79,31 +79,48 @@ public class GiantBubble : BasicBubble
         if (hasPopped || other == null) return;
         if (!IsServer && !isLocalFake) return;
 
-        // --- STATE CHANGE: HIT ANOTHER BUBBLE ---
-        if (!isSmall && other.CompareTag("Bubble"))
+        // --- BUBBLE-ON-BUBBLE PASS FILTER ---
+        if (other.CompareTag("Bubble"))
         {
-            isSmall = true;
-            speed *= speedMod;
-            hitEffect = smallHitEffect;
-            spellType = SpellType.SmallerGiant;
-            size *= sizMod;
-            transform.localScale = Vector3.one * size;
-
-            if (bigTrail != null) bigTrail.emitting = false;
-            if (smallTrail != null) smallTrail.emitting = true;
-
-            if (IsServer)
+            // ALWAYS IGNORE YOUR OWN TWIN: Check this first before anything else!
+            if (other.TryGetComponent<BasicBubble>(out var otherBubble))
             {
-                damage = dmgMini;
-                knockback *= knbMod;
+                if (otherBubble.castID == this.castID)
+                {
+                    return; // Bypass completely so it never falls through to Pop()
+                }
             }
-            return; // Don't pop yet, it transformed into a tiny fast bubble!
+
+            // --- STATE CHANGE: HIT A LEGITIMATE ENEMY BUBBLE ---
+            if (!isSmall)
+            {
+                isSmall = true;
+                speed *= speedMod;
+                hitEffect = smallHitEffect;
+                spellType = SpellType.SmallerGiant;
+                size *= sizMod;
+                transform.localScale = Vector3.one * size;
+
+                if (bigTrail != null) bigTrail.emitting = false;
+                if (smallTrail != null) smallTrail.emitting = true;
+
+                if (IsServer)
+                {
+                    damage = dmgMini;
+                    knockback *= knbMod;
+                }
+                return; // Transform and keep flying!
+            }
         }
 
         // --- LOCAL FAKE SEPARATION ---
         if (isLocalFake)
         {
-            // If it hits a player or environment wall as either big/small, trigger instant visual destruction
+            if (other.CompareTag("Player"))
+            {
+                fizzleEffect = hitEffect;
+            }
+
             Pop();
             return;
         }
@@ -125,5 +142,19 @@ public class GiantBubble : BasicBubble
         }
 
         base.BubbleCollision(other);
+    }
+
+    protected override void InflateOverlapChack()
+    {
+        // Use the bubble's configuration size to check for birth-overlaps
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
+        foreach (Collider col in overlaps)
+        {
+            // FIX: Explicitly ignore our shooter so the fake bubble doesn't detonate on launch!
+            if (ignoredColliders.Contains(col)) continue;
+
+            BubbleCollision(col.gameObject);
+            break;
+        }
     }
 }
