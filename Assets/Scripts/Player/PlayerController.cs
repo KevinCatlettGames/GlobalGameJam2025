@@ -5,7 +5,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -60,7 +59,9 @@ public class PlayerController : NetworkBehaviour
     private Coroutine secondSpellCoroutine;
     private int pickedUpSpellsAmount = 0;
     private List<SO_Spell> usedSpell = new List<SO_Spell>();
-    
+    private List<BasicBubble> activeLocalFakes = new List<BasicBubble>();
+    private int localSpellCounter = 0;
+
     #endregion
 
     #region Damage
@@ -74,7 +75,6 @@ public class PlayerController : NetworkBehaviour
     
     private int killCreditID = -1;
     
-    //public NetworkVariable<bool> isDead = new NetworkVariable<bool>();
     private bool isDead = false;
     private bool canBeBoneFished = true;
     private DmgGenerator damageGenerator;
@@ -196,6 +196,16 @@ public class PlayerController : NetworkBehaviour
 
     #region Initialization
 
+    public void InitializeLocal()
+    {
+        PlayerManager.Instance?.AddPlayerLocal(GetComponent<PlayerInput>());
+        EnableInput();
+
+        controller = GetComponent<CharacterController>();
+        GameManager.Instance.OnGameStarted += ResetPlayerController;
+        initialized = true;
+    }
+
     [ClientRpc]
     public void InitializeClientRpc()
     {
@@ -207,16 +217,6 @@ public class PlayerController : NetworkBehaviour
 
         controller = GetComponent<CharacterController>();
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
-        GameManager.Instance.OnGameStarted += ResetPlayerController;
-        initialized = true;
-    }
-
-    public void InitializeLocal()
-    {
-        PlayerManager.Instance?.AddPlayerLocal(GetComponent<PlayerInput>());
-        EnableInput();
-
-        controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
     }
@@ -356,18 +356,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    void WalkingAnimServerRpc(Vector3 direction)
-    {
-        WalkingAnimClientRpc(direction);
-    }
-
-    [ClientRpc]
-    void WalkingAnimClientRpc(Vector3 direction)
-    {
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsWalking", direction.sqrMagnitude > 0.01f);
-    }
-
     public void Teleport(Vector3 destination)
     {
         knockbackVelocity = Vector3.zero;
@@ -419,17 +407,11 @@ public class PlayerController : NetworkBehaviour
 
     #endregion
 
-
     #region Spell System
-    // Keep track of all active local fake bubbles running on this client's screen
-    private System.Collections.Generic.List<BasicBubble> activeLocalFakes = new System.Collections.Generic.List<BasicBubble>();
-    private int localSpellCounter = 0;
 
-    // --- FIX: UPDATED TO ACCEPT INT ID FOR INSTANT LOOKUP ---
     [ClientRpc]
     public void DestroyLocalFakeBubbleClientRpc(int targetCastID)
     {
-        // Directly look up the local fake projectile via its integer ID
         BasicBubble localFake = GetLocalFakeByCastID(targetCastID);
         if (localFake != null)
         {
@@ -438,21 +420,14 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    // Call this right before you execute your SO_Spell.CastSpell method
     public int GenerateNextCastID()
     {
         localSpellCounter++;
-
-        // Create a composite ID: (PlayerID * 10000) + counter
-        // If Player 2 casts their 5th spell, the ID is 20005. 
-        // Both client and server can calculate this identically without talking!
         return ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
     }
 
-    // Helper method to keep our tracking list clean when fakes die naturally
     public void RegisterLocalFake(BasicBubble fakeBubble)
     {
-        Debug.Log("Local fake added");
         activeLocalFakes.Add(fakeBubble);
     }
     public void OnFirstSpell(InputAction.CallbackContext context)
@@ -494,13 +469,10 @@ public class PlayerController : NetworkBehaviour
             controllerRumbler?.Rumble(.15f, 1f, 5f);
     }
 
-    // Finds and returns a specific live fake bubble based on its unique integer cast ID
     public BasicBubble GetLocalFakeByCastID(int id)
     {
-        // Clean out any fakes that were already destroyed or popped naturally
         activeLocalFakes.RemoveAll(item => item == null);
 
-        // Find the matching bubble in our tracked list
         foreach (BasicBubble fake in activeLocalFakes)
         {
             if (fake.castID == id)
@@ -508,8 +480,7 @@ public class PlayerController : NetworkBehaviour
                 return fake;
             }
         }
-
-        return null; // Return null if it was already popped or doesn't exist
+        return null;
     }
 
     private void CastSpell(bool isFirstSpell)
@@ -522,20 +493,14 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            // Calculate what our local sequence ID is going to be
             int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
-
-            // Fire the network command to notify the server/other players
             CastSpellServerRpc(isFirstSpell, assignedID);
-
-            // Fire locally immediately for instant responsive client-side prediction
             CastSpellLocal(isFirstSpell);
         }
 
         if (isFirstSpell) isFirstSpellReady = false;
         else isSecondSpellReady = false;
 
-        // --- FIXED: Update animation rules for Host vs Client ---
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
@@ -555,18 +520,11 @@ public class PlayerController : NetworkBehaviour
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
 
-        // Calculate the assigned ID matching exactly what CastSpell calculated
         localSpellCounter++;
         int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
-
-        // IMPORTANT: If this is rapid fire, tick the counter again so the NEXT spell cast 
-        // doesn't accidentally reuse the second bubble's ID slot!
         if (spell is SO_Rapid)
-        {
             localSpellCounter++;
-        }
 
-        // Pass the cleanly synchronized ID down
         float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged, NetworkManager.Singleton.LocalClientId, assignedID);
 
         if (isUltCharged)
@@ -598,16 +556,12 @@ public class PlayerController : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, ServerRpcParams rpcParams = default)
     {
-        // Receive the client's generated ID and forward it to everyone else
         CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
     }
 
     [ClientRpc]
     private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID)
     {
-        // --- FIXED: PERFECT HOST & CLIENT DOUBLE-SPAWN GUARD ---
-        // If this machine is the one who originally shot the bubble, 
-        // it already handled its own spawning via CastSpellLocal. Stop here!
         if (NetworkManager.Singleton.LocalClientId == senderClientId)
         {
             return;
@@ -630,7 +584,6 @@ public class PlayerController : NetworkBehaviour
         else
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
 
-        // This block only runs for remote players now, so we can clean this check up
         if (!usedSpell.Contains(spell))
             usedSpell.Add(spell);
 
@@ -641,25 +594,10 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void SlapAnimServerRpc(bool isFirstSpell)
-    {      
-        SlapAnimClientRpc(isFirstSpell);
-    }
-
-    [ClientRpc]
-    private void SlapAnimClientRpc(bool isFirstSpell)
-    {
-        if (IsOwner) return;
-        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
-        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        if (spell != null)
-            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
-    }
-
     #endregion
 
     #region Spell Equip
+
     private SO_Spell FindSpellByIndex(int spellIndex)
     {
         return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
@@ -683,45 +621,6 @@ public class PlayerController : NetworkBehaviour
             EquipSpellLocal(2);
         else
             EquipSpellServerRpc(2);
-    }
-
-    [ServerRpc]
-    private void EquipSpellServerRpc(int spellSlotID)
-    {
-        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
-
-        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
-        {
-            Item item = itemsToEquip[i];
-            if (item == null || !item.gameObject.activeSelf) itemsToEquip.RemoveAt(i);
-        }
-        if (itemsToEquip[0] == null) return;
-
-        EquipSpellClientRpc(spellSlotID, itemsToEquip[0].EquipSpell());
-        itemsToEquip.RemoveAt(0);
-    }
-
-    [ClientRpc]
-    private void EquipSpellClientRpc(int spellSlotID, int spellIndex)
-    {
-        SO_Spell equippedSpell = FindSpellByIndex(spellIndex);
-        if (equippedSpell == null)
-        {
-            Debug.LogWarning("Spell index not found on client.");
-            return;
-        }
-
-        UpdateEquippedSpell(spellSlotID, equippedSpell);
-
-        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
-        {
-            pickedUpSpellsAmount++;
-            if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
-            {
-                if (SteamIntegration.instance)
-                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
-            }
-        }
     }
 
     private void EquipSpellLocal(int spellSlotID)
@@ -763,6 +662,44 @@ public class PlayerController : NetworkBehaviour
         ResetSpell(spellSlotID);
     }
 
+    [ServerRpc]
+    private void EquipSpellServerRpc(int spellSlotID)
+    {
+        if (itemsToEquip == null || itemsToEquip.Count == 0) return;
+
+        for (int i = itemsToEquip.Count - 1; i >= 0; i--)
+        {
+            Item item = itemsToEquip[i];
+            if (item == null || !item.gameObject.activeSelf) itemsToEquip.RemoveAt(i);
+        }
+        if (itemsToEquip[0] == null) return;
+
+        EquipSpellClientRpc(spellSlotID, itemsToEquip[0].EquipSpell());
+        itemsToEquip.RemoveAt(0);
+    }
+
+    [ClientRpc]
+    private void EquipSpellClientRpc(int spellSlotID, int spellIndex)
+    {
+        SO_Spell equippedSpell = FindSpellByIndex(spellIndex);
+        if (equippedSpell == null)
+        {
+            return;
+        }
+
+        UpdateEquippedSpell(spellSlotID, equippedSpell);
+
+        if ((ulong)playerID == NetworkManager.Singleton.LocalClientId)
+        {
+            pickedUpSpellsAmount++;
+            if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
+            {
+                if (SteamIntegration.instance)
+                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
+            }
+        }
+    }
+
     public void TriggerHandoff(BasicBubble realNetworkBubble, int castID)
     {
         StartCoroutine(HandOffCountdownRoutine(realNetworkBubble, castID));
@@ -770,26 +707,20 @@ public class PlayerController : NetworkBehaviour
 
     private IEnumerator HandOffCountdownRoutine(BasicBubble realNetworkBubble, int castID)
     {
-        yield return null; // Wait 1 frame
+        yield return null;
 
         if (realNetworkBubble == null) yield break;
 
         BasicBubble localFake = GetLocalFakeByCastID(castID);
 
-        // CRITICAL CONDITIONAL HOOK: Only hide the server bubble if it matches a local prediction fake!
         if (localFake != null)
         {
-            // Use our relative offset initializer to smooth out the client's local fake
             localFake.InitializeReconciliation(realNetworkBubble.transform);
-
-            // Hide the server twin because our local client is driving the visual prediction fake
             realNetworkBubble.SetMeshVisibility(false);
             realNetworkBubble.isMeshHiddenForOwner = true;
         }
         else
         {
-            // If no local fake matches, this bubble was shot by someone else! 
-            // Ensure it is explicitly visible to this client.
             realNetworkBubble.SetMeshVisibility(true);
             realNetworkBubble.isMeshHiddenForOwner = false;
         }
@@ -1041,6 +972,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region Damage
+
     [ServerRpc]
     public void ApplyImpulseServerRpc(Vector3 direction, float force) => ApplyImpulseClientRpc(direction, force);
     [ClientRpc]
@@ -1207,20 +1139,6 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    // 🟢 DELETED: FlinchServerRpc and FlinchClientRpc are no longer needed!
-
-    [ServerRpc(RequireOwnership = false)]
-    void DeadAnimServerRpc(bool activationState)
-    {
-        DeadAnimClientRpc(activationState);
-    }
-
-    [ClientRpc]
-    void DeadAnimClientRpc(bool activationState)
-    {
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsDead", activationState);
-    }
-
     [ClientRpc]
     public void DieClientRpc() => Die();
     public void Die()
@@ -1257,20 +1175,19 @@ public class PlayerController : NetworkBehaviour
 
         playerHUD.DisplayDeath();
     }
+    private void DisableUIElementsLocal()
+    {
+        canvas.SetActive(false);
+    }
 
     [ServerRpc(RequireOwnership = false)]
-    void DisableUIElementsServerRpc()
+    private void DisableUIElementsServerRpc()
     {
         DisableUIElementsClientRpc();
     }
 
     [ClientRpc]
-    void DisableUIElementsClientRpc()
-    {
-        canvas.SetActive(false);
-    }
-
-    void DisableUIElementsLocal()
+    private void DisableUIElementsClientRpc()
     {
         canvas.SetActive(false);
     }
@@ -1289,6 +1206,7 @@ public class PlayerController : NetworkBehaviour
     #endregion
 
     #region MapEvent
+
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (canBeBoneFished && hit.gameObject.CompareTag("BoneFish"))
@@ -1331,9 +1249,11 @@ public class PlayerController : NetworkBehaviour
     {
         shaderManager?.SetShaderState(ShaderState.doomed, isDoomed);
     }
+
     #endregion
 
     #region StatusConditions
+
     public void SetSlippy(bool slippy)
     {
         if (slippy)
@@ -1438,25 +1358,15 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc]
-    void StunServerRpc(float duration)
+    private void StunServerRpc(float duration)
     {
         StunClientRpc(duration);
     }
 
     [ClientRpc]
-    void StunClientRpc(float duration)
+    private void StunClientRpc(float duration)
     {
         NetcodeStunCoroutine(duration);
-    }
-
-    IEnumerator NetcodeStunCoroutine(float duration)
-    {
-        isStunned = true;
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", true);
-        controllerRumbler?.Rumble(duration, 1f, 5f);
-        yield return new WaitForSeconds(duration);
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", false);
-        isStunned = false;
     }
 
     private IEnumerator StunCoroutine(float duration)
@@ -1468,28 +1378,26 @@ public class PlayerController : NetworkBehaviour
         mainAnimator.SetBool("HitStun", false);
         isStunned = false;
     }
+
+    private IEnumerator NetcodeStunCoroutine(float duration)
+    {
+        isStunned = true;
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", true);
+        controllerRumbler?.Rumble(duration, 1f, 5f);
+        yield return new WaitForSeconds(duration);
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("HitStun", false);
+        isStunned = false;
+    }
     #endregion
 
     #region PlayerManager
+
     public void Victory()
     {
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.SetBool("Victory", true);
         else
             VictoryAnimServerRpc(true);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    void VictoryAnimServerRpc(bool activationState)
-    {
-        VictoryAnimClientRpc(activationState);
-        //mainAnimator.SetBool("Victory", activationState);
-    }
-
-    [ClientRpc]
-    void VictoryAnimClientRpc(bool activationState)
-    {
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("Victory", activationState);
     }
 
     public void ResetPlayerController()
@@ -1544,10 +1452,10 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void ResetHudServerRpc() => ResetHudClientRpc();
+    private void ResetHudServerRpc() => ResetHudClientRpc();
 
     [ClientRpc]
-    void ResetHudClientRpc() => playerHUD.ResetHUD();
+    private void ResetHudClientRpc() => playerHUD.ResetHUD();
 
     public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
     {
@@ -1626,7 +1534,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    void SetupProxyAnimatorClientRpc()
+    private void SetupProxyAnimatorClientRpc()
     {
         GetComponent<NetworkAnimatorProxy>().RegisterChildAnimator(childAnimatorObject.GetComponent<Animator>());
         shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
@@ -1634,13 +1542,13 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void ActivateCorrectColorServerRpc(int index)
+    private void ActivateCorrectColorServerRpc(int index)
     {
         ActivateCorrectColorClientRpc(index);
     }
     
     [ClientRpc]
-    void ActivateCorrectColorClientRpc(int index)
+    private void ActivateCorrectColorClientRpc(int index)
     {
         SkinSO skinSOToUse = null; 
         
@@ -1658,9 +1566,11 @@ public class PlayerController : NetworkBehaviour
         foreach (Image image in coloredElements)
             image.color = skinSOToUse.Color;
     }
+    
     #endregion
     
     #region Achievements
+
     private void HandleGroundRaycast()
     {
         Vector3 rayOrigin = transform.position + Vector3.up * 0.1f;
@@ -1675,8 +1585,8 @@ public class PlayerController : NetworkBehaviour
         
         groundRaycastWasDetected = groundRaycastIsDetected;
     }
-    
-    void IncrementRegainGroundAchievement(RaycastHit hit)
+
+    private void IncrementRegainGroundAchievement(RaycastHit hit)
     {
         if (isFirstGroundDetection)
         {
@@ -1694,7 +1604,7 @@ public class PlayerController : NetworkBehaviour
             steamIntegration.regainGroundAchievementID);
     }
 
-    void IncrementDodgeBubbleAchievement()
+    private void IncrementDodgeBubbleAchievement()
     {
         Vector3 boxCenter = transform.position + boxCenterOffset;
         Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, Quaternion.identity, bubbleLayer);
@@ -1750,6 +1660,62 @@ public class PlayerController : NetworkBehaviour
                 NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
             shotsHitInARowAmount = 0; 
         }
+    }
+    
+    #endregion
+
+    #region RPC Animations
+
+    [ServerRpc(RequireOwnership = false)]
+    private void WalkingAnimServerRpc(Vector3 direction)
+    {
+        WalkingAnimClientRpc(direction);
+    }
+
+    [ClientRpc]
+    private void WalkingAnimClientRpc(Vector3 direction)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsWalking", direction.sqrMagnitude > 0.01f);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SlapAnimServerRpc(bool isFirstSpell)
+    {
+        SlapAnimClientRpc(isFirstSpell);
+    }
+
+    [ClientRpc]
+    private void SlapAnimClientRpc(bool isFirstSpell)
+    {
+        if (IsOwner) return;
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+        if (spell != null)
+            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DeadAnimServerRpc(bool activationState)
+    {
+        DeadAnimClientRpc(activationState);
+    }
+
+    [ClientRpc]
+    private void DeadAnimClientRpc(bool activationState)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsDead", activationState);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void VictoryAnimServerRpc(bool activationState)
+    {
+        VictoryAnimClientRpc(activationState);
+    }
+
+    [ClientRpc]
+    private void VictoryAnimClientRpc(bool activationState)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("Victory", activationState);
     }
     #endregion
 }

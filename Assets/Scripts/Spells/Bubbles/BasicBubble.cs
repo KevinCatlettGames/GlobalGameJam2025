@@ -2,7 +2,6 @@ using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Netcode.Components;
 using UnityEngine;
 
 public class BasicBubble : NetworkBehaviour
@@ -93,7 +92,6 @@ public class BasicBubble : NetworkBehaviour
         direction = dir;
         this.playerCollider = playerCollider;
 
-        // Start full baseline countdown immediately for the fake bubble launch
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
 
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
@@ -127,7 +125,6 @@ public class BasicBubble : NetworkBehaviour
         serverBubbleTarget = serverTarget;
         if (visualChildMesh != null && serverTarget != null)
         {
-            // FIX: Grab the server bubble's script component and copy its exact cast ID!
             if (serverTarget.TryGetComponent<BasicBubble>(out var serverBubble))
             {
                 this.castID = serverBubble.castID;
@@ -136,20 +133,15 @@ public class BasicBubble : NetworkBehaviour
             Vector3 worldOffset = serverTarget.position - transform.position;
             visualOffset = transform.InverseTransformDirection(worldOffset);
 
-            // 1. Terminate the original muzzle-flash countdown
             if (rangeCoroutine != null)
                 StopCoroutine(rangeCoroutine);
 
-            // 2. Calculate exactly how many seconds of flight distance separate the two bubbles.
             float trueTimeSpent = worldOffset.magnitude / speed;
 
-            // 3. Subtract that precise flight time from the total statutory lifetime
             float remainingServerLifetime = (range / speed) - trueTimeSpent;
 
-            // Safety clamp to ensure it doesn't pop instantly on extreme spikes
             remainingServerLifetime = Mathf.Max(remainingServerLifetime, 0.05f);
 
-            // 4. Restart the countdown with the perfectly reconciled remaining time
             rangeCoroutine = StartCoroutine(BubbleRangeLimit(remainingServerLifetime));
         }
     }
@@ -337,7 +329,6 @@ public class BasicBubble : NetworkBehaviour
                 if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             }
 
-            // Assign the visual effect type before running Pop()
             fizzleEffect = hitEffect;
             hasHitPlayer = true;
             if (popOnPlayerHit)
@@ -364,7 +355,6 @@ public class BasicBubble : NetworkBehaviour
 
         if (isLocalFake)
         {
-            // INSTANT LOCAL VFX: Local fake runs its visual hit/fizzle explosion immediately on the shooter's screen
             if (fizzleEffect != null)
             {
                 Instantiate(fizzleEffect, transform.position, Quaternion.identity);
@@ -375,7 +365,6 @@ public class BasicBubble : NetworkBehaviour
         }
         else if (IsServer)
         {
-            // Tell all remote clients to spawn the pop explosion
             SpawnPopEffectClientRpc(transform.position);
 
             if (playerCollider != null && !GameManager.Instance.PlayingLocal)
@@ -452,8 +441,6 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
-        // FIX: If this client owns the local handoff mesh, it already generated the 
-        // instant visual explosion locally. Drop the packet to avoid duplicates.
         if (isMeshHiddenForOwner)
         {
             return;
