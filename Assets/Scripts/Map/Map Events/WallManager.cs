@@ -13,7 +13,7 @@ public class WallManager : MapEvent
 
     void Update()
     {
-        if (!NetworkManager.Singleton.IsServer) return;
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
         // Remove in final build!
         if (Input.GetKeyDown(KeyCode.B))
         {

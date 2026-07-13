@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ExplodingBubble : BasicBubble
@@ -18,29 +17,39 @@ public class ExplodingBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         canMiss = false;
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
-        if (other.CompareTag("Bubble") && popOnBubbleHit)
+        if (hasPopped) return;
+        if (!IsServer && !isLocalFake) return;
+
+        if (other != null && other.CompareTag("Bubble") && popOnBubbleHit)
         {
-            OwnerID = other.GetComponent<BasicBubble>().OwnerID;
+            var otherBubble = other.GetComponent<BasicBubble>();
+            if (otherBubble != null) OwnerID = otherBubble.OwnerID;
         }
-        else if (other.CompareTag("Player"))
+        else if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
         fizzleEffect = hitEffect;
+        if (IsOwner)
+            ChangeToExplosionServerRpc();
         Pop();
     }
+
     protected override void InflateOverlapChack()
     {
         isReadyToExpode = true;
         base.InflateOverlapChack();
     }
+
     public void Explode()
     {
         if (hasExploded) return;
         hasExploded = true;
+        if (isLocalFake) return;
+
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -58,11 +67,18 @@ public class ExplodingBubble : BasicBubble
                     {
                         if (col.gameObject == primaryTarget)
                             knockback *= primaryKnockbackIncrease;
+
                         if (GameManager.Instance.PlayingLocal)
                             player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+
+                        if (playerCollider != null)
+                        {
+                            var controller = playerCollider.GetComponent<PlayerController>();
+                            if (controller != null) controller.GainUltCharge(damage, true);
+                        }
+
                         if (col.gameObject == primaryTarget)
                             knockback /= primaryKnockbackIncrease;
                     }
@@ -75,16 +91,46 @@ public class ExplodingBubble : BasicBubble
                         bubble.BubbleCollision(this.gameObject);
                     }
                 }
-
             }
         }
     }
+
     protected override void Pop()
     {
         if (hasPopped) return;
-        if(isReadyToExpode) Explode();
-        else fizzleEffect = earlyFizzleEffect;
+
+        if (isReadyToExpode) Explode();
+        else
+        {
+            fizzleEffect = earlyFizzleEffect;
+            if (IsOwner)
+                ChangeToEarlyFizzleServerRpc();
+
+        }
         base.Pop();
     }
 
+    [ServerRpc]
+    private void ChangeToEarlyFizzleServerRpc()
+    {
+        ChangeToEarlyFizzleClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToEarlyFizzleClientRpc()
+    {
+        fizzleEffect = earlyFizzleEffect;
+    }
+
+    [ServerRpc]
+    private void ChangeToExplosionServerRpc()
+    {
+        ChangeToExplosionClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToExplosionClientRpc()
+    {
+        fizzleEffect = hitEffect;
+    }
 }

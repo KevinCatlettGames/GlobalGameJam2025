@@ -1,7 +1,4 @@
-using FMODUnity;
 using System.Collections;
-using System.Collections.Generic;
-using UnityEditor;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -61,12 +58,12 @@ public class GiantBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        if (!IsServer) return;
+        if (!IsServer && !isLocalFake) return;
         if (!hasInflated) return;
         base.BubbleMovement();
     }
     private IEnumerator Blink()
-    { 
+    {
         GetComponent<Animation>().Play();
         Material[] materials = meshRenderer.materials;
         meshRenderer.materials = blinkMaterials;
@@ -75,6 +72,7 @@ public class GiantBubble : BasicBubble
     }
     public override void BubbleCollision(GameObject other)
     {
+        if (isLocalFake) return;
         if (hasPopped) return;
         if (!isSmall && other.CompareTag("Bubble"))
         {
@@ -106,7 +104,7 @@ public class GiantBubble : BasicBubble
                 knockback *= 1 - (knbDecreaseIncrement * i);
             }
         }
-        
+
         base.BubbleCollision(other);
     }
 }

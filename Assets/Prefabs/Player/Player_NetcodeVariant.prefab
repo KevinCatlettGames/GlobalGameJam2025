@@ -233,9 +233,9 @@ MonoBehaviour:
   SyncRotAngleX: 1
   SyncRotAngleY: 1
   SyncRotAngleZ: 1
-  SyncScaleX: 1
-  SyncScaleY: 1
-  SyncScaleZ: 1
+  SyncScaleX: 0
+  SyncScaleY: 0
+  SyncScaleZ: 0
   PositionThreshold: 0.02
   RotAngleThreshold: 1
   ScaleThreshold: 0.01
@@ -291,34 +291,6 @@ MonoBehaviour:
     TransitionIndex: 1
   - IsCrossFadeExit: 0
     Layer: 0
-    OriginatingState: -894030719
-    DestinationState: -356172345
-    TransitionDuration: 0.1
-    TriggerNameHash: -286129153
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: 1525032995
-    DestinationState: -356172345
-    TransitionDuration: 0.1
-    TriggerNameHash: -286129153
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: 795632812
-    DestinationState: -356172345
-    TransitionDuration: 0.1
-    TriggerNameHash: -286129153
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 0
-    OriginatingState: -1348464516
-    DestinationState: -356172345
-    TransitionDuration: 0.1
-    TriggerNameHash: -286129153
-    TransitionIndex: 1
-  - IsCrossFadeExit: 0
-    Layer: 0
     OriginatingState: 1908924014
     DestinationState: -356172345
     TransitionDuration: 0.05
@@ -326,18 +298,39 @@ MonoBehaviour:
     TransitionIndex: 1
   - IsCrossFadeExit: 0
     Layer: 0
-    OriginatingState: 1908924014
-    DestinationState: 1877245963
-    TransitionDuration: 0.25
-    TriggerNameHash: -1434604862
-    TransitionIndex: 4
-  - IsCrossFadeExit: 0
-    Layer: 0
     OriginatingState: -356172345
     DestinationState: -356172345
     TransitionDuration: 0.1
     TriggerNameHash: -286129153
     TransitionIndex: 3
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -894030719
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1525032995
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 795632812
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -1348464516
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
   m_Animator: {fileID: 7413171558948427775}
 --- !u!114 &1265377447800784452
 MonoBehaviour:
@@ -351,3 +344,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9502ac45d0ac94649999dd315c352994, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  parentAnimator: {fileID: 0}
+  childAnimator: {fileID: 0}

@@ -1,5 +1,4 @@
 using TMPro;
-using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -67,5 +66,11 @@ public class PlayerContainerManager : MonoBehaviour
     public void ToggleYouText(bool value)
     {
         youText.enabled = value;
+    }
+
+    public void ToggleYouText(bool value, string userName)
+    {
+        youText.enabled = value;
+        youText.text = userName;
     }
 }

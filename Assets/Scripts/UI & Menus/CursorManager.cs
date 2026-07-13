@@ -6,6 +6,9 @@ public class CursorManager : MonoBehaviour
     
     private void Awake()
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         if (instance == null)
             instance = this;
         

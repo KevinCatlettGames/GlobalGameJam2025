@@ -15,7 +15,7 @@ public class Reflector : MonoBehaviour
     public void ReflectForDuration(float duration)
     {
         if (refletEffect != null) StopCoroutine(refletEffect);
-        StopCoroutine(ReflectCoroutine(duration));
+        refletEffect = StartCoroutine(ReflectCoroutine(duration));
     }
 
     public IEnumerator ReflectCoroutine(float time)
@@ -25,8 +25,24 @@ public class Reflector : MonoBehaviour
         SetReflect(false);
         refletEffect = null;
     }
+
     public bool GetIsReflecting()
     {
         return isReflecting;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (!isReflecting || other == null) return;
+
+        if (other.CompareTag("Bubble"))
+        {
+            BasicBubble bubble = other.GetComponent<BasicBubble>();
+            if (bubble != null && bubble.isLocalFake)
+            {
+                bubble.OwnerID = this.OwnerID;
+                bubble.BubbleCollision(gameObject);
+            }
+        }
     }
 }

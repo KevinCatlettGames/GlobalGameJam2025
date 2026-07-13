@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.InputSystem.UI;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using Cinemachine; 
 
 public class MenuSelection : MonoBehaviour
@@ -15,8 +13,9 @@ public class MenuSelection : MonoBehaviour
     GameObject currentToSelect;
     public EventSystem eventSystem;
     public GameObject localOnline;
+    public GameObject startScreen;
     public GameObject mainMenu;
-
+    public GameObject onlineMatchmaking;
     private void Awake()
     {
         if(Instance == null)
@@ -62,5 +61,11 @@ public class MenuSelection : MonoBehaviour
     void ChangeSelect(GameObject gameObject)
     {
         eventSystem.SetSelectedGameObject(currentToSelect);
+    }
+
+    public void MakeCamPriority(int camIndex)
+    {
+        ResetAllCams();
+        otherVirtualsCams[camIndex].Priority = 1;
     }
 }

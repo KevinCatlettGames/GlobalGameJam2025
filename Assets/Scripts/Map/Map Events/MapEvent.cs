@@ -11,7 +11,12 @@ public abstract class MapEvent : NetworkBehaviour
         if (LobbyManager.instance)
             isMapEventEnabled = LobbyManager.instance.MapSettings[mapID].PlayWithMapEvent;
 
-        if (!isMapEventEnabled) Destroy(gameObject);
+        if (!isMapEventEnabled)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (TransportSwitcher.Instance)
         {
             if (!NetworkManager.Singleton.IsServer) return;
@@ -25,17 +30,6 @@ public abstract class MapEvent : NetworkBehaviour
             GameManager.Instance.OnGameEnded += StopEvent;
             Invoke(nameof(StartEvent), firstStartDelay);
         }
-
-        //if (GameManager.Instance)
-        //{
-        //    GameManager.Instance.OnGameStarted += StartEvent;
-        //    GameManager.Instance.OnGameEnded += StopEvent;
-        //    StartEvent();
-        //}
-        //else
-        //{
-        //    Debug.Log("Map Event Start Error: no Game Manager");
-        //}
     }
 
     protected abstract void StartEvent();

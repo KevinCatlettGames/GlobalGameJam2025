@@ -8,6 +8,7 @@ public class ChildEnableOnNetworkSpawn : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
+        if (!childObject) return;
         if (IsClient)
         {
             childObject?.SetActive(false);

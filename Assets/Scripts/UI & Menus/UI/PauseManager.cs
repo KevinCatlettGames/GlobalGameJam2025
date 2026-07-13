@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 
 public class PauseManager : MonoBehaviour
 {
+    public static PauseManager Instance;
     [SerializeField] private EventReference togglePauseSound; 
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
     [SerializeField] private SO_Scores scores;
-
+    
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = true;
@@ -25,6 +26,13 @@ public class PauseManager : MonoBehaviour
     private InputSystemUIInputModule inputModuleUI;
     private InputAction pauseAction;
     private InputAction backAction;
+
+    private void Awake()
+    {
+        if(Instance == null)
+            Instance = this;
+    }
+
     private void Start()
     {
         eventSystem = EventSystem.current;
@@ -230,6 +238,7 @@ public class PauseManager : MonoBehaviour
     {
          TogglePause();       
     }
+
     public void OnBackInput(InputAction.CallbackContext context)
     {
         if (!isCurrentlyPaused) return;

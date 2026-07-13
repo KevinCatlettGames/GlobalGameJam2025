@@ -41,9 +41,19 @@ public class ItemSpawner : MonoBehaviour
             legalSpells = new List<int>();
             for (int i = 0; i < GetSpellCount(); i++)
             {
-                if (SpawnableItems[i].CanUse)
+                if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
                 {
-                    legalSpells.Add(i);
+                    if (SpawnableItems[i].CanUse)
+                    {
+                        legalSpells.Add(i);
+                    }
+                }
+                else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+                {
+                    if (SpawnableItems[i].CanUse && SpawnableItems[i].AvailableInDemo)
+                    {
+                        legalSpells.Add(i);
+                    }
                 }
             }
 
