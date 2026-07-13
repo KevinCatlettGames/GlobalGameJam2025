@@ -59,13 +59,14 @@ public class BasicBubble : NetworkBehaviour
 
     // Local Fake Variables
     [HideInInspector] public bool isLocalFake = false;
-    [HideInInspector] public NetworkVariable<int> syncedCastID = new NetworkVariable<int>( 0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
+    [HideInInspector] public NetworkVariable<int> syncedCastID = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private int _localFakeCastID;
     [HideInInspector] public Transform serverBubbleTarget;
     [SerializeField] protected Transform visualChildMesh;
     [SerializeField] private float visualBlendSpeed = 3f;
     private Vector3 visualOffset;
-    public int castID{
+    public int castID
+    {
         get => isLocalFake ? _localFakeCastID : syncedCastID.Value;
         set
         {
@@ -92,7 +93,7 @@ public class BasicBubble : NetworkBehaviour
         this.playerCollider = playerCollider;
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-        
+
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
 
         sphereCollider = GetComponent<SphereCollider>();
@@ -187,20 +188,13 @@ public class BasicBubble : NetworkBehaviour
             renderer.enabled = visible;
     }
 
-    private void FixedUpdate()
-    {
-        if (isLocalFake)
-        {
-            BubbleMovement();
-        }
-        else if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
-        {
-            BubbleMovement();
-        }
-    }
-
     protected virtual void Update()
     {
+        if (isLocalFake || (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer))
+        {
+            BubbleMovement();
+        }
+
         if (isLocalFake)
         {
             safetyTimer += Time.deltaTime;
@@ -213,17 +207,25 @@ public class BasicBubble : NetworkBehaviour
                 if (!isInitialized)
                 {
                     float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                    trackingSpeed = initialDistance / catchUpTime;
+                    float safeDistance = Mathf.Max(initialDistance, 0.5f); // Lock floor to 0.5m minimum tracking calculation
+                    trackingSpeed = safeDistance / catchUpTime;
                     isInitialized = true;
+                }
+
+                float currentDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
+                float dynamicTrackingSpeed = trackingSpeed;
+                if (currentDistance > 1.5f)
+                {
+                    dynamicTrackingSpeed *= (currentDistance * 1.5f);
                 }
 
                 visualChildMesh.localPosition = Vector3.MoveTowards(
                     visualChildMesh.localPosition,
                     currentLocalTarget,
-                    trackingSpeed * Time.deltaTime
+                    dynamicTrackingSpeed * Time.deltaTime
                 );
 
-                if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
+                if (currentDistance < 0.1f)
                 {
                     //Debug.Log("Performing seamless switch!");
                     ExecuteHandoffCleanUp();
@@ -292,7 +294,7 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void BubbleMovement()
     {
-        Vector3 nextPosition = transform.position + (direction * speed * Time.fixedDeltaTime);
+        Vector3 nextPosition = transform.position + (direction * speed * Time.deltaTime);
         transform.position = nextPosition;
     }
 
@@ -513,7 +515,7 @@ public class BasicBubble : NetworkBehaviour
 
     private void OnDrawGizmos()
     {
-        if (serverBubbleTarget == null) return; 
+        if (serverBubbleTarget == null) return;
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(serverBubbleTarget.position, .5f);
     }

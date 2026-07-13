@@ -73,7 +73,7 @@ public class Item : NetworkBehaviour
             ItemSpawner.Instance.currentAmount--;
         if (pickUpEffect != null) 
             Instantiate(pickUpEffect, transform.position, Quaternion.identity);
-        RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
+        PlayPickupSoundServerRpc();
         if (IsServer && !disableDespawn)
             GetComponent<NetworkObject>().Despawn();
     }
@@ -173,5 +173,18 @@ public class Item : NetworkBehaviour
 
         ItemSpawner.Instance.currentAmount--;
         GetComponent<NetworkObject>().Despawn();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayPickupSoundServerRpc()
+    {
+        PlayPickupSoundClientRpc();
+    }
+
+    [ClientRpc]
+    private void PlayPickupSoundClientRpc()
+    {
+        RuntimeManager.PlayOneShotAttached(pickUpEvent, gameObject);
+
     }
 }
