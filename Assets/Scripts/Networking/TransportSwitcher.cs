@@ -10,38 +10,30 @@ using Unity.Netcode;
 using Netcode.Transports.Facepunch;
 #endif
 
-/// <summary>
-/// Dynamically switches between Unity Transport and Relay Transport depending on internet availability.
-/// Provides events for switching and ensures safe transport changes at runtime.
-/// </summary>
 public class TransportSwitcher : MonoBehaviour
 {
-    /// <summary>Singleton instance of the TransportSwitcher.</summary>
     public static TransportSwitcher Instance;
 
-    private float updateDuration = 0.2f; // How often to check for connection
+    private float updateDuration = 0.2f;
     private float timer = 0f;
 
-    /// <summary>True if Relay Transport is currently in use.</summary>
     public bool isUsingRelay = false;
 
     [SerializeField] private UnityTransport unityTransport;
     [SerializeField] private UnityTransport relayTransport;
 
-    /// <summary>Event triggered when switching to Unity Transport.</summary>
     public UnityEvent onSwitchToUnityTransport;
 
-    /// <summary>Event triggered when switching to Relay Transport.</summary>
     public UnityEvent onSwitchToRelayTransport;
 
-    public bool canSwitch = true; // Whether transport switching is allowed
+    public bool canSwitch = true;
 
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
-    private bool isCheckingConnection = false; // Prevent multiple simultaneous checks
-    private bool hasConnection = false;        // Stores internet connection status
+    private bool isCheckingConnection = false;
+    private bool hasConnection = false;
 
-    private MonoBehaviour currentTransport;     // Reference to the currently active transport
+    private MonoBehaviour currentTransport; 
 
     private void Awake()
     {
@@ -54,12 +46,13 @@ public class TransportSwitcher : MonoBehaviour
     private void Start()
     {
         SceneManager.sceneLoaded += SceneManagerOnSceneLoaded;
+#if !UNITY_SWITCH
         currentTransport = NetworkManager.Singleton.NetworkConfig.NetworkTransport as MonoBehaviour;
+#else
+        currentTransport = unityTransport;
+#endif
     }
 
-    /// <summary>
-    /// Resets transport switching when returning to the main menu.
-    /// </summary>
     private void SceneManagerOnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.name == mainMenuSceneName)
@@ -77,7 +70,6 @@ public class TransportSwitcher : MonoBehaviour
         {
             timer = updateDuration;
 
-            // Skip if network is active or already connected
             if (!NetworkManager.Singleton || NetworkManager.Singleton.IsListening || NetworkManager.Singleton.IsConnectedClient)
                 return;
 
@@ -88,9 +80,6 @@ public class TransportSwitcher : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Coroutine that checks internet connection and switches transport accordingly.
-    /// </summary>
     private IEnumerator PerformSwitchRoutine()
     {
         isCheckingConnection = true;
@@ -126,10 +115,6 @@ public class TransportSwitcher : MonoBehaviour
         isCheckingConnection = false;
     }
 
-    /// <summary>
-    /// Checks internet connectivity by sending a GET request to a specified URI.
-    /// </summary>
-    /// <param name="uri">URL to test connectivity.</param>
     private IEnumerator CheckInternetConnection(string uri)
     {
         using (UnityWebRequest webRequest = UnityWebRequest.Get(uri))
@@ -137,20 +122,15 @@ public class TransportSwitcher : MonoBehaviour
             yield return webRequest.SendWebRequest();
             hasConnection = (webRequest.result == UnityWebRequest.Result.Success);
         }
-}
-    /// <summary>
-    /// Returns true if Steamworks client is valid/connected.
-    /// </summary>
+    }
+
     private bool IsSteamConnected()
     {
         return Steamworks.SteamClient.IsValid;
     }
 #endif
 
-/// <summary>
-/// Forces a switch to Unity Transport and disables further automatic switching.
-/// </summary>
-public void SwitchToUnityTransportAndDisable()
+    public void SwitchToUnityTransportAndDisable()
     {
         canSwitch = false;
         NetworkManager.Singleton.NetworkConfig.NetworkTransport = unityTransport;
@@ -159,9 +139,6 @@ public void SwitchToUnityTransportAndDisable()
         onSwitchToUnityTransport?.Invoke();
     }
 
-    /// <summary>
-    /// Forces a switch to Relay Transport and disables further automatic switching.
-    /// </summary>
     public void SwitchToRelayTransportAndDisable()
     {
         canSwitch = false;

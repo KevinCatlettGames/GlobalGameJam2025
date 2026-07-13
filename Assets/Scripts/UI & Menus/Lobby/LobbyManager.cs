@@ -7,7 +7,6 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.SmartFormat.Core.Parsing;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -108,22 +107,12 @@ public class LobbyManager : NetworkBehaviour
 
     [Header("Network Players")]
 
-    /// <summary>
-    /// Network-synced list of players in the lobby.
-    /// </summary>
     public NetworkList<PlayerLobbyState> players = new();
 
     [Tooltip("True if all players are ready.")]
     public bool allPlayersReady;
 
-    /// <summary>
-    /// Invoked when a player's ready state changes.
-    /// </summary>
     public UnityEvent<int, bool> OnReadyStateUpdated;
-
-    /// <summary>
-    /// Invoked when all players finished loading a scene.
-    /// </summary>
     public UnityEvent OnAllPlayersLoadedIn;
 
     #endregion
@@ -158,6 +147,7 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Start game button.")]
     [SerializeField] private Button startButton;
+    [SerializeField] private GameObject waitingForHost;
 
     [Tooltip("Image component of start button.")]
     [SerializeField] private Image startButtonImage;
@@ -219,11 +209,10 @@ public class LobbyManager : NetworkBehaviour
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
         }
 
         ChangeStartButtonState(false);
-
+#if !UNITY_SWITCH
         if (!TransportSwitcher.Instance.isUsingRelay)
         {
             foreach (var device in InputSystem.devices)
@@ -235,11 +224,8 @@ public class LobbyManager : NetworkBehaviour
         {
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
-            if (Gamepad.all.Count > 0)
-            {            
-                player.GetComponent<PlayerInput>().SwitchCurrentControlScheme(Gamepad.all[0]);
-            }
         }
+#endif
     }
 
     private void OnEnable()
@@ -269,15 +255,6 @@ public class LobbyManager : NetworkBehaviour
         OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
     }
 
-
-    void OnClientDisconnectedCallback(ulong playerIndex)
-    {
-        if (!IsServer) return;
-        {
-            
-        }
-    }
-
     private void OnDisable()
     {
         InputSystem.onDeviceChange -= OnDeviceChange;
@@ -289,8 +266,6 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
-        if (!canAddNewDevices || !TransportSwitcher.Instance.isUsingRelay) return; 
-
         switch (change)
         {
             case InputDeviceChange.Added:
@@ -587,9 +562,17 @@ public class LobbyManager : NetworkBehaviour
         yield return new WaitForSeconds(1f);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
+        {
+#if !UNITY_SWITCH
+            SteamJoinHandler.instance.ClearRichPresence();
+#endif
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+        }
         else
         {
+#if !UNITY_SWITCH
+            SteamJoinHandler.instance.ClearRichPresence();
+#endif
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }
     }
@@ -616,6 +599,24 @@ public class LobbyManager : NetworkBehaviour
         startButton.gameObject.SetActive(enable);
         startButtonImage.color = enable ? startButtonColorWhenEnabled : Color.gray;
         startButton.interactable = enable;
+
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            ToggleWaitingForHostTextServerRpc(enable);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void ToggleWaitingForHostTextServerRpc(bool value)
+    {
+        ToggleWaitingForHostTextClientRpc(value);
+    }
+
+    [ClientRpc]
+    void ToggleWaitingForHostTextClientRpc(bool value)
+    {
+        if (IsHost || IsServer) return;
+        waitingForHost.SetActive(value);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -747,6 +748,8 @@ public class LobbyManager : NetworkBehaviour
 
     private void HandleMapUsageToggleActiveState()
     {
+        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion) return;
+
         int disabledCount = 0;
 
         foreach (MapSettingsSO mapSetting in mapSettings)
@@ -774,18 +777,36 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                activeCount++;
+            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    activeCount++;
+            }
+            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    activeCount++;
+            }
         }
 
         bool lockActive = activeCount < 2;
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                toggle.interactable = !lockActive;
-            else
-                toggle.interactable = true;
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    toggle.interactable = !lockActive;
+                else
+                    toggle.interactable = true;
+            }
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = !lockActive;
+                else if(!toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = true;
+            }
         }
     }
 

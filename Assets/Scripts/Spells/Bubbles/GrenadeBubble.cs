@@ -1,5 +1,6 @@
 using FMODUnity;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using Unity.Services.Matchmaker.Models;
 using UnityEngine;
@@ -23,38 +24,68 @@ public class GrenadeBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         canMiss = false;
     }
+
     protected override void BubbleMovement()
     {
+        // --- PREDICTION FILTER ---
+        // Allow the local visual fake to process the physics trajectory calculations
+        if (!IsServer && !isLocalFake) return;
+
         progress += speed * Time.fixedDeltaTime;
-        transform.position = new Vector3(transform.position.x, arc.Evaluate(progress / range), transform.position.z);
+
+        // Prevents NaN or division by zero runtime issues if range is somehow configured to 0
+        float evaluationPoint = range > 0f ? (progress / range) : 0f;
+        transform.position = new Vector3(transform.position.x, arc.Evaluate(evaluationPoint), transform.position.z);
+
         base.BubbleMovement();
+
         if (transform.position.y <= 0.1f)
         {
             transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
             Pop();
         }
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
-        if (other.CompareTag("Player"))
+        if (hasPopped) return;
+        if (!IsServer && !isLocalFake) return;
+
+        if (isLocalFake)
+        {
+            // Instantly transition to explosion visual effects locally on impact
+            fizzleEffect = hitEffect;
+            Pop();
+            return;
+        }
+
+        // --- AUTHORITATIVE SERVER COLLISION DETECTION ---
+        if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
         fizzleEffect = hitEffect;
         Pop();
     }
+
     protected override void Pop()
     {
         if (hasInflated)
-            Explode();       
+            Explode();
         base.Pop();
     }
+
     private void Explode()
     {
         if (hasExploded) return;
         hasExploded = true;
         fizzleEffect = hitEffect;
+
+        // --- LOCAL FAKE SHORT CIRCUIT ---
+        // Don't calculate server damage cascades or instantiate networked assets if this is a local visual prediction asset
+        if (isLocalFake) return;
+
+        // --- AUTHORITATIVE SERVER RADIAL EXPLOSION LOGIC ---
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -68,7 +99,6 @@ public class GrenadeBubble : BasicBubble
                 if (col.CompareTag("Player"))
                 {
                     GameManager gameManager = GameManager.Instance;
-                    
                     PlayerController player = col.GetComponent<PlayerController>();
                     if (player != null)
                     {
@@ -83,10 +113,15 @@ public class GrenadeBubble : BasicBubble
                             player.ApplyKnockbackLocal(OwnerID, direction, explosionKnockback, explosionDamage);
                         else
                             player.ApplyKnockbackServerRpc(OwnerID, direction, explosionKnockback, explosionDamage);
-                        
+
                         gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
                         player.StartVulnerable(vulnerableDuration);
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(explosionDamage, true);
+
+                        if (playerCollider != null)
+                        {
+                            var controller = playerCollider.GetComponent<PlayerController>();
+                            if (controller != null) controller.GainUltCharge(explosionDamage, true);
+                        }
                     }
                 }
                 else
@@ -97,15 +132,14 @@ public class GrenadeBubble : BasicBubble
                         bubble.BubbleCollision(gameObject);
                     }
                 }
-
             }
         }
+
         if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
             if (IsServer)
             {
-                GameObject puddle;
-                puddle = Instantiate(splat, hitInfo.point, transform.rotation);
+                GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
                 puddle.GetComponent<DamageField>()?.SetID(OwnerID);
             }
@@ -114,6 +148,7 @@ public class GrenadeBubble : BasicBubble
 
     protected override void Reflect(Vector3 normal)
     {
+        // Reset path arc progress evaluation upon reflecting off shields
         progress = 0;
         base.Reflect(normal);
     }

@@ -9,45 +9,42 @@ public class ClamEvent : MapEvent
     private int currentActiveClams = 0;
     private bool isClaming = false;
     private float timer = 0;
+
     private void Start()
     {
-        clams = GetComponentsInChildren<Clam>();
+        clams = GetComponentsInChildren<Clam>(true);
         for (int i = 0; i < clams.Length; i++)
         {
             clams[i].OnSnap += DecreaseActiveClams;
             clams[i].gameObject.SetActive(false);
         }
     }
+
     private void Update()
     {
-        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+        if (!NetworkManager.Singleton || !NetworkManager.Singleton.IsServer) return;
+
         if (isClaming && currentActiveClams < maxClams)
         {
             if (timer >= clamRiseCooldown)
             {
-                int r = Random.Range(0, maxClams);
+                int r = Random.Range(0, clams.Length);
                 Clam clam = clams[r];
                 int tries = 0;
-                while (!clam.IsAvailble)
+
+                while (!clam.IsAvailable)
                 {
                     r++;
-                    if (r >= clams.Length) 
+                    if (r >= clams.Length)
                         r = 0;
                     clam = clams[r];
                     tries++;
                     if (tries > clams.Length)
                         break;
                 }
+                int chosenSpellID = ItemSpawner.Instance.GetRandomLegalSpellID();
+                ToggleClamClientRpc(r, true, chosenSpellID);
 
-                if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-                {
-                    ToggleClamServerRpc(r, true);
-                }
-                else
-                {
-                    clam.gameObject.SetActive(true);
-                    clam.Rise();
-                }
                 currentActiveClams++;
                 timer = 0;
             }
@@ -58,20 +55,16 @@ public class ClamEvent : MapEvent
         }
     }
 
-    [ServerRpc]
-    void ToggleClamServerRpc(int index, bool value)
-    {
-        ToggleClamClientRpc(index, value);
-    }
-
     [ClientRpc]
-    void ToggleClamClientRpc(int index, bool value)
+    void ToggleClamClientRpc(int index, bool value, int spellID)
     {
-        if(value)
-            clams[index].gameObject.SetActive(value);
+        if (index < 0 || index >= clams.Length) return;
 
-        if(value)
-            clams[index].Rise();
+        if (value)
+        {
+            clams[index].gameObject.SetActive(true);
+            clams[index].Rise(spellID);
+        }
         else
             clams[index].DisableClam();
     }
@@ -79,6 +72,7 @@ public class ClamEvent : MapEvent
     protected override void StartEvent()
     {
         if (!NetworkManager.Singleton.IsServer) return;
+        if (clams.Length <= 0) return;
         isClaming = true;
     }
 
@@ -86,13 +80,9 @@ public class ClamEvent : MapEvent
     {
         if (!NetworkManager.Singleton.IsServer) return;
         isClaming = false;
+        if(clams.Length <= 0) return;
         for (int i = 0; i < clams.Length; i++)
-        {
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-                ToggleClamServerRpc(i, false);
-            else
-                clams[i].DisableClam();          
-        }
+            ToggleClamClientRpc(i, false, 0);
     }
 
     private void DecreaseActiveClams()
@@ -103,10 +93,11 @@ public class ClamEvent : MapEvent
 
     private void OnDestroy()
     {
-        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+        if (clams == null) return;
         for (int i = 0; i < clams.Length; i++)
         {
-            clams[i].OnSnap -= DecreaseActiveClams;
+            if (clams[i] != null)
+                clams[i].OnSnap -= DecreaseActiveClams;
         }
     }
 }

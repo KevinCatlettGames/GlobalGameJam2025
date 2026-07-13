@@ -11,14 +11,10 @@ public class RevolverBulletBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
 
-        if (other.CompareTag("Player"))
-        {
-            if (revolverBubble)
-                revolverBubble.AddToHitCount();
-        }
-        else if (other.CompareTag("Bubble"))
+        if (other.CompareTag("Bubble"))
         {
             if (other.TryGetComponent<RevolverBulletBubble>(out RevolverBulletBubble revolverComp))
             {
@@ -26,6 +22,20 @@ public class RevolverBulletBubble : BasicBubble
                     return;
             }
         }
+
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Player") || other.CompareTag("Wall"))
+                Pop();
+            return;
+        }
+
+        if (other.CompareTag("Player"))
+        {
+            if (revolverBubble != null)
+                revolverBubble.AddToHitCount();
+        }
+
         base.BubbleCollision(other);
     }
 }

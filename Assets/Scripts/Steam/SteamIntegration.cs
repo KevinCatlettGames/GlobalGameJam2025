@@ -13,12 +13,11 @@ public class SteamIntegration : MonoBehaviour
     public bool IsFullVersion => isFullVersion;
 
     private bool statsLoaded = false;
-    private float retryInterval = 5f;
-    private float retryTimer = 0f;
     
     [ReadOnly]
     [SerializeField] private bool steamInitialized = false; 
-    
+    public bool SteamInitialized => steamInitialized;
+
     [Header("Achievements")]
     [SerializeField] string[] achievementNames;
     [SerializeField] string[] statNames;
@@ -55,13 +54,6 @@ public class SteamIntegration : MonoBehaviour
 
     public int[] StatThresholds => statThresholds;
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-    public Friend steamFriendToJoin;
-#endif
-
-    [ReadOnly]
-    public string lobbyIDToJoin;
-
     private void Awake()
     {
         gameObject.transform.parent = null;
@@ -85,7 +77,6 @@ public class SteamIntegration : MonoBehaviour
             Debug.LogError($"Error initializing Steam: {e.Message}");
         }
     }
-
 
     private void Update()
     {

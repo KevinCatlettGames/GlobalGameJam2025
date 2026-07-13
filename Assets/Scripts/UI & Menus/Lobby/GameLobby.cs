@@ -44,7 +44,10 @@ public class GameLobby : MonoBehaviour
     private void Awake()
     {
         instance = this;
+
+#if !UNITY_SWITCH
         InitializeUnityAuth();
+#endif
     }
 
     private async void InitializeUnityAuth()
@@ -73,7 +76,6 @@ public class GameLobby : MonoBehaviour
 
             var allocation = await AllocateRelay();
             string joinCode = await GetRelayJoinCode(allocation);
-
             await UpdateLobbyWithRelayCode(joinCode);
             ConfigureTransport(allocation);
 
@@ -82,6 +84,10 @@ public class GameLobby : MonoBehaviour
             relayServerHeartbeat.joinedLobby = GlobalLobby.CurrentLobby;
             GameObject newLobby = Instantiate(lobby);
             newLobby.GetComponent<NetworkObject>().Spawn();
+
+#if !UNITY_SWITCH
+            SteamJoinHandler.instance.SetPlayerReadyToBeJoined(GlobalLobby.CurrentLobby.LobbyCode);
+#endif
         }
         catch (LobbyServiceException e)
         {
@@ -150,6 +156,7 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
+            Debug.Log("Joining with code");
             GlobalLobby.CurrentLobby = await LobbyService.Instance.JoinLobbyByCodeAsync(code);
             ChangeJoinTextState(true);
             await JoinRelayAndStartClient(GlobalLobby.CurrentLobby.Data[KEY_RELAY_JOIN_CODE].Value);
@@ -179,12 +186,10 @@ public class GameLobby : MonoBehaviour
         try
         {
             var joinAllocation = await JoinRelay(joinCode);
-
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
-            onlineCreationUI.lobbyUI.SetActive(false);
             ChangeJoinTextState(false);
-
+            onlineCreationUI.lobbyUI.SetActive(false);
         }
         catch (LobbyServiceException e)
         {
@@ -200,7 +205,7 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
-            return await RelayService.Instance.CreateAllocationAsync(3);
+            return await RelayService.Instance.CreateAllocationAsync(4, null);
         }
         catch (RelayServiceException e)
         {

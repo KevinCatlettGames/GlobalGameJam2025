@@ -181,6 +181,13 @@ MonoBehaviour:
       Data3: 1871716014
       Data4: 1209371004
     Path: event:/sfx/spells/bat_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 1.2
+  isMeshHiddenForOwner: 0
   rotationSpeed: 7
   homingRadius: 6.5
   damageDelay: 0.3
@@ -220,9 +227,9 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0

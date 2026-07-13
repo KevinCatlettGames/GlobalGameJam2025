@@ -19,11 +19,14 @@ public class ExpandingBubble : BasicBubble
         knockbackRatio = knockback / maxSize;
         damageRatio = damage / maxSize;
     }
+
     private void Update()
     {
-        if (!IsServer) return;
-              
-        if (sphereCollider.enabled && currentSize < maxSize)
+        // --- PREDICTION FILTER ---
+        // Allow inflation if this is the Server OR a local client prediction fake
+        if (!IsServer && !isLocalFake) return;
+
+        if (sphereCollider != null && sphereCollider.enabled && currentSize < maxSize)
         {
             currentSize += inflationSpeed * Time.deltaTime;
             if (currentSize > maxSize) currentSize = maxSize;
@@ -31,9 +34,12 @@ public class ExpandingBubble : BasicBubble
             transform.localScale = Vector3.one * currentSize;
         }
     }
+
     protected override void BubbleMovement()
     {
-        if (!IsServer) return;
+        // --- PREDICTION FILTER ---
+        // Allow movement processing for Server and client-side local fakes
+        if (!IsServer && !isLocalFake) return;
 
         float currentSpeed = speed + currentSize * speedFactor;
         transform.position += direction * currentSpeed * Time.fixedDeltaTime;
@@ -43,10 +49,33 @@ public class ExpandingBubble : BasicBubble
             lastPosition = transform.position;
         }
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
 
+        // --- LOCAL FAKE SEPARATION ---
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Player"))
+            {
+                // Visual pop instantly on player touch
+                Pop();
+            }
+            else if (other.CompareTag("Bubble"))
+            {
+                // Fake bubble shrinks visually on hitting another bubble locally
+                DamageBubble();
+            }
+            else
+            {
+                Pop();
+            }
+            return;
+        }
+
+        // --- AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -68,11 +97,12 @@ public class ExpandingBubble : BasicBubble
             Pop();
         }
     }
+
     private void DamageBubble()
     {
         currentSize -= sizeLossOnHit;
-        if (currentSize <= .5f)       
-            Pop();       
+        if (currentSize <= .5f)
+            Pop();
         else
             transform.localScale = Vector3.one * currentSize;
     }

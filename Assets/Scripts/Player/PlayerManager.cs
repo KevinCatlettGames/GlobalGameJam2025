@@ -332,9 +332,19 @@ public class PlayerManager : NetworkBehaviour
         List<int> legalSpells = new List<int>();
         for (int i = 0; i < ItemSpawner.Instance.GetSpellCount(); i++)
         {
-            if (ItemSpawner.Instance.SpawnableItems[i].CanUse)
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
             {
-                legalSpells.Add(i);
+                if (ItemSpawner.Instance.SpawnableItems[i].CanUse)
+                {
+                    legalSpells.Add(i);
+                }
+            }
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (ItemSpawner.Instance.SpawnableItems[i].CanUse && ItemSpawner.Instance.SpawnableItems[i].AvailableInDemo)
+                {
+                    legalSpells.Add(i);
+                }
             }
         }
         syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);

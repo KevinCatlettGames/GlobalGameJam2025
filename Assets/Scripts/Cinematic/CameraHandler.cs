@@ -44,6 +44,7 @@ public class CameraHandler : NetworkBehaviour
 
         if (cinematicCamera == null || !playCinematicAtStart)
         {
+            mainCamera.SetActive(true);
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
         else

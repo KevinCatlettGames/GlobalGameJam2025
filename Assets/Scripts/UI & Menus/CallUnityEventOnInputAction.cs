@@ -49,7 +49,7 @@ public class CallUnityEventOnInputAction : MonoBehaviour
         yield return new WaitForSeconds(freshPressBlockDuration);
 
         canTrigger = true;
-        requireFreshPressOnEnable = false; // auto reset
+        requireFreshPressOnEnable = false;
     }
 
     private void OnDisable()

@@ -13,14 +13,20 @@ public class BoomerangBubble : BasicBubble
     [SerializeField] private float stayDuration = 1f;
     [SerializeField] private float catchRange = 5f;
 
-    protected override IEnumerator BubbleRangeLimit()
+    protected override IEnumerator BubbleRangeLimit(float customLifetime = 0f)
     {
         float lifetime = range / speed;
         float baseSpeed = speed;
-        
+
         yield return new WaitForSeconds(lifetime);
-        float angle = Vector3.SignedAngle(direction,playerCollider.transform.position - transform.position, Vector3.up);
-        rotationAngle *= angle > 0 ? 1 : -1;        
+
+        // Safety check: Make sure playerCollider exists before calculating angles
+        if (playerCollider != null)
+        {
+            float angle = Vector3.SignedAngle(direction, playerCollider.transform.position - transform.position, Vector3.up);
+            rotationAngle *= angle > 0 ? 1 : -1;
+        }
+
         float timer = 0;
         do
         {
@@ -29,6 +35,7 @@ public class BoomerangBubble : BasicBubble
             timer += Time.deltaTime;
             yield return null;
         } while (timer < stayDuration);
+
         ReturnRang(baseSpeed);
         lifetime *= returnRangeMod;
         Vector3 targetVector;
@@ -39,8 +46,11 @@ public class BoomerangBubble : BasicBubble
             if (!isReflected && playerCollider != null && playerCollider.enabled)
             {
                 targetVector = playerCollider.transform.position - transform.position;
-                if(targetVector.sqrMagnitude <= catchRange)
+
+                // If it gets within catch range of the shooter...
+                if (targetVector.sqrMagnitude <= catchRange)
                     break;
+
                 targetVector.y = 0;
                 targetVector.Normalize();
                 direction = Vector3.Lerp(direction, targetVector, Time.fixedDeltaTime * returnRotation);
@@ -48,17 +58,29 @@ public class BoomerangBubble : BasicBubble
             yield return null;
         } while (timer < lifetime);
 
-        if (canMiss)
+        // --- CLIENT / SERVER GATE ---
+        // Only trigger network statistics and steam achievements on the authoritative server
+        if (IsServer && canMiss)
+        {
             IncrementMissedShotAchievement();
+        }
 
         Pop();
     }
+
     private void ReturnRang(float baseSpeed)
     {
-        //Effect Maybe
-        knockback *= knbMod;
-        damage *= dmgMod;
+        // Effect Maybe
+
+        // --- CLIENT SAFETY ---
+        // Local fakes can update their speed parameter so they visually accelerate on return.
+        // Server retains damage/knockback authority.
+        if (IsServer)
+        {
+            knockback *= knbMod;
+            damage *= dmgMod;
+        }
+
         speed = baseSpeed * spdMod;
     }
 }
-

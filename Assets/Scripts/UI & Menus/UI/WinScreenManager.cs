@@ -36,6 +36,9 @@ public class WinScreenManager : MonoBehaviour
 
     private void OnEnable()
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         gameUI.SetActive(false);
         eventSystem.SetSelectedGameObject(restartButton.gameObject);
         ShowWinnerUsingWinScore();

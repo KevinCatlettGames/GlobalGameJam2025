@@ -1,10 +1,12 @@
 using FMODUnity;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WallBubble : BasicBubble
 {
     [Header("Special Stats")]
-    [SerializeField] private float speedBosst = 1.5f;
+    [SerializeField] private float speedBoost = 1.5f;
     [SerializeField] private Material dmgedOutline;
     private int hitPoints = 0;
     private bool stop = false;
@@ -12,6 +14,7 @@ public class WallBubble : BasicBubble
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         base.InitialiseBubble(ID, dir, playerCollider);
+
         Reflector reflector = GetComponent<Reflector>();
         if (reflector != null)
         {
@@ -25,24 +28,43 @@ public class WallBubble : BasicBubble
         canMiss = false;
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(damage));
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer) return;
 
         if (other.CompareTag("Player"))
         {
             return;
         }
-        else if (other.CompareTag("Bubble") && popOnBubbleHit)
+     
+        if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
 
             MeshRenderer renderer = GetComponent<MeshRenderer>();
-            Material[] materials = renderer.materials;
-            materials[1] = dmgedOutline;
-            renderer.materials = materials;
+            if (renderer != null && dmgedOutline != null)
+            {
+                Material[] materials = renderer.materials;
+                if (materials.Length > 1)
+                {
+                    materials[1] = dmgedOutline;
+                    renderer.materials = materials;
+                }
+            }
 
-            other.GetComponent<BasicBubble>().ChangeSpeed(speedBosst);
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                ChangeMaterialServerRpc();
+            }
+            
+            BasicBubble otherBubble = other.GetComponent<BasicBubble>();
+            if (otherBubble != null)
+            {
+                otherBubble.ChangeSpeed(speedBoost);
+            }
+
             if (hitPoints <= 0)
             {
                 Pop();
@@ -56,7 +78,30 @@ public class WallBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        if(!stop)
+        if (!IsServer && !isLocalFake) return;
+
+        if (!stop)
             base.BubbleMovement();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangeMaterialServerRpc()
+    {
+        ChangeMaterialClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeMaterialClientRpc()
+    {
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
+        if (renderer != null && dmgedOutline != null)
+        {
+            Material[] materials = renderer.materials;
+            if (materials.Length > 1)
+            {
+                materials[1] = dmgedOutline;
+                renderer.materials = materials;
+            }
+        }
     }
 }

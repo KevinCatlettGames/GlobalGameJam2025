@@ -52,6 +52,7 @@ public class GameManager : NetworkBehaviour
 
     [Header("Achievement Values")]
     public HitReference[] hitReferences;
+    
     [Serializable]
     public class HitReference
     {

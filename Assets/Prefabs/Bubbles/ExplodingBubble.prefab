@@ -205,14 +205,18 @@ MonoBehaviour:
       Data3: -1137229913
       Data4: 2278068
     Path: event:/sfx/spells/explosion_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 15
+  isMeshHiddenForOwner: 0
   indicator: 0
   explosionRadius: 8
   earlyFizzleEffect: {fileID: 7883030796252567183, guid: 105305074cad54c46a7cd3bd4eddd75e,
     type: 3}
   primaryKnockbackIncrease: 1.2
-  blinkMaterials:
-  - {fileID: 2100000, guid: 50a0b854327710345b317e68d6f04eac, type: 2}
-  - {fileID: 2100000, guid: e54711f1293d6ed48a824c4463a47233, type: 2}
 --- !u!114 &2103156886434375332
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -280,9 +284,9 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
