@@ -205,7 +205,7 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
-            return await RelayService.Instance.CreateAllocationAsync(3);
+            return await RelayService.Instance.CreateAllocationAsync(4, null);
         }
         catch (RelayServiceException e)
         {
