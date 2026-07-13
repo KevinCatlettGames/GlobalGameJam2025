@@ -55,7 +55,7 @@ public class SoapBubble : BasicBubble
                 DropSoapPuddle(true);
                 Pop();
             }
-            else if (other.CompareTag("Wall") || other.CompareTag("Environment"))
+            else if (other.CompareTag("Wall"))
             {
                 Pop();
             }

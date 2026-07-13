@@ -204,33 +204,79 @@ public class BasicBubble : NetworkBehaviour
 
     private bool isInitialized = false;
     private float trackingSpeed = 0f;
-    private float catchUpTime = 100;
+    public float catchUpTime = 0.2f;
+    private float safetyTimer = 0f;
+    public float maxTrackingDuration = 0.35f;
 
     private void Update()
     {
-        if (isLocalFake && serverBubbleTarget != null && visualChildMesh != null)
+        // The master safety switch: If this is a local fake, its lifetime *must* be strictly bound
+        if (isLocalFake)
         {
-            Vector3 worldOffset = serverBubbleTarget.position - transform.position;
-            Vector3 currentLocalTarget = transform.InverseTransformDirection(worldOffset);
+            safetyTimer += Time.deltaTime;
 
-            if (!isInitialized)
+            // SCENARIO A: We have a valid target to reconcile towards
+            if (serverBubbleTarget != null && visualChildMesh != null)
             {
-                float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                trackingSpeed = initialDistance / catchUpTime;
-                isInitialized = true;
+                Vector3 worldOffset = serverBubbleTarget.position - transform.position;
+                Vector3 currentLocalTarget = transform.InverseTransformDirection(worldOffset);
+
+                if (!isInitialized)
+                {
+                    float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
+                    trackingSpeed = initialDistance / catchUpTime;
+                    isInitialized = true;
+                }
+
+                // Smoothly slide the mesh toward the server target position
+                visualChildMesh.localPosition = Vector3.MoveTowards(
+                    visualChildMesh.localPosition,
+                    currentLocalTarget,
+                    trackingSpeed * Time.deltaTime
+                );
+
+                // Check if our visuals caught up perfectly
+                if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
+                {
+                    Debug.Log("Performing seamless switch!");
+                    ExecuteHandoffCleanUp();
+                    return;
+                }
             }
 
-            visualChildMesh.localPosition = Vector3.MoveTowards(
-                visualChildMesh.localPosition,
-                currentLocalTarget,
-                trackingSpeed * Time.deltaTime
-            );
+            // SCENARIO B: Time is up! Clean up regardless of whether a target ever arrived or aligned
+            if (safetyTimer >= maxTrackingDuration)
+            {
+                Debug.LogWarning($"[Handoff Safety Guard Triggered] Forcing clean up. Target found: {serverBubbleTarget != null}");
+                ExecuteHandoffCleanUp();
+                return;
+            }
         }
         else if (visualChildMesh != null)
         {
+            // For non-fakes, make sure local space alignments stay perfectly center frame
             visualChildMesh.localPosition = Vector3.zero;
             isInitialized = false;
         }
+    }
+
+    private void ExecuteHandoffCleanUp()
+    {
+        if (serverBubbleTarget != null)
+        {
+            BasicBubble realBubble = serverBubbleTarget.GetComponent<BasicBubble>();
+            if (realBubble != null)
+            {
+                realBubble.SetMeshVisibility(true);
+                realBubble.isMeshHiddenForOwner = false;
+
+                var realCollider = realBubble.GetComponent<Collider>();
+                if (realCollider != null) realCollider.enabled = true;
+            }
+        }
+
+        serverBubbleTarget = null;
+        Destroy(gameObject);
     }
 
     protected virtual IEnumerator Inflate()
@@ -280,14 +326,14 @@ public class BasicBubble : NetworkBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (hasPopped) return;
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
         HandleCollision(collision);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             OwnerID = reflector.OwnerID;
@@ -348,7 +394,7 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void Pop()
     {
         if (hasPopped) return;
-        if (!isLocalFake && !IsServer) return;
+        if (!IsServer && !isLocalFake) return;
 
         hasPopped = true;
         StopAllCoroutines();
@@ -361,7 +407,6 @@ public class BasicBubble : NetworkBehaviour
             }
 
             HideVisualsAndDisablePhysics();
-            Destroy(gameObject, 0.05f);
         }
         else if (IsServer)
         {
@@ -411,15 +456,11 @@ public class BasicBubble : NetworkBehaviour
             damage *= reflectDmgIncrease;
             isReflected = true;
         }
-        else if (isLocalFake)
-        {
-            ignoredColliders.Clear();
-        }
     }
 
     public virtual void SetSlippy()
     {
-        if (!IsServer) return;
+        if (!IsServer && !isLocalFake) return;
         if (isSoaped)
         {
             speed += soapSecSpeedIncrease;
@@ -434,7 +475,7 @@ public class BasicBubble : NetworkBehaviour
 
     public void ChangeSpeed(float factor)
     {
-        if (!IsServer) return;
+        if (!IsServer && !isLocalFake) return;
         speed *= factor;
     }
 
@@ -473,5 +514,12 @@ public class BasicBubble : NetworkBehaviour
             1,
             steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
             steamIntegration.missedShotAchievementID);
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (serverBubbleTarget == null) return; 
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(serverBubbleTarget.position, .5f);
     }
 }

@@ -1,5 +1,6 @@
 using FMODUnity;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 
 public class WallBubble : BasicBubble
@@ -31,39 +32,14 @@ public class WallBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return; // Process for authoritative server instances and client fakes
+        if (!IsServer) return; // Process for authoritative server instances and client fakes
 
         // --- 1. SHARED COLLISION INTERACTIONS (Players always pass through safely) ---
         if (other.CompareTag("Player"))
         {
             return;
         }
-
-        // --- 2. LOCAL FAKE SHORT CIRCUIT ---
-        if (isLocalFake)
-        {
-            if (other.CompareTag("Wall") || other.CompareTag("Environment"))
-            {
-                stop = true; // Freeze the fake shield position locally instantly on the wall
-            }
-            else if (other.CompareTag("Bubble") && popOnBubbleHit)
-            {
-                // Update material feedback locally so the casting player sees immediate impact response
-                if (GetComponent<MeshRenderer>() != null && dmgedOutline != null)
-                {
-                    MeshRenderer renderer = GetComponent<MeshRenderer>();
-                    Material[] materials = renderer.materials;
-                    if (materials.Length > 1)
-                    {
-                        materials[1] = dmgedOutline;
-                        renderer.materials = materials;
-                    }
-                }
-            }
-            return;
-        }
-
-        // --- 3. AUTHORITATIVE SERVER COLLISION DETECTION ---
+     
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
@@ -79,6 +55,11 @@ public class WallBubble : BasicBubble
                 }
             }
 
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                ChangeMaterialServerRpc();
+            }
+            
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
             if (otherBubble != null)
             {
@@ -103,5 +84,26 @@ public class WallBubble : BasicBubble
 
         if (!stop)
             base.BubbleMovement();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangeMaterialServerRpc()
+    {
+        ChangeMaterialClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeMaterialClientRpc()
+    {
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
+        if (renderer != null && dmgedOutline != null)
+        {
+            Material[] materials = renderer.materials;
+            if (materials.Length > 1)
+            {
+                materials[1] = dmgedOutline;
+                renderer.materials = materials;
+            }
+        }
     }
 }

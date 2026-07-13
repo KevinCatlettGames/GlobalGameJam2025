@@ -82,7 +82,7 @@ public class SlipBubble : BasicBubble
                 CreateSlimePuddleLocal(transform.position);
                 Pop();
             }
-            else if (other.CompareTag("Wall") || other.CompareTag("Environment"))
+            else if (other.CompareTag("Wall"))
             {
                 Pop();
             }

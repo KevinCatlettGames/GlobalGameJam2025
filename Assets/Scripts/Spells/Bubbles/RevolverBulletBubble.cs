@@ -29,7 +29,7 @@ public class RevolverBulletBubble : BasicBubble
         if (isLocalFake)
         {
             // If the local visual fake hits a player or environment, pop it instantly for game-feel
-            if (other.CompareTag("Player") || other.CompareTag("Wall") || other.CompareTag("Environment"))
+            if (other.CompareTag("Player") || other.CompareTag("Wall"))
             {
                 Pop();
             }

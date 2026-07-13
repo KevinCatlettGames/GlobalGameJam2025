@@ -44,6 +44,9 @@ public class RevolverBubble : BasicBubble
         float rotation = -(maxAmmo - 1);
         rotation *= .5f;
 
+        // Cache the base castID to protect against parent initialization delays
+        int baseCastID = this.castID;
+
         for (int i = 0; i < maxAmmo; i++)
         {
             Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
@@ -57,6 +60,7 @@ public class RevolverBubble : BasicBubble
             }
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
+            int uniqueBulletID = (baseCastID * 10) + i;
 
             // --- CLIENT / SERVER SPAWN GATE ---
             if (isLocalFake)
@@ -67,7 +71,7 @@ public class RevolverBubble : BasicBubble
                 if (bubbleScript != null)
                 {
                     bubbleScript.isLocalFake = true;
-                    bubbleScript.castID = this.castID;
+                    bubbleScript.castID = uniqueBulletID;
 
                     var playerCtrl = playerCollider?.GetComponent<PlayerController>();
                     if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
@@ -75,12 +79,19 @@ public class RevolverBubble : BasicBubble
             }
             else if (IsServer)
             {
-                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-                if (netObj != null) netObj.Spawn();
-
                 if (bubbleScript != null)
                 {
-                    bubbleScript.castID = this.castID;
+                    // CRITICAL FIX: Assign the NetworkVariable *BEFORE* Spawning the object.
+                    // In Netcode for GameObjects, modifying a NetworkVariable right before calling Spawn() 
+                    // ensures the payload is baked into the initial spawn payload packet. 
+                    bubbleScript.syncedCastID.Value = uniqueBulletID;
+                    bubbleScript.castID = uniqueBulletID;
+                }
+
+                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+                if (netObj != null)
+                {
+                    netObj.Spawn();
                 }
             }
 
