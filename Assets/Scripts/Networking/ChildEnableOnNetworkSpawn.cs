@@ -10,8 +10,8 @@ public class ChildEnableOnNetworkSpawn : NetworkBehaviour
     {
         if (!childObject) return;
         if (IsClient)
-        {          
-            childObject.SetActive(false);
+        {
+            childObject?.SetActive(false);
             StartCoroutine(EnableParticlesAfterDelay());
         }
     }
@@ -19,6 +19,6 @@ public class ChildEnableOnNetworkSpawn : NetworkBehaviour
     private IEnumerator EnableParticlesAfterDelay()
     {
         yield return new WaitForEndOfFrame();
-        childObject.SetActive(true);
+        childObject?.SetActive(true);
     }
 }

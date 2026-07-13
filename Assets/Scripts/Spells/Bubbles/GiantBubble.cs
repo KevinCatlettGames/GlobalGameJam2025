@@ -3,6 +3,10 @@ using UnityEngine;
 
 public class GiantBubble : BasicBubble
 {
+    [Header("Particle Systems")]
+    [SerializeField] private ParticleSystem stationaryParticleSystem;
+    [SerializeField] private ParticleSystem bigParticleSystem;
+    [SerializeField] private ParticleSystem smallParticleSystem;
     [Header("Big Version")]
     [SerializeField] private float extraOffset = 2f;
     [SerializeField] private int knbDecreaseAngle = 45;
@@ -47,6 +51,8 @@ public class GiantBubble : BasicBubble
         InflateOverlapChack();
 
         sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        stationaryParticleSystem.Stop();
+        bigParticleSystem.Play();
         hasInflated = true;
     }
 
@@ -80,6 +86,8 @@ public class GiantBubble : BasicBubble
             smallTrail.emitting = true;
             size *= sizMod;
             transform.localScale = Vector3.one * size;
+            bigParticleSystem.Stop();
+            smallParticleSystem.Play();
             return;
         }
         if (!isSmall && other.CompareTag("Player"))
