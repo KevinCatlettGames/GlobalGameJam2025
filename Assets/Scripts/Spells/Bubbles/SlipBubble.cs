@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using FMODUnity;
 
 public class SlipBubble : BasicBubble
 {
@@ -16,14 +15,12 @@ public class SlipBubble : BasicBubble
 
         Vector3 trailPos = new Vector3(transform.position.x, 0.06f, transform.position.z);
 
-        // --- PREDICTION TRAIL HANDLING ---
         if (isLocalFake)
         {
-            // Spawn a purely local visual trail that doesn't register on the network layer
             if (slimeTrailObject != null)
             {
                 GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
-                Destroy(trail.GetComponent<NetworkObject>()); // Remove network tracking components locally
+                Destroy(trail.GetComponent<NetworkObject>());
                 slimeTrail = trail.GetComponent<SlimeTrail>();
                 slimeTrail?.InitialiseTrail(speed);
             }
@@ -56,7 +53,6 @@ public class SlipBubble : BasicBubble
 
     private void Update()
     {
-        // Allow the local visual fake to update its trail lifecycle over open gaps
         if (!IsServer && !isLocalFake) return;
 
         if (slimeTrail != null && !Physics.Raycast(transform.position, Vector3.down, 5f, groundedLayerMask))
@@ -71,14 +67,12 @@ public class SlipBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return; // Allow processing for the server and local fakes
+        if (!IsServer && !isLocalFake) return;
 
-        // --- LOCAL FAKE SHORT CIRCUIT ---
         if (isLocalFake)
         {
             if (other.CompareTag("Player"))
             {
-                // Create a purely localized visual pool on impact instantly
                 CreateSlimePuddleLocal(transform.position);
                 Pop();
             }
@@ -89,7 +83,6 @@ public class SlipBubble : BasicBubble
             return;
         }
 
-        // --- AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();

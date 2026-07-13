@@ -2,7 +2,6 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 using FMODUnity;
-using Unity.VisualScripting;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
@@ -173,25 +172,25 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         else if (skinChangeInput.x > 0)
         {
-            if (!currentSkinSelection.rightSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.rightSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.rightSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.rightSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.x < 0)
         {
-            if (!currentSkinSelection.leftSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.leftSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.leftSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.leftSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.y > 0)
         {
-            if (!currentSkinSelection.topSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.topSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.topSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.topSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.y < 0)
         {
-            if (!currentSkinSelection.bottomSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.bottomSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.bottomSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.bottomSkinSelection;
             availableSkin = skinToCheck;                 
         }

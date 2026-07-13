@@ -4,6 +4,7 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Utilities;
 
 public class LobbyPlayerInput : NetworkBehaviour
 {
@@ -11,10 +12,11 @@ public class LobbyPlayerInput : NetworkBehaviour
     LobbyButtons lobbyButtons;
     private PlayerInput playerInput;
     [SerializeField] EventReference[] eventReferences;
-    bool firstJoined = true;
     private bool isQuitting;
     bool joined = false;
     public int playerIndex = -1;
+
+    private System.IDisposable anyButtonListener;
 
     private void OnEnable()
     {
@@ -35,6 +37,49 @@ public class LobbyPlayerInput : NetworkBehaviour
     {
         if (lobbyManager != null)
             lobbyManager.OnLeavingLobby.RemoveListener(DestroySelf);
+
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return;
+        anyButtonListener?.Dispose();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return; 
+
+        if (!IsOwner)
+        {
+            playerInput.enabled = false;
+            return;
+        }
+
+        playerInput.enabled = false;
+        if (playerInput.user.valid)
+            playerInput.user.UnpairDevices();
+        playerInput.enabled = true;
+
+        anyButtonListener = InputSystem.onAnyButtonPress.Call(OnDeviceInputReceived);
+    }
+
+    private void OnDeviceInputReceived(InputControl control)
+    {
+        if (!IsOwner || isQuitting || !playerInput.enabled) return;
+
+        InputDevice clickedDevice = control.device;
+
+        if (clickedDevice is Mouse || clickedDevice is Touchscreen) return;
+
+        if (playerInput.devices.Count > 0 && playerInput.devices[0] == clickedDevice) return;
+
+        playerInput.user.UnpairDevices();
+        UnityEngine.InputSystem.Users.InputUser.PerformPairingWithDevice(clickedDevice, user: playerInput.user);
+
+        if (clickedDevice is Gamepad)
+            playerInput.user.ActivateControlScheme("Gamepad");
+        else if (clickedDevice is Keyboard)
+            playerInput.user.ActivateControlScheme("Keyboard");
+
+        if (joined && playerIndex != -1)
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex, clickedDevice);
     }
 
     void OnClientConnectedCallback(ulong clientID)
@@ -50,6 +95,8 @@ public class LobbyPlayerInput : NetworkBehaviour
     private void DestroySelf()
     {
         isQuitting = true;
+
+        anyButtonListener?.Dispose();
 
         if (playerInput != null)
             playerInput.enabled = false;
@@ -68,7 +115,6 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (joined) return;
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
         playerIndex = -1;
-
 
         foreach (GameObject go in lobbyManager.playerContainers)
         {
@@ -93,7 +139,6 @@ public class LobbyPlayerInput : NetworkBehaviour
             }
         }
 
-
         if (playerIndex == -1)
             return;
 
@@ -102,7 +147,10 @@ public class LobbyPlayerInput : NetworkBehaviour
         else
             lobbyManager.ToggleReadyServerRpc(playerIndex, NetworkManager.Singleton.LocalClientId, false);
 
-        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex, playerInput.devices[0]);
+        if (playerInput.devices.Count > 0)
+        {
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex, playerInput.devices[0]);
+        }
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
@@ -164,6 +212,12 @@ public class LobbyPlayerInput : NetworkBehaviour
 
         if (context.performed && !LobbyManager.instance.players[playersListID].IsReady)
         {
+            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion && !LobbyPlayerValues.Instance.playerValuesList[playerIndex].Skin.AvailableInDemo)
+            {
+                PlaySFX(false, 3);
+                return;
+            }
+
             if (!TransportSwitcher.Instance.isUsingRelay)
                 lobbyManager.SetReady(playersListID, true);
             else

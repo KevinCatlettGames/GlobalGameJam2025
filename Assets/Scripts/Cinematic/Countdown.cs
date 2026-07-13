@@ -32,15 +32,21 @@ public class Countdown : MonoBehaviour
     }
 
     public void StartCountdown()
-    {
+    {  
         CameraHandler.Instance.onCinematicEnd.RemoveListener(StartCountdown);
+        if (CameraHandler.Instance.playCinematicAtStart)
+        {
+            OnCountdownStart?.Invoke();
 
-        OnCountdownStart?.Invoke();
+            if (countdownCoroutine != null)
+                StopCoroutine(countdownCoroutine);
 
-        if (countdownCoroutine != null)
-            StopCoroutine(countdownCoroutine);
-
-        countdownCoroutine = StartCoroutine(CountdownRoutine());
+            countdownCoroutine = StartCoroutine(CountdownRoutine());
+        }
+        else
+        {
+            onCountdownComplete?.Invoke();
+        }
     }
 
     private IEnumerator CountdownRoutine()

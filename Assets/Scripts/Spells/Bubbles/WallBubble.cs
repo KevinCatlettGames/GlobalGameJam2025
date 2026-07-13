@@ -6,7 +6,7 @@ using UnityEngine;
 public class WallBubble : BasicBubble
 {
     [Header("Special Stats")]
-    [SerializeField] private float speedBoost = 1.5f; // Fixed typo in variable name from speedBosst
+    [SerializeField] private float speedBoost = 1.5f;
     [SerializeField] private Material dmgedOutline;
     private int hitPoints = 0;
     private bool stop = false;
@@ -32,9 +32,8 @@ public class WallBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer) return; // Process for authoritative server instances and client fakes
+        if (!IsServer) return;
 
-        // --- 1. SHARED COLLISION INTERACTIONS (Players always pass through safely) ---
         if (other.CompareTag("Player"))
         {
             return;
@@ -79,7 +78,6 @@ public class WallBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        // Allow tracking movement frames for both server logic and local preview fakes
         if (!IsServer && !isLocalFake) return;
 
         if (!stop)

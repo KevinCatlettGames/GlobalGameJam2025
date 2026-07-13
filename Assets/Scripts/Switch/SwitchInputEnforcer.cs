@@ -3,10 +3,7 @@ using UnityEngine.InputSystem;
 
 public class SwitchInputEnforcer : MonoBehaviour
 {
-
     [SerializeField] private PlayerInput playerInput;
-
-    // Make sure these match the EXACT names you typed in your Input Actions editor
     [SerializeField] private string switchControlSchemeName = "Switch";
 
     void Start()

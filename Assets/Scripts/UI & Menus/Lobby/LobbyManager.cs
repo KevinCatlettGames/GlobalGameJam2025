@@ -1,5 +1,4 @@
 using FMODUnity;
-using Steamworks;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.SmartFormat.Core.Parsing;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -109,22 +107,12 @@ public class LobbyManager : NetworkBehaviour
 
     [Header("Network Players")]
 
-    /// <summary>
-    /// Network-synced list of players in the lobby.
-    /// </summary>
     public NetworkList<PlayerLobbyState> players = new();
 
     [Tooltip("True if all players are ready.")]
     public bool allPlayersReady;
 
-    /// <summary>
-    /// Invoked when a player's ready state changes.
-    /// </summary>
     public UnityEvent<int, bool> OnReadyStateUpdated;
-
-    /// <summary>
-    /// Invoked when all players finished loading a scene.
-    /// </summary>
     public UnityEvent OnAllPlayersLoadedIn;
 
     #endregion
@@ -221,17 +209,14 @@ public class LobbyManager : NetworkBehaviour
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
         }
 
         ChangeStartButtonState(false);
 #if !UNITY_SWITCH
         if (!TransportSwitcher.Instance.isUsingRelay)
         {
-            Debug.Log("Devices: " + InputSystem.devices.Count.ToString());
             foreach (var device in InputSystem.devices)
             {
-                Debug.Log("Spawning player");
                 PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
             }
         }
@@ -268,15 +253,6 @@ public class LobbyManager : NetworkBehaviour
         if (!IsServer) return;
         ChangeSelectedGameModeServerRpc();
         OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
-    }
-
-
-    void OnClientDisconnectedCallback(ulong playerIndex)
-    {
-        if (!IsServer) return;
-        {
-            
-        }
     }
 
     private void OnDisable()
