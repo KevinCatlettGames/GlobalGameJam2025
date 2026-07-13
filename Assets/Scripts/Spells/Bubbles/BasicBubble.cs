@@ -188,13 +188,20 @@ public class BasicBubble : NetworkBehaviour
             renderer.enabled = visible;
     }
 
-    protected virtual void Update()
+    private void FixedUpdate()
     {
-        if (isLocalFake || (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer))
+        if (isLocalFake)
         {
             BubbleMovement();
         }
+        else if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsServer)
+        {
+            BubbleMovement();
+        }
+    }
 
+    protected virtual void Update()
+    {
         if (isLocalFake)
         {
             safetyTimer += Time.deltaTime;
@@ -207,25 +214,17 @@ public class BasicBubble : NetworkBehaviour
                 if (!isInitialized)
                 {
                     float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                    float safeDistance = Mathf.Max(initialDistance, 0.5f); // Lock floor to 0.5m minimum tracking calculation
-                    trackingSpeed = safeDistance / catchUpTime;
+                    trackingSpeed = initialDistance / catchUpTime;
                     isInitialized = true;
-                }
-
-                float currentDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                float dynamicTrackingSpeed = trackingSpeed;
-                if (currentDistance > 1.5f)
-                {
-                    dynamicTrackingSpeed *= (currentDistance * 1.5f);
                 }
 
                 visualChildMesh.localPosition = Vector3.MoveTowards(
                     visualChildMesh.localPosition,
                     currentLocalTarget,
-                    dynamicTrackingSpeed * Time.deltaTime
+                    trackingSpeed * Time.deltaTime
                 );
 
-                if (currentDistance < 0.1f)
+                if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
                 {
                     //Debug.Log("Performing seamless switch!");
                     ExecuteHandoffCleanUp();
@@ -294,7 +293,7 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void BubbleMovement()
     {
-        Vector3 nextPosition = transform.position + (direction * speed * Time.deltaTime);
+        Vector3 nextPosition = transform.position + (direction * speed * Time.fixedDeltaTime);
         transform.position = nextPosition;
     }
 
