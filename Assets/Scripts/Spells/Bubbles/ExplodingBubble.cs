@@ -1,5 +1,4 @@
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ExplodingBubble : BasicBubble
@@ -22,17 +21,8 @@ public class ExplodingBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped) return;
-        if (!IsServer && !isLocalFake) return; // Allow processing for the server and our local prediction fakes
+        if (!IsServer && !isLocalFake) return;
 
-        if (isLocalFake)
-        {
-            // Local fakes process the visual collision marker instantly and pop
-            fizzleEffect = hitEffect;
-            Pop();
-            return;
-        }
-
-        // --- AUTHORITATIVE SERVER LOGIC ---
         if (other != null && other.CompareTag("Bubble") && popOnBubbleHit)
         {
             var otherBubble = other.GetComponent<BasicBubble>();
@@ -43,6 +33,8 @@ public class ExplodingBubble : BasicBubble
             primaryTarget = other;
         }
         fizzleEffect = hitEffect;
+        if (IsOwner)
+            ChangeToExplosionServerRpc();
         Pop();
     }
 
@@ -56,11 +48,8 @@ public class ExplodingBubble : BasicBubble
     {
         if (hasExploded) return;
         hasExploded = true;
-
-        // If it's a local fake, we don't calculate or apply radial blast forces to players or other network objects
         if (isLocalFake) return;
 
-        // --- AUTHORITATIVE SERVER EXPLOSION FORCE LOGIC ---
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -111,10 +100,37 @@ public class ExplodingBubble : BasicBubble
         if (hasPopped) return;
 
         if (isReadyToExpode) Explode();
-        else fizzleEffect = earlyFizzleEffect;
+        else
+        {
+            fizzleEffect = earlyFizzleEffect;
+            if (IsOwner)
+                ChangeToEarlyFizzleServerRpc();
 
-        // base.Pop() handles running the client RPC effects on the server, 
-        // or instant visual culling if it's the client's local fake bubble.
+        }
         base.Pop();
+    }
+
+    [ServerRpc]
+    private void ChangeToEarlyFizzleServerRpc()
+    {
+        ChangeToEarlyFizzleClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToEarlyFizzleClientRpc()
+    {
+        fizzleEffect = earlyFizzleEffect;
+    }
+
+    [ServerRpc]
+    private void ChangeToExplosionServerRpc()
+    {
+        ChangeToExplosionClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToExplosionClientRpc()
+    {
+        fizzleEffect = hitEffect;
     }
 }

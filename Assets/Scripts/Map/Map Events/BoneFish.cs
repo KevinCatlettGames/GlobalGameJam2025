@@ -1,10 +1,13 @@
+using FMODUnity;
+using Steamworks;
 using System;
 using System.Collections;
-using FMODUnity;
+using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.Splines;
 
 
-public class BoneFish : MonoBehaviour
+public class BoneFish : NetworkBehaviour
 {
     private Animator animator;
     [SerializeField] private ParticleSystem hitVFX;
@@ -13,9 +16,24 @@ public class BoneFish : MonoBehaviour
     [SerializeField] private Material swapMaterial;
     [SerializeField] private SkinnedMeshRenderer meshRenderer;
     [SerializeField] private float swapDuration = .15f;
+    [SerializeField] private Countdown countdown;
     private bool isSwapped = false;
+
     private void Start()
     {
+        if (LobbyManager.instance && !LobbyManager.instance.MapSettings[3].PlayWithMapEvent && IsServer)
+            DestroySelfClientRpc();
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            SplineAnimate splineAnimate = GetComponent<SplineAnimate>();
+            splineAnimate.PlayOnAwake = false;
+            splineAnimate.Restart(false);
+
+            if (IsServer && LobbyManager.instance)
+                LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(StartOnlineSplineAnimate);
+        }
+
         animator = GetComponent<Animator>();
     }
 
@@ -26,6 +44,26 @@ public class BoneFish : MonoBehaviour
             PlayEffects();
         }
     }
+
+    private void StartOnlineSplineAnimate()
+    {
+        LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(StartOnlineSplineAnimate);
+        StartSplineAnimateClientRpc();
+    }
+
+    [ClientRpc]
+    private void StartSplineAnimateClientRpc()
+    {
+        SplineAnimate splineAnimate = GetComponent<SplineAnimate>();
+        splineAnimate.Play();
+    }
+
+    [ClientRpc]
+    private void DestroySelfClientRpc()
+    {
+        Destroy(gameObject);
+    }
+
     public float BoneHit()
     {
         PlayEffects();

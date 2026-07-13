@@ -1,4 +1,3 @@
-using FMODUnity;
 using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
@@ -20,11 +19,8 @@ public class RevolverBubble : BasicBubble
         OwnerID = ID;
         direction = dir;
 
-        // Safety: ensure playerCollider isn't null before computing offset
         if (playerCollider != null)
-        {
             offset = transform.position - playerCollider.transform.position;
-        }
         this.playerCollider = playerCollider;
 
         StartCoroutine(EmptyBarrel());
@@ -44,7 +40,6 @@ public class RevolverBubble : BasicBubble
         float rotation = -(maxAmmo - 1);
         rotation *= .5f;
 
-        // Cache the base castID to protect against parent initialization delays
         int baseCastID = this.castID;
 
         for (int i = 0; i < maxAmmo; i++)
@@ -62,8 +57,19 @@ public class RevolverBubble : BasicBubble
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
             int uniqueBulletID = (baseCastID * 10) + i;
 
-            // --- CLIENT / SERVER SPAWN GATE ---
-            if (isLocalFake)
+            if (IsServer)
+            {
+                if (bubbleScript != null)
+                {
+                    bubbleScript.syncedCastID.Value = uniqueBulletID;
+                    bubbleScript.castID = uniqueBulletID;
+                }
+
+                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+                if (netObj != null)
+                    netObj.Spawn();
+            }
+            else if (isLocalFake)
             {
                 Destroy(bubbleObj.GetComponent<NetworkObject>());
                 bubbleObj.layer = LayerMask.NameToLayer("FakeProjectiles");
@@ -77,23 +83,6 @@ public class RevolverBubble : BasicBubble
                     if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
                 }
             }
-            else if (IsServer)
-            {
-                if (bubbleScript != null)
-                {
-                    // CRITICAL FIX: Assign the NetworkVariable *BEFORE* Spawning the object.
-                    // In Netcode for GameObjects, modifying a NetworkVariable right before calling Spawn() 
-                    // ensures the payload is baked into the initial spawn payload packet. 
-                    bubbleScript.syncedCastID.Value = uniqueBulletID;
-                    bubbleScript.castID = uniqueBulletID;
-                }
-
-                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-                if (netObj != null)
-                {
-                    netObj.Spawn();
-                }
-            }
 
             if (bubbleScript != null)
             {
@@ -105,26 +94,31 @@ public class RevolverBubble : BasicBubble
         }
 
         yield return new WaitForSeconds(.1f);
-        if (revolverMesh != null) revolverMesh.enabled = false;
+        if(isLocalFake && visualChildMesh) visualChildMesh.GetComponent<MeshRenderer>().enabled = false;
+        if (IsServer) DisableRevolverMeshClientRpc();
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }
 
+    [ClientRpc]
+    void DisableRevolverMeshClientRpc()
+    {
+        if(revolverMesh)
+            revolverMesh.enabled = false;
+    }
+
     public void AddToHitCount()
     {
-        // Fakes can track hit count locally if desired, but achievements stay server-authoritative
         if (isLocalFake) return;
 
         hitCount++;
         if (hitCount >= maxAmmo)
-        {
             CheckAllShotsHitAchievement();
-        }
     }
 
     private void CheckAllShotsHitAchievement()
     {
-        if (!IsServer) return; // Strict safety check
+        if (!IsServer) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID
             || !SteamIntegration.instance) return;

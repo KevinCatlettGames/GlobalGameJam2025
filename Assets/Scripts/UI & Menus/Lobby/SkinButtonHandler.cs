@@ -124,12 +124,18 @@ public class SkinButtonHandler : MonoBehaviour
 
         if (isSelectedNow)
         {
-            GetComponent<Image>().color = skinSo.Color;
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+                GetComponent<Image>().color = disabledColor;
+            else
+                GetComponent<Image>().color = skinSo.Color;
             shineImage.enabled = true;
         }
         else
         {
-            GetComponent<Image>().color = standardImageColor;
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+                GetComponent<Image>().color = disabledColor;
+            else
+                GetComponent<Image>().color = standardImageColor;
             shineImage.enabled = false;
         }
     }

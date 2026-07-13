@@ -23,14 +23,11 @@ public class CrossBubbler : BasicBubble
 
     private void SpawnCrossShots()
     {
-        // Cache the base castID instantly so the upcoming Destroy() call doesn't corrupt calculations
         int baseCastID = this.castID;
 
-        // Generate unique sub-IDs for the left and right sub-projectiles
         int rightBulletID = (baseCastID * 10) + 1;
         int leftBulletID = (baseCastID * 10) + 2;
 
-        // --- 1. SPAWN RIGHT ---
         Vector3 spawnPosition = transform.position + (transform.right * sideOffset);
         Vector3 crossDirection = (crossPoint - spawnPosition).normalized;
 
@@ -55,7 +52,6 @@ public class CrossBubbler : BasicBubble
         {
             if (scriptRight != null)
             {
-                // CRITICAL FIX: Assign NetworkVariable value BEFORE spawning
                 scriptRight.syncedCastID.Value = rightBulletID;
                 scriptRight.castID = rightBulletID;
             }
@@ -70,7 +66,6 @@ public class CrossBubbler : BasicBubble
         }
 
 
-        // --- 2. SPAWN LEFT ---
         spawnPosition = transform.position + (transform.right * -sideOffset);
         crossDirection = (crossPoint - spawnPosition).normalized;
 
@@ -78,7 +73,18 @@ public class CrossBubbler : BasicBubble
         BasicBubble scriptLeft = bubbleLeft.GetComponent<BasicBubble>();
 
 
-        if (isLocalFake)
+        if (IsServer)
+        {
+            if (scriptLeft != null)
+            {
+                scriptLeft.syncedCastID.Value = leftBulletID;
+                scriptLeft.castID = leftBulletID;
+            }
+
+            NetworkObject netObj = bubbleLeft.GetComponent<NetworkObject>();
+            if (netObj != null) netObj.Spawn();
+        }
+        else if (isLocalFake)
         {
             Destroy(bubbleLeft.GetComponent<NetworkObject>());
             bubbleLeft.layer = LayerMask.NameToLayer("FakeProjectiles");
@@ -92,25 +98,12 @@ public class CrossBubbler : BasicBubble
                 if (playerCtrl != null) playerCtrl.RegisterLocalFake(scriptLeft);
             }
         }
-        else if (IsServer)
-        {
-            if (scriptLeft != null)
-            {
-                // CRITICAL FIX: Assign NetworkVariable value BEFORE spawning
-                scriptLeft.syncedCastID.Value = leftBulletID;
-                scriptLeft.castID = leftBulletID;
-            }
-
-            NetworkObject netObj = bubbleLeft.GetComponent<NetworkObject>();
-            if (netObj != null) netObj.Spawn();
-        }
 
         if (scriptLeft != null)
         {
             scriptLeft.InitialiseBubble(OwnerID, crossDirection, playerCollider);
         }
 
-        // Clean up the factory utility component frame immediately
         Destroy(gameObject);
     }
 }

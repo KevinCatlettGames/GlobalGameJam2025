@@ -57,21 +57,15 @@ public class BasicBubble : NetworkBehaviour
     protected bool isUlt = false;
     protected bool hasHitPlayer = false;
 
+    // Local Fake Variables
     [HideInInspector] public bool isLocalFake = false;
-    [HideInInspector]
-    public NetworkVariable<int> syncedCastID = new NetworkVariable<int>(
-        0,
-        NetworkVariableReadPermission.Everyone,
-        NetworkVariableWritePermission.Server
-    );
-
+    [HideInInspector] public NetworkVariable<int> syncedCastID = new NetworkVariable<int>( 0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
     private int _localFakeCastID;
     [HideInInspector] public Transform serverBubbleTarget;
-    [SerializeField] private Transform visualChildMesh;
+    [SerializeField] protected Transform visualChildMesh;
     [SerializeField] private float visualBlendSpeed = 3f;
     private Vector3 visualOffset;
-    public int castID
-    {
+    public int castID{
         get => isLocalFake ? _localFakeCastID : syncedCastID.Value;
         set
         {
@@ -80,6 +74,11 @@ public class BasicBubble : NetworkBehaviour
         }
     }
     public bool isMeshHiddenForOwner = false;
+    private bool isInitialized = false;
+    private float trackingSpeed = 0f;
+    public float catchUpTime = 0.2f;
+    private float safetyTimer = 0f;
+    public float maxTrackingDuration = 0.35f;
 
     private void Start()
     {
@@ -93,8 +92,9 @@ public class BasicBubble : NetworkBehaviour
         this.playerCollider = playerCollider;
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
-
+        
         RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
@@ -149,16 +149,16 @@ public class BasicBubble : NetworkBehaviour
     public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
+
+        if (!IsOwner)
+            RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+
         if (!IsServer && NetworkManager.Singleton != null)
         {
             if (syncedCastID.Value != 0)
-            {
                 OnCastIDSynced();
-            }
             else
-            {
                 syncedCastID.OnValueChanged += HandleCastIDChange;
-            }
         }
     }
 
@@ -184,10 +184,7 @@ public class BasicBubble : NetworkBehaviour
     public void SetMeshVisibility(bool visible)
     {
         foreach (var renderer in GetComponentsInChildren<Renderer>())
-        {
             renderer.enabled = visible;
-        }
-        Debug.Log("Change mesh visibility: " + visible);
     }
 
     private void FixedUpdate()
@@ -202,20 +199,12 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    private bool isInitialized = false;
-    private float trackingSpeed = 0f;
-    public float catchUpTime = 0.2f;
-    private float safetyTimer = 0f;
-    public float maxTrackingDuration = 0.35f;
-
-    private void Update()
+    protected virtual void Update()
     {
-        // The master safety switch: If this is a local fake, its lifetime *must* be strictly bound
         if (isLocalFake)
         {
             safetyTimer += Time.deltaTime;
 
-            // SCENARIO A: We have a valid target to reconcile towards
             if (serverBubbleTarget != null && visualChildMesh != null)
             {
                 Vector3 worldOffset = serverBubbleTarget.position - transform.position;
@@ -228,33 +217,29 @@ public class BasicBubble : NetworkBehaviour
                     isInitialized = true;
                 }
 
-                // Smoothly slide the mesh toward the server target position
                 visualChildMesh.localPosition = Vector3.MoveTowards(
                     visualChildMesh.localPosition,
                     currentLocalTarget,
                     trackingSpeed * Time.deltaTime
                 );
 
-                // Check if our visuals caught up perfectly
                 if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
                 {
-                    Debug.Log("Performing seamless switch!");
+                    //Debug.Log("Performing seamless switch!");
                     ExecuteHandoffCleanUp();
                     return;
                 }
             }
 
-            // SCENARIO B: Time is up! Clean up regardless of whether a target ever arrived or aligned
             if (safetyTimer >= maxTrackingDuration)
             {
-                Debug.LogWarning($"[Handoff Safety Guard Triggered] Forcing clean up. Target found: {serverBubbleTarget != null}");
+                //Debug.LogWarning($"[Handoff Safety Guard Triggered] Forcing clean up. Target found: {serverBubbleTarget != null}");
                 ExecuteHandoffCleanUp();
                 return;
             }
         }
         else if (visualChildMesh != null)
         {
-            // For non-fakes, make sure local space alignments stay perfectly center frame
             visualChildMesh.localPosition = Vector3.zero;
             isInitialized = false;
         }
@@ -333,10 +318,14 @@ public class BasicBubble : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer) return;
+
+        if (!IsServer && !isLocalFake) return;
+
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            OwnerID = reflector.OwnerID;
+            if (IsServer)
+                OwnerID = reflector.OwnerID;
+
             Vector3 approximateNormal = (transform.position - other.transform.position).normalized;
             Reflect(approximateNormal);
         }
@@ -346,12 +335,20 @@ public class BasicBubble : NetworkBehaviour
     {
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            OwnerID = reflector.OwnerID;
+            if (IsServer) OwnerID = reflector.OwnerID;
             Vector3 reflectNormal = collision.GetContact(0).normal;
             Reflect(reflectNormal);
             return;
         }
-        BubbleCollision(collision.gameObject);
+
+        if (isLocalFake && !collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Bubble"))
+        {
+            HideVisualsAndDisablePhysics();
+            return;
+        }
+
+        if (IsServer)
+            BubbleCollision(collision.gameObject);
     }
 
     public virtual void BubbleCollision(GameObject other)
@@ -399,16 +396,7 @@ public class BasicBubble : NetworkBehaviour
         hasPopped = true;
         StopAllCoroutines();
 
-        if (isLocalFake)
-        {
-            if (fizzleEffect != null)
-            {
-                Instantiate(fizzleEffect, transform.position, Quaternion.identity);
-            }
-
-            HideVisualsAndDisablePhysics();
-        }
-        else if (IsServer)
+        if (IsServer)
         {
             SpawnPopEffectClientRpc(transform.position);
 
@@ -423,7 +411,14 @@ public class BasicBubble : NetworkBehaviour
             NetworkObject.Despawn(true);
             Destroy(gameObject);
         }
+        else if (isLocalFake)
+        {
+            if (fizzleEffect != null)
+                Instantiate(fizzleEffect, transform.position, Quaternion.identity);
+            Destroy(gameObject);
+        }
     }
+
 
     public void HideVisualsAndDisablePhysics()
     {
@@ -440,6 +435,7 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void Reflect(Vector3 normal)
     {
         if (!IsServer && !isLocalFake) return;
+
         if (playerCollider != null && sphereCollider != null)
             Physics.IgnoreCollision(sphereCollider, playerCollider, false);
 
@@ -451,6 +447,7 @@ public class BasicBubble : NetworkBehaviour
             StopCoroutine(rangeCoroutine);
 
         rangeCoroutine = StartCoroutine(BubbleRangeLimit());
+
         if (IsServer)
         {
             damage *= reflectDmgIncrease;
@@ -462,9 +459,7 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && !isLocalFake) return;
         if (isSoaped)
-        {
             speed += soapSecSpeedIncrease;
-        }
         else
         {
             soapSecSpeedIncrease = speed * soapSecSpeedAmp;

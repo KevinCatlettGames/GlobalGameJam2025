@@ -12,11 +12,10 @@ public class SoapBubble : BasicBubble
     private const float raycastDistance = 5f;
 
     private float timer = 0;
-
-    private void Update()
+    protected override void Update()
     {
-        // --- PREDICTION FILTER ---
-        // Only allow execution for the authoritative server instance and your client-side visual prediction fake
+        base.Update();
+
         if (!IsServer && !isLocalFake) return;
         if (soapPuddleObject == null) return;
 
@@ -45,28 +44,9 @@ public class SoapBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return; // Allow processing for the server and local fakes
 
-        // --- LOCAL FAKE SHORT CIRCUIT ---
-        if (isLocalFake)
-        {
-            if (other.CompareTag("Player"))
-            {
-                DropSoapPuddle(true);
-                Pop();
-            }
-            else if (other.CompareTag("Wall"))
-            {
-                Pop();
-            }
-            return;
-        }
-
-        // --- AUTHORITATIVE SERVER COLLISION ---
-        if (other.CompareTag("Player"))
-        {
+        if (IsServer && other.CompareTag("Player"))
             DropSoapPuddle(true);
-        }
 
         base.BubbleCollision(other);
     }

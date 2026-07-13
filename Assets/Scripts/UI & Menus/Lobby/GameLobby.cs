@@ -88,7 +88,6 @@ public class GameLobby : MonoBehaviour
 #if !UNITY_SWITCH
             SteamJoinHandler.instance.SetPlayerReadyToBeJoined(GlobalLobby.CurrentLobby.LobbyCode);
 #endif
-            Debug.Log(GlobalLobby.CurrentLobby.LobbyCode);
         }
         catch (LobbyServiceException e)
         {

@@ -1,4 +1,5 @@
 using FMODUnity;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Unity.Netcode;
@@ -11,7 +12,7 @@ public class LobbyButtons : MonoBehaviour
 {
     public Image startGameRadialFillImage;
     public Image backRadialFillImage;
-    private bool isLeaving; // Prevents the back button from triggering multiple times
+    private bool isLeaving;
     public GameObject mainMenuButton;
 
     [SerializeField] private float startGameHoldDuration = 1f;
@@ -49,13 +50,26 @@ public class LobbyButtons : MonoBehaviour
         ResetStartRadial();
 
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+            NetworkManager.Singleton.OnServerStopped += OnServerStopped;
+        }
+    }
+
+    private void OnServerStopped(bool obj)
+    {
+        LeaveToMainMenu();
     }
 
     private void OnDisable()
     {
+        LeaveToMainMenu();
+
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+            NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
+        }
     }
 
     private void Update()
@@ -66,7 +80,6 @@ public class LobbyButtons : MonoBehaviour
 
     private void HandleStartGameHold()
     {
-        // If the game is already starting, stop checking immediately
         if (playersHoldingStart.Count == 0 || gameStarting)
             return;
 
