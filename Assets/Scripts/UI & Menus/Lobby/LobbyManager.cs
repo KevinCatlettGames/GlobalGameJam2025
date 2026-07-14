@@ -2,8 +2,10 @@ using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
+using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -561,15 +563,23 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    public IEnumerator LoadGameScene()
+    public async Task LoadGameScene()
     {
         HandleLobbyContinueServerRpc();
-        yield return new WaitForSeconds(1f);
+
+        await Task.Delay(1000);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
         {
 #if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (IsServer)
+                {
+                    await GameLobby.instance.LockCurrentLobby();
+                }
+            }
 #endif
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
         }
@@ -577,6 +587,13 @@ public class LobbyManager : NetworkBehaviour
         {
 #if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (IsServer)
+                {
+                    await GameLobby.instance.LockCurrentLobby();
+                }
+            }
 #endif
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }

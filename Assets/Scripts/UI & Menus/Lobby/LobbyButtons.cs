@@ -99,7 +99,7 @@ public class LobbyButtons : MonoBehaviour
         {
             gameStarting = true;
             ResetStartRadial();
-            StartCoroutine(lobbyManager.LoadGameScene());
+            lobbyManager.LoadGameScene();
         }
     }
 

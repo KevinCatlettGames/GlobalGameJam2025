@@ -751,7 +751,11 @@ public class PlayerController : NetworkBehaviour
             }
         }
         else
+        {
+            Instantiate(dashStartEffect, transform.position, transform.rotation);
+            RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             SpawnDashEffectServerRpc();
+        }
     }
 
     private IEnumerator SprintCoroutine()
@@ -799,6 +803,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void SpawnDashEffectClientRpc()
     {
+        if (IsOwner) return;
         if (dashStartEffect != null)
         {
             Instantiate(dashStartEffect, transform.position, transform.rotation);

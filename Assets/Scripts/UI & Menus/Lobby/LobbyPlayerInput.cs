@@ -1,7 +1,8 @@
-using FMOD.Studio;
+﻿using FMOD.Studio;
 using FMODUnity;
 using System;
 using System.Collections;
+using System.Globalization;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -481,15 +482,37 @@ public class LobbyPlayerInput : NetworkBehaviour
 #if !UNITY_SWITCH
     string GetSteamUserName()
     {
-        string userName = "default";
-        if (SteamIntegration.instance && SteamIntegration.instance.SteamInitialized)
+        if (!SteamIntegration.instance || !SteamIntegration.instance.SteamInitialized)
         {
-            string fullName = Steamworks.SteamClient.Name;
-            userName = fullName.Substring(0, Mathf.Min(fullName.Length, 7));
-            if (fullName.Length > 7)
-                userName = userName + ".";
+            return "default";
         }
-        return userName;
+        string fullName = null;
+        try
+        {
+            fullName = Steamworks.SteamClient.Name;
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[Steam] Failed to read SteamClient.Name on this platform: {ex.Message}");
+            return "default";
+        }
+        if (string.IsNullOrWhiteSpace(fullName))
+        {
+            return "default";
+        }
+        fullName = fullName.Trim();
+        StringInfo stringInfo = new StringInfo(fullName);
+        int visibleLength = stringInfo.LengthInTextElements;
+        if (visibleLength <= 7)
+        {
+            return fullName;
+        }
+        string truncatedName = stringInfo.SubstringByTextElements(0, 7);
+        if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
+        {
+            truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);
+        }
+        return truncatedName + ".";
     }
 #endif
 }

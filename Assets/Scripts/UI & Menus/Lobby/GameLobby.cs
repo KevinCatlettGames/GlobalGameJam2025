@@ -306,4 +306,24 @@ public class GameLobby : MonoBehaviour
         joiningLobbyText.enabled = value;
         joiningLobbyText.GetComponent<TextAnimator_TMP>().ResetState();
     }
+
+    public async Task LockCurrentLobby()
+    {
+        try
+        {
+            var updateOptions = new UpdateLobbyOptions
+            {
+                IsPrivate = true,
+                IsLocked = true
+            };
+            Lobby updatedLobby = await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id, updateOptions);
+
+            Debug.Log($"Lobby {updatedLobby.Id} successfully locked down. " +
+                          $"Private: {updatedLobby.IsPrivate}, Locked: {updatedLobby.IsLocked}");
+        }   
+        catch (LobbyServiceException e)
+        {
+            Debug.LogError($"Failed to lock down lobby: {e.Message}");
+        }
+    }
 }

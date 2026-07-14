@@ -130,19 +130,16 @@ public class BasicBubble : NetworkBehaviour
             {
                 this.castID = serverBubble.castID;
             }
-
+            float currentRTT = GetCurrentRTTInSeconds();
+            catchUpTime = Mathf.Clamp(currentRTT * 1.2f, 0.12f, 0.45f);
+            maxTrackingDuration = Mathf.Clamp((currentRTT * 2.5f) + 0.2f, 0.4f, 1.5f);
             Vector3 worldOffset = serverTarget.position - transform.position;
             visualOffset = transform.InverseTransformDirection(worldOffset);
-
             if (rangeCoroutine != null)
                 StopCoroutine(rangeCoroutine);
-
             float trueTimeSpent = worldOffset.magnitude / speed;
-
             float remainingServerLifetime = (range / speed) - trueTimeSpent;
-
             remainingServerLifetime = Mathf.Max(remainingServerLifetime, 0.05f);
-
             rangeCoroutine = StartCoroutine(BubbleRangeLimit(remainingServerLifetime));
         }
     }
@@ -226,7 +223,6 @@ public class BasicBubble : NetworkBehaviour
 
                 if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
                 {
-                    //Debug.Log("Performing seamless switch!");
                     ExecuteHandoffCleanUp();
                     return;
                 }
@@ -234,7 +230,6 @@ public class BasicBubble : NetworkBehaviour
 
             if (safetyTimer >= maxTrackingDuration)
             {
-                //Debug.LogWarning($"[Handoff Safety Guard Triggered] Forcing clean up. Target found: {serverBubbleTarget != null}");
                 ExecuteHandoffCleanUp();
                 return;
             }
@@ -517,5 +512,17 @@ public class BasicBubble : NetworkBehaviour
         if (serverBubbleTarget == null) return;
         Gizmos.color = Color.red;
         Gizmos.DrawSphere(serverBubbleTarget.position, .5f);
+    }
+    private float GetCurrentRTTInSeconds()
+    {
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.NetworkConfig.NetworkTransport != null)
+        {
+            var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport;
+            ulong serverId = NetworkManager.ServerClientId;
+
+            float rttMs = transport.GetCurrentRtt(serverId);
+            return Mathf.Max(rttMs / 1000f, 0.01f);
+        }
+        return 0.1f;
     }
 }
