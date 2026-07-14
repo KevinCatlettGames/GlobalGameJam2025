@@ -1,9 +1,11 @@
 using FMOD.Studio;
 using FMODUnity;
+using System;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
 
 public class LobbyPlayerInput : NetworkBehaviour
@@ -15,12 +17,17 @@ public class LobbyPlayerInput : NetworkBehaviour
     private bool isQuitting;
     bool joined = false;
     public int playerIndex = -1;
-
+    [SerializeField] InputActionAsset switchInputActionAsset;
     private System.IDisposable anyButtonListener;
 
     private void OnEnable()
     {
         playerInput = GetComponent<PlayerInput>();
+
+#if UNITY_SWITCH && !UNITY_EDITOR
+        playerInput.actions = switchInputActionAsset;
+#endif
+
         lobbyManager = LobbyManager.instance;
         if (!lobbyManager.allLobbyPlayerInputs.Contains(this))
         {
@@ -30,7 +37,27 @@ public class LobbyPlayerInput : NetworkBehaviour
         lobbyButtons = LobbyManager.instance.GetComponent<LobbyButtons>();
         lobbyManager.OnLeavingLobby.AddListener(DestroySelf);
 
-        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;               
+    }
+
+    private void Start()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsOwner)
+        {
+            StartCoroutine(WaitAndJoinOnlinePlayer());
+        }
+#if UNITY_SWITCH
+        StartCoroutine(WaitAndJoinOnlinePlayer());
+#endif
+    }
+
+    private IEnumerator WaitAndJoinOnlinePlayer()
+    {
+        playerInput.DeactivateInput();
+        yield return new WaitForSeconds(.5f);
+        InputAction.CallbackContext ctx = new InputAction.CallbackContext();
+        OnJoined(ctx);
+        playerInput.ActivateInput();
     }
 
     private void OnDisable()
@@ -57,19 +84,30 @@ public class LobbyPlayerInput : NetworkBehaviour
             playerInput.user.UnpairDevices();
         playerInput.enabled = true;
 
-        anyButtonListener = InputSystem.onAnyButtonPress.Call(OnDeviceInputReceived);
+        if(IsOwner)
+            anyButtonListener = InputSystem.onEvent.Call(OnInputEventReceived);
     }
 
-    private void OnDeviceInputReceived(InputControl control)
+    private void OnInputEventReceived(InputEventPtr eventPtr)
     {
+        // 1. We only care about events that contain actual input state data
+        if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
+            return;
+
+        // 2. Find which device sent this raw event
+        InputDevice clickedDevice = InputSystem.GetDeviceById(eventPtr.deviceId);
+        if (clickedDevice == null) return;
+
+        // 3. Run your safety/ownership checks
         if (!IsOwner || isQuitting || !playerInput.enabled) return;
 
-        InputDevice clickedDevice = control.device;
-
+        // 4. Filter out Mouse, Touchscreen, and other non-physical device polling
         if (clickedDevice is Mouse || clickedDevice is Touchscreen) return;
 
+        // 5. Check if we actually need to switch devices
         if (playerInput.devices.Count > 0 && playerInput.devices[0] == clickedDevice) return;
 
+        // 6. We found a NEW active device! Run your pairing/switching logic
         playerInput.user.UnpairDevices();
         UnityEngine.InputSystem.Users.InputUser.PerformPairingWithDevice(clickedDevice, user: playerInput.user);
 
@@ -112,6 +150,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnJoined(InputAction.CallbackContext context)
     {
+        Debug.Log("In onjoined");
         if (joined) return;
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
         playerIndex = -1;

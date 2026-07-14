@@ -225,6 +225,11 @@ public class LobbyManager : NetworkBehaviour
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
         }
+#else
+        foreach (var device in InputSystem.devices)
+        {        
+            PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+        }
 #endif
     }
 

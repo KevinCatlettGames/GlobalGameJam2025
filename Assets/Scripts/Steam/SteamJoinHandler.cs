@@ -1,10 +1,14 @@
+#if !UNITY_SWITCH
 using Steamworks;
+#endif 
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections;
 
 public class SteamJoinHandler : MonoBehaviour
 {
+#if !UNITY_SWITCH
+
     public static SteamJoinHandler instance;
     string currentConnectString; 
     bool cameFromLevel = false; 
@@ -81,4 +85,6 @@ public class SteamJoinHandler : MonoBehaviour
         yield return new WaitForSeconds(.5f);
         GameLobby.instance.JoinWithCode(currentConnectString);
     }
+#endif
+
 }
