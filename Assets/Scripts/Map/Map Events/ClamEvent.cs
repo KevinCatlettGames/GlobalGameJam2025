@@ -32,7 +32,7 @@ public class ClamEvent : MapEvent
                 Clam clam = clams[r];
                 int tries = 0;
 
-                while (!clam.IsAvailable)
+                while (!clam.IsAvailble)
                 {
                     r++;
                     if (r >= clams.Length)
@@ -42,8 +42,7 @@ public class ClamEvent : MapEvent
                     if (tries > clams.Length)
                         break;
                 }
-                int chosenSpellID = ItemSpawner.Instance.GetRandomLegalSpellID();
-                ToggleClamClientRpc(r, true, chosenSpellID);
+                ToggleClamClientRpc(r, true);
 
                 currentActiveClams++;
                 timer = 0;
@@ -56,14 +55,14 @@ public class ClamEvent : MapEvent
     }
 
     [ClientRpc]
-    void ToggleClamClientRpc(int index, bool value, int spellID)
+    void ToggleClamClientRpc(int index, bool value)
     {
         if (index < 0 || index >= clams.Length) return;
 
         if (value)
         {
             clams[index].gameObject.SetActive(true);
-            clams[index].Rise(spellID);
+            clams[index].Rise();
         }
         else
             clams[index].DisableClam();
@@ -82,7 +81,7 @@ public class ClamEvent : MapEvent
         isClaming = false;
         if(clams.Length <= 0) return;
         for (int i = 0; i < clams.Length; i++)
-            ToggleClamClientRpc(i, false, 0);
+            ToggleClamClientRpc(i, false);
     }
 
     private void DecreaseActiveClams()
