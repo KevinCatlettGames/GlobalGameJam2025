@@ -20,8 +20,7 @@ public class Clam : MonoBehaviour
     [SerializeField] protected EventReference crunchSoundEvent;
 
     private bool isActive = false;
-    public bool IsAvailable = true;
-
+    public bool IsAvailble = true;
     [Header("Rendering")]
     [SerializeField] private Material[] materials;
     [SerializeField] private Animator animator;
@@ -35,26 +34,27 @@ public class Clam : MonoBehaviour
     {
         radius = GetComponent<SphereCollider>().radius;
     }
-
-    public void Rise(int spellID)
+    public void Rise()
     {
         StopAllCoroutines();
-        StartCoroutine(RiseCoroutine(spellID));
+        StartCoroutine(RiseCoroutine());
     }
 
-    private IEnumerator RiseCoroutine(int spellID)
+    private IEnumerator RiseCoroutine()
     {
-        IsAvailable = false;
+        //Effects
+        //Sound
+        IsAvailble = false;
         int r = Random.Range(0, materials.Length);
         meshRenderer.material = materials[r];
-
         clamItem.gameObject.SetActive(true);
-        clamItem.SetupSpellClientRpc(spellID);
+
+        if(NetworkManager.Singleton.IsServer)
+            clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
 
         riseParticleSystem?.Play();
         animator.Play("Rise");
         pearlAnimator.Play("Rise");
-
         yield return new WaitForSeconds(activeDelay);
         isActive = true;
     }
@@ -64,18 +64,21 @@ public class Clam : MonoBehaviour
         if (isActive && other.CompareTag("Player"))
         {
             isActive = false;
-            animator.SetTrigger("Snap");
-            pearlAnimator.SetTrigger("Snap");
+            //Effects
+            //Sound
+            animator.Play("Snap", 0, 0);
+            pearlAnimator.Play("Snap", 0, 0);
             jumpParticleSystem?.Play();
         }
     }
 
+    // Called by animation
     public void Snap()
     {
+        //Sound
         RuntimeManager.PlayOneShotAttached(crunchSoundEvent, gameObject);
         Collider[] snapOverlaps = Physics.OverlapSphere(transform.position, radius, LayerMask.GetMask("Player"));
         Vector3 direction;
-
         if (snapOverlaps != null && snapOverlaps.Length > 0)
         {
             snapParticleSystem?.Play();
@@ -83,19 +86,19 @@ public class Clam : MonoBehaviour
             {
                 if (col == null) continue;
                 PlayerController player = col.GetComponent<PlayerController>();
-                if (player == null) continue;
-
                 direction = player.GetComponent<CharacterController>().velocity;
 
-                if (NetworkManager.Singleton.IsServer)
+                if (player != null)
                 {
+
                     if (GameManager.Instance.PlayingLocal)
                         player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+
                     else
-                        player.ApplyKnockbackClientRpc(-1, direction, knockback, damage);
+                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
 
                     player.Stun(stunDuration);
-                }
+                }         
             }
         }
         OnSnap?.Invoke();
@@ -112,7 +115,7 @@ public class Clam : MonoBehaviour
         }
         else
         {
-            IsAvailable = true;
+            IsAvailble = true;
             gameObject.SetActive(false);
         }
     }
