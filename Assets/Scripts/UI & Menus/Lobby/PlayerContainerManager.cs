@@ -1,3 +1,4 @@
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -11,6 +12,7 @@ public class PlayerContainerManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI unreadyText;
     [SerializeField] private TextMeshProUGUI readyText;
     [SerializeField] private TextMeshProUGUI youText;
+    public PlayerProfileDisplay playerProfileDisplay;
 
     public bool isReady = false;
     public bool occupied = false;
@@ -68,9 +70,14 @@ public class PlayerContainerManager : MonoBehaviour
         youText.enabled = value;
     }
 
-    public void ToggleYouText(bool value, string userName)
+    public void SetAccountInfo(bool value, string userName, ulong networkSteamID)
     {
+        if (!SteamClient.IsValid || !TransportSwitcher.Instance.isUsingRelay) return;
         youText.enabled = value;
+        if(userName == string.Empty)
+            userName = "Wizzo";
+
         youText.text = userName;
+        playerProfileDisplay.ShowSteamAvatarBySteamID(networkSteamID);
     }
 }

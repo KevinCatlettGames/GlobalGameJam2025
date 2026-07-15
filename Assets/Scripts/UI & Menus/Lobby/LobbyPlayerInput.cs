@@ -8,6 +8,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
+using UnityEngine.UI;
 
 public class LobbyPlayerInput : NetworkBehaviour
 {
@@ -20,6 +21,12 @@ public class LobbyPlayerInput : NetworkBehaviour
     public int playerIndex = -1;
     [SerializeField] InputActionAsset switchInputActionAsset;
     private System.IDisposable anyButtonListener;
+
+    public readonly NetworkVariable<ulong> networkSteamId = new NetworkVariable<ulong>(
+        0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner
+    );
 
     private void OnEnable()
     {
@@ -87,6 +94,14 @@ public class LobbyPlayerInput : NetworkBehaviour
 
         if(IsOwner)
             anyButtonListener = InputSystem.onEvent.Call(OnInputEventReceived);
+
+        if (IsOwner)
+        {
+            if (Steamworks.SteamClient.IsValid)
+            {
+                networkSteamId.Value = Steamworks.SteamClient.SteamId;
+            }
+        }
     }
 
     private void OnInputEventReceived(InputEventPtr eventPtr)
@@ -127,7 +142,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (playerIndex == -1) return;
 
 #if !UNITY_SWITCH
-        UpdateUserNameServerRpc(playerIndex, true, GetSteamUserName());
+        UpdateSteamAccountInfoServerRpc(playerIndex, true, GetSteamUserName(), networkSteamId.Value);
 #endif
     }
 
@@ -171,7 +186,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                     SetOccupiedPlayerContainerServerRpc(playerIndex, true);
 
 #if !UNITY_SWITCH
-                    UpdateUserNameServerRpc(playerIndex, true, GetSteamUserName());
+                    UpdateSteamAccountInfoServerRpc(playerIndex, true, GetSteamUserName(), networkSteamId.Value);
 #endif
                 }
 
@@ -215,15 +230,15 @@ public class LobbyPlayerInput : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    void UpdateUserNameServerRpc(int playerID, bool isActive, string userName)
+    void UpdateSteamAccountInfoServerRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
     {
-        UpdateUserNameClientRpc(playerID, isActive, userName);
+        UpdateSteamAccountInfoClientRpc(playerID, isActive, userName, networkSteamID);
     }
 
     [ClientRpc]
-    void UpdateUserNameClientRpc(int playerID, bool isActive, string userName)
+    void UpdateSteamAccountInfoClientRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
     {
-        lobbyManager.playerContainers[playerID].GetComponent<PlayerContainerManager>().ToggleYouText(isActive, userName);
+        lobbyManager.playerContainers[playerID].GetComponent<PlayerContainerManager>().SetAccountInfo(isActive, userName, networkSteamID);
     }
 
     public void OnConfirmed(InputAction.CallbackContext context)
@@ -319,7 +334,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                     lobbyManager.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().ToggleYouText(false);
 
                     SetOccupiedPlayerContainerServerRpc(playerIndex, false);
-                    UpdateUserNameServerRpc(playerIndex, false, "default");
+                    UpdateSteamAccountInfoServerRpc(playerIndex, false, "Wizzo", networkSteamId.Value);
                     LobbyPlayerValues.Instance.RemovePlayerValueServerRpc(playerIndex);
                 }
 
@@ -484,7 +499,7 @@ public class LobbyPlayerInput : NetworkBehaviour
     {
         if (!SteamIntegration.instance || !SteamIntegration.instance.SteamInitialized)
         {
-            return "default";
+            return "Wizzo";
         }
         string fullName = null;
         try
@@ -494,11 +509,11 @@ public class LobbyPlayerInput : NetworkBehaviour
         catch (Exception ex)
         {
             Debug.LogWarning($"[Steam] Failed to read SteamClient.Name on this platform: {ex.Message}");
-            return "default";
+            return "Wizzo";
         }
         if (string.IsNullOrWhiteSpace(fullName))
         {
-            return "default";
+            return "Wizzo";
         }
         fullName = fullName.Trim();
         StringInfo stringInfo = new StringInfo(fullName);

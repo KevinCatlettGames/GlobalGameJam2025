@@ -48,7 +48,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         if (init && !wasInit)
         {
             currentSkinSelection = allSkinSelections[playerIndex];
-            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateSkin();
@@ -81,7 +81,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         this.currentColorIndex = currentColorIndex;
         this.currentlyOnLocked = currentlyOnLocked;
         this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateSkin();
         UpdateBlur();
@@ -124,7 +124,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     public void ResetContainer()
     {
-        currentSkinSelection.ChangePlayerIcon(-1,playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1,playerIndex, GetComponent<PlayerContainerManager>());
         currentSkinSelection = null;
         emptyPlayerContainer.SetActive(true);
         wasInit = false;
@@ -141,7 +141,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     [ClientRpc]
     void ResetContainerClientRpc()
     {
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         currentSkinSelection = null;
         emptyPlayerContainer.SetActive(true);
         wasInit = false;
@@ -163,7 +163,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
                     break;
                 }
             }
-            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
             currentSkinSelection = availableSkin;
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
@@ -208,7 +208,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         if (availableSkin == null) return; 
 
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         currentSkinSelection = availableSkin;
         currentColorIndex = currentSkinSelection.skinSo.Index;
         avatar.GetComponent<ScaleToCorrectSize>().Play();
@@ -270,13 +270,13 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         {
             avatar.color = Color.gray;
             if (currentSkinSelection)
-                currentSkinSelection.ChangePlayerIcon(1, playerIndex);
+                currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
         else
         {
             avatar.color = Color.white;
             if (currentSkinSelection)
-                currentSkinSelection.ChangePlayerIcon(1, playerIndex);
+                currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
     }
 

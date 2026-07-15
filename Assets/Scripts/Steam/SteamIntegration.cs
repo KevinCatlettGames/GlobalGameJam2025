@@ -114,9 +114,7 @@ public class SteamIntegration : MonoBehaviour
             
             bool success = SteamUserStats.RequestCurrentStats();
             if (success)
-                statsLoaded = true;
-            
-            steamInitialized = true;
+                statsLoaded = true;           
         }
         catch (Exception e)
         {
