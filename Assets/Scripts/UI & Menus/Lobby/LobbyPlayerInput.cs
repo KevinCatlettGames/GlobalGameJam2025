@@ -517,7 +517,8 @@ public class LobbyPlayerInput : NetworkBehaviour
         string fullName = null;
         try
         {
-            fullName = Steamworks.SteamClient.Name;
+            Friend friend = new Friend(networkSteamId.Value);
+            fullName = friend.Name;
         }
         catch (Exception ex)
         {
