@@ -78,6 +78,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         if (NetworkManager.Singleton.LocalClientId != clientID) return;
         init = true;
         wasInit = true;
+        this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         this.currentColorIndex = currentColorIndex;
         this.currentlyOnLocked = currentlyOnLocked;
         this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
@@ -85,6 +86,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateSkin();
         UpdateBlur();
+        foreach(LobbyPlayerInput lobbyPlayerInput in LobbyManager.instance.allLobbyPlayerInputs)
+        {
+            if (lobbyPlayerInput.IsOwner)
+                lobbyPlayerInput.HandleJoinAfterValuesAreShared();
+        }
     }
 
     public void ReadyStateUpdated(int playerIndex, bool state)

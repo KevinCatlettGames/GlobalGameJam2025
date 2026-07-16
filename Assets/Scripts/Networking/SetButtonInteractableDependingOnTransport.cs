@@ -23,7 +23,7 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void Start()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
         transportSwitcher = TransportSwitcher.Instance;
         transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
@@ -37,7 +37,7 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
         if (TransportSwitcher.Instance)
         {

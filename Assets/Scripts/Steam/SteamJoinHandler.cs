@@ -42,14 +42,14 @@ public class SteamJoinHandler : MonoBehaviour
 
     public void SetPlayerReadyToBeJoined(string lobbyId)
     {
-        if (!SteamIntegration.instance.SteamInitialized) return;
+        if (!SteamClient.IsValid) return;
         SteamFriends.SetRichPresence("connect", lobbyId);
         SteamFriends.SetRichPresence("status", "Playing with friends");
     }
 
     public void ClearRichPresence()
     {
-        if (!SteamIntegration.instance.SteamInitialized) return;
+        if (!SteamClient.IsValid) return;
 
         SteamFriends.ClearRichPresence();
     }

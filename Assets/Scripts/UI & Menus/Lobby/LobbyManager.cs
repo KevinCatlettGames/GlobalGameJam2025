@@ -211,6 +211,7 @@ public class LobbyManager : NetworkBehaviour
         {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
         }
 
         ChangeStartButtonState(false);
@@ -255,11 +256,17 @@ public class LobbyManager : NetworkBehaviour
             spell.CanUse = true;
     }
 
-    void OnClientConnectedCallback(ulong playerIndex)
+    void OnClientConnectedCallback(ulong clientID)
     {
         if (!IsServer) return;
         ChangeSelectedGameModeServerRpc();
-        OnClientConnectedWinConditionUpdateServerRpc(playerIndex);
+        OnClientConnectedWinConditionUpdateServerRpc(clientID);
+    }
+
+    void OnClientDisconnectedCallback(ulong clientID)
+    {
+        Debug.Log("Client disconnected with cliendID: " + clientID);
+
     }
 
     private void OnDisable()

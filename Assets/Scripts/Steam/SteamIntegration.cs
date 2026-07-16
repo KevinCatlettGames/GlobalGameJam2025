@@ -13,10 +13,6 @@ public class SteamIntegration : MonoBehaviour
     public bool IsFullVersion => isFullVersion;
 
     private bool statsLoaded = false;
-    
-    [ReadOnly]
-    [SerializeField] private bool steamInitialized = false; 
-    public bool SteamInitialized => steamInitialized;
 
     [Header("Achievements")]
     [SerializeField] string[] achievementNames;
@@ -63,8 +59,7 @@ public class SteamIntegration : MonoBehaviour
         else Destroy(gameObject);
     }
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
-
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
     private void Start()
     {
         try
@@ -80,7 +75,7 @@ public class SteamIntegration : MonoBehaviour
 
     private void Update()
     {
-        if (steamInitialized)
+        if (SteamClient.IsValid)
             SteamClient.RunCallbacks();
     }
 
@@ -97,7 +92,6 @@ public class SteamIntegration : MonoBehaviour
             if (SteamClient.IsValid)
             {
                 bool loaded = SteamUserStats.RequestCurrentStats();
-                steamInitialized = true;
                 
                 if (loaded)
                 {
@@ -118,7 +112,6 @@ public class SteamIntegration : MonoBehaviour
         }
         catch (Exception e)
         {
-            steamInitialized = false;
         }
     }
 #endif
@@ -126,7 +119,7 @@ public class SteamIntegration : MonoBehaviour
     #region Localization
     private void SetLocaleBasedOnSteamLanguage()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
         try
         {
@@ -187,7 +180,7 @@ public class SteamIntegration : MonoBehaviour
     [Button]
     public void UnlockAllAchievements()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
         try
         {
@@ -205,7 +198,7 @@ public class SteamIntegration : MonoBehaviour
 #endif
     }
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
     [Button]
     public void ClearAllAchievements()
@@ -266,9 +259,9 @@ public class SteamIntegration : MonoBehaviour
     [Button]
     public void UnlockAchievement(int achievementNameID)
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
-        if (!steamInitialized) return; 
+        if (!SteamClient.IsValid) return; 
         
         for (int i = 0; i < achievementNames.Length; i++)
         {
@@ -282,7 +275,7 @@ public class SteamIntegration : MonoBehaviour
 #endif
     }
 
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
     [Button]
     public void ClearAchievement(int id)
@@ -303,7 +296,7 @@ public class SteamIntegration : MonoBehaviour
     [Button]
     public void IncrementIntSteamStat(int statNameID, int incrementAmount, int achievementThreshold, int achievementNameID)
     {
-#if (UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN) && !UNITY_SWITCH
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
         if (!isFullVersion) return;  
         

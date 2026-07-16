@@ -14,6 +14,7 @@ public class NetworkAnimatorProxy : NetworkBehaviour
     public void RegisterChildAnimator(Animator realChildAnimator)
     {
         childAnimator = realChildAnimator;
+        parentAnimator.GetComponent<ParticleSystemTrigger>().ParticleSys = childAnimator.GetComponent<ParticleSystemTrigger>().ParticleSys; 
     }
 
     public void SetAnimFloat(string parameterName, float value)
@@ -41,6 +42,16 @@ public class NetworkAnimatorProxy : NetworkBehaviour
         if ((IsLocalPlayer || IsServer) && childAnimator != null)
         {
             childAnimator.SetTrigger(parameterName);
+        }
+    }
+
+    public void SetAnimPlay(string animName, int layer, float normalizedTime)
+    {
+        if (parentAnimator != null) parentAnimator.Play(animName, layer, normalizedTime);
+
+        if ((IsLocalPlayer || IsServer) && childAnimator != null)
+        {
+            childAnimator.Play(animName, layer, normalizedTime);
         }
     }
 

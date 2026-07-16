@@ -849,12 +849,11 @@ public class PlayerController : NetworkBehaviour
     {
         switch (value.x, value.y)
         {
-            case (0, 1): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 1); break;   // EmoteUp
-            case (1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 2); break;  // EmoteRight
-            case (0, -1): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 3); break; // EmoteDown
-            case (-1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimInt("EmoteID", 4); break; // EmoteLeft
+            case (0, 1): GetComponent<NetworkAnimatorProxy>().SetAnimPlay("UP_Emote", 0, 0); break;   // EmoteUp
+            case (1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimPlay("RIGHT_Emote", 0, 0); break;  // EmoteRight
+            case (0, -1): GetComponent<NetworkAnimatorProxy>().SetAnimPlay("DOWN_Emote", 0, 0); break; // EmoteDown
+            case (-1, 0): GetComponent<NetworkAnimatorProxy>().SetAnimPlay("LEFT_Emote", 0, 0); break; // EmoteLeft
         }
-        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Emote");
     }
 
     private void TriggerEmote(Vector2 value)
@@ -1455,13 +1454,9 @@ public class PlayerController : NetworkBehaviour
         trail.Play();
         isDead = false;
         if (GameManager.Instance.PlayingLocal)
-        {
             mainAnimator.Play("Entrance", 0, 0);
-        }
         else
-        {
-            // RPC
-        }
+            PlayAnimServerRpc("Entrance", 0, 0);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1501,7 +1496,6 @@ public class PlayerController : NetworkBehaviour
 
             ActivateCorrectColorServerRpc(skinObject.Index);
 
-            // 1. Get the animator from your newly spawned skin
             mainAnimator = GetComponent<Animator>();
             SetupProxyAnimatorClientRpc();
         }
@@ -1729,6 +1723,18 @@ public class PlayerController : NetworkBehaviour
     private void VictoryAnimClientRpc(bool activationState)
     {
         GetComponent<NetworkAnimatorProxy>().SetAnimBool("Victory", activationState);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlayAnimServerRpc(string animName, int layer, float normalizedTime)
+    {
+        PlayAnimClientRpc(animName, layer, normalizedTime);
+    }
+
+    [ClientRpc]
+    private void PlayAnimClientRpc(string animName, int layer, float normalizedTime)
+    {
+        GetComponent<NetworkAnimatorProxy>().SetAnimPlay(animName, layer, normalizedTime);
     }
     #endregion
 }
