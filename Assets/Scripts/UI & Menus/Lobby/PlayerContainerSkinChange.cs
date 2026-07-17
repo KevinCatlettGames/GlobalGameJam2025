@@ -108,7 +108,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         currentlyOnLocked = isSkinLocked(skinToUse);
         playerTextImage.color = skinToUse.Color;
-        avatar.sprite = skinToUse.LobbySprite;
+        avatar.sprite = skinToUse.SplashArt;
 
         if (currentlyOnLocked)
             avatar.color = Color.gray;
@@ -270,7 +270,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         playerTextImage.color = skinToUse.Color;
-        avatar.sprite = skinToUse.LobbySprite;
+        avatar.sprite = skinToUse.SplashArt;
 
         if (currentlyOnLocked)
         {

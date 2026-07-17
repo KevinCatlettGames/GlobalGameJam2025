@@ -118,7 +118,7 @@ public class PlayerHUD : NetworkBehaviour
                 uiElement.color = skin.Color;
         }
 
-        portraitSprites = skin.GameSprites;
+        portraitSprites = skin.HeadSprites;
         SetPortrait(0);
     }
     public void InitialisePlayerHUD(SkinSO skin)
@@ -127,7 +127,7 @@ public class PlayerHUD : NetworkBehaviour
         {
             uiElement.color = skin.Color;
         }
-        portraitSprites = skin.GameSprites;
+        portraitSprites = skin.HeadSprites;
         SetPortrait(0);
     }
 

@@ -245,7 +245,7 @@ public class ScoreManager : MonoBehaviour
                 panel.gameObject.SetActive(true);
 
                 panel.SetPortrait(
-                    playerHUDs[entry.playerID].Skin.GameSprites[0],
+                    playerHUDs[entry.playerID].Skin.HeadSprites[0],
                     playerHUDs[entry.playerID].Skin.Color,
                     0
                 );
@@ -294,7 +294,7 @@ public class ScoreManager : MonoBehaviour
 
                 for(int j = 0; j < teamPlayers.Count; j++)
                 {
-                    Sprite sprite = teamPlayers.Count > 0 ? teamPlayers[j].CurrentSkinSO.GameSprites[0] : null;
+                    Sprite sprite = teamPlayers.Count > 0 ? teamPlayers[j].CurrentSkinSO.HeadSprites[0] : null;
 
                     panel.SetPortrait(
                         sprite,

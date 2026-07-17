@@ -1508,14 +1508,14 @@ public class PlayerController : NetworkBehaviour
                     foreach (var element in coloredElements)
                         element.color = LobbyManager.instance.TeamColors[0];
 
-                    ScoreManager.Instance.teamModeScorePanels[0].SetTeamPortraits(skinObject.GameSprites[0]);
+                    ScoreManager.Instance.teamModeScorePanels[0].SetTeamPortraits(skinObject.HeadSprites[0]);
                 }
                 else if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 2)
                 {
                     foreach (var element in coloredElements)
                         element.color = LobbyManager.instance.TeamColors[1];
 
-                    ScoreManager.Instance.teamModeScorePanels[1].SetTeamPortraits(skinObject.GameSprites[0]);
+                    ScoreManager.Instance.teamModeScorePanels[1].SetTeamPortraits(skinObject.HeadSprites[0]);
                 }
             }
             else

@@ -84,7 +84,7 @@ public class WinScreenManager : MonoBehaviour
             playerImages[i].sprite =
                 LobbyPlayerValues.Instance
                 .playerValuesList[playerID]
-                .Skin.LobbySprite;
+                .Skin.SplashArt;
 
             if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
             {
