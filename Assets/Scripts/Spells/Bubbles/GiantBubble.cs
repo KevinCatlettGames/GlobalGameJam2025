@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -26,13 +27,22 @@ public class GiantBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        // FIX 1: Shift the position BEFORE running base setup logic. 
+        // This ensures the initial position is perfectly calculated before fakes register or servers serialize.
+        direction = dir.normalized;
         transform.position += direction * extraOffset;
+
+        base.InitialiseBubble(ID, dir, playerCollider);
     }
 
     protected override IEnumerator Inflate()
     {
-        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        if (sphereCollider != null)
+        {
+            sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+            sphereCollider.excludeLayers += LayerMask.GetMask("Bubble");
+        }
+
         bool blink = false;
         while (currentSize < size)
         {
@@ -43,37 +53,61 @@ public class GiantBubble : BasicBubble
             if (!blink && currentSize > size * .9f)
             {
                 blink = true;
-                StartCoroutine(Blink());
+                if (IsServer)
+                {
+                    StartCoroutine(Blink());
+                    StartBlinkClientRpc();
+                }
             }
             yield return null;
         }
 
-        InflateOverlapChack();
+        // Only let the server or an independent local singleplayer frame handle instant overlap pops
+        if (IsServer || (isLocalFake && GameManager.Instance.PlayingLocal))
+        {
+            InflateOverlapChack();
+        }
 
-        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        if (sphereCollider != null)
+        {
+            sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+            sphereCollider.excludeLayers -= LayerMask.GetMask("Bubble");
+        }
+
         stationaryParticleSystem.Stop();
         bigParticleSystem.Play();
         hasInflated = true;
+
+        if (IsServer)
+            SetVFXAfterInflationClientRpc();
     }
 
     protected override void BubbleMovement()
     {
         if (!IsServer && !isLocalFake) return;
         if (!hasInflated) return;
+
         base.BubbleMovement();
     }
+
     private IEnumerator Blink()
     {
-        GetComponent<Animation>().Play();
-        Material[] materials = meshRenderer.materials;
-        meshRenderer.materials = blinkMaterials;
-        yield return new WaitForSeconds(.15f);
-        meshRenderer.materials = materials;
+        if (GetComponent<Animation>() != null) GetComponent<Animation>().Play();
+        if (meshRenderer != null)
+        {
+            Material[] materials = meshRenderer.materials;
+            meshRenderer.materials = blinkMaterials;
+            yield return new WaitForSeconds(.15f);
+            meshRenderer.materials = materials;
+        }
     }
+
     public override void BubbleCollision(GameObject other)
     {
+        // FIX 2: Local fakes must NEVER process authority collisions, or they destroy themselves prematurely!
         if (isLocalFake) return;
         if (hasPopped) return;
+
         if (!isSmall && other.CompareTag("Bubble"))
         {
             isSmall = true;
@@ -82,14 +116,19 @@ public class GiantBubble : BasicBubble
             speed *= speedMod;
             hitEffect = smallHitEffect;
             spellType = SpellType.SmallerGiant;
-            bigTrail.emitting = false;
-            smallTrail.emitting = true;
+            if (bigTrail != null) bigTrail.emitting = false;
+            if (smallTrail != null) smallTrail.emitting = true;
             size *= sizMod;
             transform.localScale = Vector3.one * size;
             bigParticleSystem.Stop();
             smallParticleSystem.Play();
+
+            if (IsServer)
+                SetCollisionStateClientRpc();
+
             return;
         }
+
         if (!isSmall && other.CompareTag("Player"))
         {
             Vector3 v = other.transform.position - transform.position;
@@ -106,5 +145,38 @@ public class GiantBubble : BasicBubble
         }
 
         base.BubbleCollision(other);
+    }
+
+    [ClientRpc]
+    void SetVFXAfterInflationClientRpc()
+    {
+        if (IsServer) return;
+        stationaryParticleSystem.Stop();
+        bigParticleSystem.Play();
+    }
+
+    [ClientRpc]
+    void StartBlinkClientRpc()
+    {
+        if (IsServer) return;
+        StartCoroutine(Blink());
+    }
+
+    [ClientRpc]
+    void SetCollisionStateClientRpc()
+    {
+        if (IsServer) return;
+        isSmall = true;
+        damage = dmgMini;
+        knockback *= knbMod;
+        speed *= speedMod;
+        hitEffect = smallHitEffect;
+        spellType = SpellType.SmallerGiant;
+        if (bigTrail != null) bigTrail.emitting = false;
+        if (smallTrail != null) smallTrail.emitting = true;
+        size *= sizMod;
+        transform.localScale = Vector3.one * size;
+        bigParticleSystem.Stop();
+        smallParticleSystem.Play();
     }
 }

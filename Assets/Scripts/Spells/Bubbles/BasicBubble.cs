@@ -121,30 +121,7 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    public void InitializeReconciliation(Transform serverTarget)
-    {
-        serverBubbleTarget = serverTarget;
-        if (visualChildMesh != null && serverTarget != null)
-        {
-            if (serverTarget.TryGetComponent<BasicBubble>(out var serverBubble))
-            {
-                this.castID = serverBubble.castID;
-            }
-            float currentRTT = GetCurrentRTTInSeconds();
-            catchUpTime = Mathf.Clamp(currentRTT * 1.2f, 0.12f, 0.45f);
-            maxTrackingDuration = Mathf.Clamp((currentRTT * 2.5f) + 0.2f, 0.4f, 1.5f);
-            Vector3 worldOffset = serverTarget.position - transform.position;
-            visualOffset = transform.InverseTransformDirection(worldOffset);
-            if (rangeCoroutine != null)
-                StopCoroutine(rangeCoroutine);
-            float trueTimeSpent = worldOffset.magnitude / speed;
-            float remainingServerLifetime = (range / speed) - trueTimeSpent;
-            remainingServerLifetime = Mathf.Max(remainingServerLifetime, 0.05f);
-            rangeCoroutine = StartCoroutine(BubbleRangeLimit(remainingServerLifetime));
-        }
-    }
-
-    public override void OnNetworkSpawn()
+   public override void OnNetworkSpawn()
     {
         base.OnNetworkSpawn();
 
@@ -153,15 +130,24 @@ public class BasicBubble : NetworkBehaviour
 
         if (!IsServer && NetworkManager.Singleton != null)
         {
+            Debug.Log("Init handoff in onnetworkspawn");
+
             if (syncedCastID.Value != 0)
+            {
+                Debug.Log("Was synced, sharing id");
                 OnCastIDSynced();
+            }
             else
+            {
+                Debug.Log("Was not synced, waiting");
                 syncedCastID.OnValueChanged += HandleCastIDChange;
+            }
         }
     }
 
     private void HandleCastIDChange(int previousValue, int newValue)
     {
+        Debug.Log("Syncing");
         syncedCastID.OnValueChanged -= HandleCastIDChange;
         OnCastIDSynced();
     }
@@ -173,16 +159,18 @@ public class BasicBubble : NetworkBehaviour
         {
             if (p.IsLocalPlayer)
             {
+                Debug.Log("Making server bubble invisible");
+                Debug.Log("Triggering handoff");
                 p.TriggerHandoff(this, this.castID);
                 break;
             }
         }
     }
 
-    public void SetMeshVisibility(bool visible)
+    public void DisableMeshVisiblity()
     {
         foreach (var renderer in GetComponentsInChildren<Renderer>())
-            renderer.enabled = visible;
+            renderer.enabled = false;
     }
 
     private void FixedUpdate()
@@ -195,69 +183,6 @@ public class BasicBubble : NetworkBehaviour
         {
             BubbleMovement();
         }
-    }
-
-    protected virtual void Update()
-    {
-        if (isLocalFake)
-        {
-            safetyTimer += Time.deltaTime;
-
-            if (serverBubbleTarget != null && visualChildMesh != null)
-            {
-                Vector3 worldOffset = serverBubbleTarget.position - transform.position;
-                Vector3 currentLocalTarget = transform.InverseTransformDirection(worldOffset);
-
-                if (!isInitialized)
-                {
-                    float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                    trackingSpeed = initialDistance / catchUpTime;
-                    isInitialized = true;
-                }
-
-                visualChildMesh.localPosition = Vector3.MoveTowards(
-                    visualChildMesh.localPosition,
-                    currentLocalTarget,
-                    trackingSpeed * Time.deltaTime
-                );
-
-                if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
-                {
-                    ExecuteHandoffCleanUp();
-                    return;
-                }
-            }
-
-            if (safetyTimer >= maxTrackingDuration)
-            {
-                ExecuteHandoffCleanUp();
-                return;
-            }
-        }
-        else if (visualChildMesh != null)
-        {
-            visualChildMesh.localPosition = Vector3.zero;
-            isInitialized = false;
-        }
-    }
-
-    private void ExecuteHandoffCleanUp()
-    {
-        if (serverBubbleTarget != null)
-        {
-            BasicBubble realBubble = serverBubbleTarget.GetComponent<BasicBubble>();
-            if (realBubble != null)
-            {
-                realBubble.SetMeshVisibility(true);
-                realBubble.isMeshHiddenForOwner = false;
-
-                var realCollider = realBubble.GetComponent<Collider>();
-                if (realCollider != null) realCollider.enabled = true;
-            }
-        }
-
-        serverBubbleTarget = null;
-        Destroy(gameObject);
     }
 
     protected virtual IEnumerator Inflate()
@@ -307,20 +232,17 @@ public class BasicBubble : NetworkBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (hasPopped) return;
-        if (!IsServer) return;
         HandleCollision(collision);
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (hasPopped || other == null) return;
-
         if (!IsServer && !isLocalFake) return;
 
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            if (IsServer)
-                OwnerID = reflector.OwnerID;
+            OwnerID = reflector.OwnerID;
 
             Vector3 approximateNormal = (transform.position - other.transform.position).normalized;
             Reflect(approximateNormal);
@@ -331,7 +253,7 @@ public class BasicBubble : NetworkBehaviour
     {
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            if (IsServer) OwnerID = reflector.OwnerID;
+            if (IsServer && !isLocalFake) OwnerID = reflector.OwnerID;
             Vector3 reflectNormal = collision.GetContact(0).normal;
             Reflect(reflectNormal);
             return;
@@ -447,8 +369,8 @@ public class BasicBubble : NetworkBehaviour
         if (IsServer)
         {
             damage *= reflectDmgIncrease;
-            isReflected = true;
         }
+        isReflected = true;
     }
 
     public virtual void SetSlippy()
@@ -484,7 +406,7 @@ public class BasicBubble : NetworkBehaviour
 
     private void DestroyBubble()
     {
-        if (!IsServer) return;
+        if (IsServer) return;
         NetworkObject.Despawn(true);
         Destroy(gameObject);
     }
@@ -505,24 +427,5 @@ public class BasicBubble : NetworkBehaviour
             1,
             steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
             steamIntegration.missedShotAchievementID);
-    }
-
-    private void OnDrawGizmos()
-    {
-        if (serverBubbleTarget == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(serverBubbleTarget.position, .5f);
-    }
-    private float GetCurrentRTTInSeconds()
-    {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.NetworkConfig.NetworkTransport != null)
-        {
-            var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-            ulong serverId = NetworkManager.ServerClientId;
-
-            float rttMs = transport.GetCurrentRtt(serverId);
-            return Mathf.Max(rttMs / 1000f, 0.01f);
-        }
-        return 0.1f;
     }
 }

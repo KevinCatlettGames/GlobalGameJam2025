@@ -5,8 +5,6 @@ using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Splines;
-
-
 public class BoneFish : NetworkBehaviour
 {
     private Animator animator;
@@ -18,7 +16,9 @@ public class BoneFish : NetworkBehaviour
     [SerializeField] private float swapDuration = .15f;
     [SerializeField] private Countdown countdown;
     private bool isSwapped = false;
-
+    public NetworkVariable<float> NormalizedTime = new NetworkVariable<float>(0f);
+    [SerializeField] bool useInterpolation = true;
+    private SplineAnimate splineAnimate;
     private void Start()
     {
         if (LobbyManager.instance && !LobbyManager.instance.MapSettings[3].PlayWithMapEvent && IsServer)
@@ -26,7 +26,6 @@ public class BoneFish : NetworkBehaviour
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            SplineAnimate splineAnimate = GetComponent<SplineAnimate>();
             splineAnimate.PlayOnAwake = false;
             splineAnimate.Restart(false);
 
@@ -36,6 +35,8 @@ public class BoneFish : NetworkBehaviour
 
         animator = GetComponent<Animator>();
     }
+
+    private void Awake() => splineAnimate = GetComponent<SplineAnimate>();
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -70,15 +71,50 @@ public class BoneFish : NetworkBehaviour
         return damage;
     }
 
+    private void Update()
+    {
+        if (!useInterpolation) return;
+
+        if (IsServer)
+        {
+            if (Time.time % 0.1f < Time.deltaTime)
+            {
+                NormalizedTime.Value = splineAnimate.ElapsedTime / splineAnimate.Duration;
+            }
+        }
+        else
+        {
+            float targetTime = NormalizedTime.Value * splineAnimate.Duration;
+            splineAnimate.ElapsedTime = Mathf.Lerp(splineAnimate.ElapsedTime, targetTime, Time.deltaTime * 10f);
+        }
+    }
+
     private void PlayEffects()
     {
         animator?.SetTrigger("Hit");
-        if(!isSwapped)
+        if (!isSwapped)
+            StartCoroutine(MaterialSwap());
+        RuntimeManager.PlayOneShotAttached(hitEvent, gameObject);
+        if (hitVFX)
+            hitVFX.Play();
+
+        if (IsServer)
+            PlayEffectsClientRpc();
+    }
+
+    [ClientRpc]
+    void PlayEffectsClientRpc()
+    {
+        if (IsServer) return;
+        animator?.SetTrigger("Hit");
+        if (!isSwapped)
             StartCoroutine(MaterialSwap());
         RuntimeManager.PlayOneShotAttached(hitEvent, gameObject);
         if (hitVFX)
             hitVFX.Play();
     }
+
+
 
     private IEnumerator MaterialSwap()
     {

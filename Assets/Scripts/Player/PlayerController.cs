@@ -715,14 +715,10 @@ public class PlayerController : NetworkBehaviour
 
         if (localFake != null)
         {
-            localFake.InitializeReconciliation(realNetworkBubble.transform);
-            realNetworkBubble.SetMeshVisibility(false);
+            Debug.Log("Hiding server mesh");
+            //localFake.InitializeReconciliation(realNetworkBubble.transform);
+            realNetworkBubble.DisableMeshVisiblity();
             realNetworkBubble.isMeshHiddenForOwner = true;
-        }
-        else
-        {
-            realNetworkBubble.SetMeshVisibility(true);
-            realNetworkBubble.isMeshHiddenForOwner = false;
         }
     }
 

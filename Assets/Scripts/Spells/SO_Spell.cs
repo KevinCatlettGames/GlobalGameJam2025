@@ -52,12 +52,8 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
-            float rttInMs = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(senderClientId);
-            float oneWayTime = (rttInMs / 2f) / 1000f + (Time.fixedDeltaTime / 2f);
-
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleInstance.transform.position += dir * (serverScript.Speed * oneWayTime);
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
 
@@ -67,8 +63,6 @@ public class SO_Spell : ScriptableObject
         else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
         {
             GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
-
-            fakeInstance.layer = LayerMask.NameToLayer("FakeProjectiles");
 
             BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
             if (fakeScript != null)

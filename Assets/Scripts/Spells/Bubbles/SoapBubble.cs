@@ -12,10 +12,8 @@ public class SoapBubble : BasicBubble
     private const float raycastDistance = 5f;
 
     private float timer = 0;
-    protected override void Update()
+    protected void Update()
     {
-        base.Update();
-
         if (!IsServer && !isLocalFake) return;
         if (soapPuddleObject == null) return;
 

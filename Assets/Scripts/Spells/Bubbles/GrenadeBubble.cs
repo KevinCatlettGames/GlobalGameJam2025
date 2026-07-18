@@ -27,13 +27,10 @@ public class GrenadeBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        // --- PREDICTION FILTER ---
-        // Allow the local visual fake to process the physics trajectory calculations
         if (!IsServer && !isLocalFake) return;
 
         progress += speed * Time.fixedDeltaTime;
 
-        // Prevents NaN or division by zero runtime issues if range is somehow configured to 0
         float evaluationPoint = range > 0f ? (progress / range) : 0f;
         transform.position = new Vector3(transform.position.x, arc.Evaluate(evaluationPoint), transform.position.z);
 
@@ -53,18 +50,20 @@ public class GrenadeBubble : BasicBubble
 
         if (isLocalFake)
         {
-            // Instantly transition to explosion visual effects locally on impact
             fizzleEffect = hitEffect;
+            if(IsServer)
+                ChangeHitEffectClientRpc();
             Pop();
             return;
         }
 
-        // --- AUTHORITATIVE SERVER COLLISION DETECTION ---
         if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
         fizzleEffect = hitEffect;
+        if (IsServer)
+            ChangeHitEffectClientRpc();
         Pop();
     }
 
@@ -80,12 +79,12 @@ public class GrenadeBubble : BasicBubble
         if (hasExploded) return;
         hasExploded = true;
         fizzleEffect = hitEffect;
+        if (IsServer)
+            ChangeHitEffectClientRpc();
 
-        // --- LOCAL FAKE SHORT CIRCUIT ---
-        // Don't calculate server damage cascades or instantiate networked assets if this is a local visual prediction asset
         if (isLocalFake) return;
 
-        // --- AUTHORITATIVE SERVER RADIAL EXPLOSION LOGIC ---
+
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -148,8 +147,14 @@ public class GrenadeBubble : BasicBubble
 
     protected override void Reflect(Vector3 normal)
     {
-        // Reset path arc progress evaluation upon reflecting off shields
         progress = 0;
         base.Reflect(normal);
+    }
+
+    [ClientRpc]
+    void ChangeHitEffectClientRpc()
+    {
+        if (IsServer) return;
+        fizzleEffect = hitEffect;
     }
 }
