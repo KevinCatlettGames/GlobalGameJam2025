@@ -1251,6 +1251,41 @@ PrefabInstance:
       propertyPath: m_Shadows.m_Strength
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 699212850}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SwitchToOrtho
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: LiquidShaderSwitcher, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2114904536864272894, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -2428,6 +2463,18 @@ MeshCollider:
   m_Convex: 0
   m_CookingOptions: 30
   m_Mesh: {fileID: -5550789969994023786, guid: 8c7292f19d082624e96e476908ab8183, type: 3}
+--- !u!114 &699212850
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 699212845}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d550afeacb2974d91bcccc914fa7b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!4 &749040017 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 8730449393491562013, guid: 911b24a023c9b7b4d9082940e063c280,
@@ -4815,6 +4862,10 @@ PrefabInstance:
         type: 3}
       insertIndex: -1
       addedObject: {fileID: 699212849}
+    - targetCorrespondingSourceObject: {fileID: -8962054025841904161, guid: 8c7292f19d082624e96e476908ab8183,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 699212850}
   m_SourcePrefab: {fileID: 100100000, guid: 8c7292f19d082624e96e476908ab8183, type: 3}
 --- !u!1001 &1439572795
 PrefabInstance:
