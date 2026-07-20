@@ -24625,7 +24625,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a4da923cadad849987b66cbd1373ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localOnlineMenu: {fileID: 1615264941}
 --- !u!1 &1596318190
 GameObject:
   m_ObjectHideFlags: 0
@@ -28510,7 +28509,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isFullVersion: 1
-  steamInitialized: 0
   achievementNames:
   - ZERO_DAMAGE_TAKEN
   - X_DAMAGE_TAKEN
@@ -29356,9 +29354,9 @@ MonoBehaviour:
   m_UseWebSockets: 0
   m_UseEncryption: 0
   m_MaxPacketQueueSize: 1024
-  m_MaxPayloadSize: 32768
-  m_HeartbeatTimeoutMS: 500
-  m_ConnectTimeoutMS: 5000
+  m_MaxPayloadSize: 6144
+  m_HeartbeatTimeoutMS: 3000
+  m_ConnectTimeoutMS: 10000
   m_MaxConnectAttempts: 60
   m_DisconnectTimeoutMS: 30000
   ConnectionData:
