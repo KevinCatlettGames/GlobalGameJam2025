@@ -1,11 +1,9 @@
 using FMODUnity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
-using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -265,8 +263,7 @@ public class LobbyManager : NetworkBehaviour
 
     void OnClientDisconnectedCallback(ulong clientID)
     {
-        Debug.Log("Client disconnected with cliendID: " + clientID);
-
+        //Debug.Log("Client disconnected with cliendID: " + clientID);
     }
 
     private void OnDisable()

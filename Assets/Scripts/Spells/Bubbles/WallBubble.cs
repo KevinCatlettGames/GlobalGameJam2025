@@ -1,6 +1,4 @@
-using FMODUnity;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 
 public class WallBubble : BasicBubble
@@ -22,7 +20,7 @@ public class WallBubble : BasicBubble
         }
         else
         {
-            Debug.LogWarning("Reflector component missing on WallBubble.");
+            //Debug.LogWarning("Reflector component missing on WallBubble.");
         }
 
         canMiss = false;
@@ -31,7 +29,7 @@ public class WallBubble : BasicBubble
 
     public override void HandleTrigger(Collider other)
     {
-        Debug.Log("In Walls handle trigger");
+        //Debug.Log("In Walls handle trigger");
         if (hasPopped || other == null) return;
 
         if (other.CompareTag("Player"))
@@ -42,7 +40,7 @@ public class WallBubble : BasicBubble
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
-            Debug.Log("Fake wall hit by bubble");
+            //Debug.Log("Fake wall hit by bubble");
             foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
             {
                 if (renderer != null && dmgedOutline != null)

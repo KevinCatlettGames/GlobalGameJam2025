@@ -72,7 +72,7 @@ public class BasicBubble : NetworkBehaviour
         {
             if (GetComponent<Collider>())
             {
-                Debug.Log("Collision ignored between client bubble: " + transform.name + " and player with id: " + ID);
+                //Debug.Log("Collision ignored between client bubble: " + transform.name + " and player with id: " + ID);
                 Physics.IgnoreCollision(GetComponent<Collider>(), GameManager.Instance.Players[ID].GetComponent<Collider>());
             }
         }
@@ -139,7 +139,7 @@ public class BasicBubble : NetworkBehaviour
             if (hit == myCollider) continue;
             if (hit.TryGetComponent<BasicBubble>(out var bubble) && bubble.isLocalFake)
             {
-                Debug.Log($"[{gameObject.name}] Found local fake ({hit.name}). Ignoring physics collision.");
+                //Debug.Log($"[{gameObject.name}] Found local fake ({hit.name}). Ignoring physics collision.");
                 Physics.IgnoreCollision(myCollider, hit, true);
                 break;
             }
@@ -161,27 +161,24 @@ public class BasicBubble : NetworkBehaviour
     {     
         if (IsServer || isLocalFake) return;
 
-        // Guard clause for array indexing safely:
-        // Make sure the ID isn't negative, fits in the array, and the element isn't null
         if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
         if (GameManager.Instance.Players[currentCasterId] == null) return;
 
-        // Check if the player in that array index is the local owner
         if (GameManager.Instance.Players[currentCasterId].IsOwner)
         {
-            Debug.Log("Disabling visibility for the casting client to prevent duplicate visuals.");
+            //Debug.Log("Disabling visibility for the casting client to prevent duplicate visuals.");
             foreach (var renderer in GetComponentsInChildren<Renderer>())
                 renderer.enabled = false;
 
             foreach (ParticleSystem particleSystem in GetComponentsInChildren<ParticleSystem>())
             {
-                Debug.Log("disabling particlesystem:" + particleSystem.name);
+                //Debug.Log("disabling particlesystem:" + particleSystem.name);
                 particleSystem.gameObject.SetActive(false);
             }
 
             foreach (TrailRenderer trailRenderer in GetComponentsInChildren<TrailRenderer>())
             {
-                Debug.Log("disabling trailrenderer:" + trailRenderer.name);
+                //Debug.Log("disabling trailrenderer:" + trailRenderer.name);
                 trailRenderer.enabled = false;
             }
         }
@@ -303,13 +300,13 @@ public class BasicBubble : NetworkBehaviour
     public virtual void BubbleCollision(GameObject other)
     {
         if (isLocalFake)
-            Debug.Log("Fake in main bubble collision");
+            //Debug.Log("Fake in main bubble collision");
 
         if (hasPopped) return;
         if (other.CompareTag("Player"))
         {
             if (isLocalFake)
-                Debug.Log("Fake pop with player");
+                //Debug.Log("Fake pop with player");
 
             if (IsServer)
             {
@@ -331,7 +328,7 @@ public class BasicBubble : NetworkBehaviour
             if (popOnPlayerHit)
             {
                 if (isLocalFake)
-                    Debug.Log("Fake popping on player hit");
+                    //Debug.Log("Fake popping on player hit");
                 Pop();
             }
         }
@@ -339,23 +336,23 @@ public class BasicBubble : NetworkBehaviour
         {
             if (isLocalFake)
             {
-                Debug.Log("Fake pop with bubble");
+                //Debug.Log("Fake pop with bubble");
             }
 
             if (popOnBubbleHit)
             {
-                Debug.Log("Fake popping on bubble hit");
+                //Debug.Log("Fake popping on bubble hit");
                 Pop();
             }
         }
         else if (isLocalFake && other.CompareTag("Puddle"))
         {
-            Debug.Log("Fake trigger on Puddle");
+            //Debug.Log("Fake trigger on Puddle");
             return;
         }
         else
         {
-            Debug.Log("Fake popping on something else");
+            //Debug.Log("Fake popping on something else");
             Pop();
         }
     }
@@ -363,7 +360,7 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void Pop()
     {
         if (isLocalFake)
-            Debug.Log("Fake in main pop");
+            //Debug.Log("Fake in main pop");
 
         if (hasPopped) return;
         if (!IsServer && !isLocalFake) return;
@@ -401,7 +398,7 @@ public class BasicBubble : NetworkBehaviour
     protected virtual void Reflect(Vector3 normal)
     {
         if (isLocalFake)
-            Debug.Log("Fake in reflect");
+            //Debug.Log("Fake in reflect");
 
         if (!IsServer && !isLocalFake) return;
 
@@ -427,7 +424,7 @@ public class BasicBubble : NetworkBehaviour
     public virtual void SetSlippy()
     {
         if (isLocalFake)
-            Debug.Log("Fake in set slippy");
+            //Debug.Log("Fake in set slippy");
 
         if (!IsServer && !isLocalFake) return;
         if (isSoaped)
@@ -443,7 +440,7 @@ public class BasicBubble : NetworkBehaviour
     public void ChangeSpeed(float factor)
     {
         if (isLocalFake)
-            Debug.Log("Fake in change speed");
+            //Debug.Log("Fake in change speed");
         if (!IsServer && !isLocalFake) return;
         speed *= factor;
     }

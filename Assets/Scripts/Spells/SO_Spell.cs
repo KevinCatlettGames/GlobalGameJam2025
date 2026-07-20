@@ -52,7 +52,7 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
-            Debug.Log("Spawning server bubble");
+            //Debug.Log("Spawning server bubble");
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
 
             if (ID != 0)
@@ -70,7 +70,7 @@ public class SO_Spell : ScriptableObject
         }
         else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
         {
-            Debug.Log("Spawning fake bubble");
+            //Debug.Log("Spawning fake bubble");
             GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
 
             BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();

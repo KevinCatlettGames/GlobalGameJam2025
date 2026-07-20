@@ -15,7 +15,6 @@ public class SlashBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         canMiss = false;
 
-        // Ensure coroutines fire off for both the authoritative server instance and local visual fakes
         StartCoroutine(StartSlashers());
     }
 
@@ -31,7 +30,6 @@ public class SlashBubble : BasicBubble
             yield return null;
         }
 
-        // Initialize sub-slasher configuration parameters safely
         if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
         if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
 
@@ -40,7 +38,6 @@ public class SlashBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        // Allow tracking of casting player anchor position across both execution contexts
         if (playerCollider != null)
         {
             transform.position = playerCollider.transform.position;
@@ -68,11 +65,10 @@ public class SlashBubble : BasicBubble
     public void SlasherHit(Vector3 slasherDir, GameObject other)
     {
         if (other == null) return;
-        if (!IsServer && !isLocalFake) return; // Ignore unmanaged remote proxy scripts
+        if (!IsServer && !isLocalFake) return;
 
         direction = slasherDir;
 
-        // --- 1. REFLECTION HANDLING (Shared logic to keep rotations synchronized) ---
         if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             if (IsServer)
@@ -83,22 +79,18 @@ public class SlashBubble : BasicBubble
             return;
         }
 
-        // --- 2. LOCAL FAKE SHORT CIRCUIT ---
         if (isLocalFake)
         {
-            // If the local melee fake intersects an enemy projectile, simulate a clash visual pop on it instantly
             if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble clientBubble))
             {
                 if (clientBubble.OwnerID != OwnerID)
                 {
-                    // Trigger dynamic local popping simulation behavior on opposing client projectile
                     clientBubble.BubbleCollision(gameObject);
                 }
             }
             return;
         }
 
-        // --- 3. AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble serverBubble))
         {
             if (serverBubble.OwnerID != OwnerID)
@@ -114,7 +106,7 @@ public class SlashBubble : BasicBubble
     {
         if (isReflected) return;
         isReflected = !isReflected;
-        speed *= -1f; // Inverts the spin direction natively for client-side matching!
+        speed *= -1f;
 
         if (rangeCoroutine != null)
             StopCoroutine(rangeCoroutine);

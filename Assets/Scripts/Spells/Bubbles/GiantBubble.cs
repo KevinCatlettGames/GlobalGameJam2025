@@ -27,8 +27,6 @@ public class GiantBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        // FIX 1: Shift the position BEFORE running base setup logic. 
-        // This ensures the initial position is perfectly calculated before fakes register or servers serialize.
         direction = dir.normalized;
         transform.position += direction * extraOffset;
 
@@ -64,7 +62,6 @@ public class GiantBubble : BasicBubble
             yield return null;
         }
 
-        // Only let the server or an independent local singleplayer frame handle instant overlap pops
         if (IsServer || isLocalFake)
         {
             InflateOverlapChack();
