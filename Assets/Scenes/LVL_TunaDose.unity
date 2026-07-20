@@ -2008,6 +2008,41 @@ PrefabInstance:
       propertyPath: m_Shadows.m_Strength
       value: 0.75
       objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Mode
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 3215789593906131612}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_CallState
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
+      value: SwitchToOrtho
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_TargetAssemblyTypeName
+      value: LiquidShaderSwitcher, Assembly-CSharp
+      objectReference: {fileID: 0}
+    - target: {fileID: 2006587159417522799, guid: 911b24a023c9b7b4d9082940e063c280,
+        type: 3}
+      propertyPath: onCinematicEnd.m_PersistentCalls.m_Calls.Array.data[0].m_Arguments.m_ObjectArgumentAssemblyTypeName
+      value: UnityEngine.Object, UnityEngine
+      objectReference: {fileID: 0}
     - target: {fileID: 2114904536864272894, guid: 911b24a023c9b7b4d9082940e063c280,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -3969,6 +4004,7 @@ GameObject:
   - component: {fileID: 2625771411973405974}
   - component: {fileID: 2922098284488798074}
   - component: {fileID: 1514036299}
+  - component: {fileID: 3215789593906131612}
   m_Layer: 9
   m_Name: Dose_lp.001
   m_TagString: Ground
@@ -3976,6 +4012,18 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 127
   m_IsActive: 1
+--- !u!114 &3215789593906131612
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3215789593906131611}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a0d550afeacb2974d91bcccc914fa7b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &5928119933828013035
 PrefabInstance:
   m_ObjectHideFlags: 0
