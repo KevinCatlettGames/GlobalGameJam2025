@@ -67,6 +67,16 @@ public class BasicBubble : NetworkBehaviour
     public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
         OwnerID.Value = ID;
+
+        if (!IsServer && GameManager.Instance.Players[ID].IsOwner)
+        {
+            if (GetComponent<Collider>())
+            {
+                Debug.Log("Collision ignored between client bubble: " + transform.name + " and player with id: " + ID);
+                Physics.IgnoreCollision(GetComponent<Collider>(), GameManager.Instance.Players[ID].GetComponent<Collider>());
+            }
+        }
+
         direction = dir;
         this.playerCollider = playerCollider;
 
@@ -108,6 +118,32 @@ public class BasicBubble : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
 
         OwnerID.OnValueChanged += OnOwnerIdAssigned;
+        CheckAndDisableCollisionWithLokalFake();
+    }
+
+
+    private void CheckAndDisableCollisionWithLokalFake()
+    {
+        if (!GetComponent<Collider>()) return;
+        Collider myCollider = GetComponent<Collider>();
+
+        Collider[] hitColliders = Physics.OverlapBox(
+            transform.position,
+            myCollider.bounds.extents,
+            transform.rotation,
+            LayerMask.GetMask("Bubble")
+        );
+
+        foreach (var hit in hitColliders)
+        {
+            if (hit == myCollider) continue;
+            if (hit.TryGetComponent<BasicBubble>(out var bubble) && bubble.isLocalFake)
+            {
+                Debug.Log($"[{gameObject.name}] Found local fake ({hit.name}). Ignoring physics collision.");
+                Physics.IgnoreCollision(myCollider, hit, true);
+                break;
+            }
+        }
     }
 
     public override void OnNetworkDespawn()
@@ -122,7 +158,7 @@ public class BasicBubble : NetworkBehaviour
     }
 
     void CheckAndHideVisibility(int currentCasterId)
-    {
+    {     
         if (IsServer || isLocalFake) return;
 
         // Guard clause for array indexing safely:
@@ -138,10 +174,16 @@ public class BasicBubble : NetworkBehaviour
                 renderer.enabled = false;
 
             foreach (ParticleSystem particleSystem in GetComponentsInChildren<ParticleSystem>())
+            {
+                Debug.Log("disabling particlesystem:" + particleSystem.name);
                 particleSystem.gameObject.SetActive(false);
+            }
 
-            foreach(TrailRenderer trailRenderer in GetComponentsInChildren<TrailRenderer>())
+            foreach (TrailRenderer trailRenderer in GetComponentsInChildren<TrailRenderer>())
+            {
+                Debug.Log("disabling trailrenderer:" + trailRenderer.name);
                 trailRenderer.enabled = false;
+            }
         }
     }
 
@@ -204,10 +246,11 @@ public class BasicBubble : NetworkBehaviour
     private void OnTriggerEnter(Collider other)
     {    
         if (hasPopped || !isLocalFake) return;
+        if (other.transform.root == transform.root) return;
         HandleTrigger(other);
     }
 
-    private void HandleTrigger(Collider other)
+    public virtual void HandleTrigger(Collider other)
     {
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {

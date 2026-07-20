@@ -26,6 +26,8 @@ public class HomingTargeting : MonoBehaviour
     {
         if (other == null) return;
 
+        if (other.transform.root == transform.root) return;
+
         if (other.CompareTag("Player"))
         {
             if (!targetsInRange.Contains(other.transform))

@@ -54,6 +54,14 @@ public class SO_Spell : ScriptableObject
         {
             Debug.Log("Spawning server bubble");
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
+
+            if (ID != 0)
+                if (bubbleInstance.GetComponent<Collider>())
+                {
+                    Debug.Log("Collision ignored between server bubble: " + bubbleInstance.transform.name + " and player with id: " + ID);
+                    Physics.IgnoreCollision(bubbleInstance.GetComponent<Collider>(), GameManager.Instance.Players[ID].GetComponent<Collider>());
+                }
+
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();

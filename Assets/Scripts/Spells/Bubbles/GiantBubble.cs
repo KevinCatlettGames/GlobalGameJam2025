@@ -103,9 +103,34 @@ public class GiantBubble : BasicBubble
         }
     }
 
+    public override void HandleTrigger(Collider other)
+    {
+        if (!isLocalFake) return;
+        Debug.Log("Fake giant in handle trigger");
+        if (!hasInflated) return;
+        if (hasPopped) return;
+        if(!isSmall && other.CompareTag("Bubble"))
+        {
+            Debug.Log("Fake Giant going small");
+            isSmall = true;
+            damage = dmgMini;
+            knockback *= knbMod;
+            speed *= speedMod;
+            hitEffect = smallHitEffect;
+            spellType = SpellType.SmallerGiant;
+            if (bigTrail != null) bigTrail.emitting = false;
+            if (smallTrail != null) smallTrail.emitting = true;
+            size *= sizMod;
+            transform.localScale = Vector3.one * size;
+            bigParticleSystem.Stop();
+            smallParticleSystem.Play();
+            return;
+        }
+        base.HandleTrigger(other);
+    }
+
     public override void BubbleCollision(GameObject other)
     {
-        // FIX 2: Local fakes must NEVER process authority collisions, or they destroy themselves prematurely!
         if (isLocalFake) return;
         if (hasPopped) return;
 

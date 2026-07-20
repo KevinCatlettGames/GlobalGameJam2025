@@ -63,7 +63,6 @@ public class RevolverBubble : BasicBubble
             else if (isLocalFake)
             {
                 Destroy(bubbleObj.GetComponent<NetworkObject>());
-                bubbleObj.layer = LayerMask.NameToLayer("FakeProjectiles");
 
                 if (bubbleScript != null)
                 {
@@ -82,6 +81,9 @@ public class RevolverBubble : BasicBubble
 
         yield return new WaitForSeconds(.1f);
         if (IsServer) DisableRevolverMeshClientRpc();
+        if(isLocalFake)
+            foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+                meshRenderer.enabled = false;
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }

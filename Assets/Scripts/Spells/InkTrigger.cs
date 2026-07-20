@@ -1,22 +1,24 @@
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
-public class InkTrigger : MonoBehaviour 
+public class InkTrigger : NetworkBehaviour 
 {
     private List<PlayerController> inkedPlayers = new List<PlayerController>();
     [SerializeField] private float bubbleSlowFactor = .5f;
-    private int ownerID = -1;
+    public NetworkVariable<int> ownerID = new NetworkVariable<int>();
 
     public void SetOwner(int ID)
     {
-        ownerID = ID;
+        ownerID.Value = ID;
     }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.gameObject.GetComponent<PlayerController>();
-            if (player.PlayerID != ownerID)
+            if (player.PlayerID != ownerID.Value)
             {
                 player.SetSlowed(true);
                 inkedPlayers.Add(player);
@@ -25,7 +27,7 @@ public class InkTrigger : MonoBehaviour
         else if (other.CompareTag("Bubble"))
         {
             BasicBubble bubble = other.GetComponent<BasicBubble>();
-            if (bubble && bubble.OwnerID.Value != ownerID)
+            if (bubble && bubble.OwnerID.Value != ownerID.Value)
             {
                 bubble.ChangeSpeed(bubbleSlowFactor);
                 Debug.Log("Slow bubble");
