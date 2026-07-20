@@ -4,6 +4,7 @@ using Steamworks;
 using System;
 using System.Collections;
 using System.Globalization;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -37,7 +38,13 @@ public class LobbyPlayerInput : NetworkBehaviour
     0,
     NetworkVariableReadPermission.Everyone,
     NetworkVariableWritePermission.Owner
-);
+    );
+
+    public readonly NetworkVariable<FixedString32Bytes> steamName = new NetworkVariable<FixedString32Bytes>(
+    "Wizzo",
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Owner
+    );
 
     private void OnEnable()
     {
@@ -249,7 +256,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     [ClientRpc]
     void UpdateSteamAccountInfoClientRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
-    {
+    {       
         lobbyManager.playerContainers[playerID].GetComponent<PlayerContainerManager>().SetAccountInfo(isActive, userName, networkSteamID);
     }
 
@@ -514,28 +521,33 @@ public class LobbyPlayerInput : NetworkBehaviour
             Debug.Log("Steam not init");
             return "Wizzo";
         }
-        string fullName = null;
+        
+        if(steamName.Value != "Wizzo")
+        {
+            return steamName.Value.ToString();
+        }
+
         try
         {
             Friend friend = new Friend(networkSteamId.Value);
-            fullName = friend.Name;
+            steamName.Value = friend.Name;
         }
         catch (Exception ex)
         {
             Debug.LogWarning($"[Steam] Failed to read SteamClient.Name on this platform: {ex.Message}");
             return "Wizzo";
         }
-        if (string.IsNullOrWhiteSpace(fullName))
+        if (string.IsNullOrWhiteSpace(steamName.Value.ToString()))
         {
             Debug.Log("Has only white spaces");
             return "Wizzo";
         }
-        fullName = fullName.Trim();
-        StringInfo stringInfo = new StringInfo(fullName);
+        steamName.Value = steamName.Value.ToString().Trim();
+        StringInfo stringInfo = new StringInfo(steamName.Value.ToString());
         int visibleLength = stringInfo.LengthInTextElements;
         if (visibleLength <= 7)
         {
-            return fullName;
+            return steamName.Value.ToString();
         }
         string truncatedName = stringInfo.SubstringByTextElements(0, 7);
         if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))

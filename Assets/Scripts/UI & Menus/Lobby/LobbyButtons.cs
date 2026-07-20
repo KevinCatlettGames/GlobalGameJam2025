@@ -218,7 +218,6 @@ public class LobbyButtons : MonoBehaviour
 
     private void OnClientDisconnect(ulong clientId)
     {
-        if (clientId != NetworkManager.ServerClientId) return;
         LobbyPlayerInput inputOfDisconnectedClient = null;    
         LobbyManager.instance.allLobbyPlayerInputs.Remove(inputOfDisconnectedClient);
 
@@ -268,9 +267,6 @@ public class LobbyButtons : MonoBehaviour
 
     public void LeaveToMainMenu()
     {
-        if (lobbyManager._MatchSettingsSelection.activeSelf)
-            return;
-
         buttonOnClickEmitter.Play();
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
