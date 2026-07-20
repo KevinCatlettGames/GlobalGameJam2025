@@ -52,29 +52,26 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
+            Debug.Log("Spawning server bubble");
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
 
-            serverScript.castID = assignedCastID;
             serverScript.InitialiseBubble(ID, dir, playerCollider);
         }
         else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
         {
+            Debug.Log("Spawning fake bubble");
             GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
 
             BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
             if (fakeScript != null)
             {
                 fakeScript.isLocalFake = true;
-                fakeScript.castID = assignedCastID;
                 fakeScript.InitialiseBubble(ID, dir, playerCollider);
             }
 
-            var playerCtrl = playerCollider.GetComponent<PlayerController>();
-            if (playerCtrl != null && fakeScript != null)
-                playerCtrl.RegisterLocalFake(fakeScript);
         }
 
         return spellCooldown;

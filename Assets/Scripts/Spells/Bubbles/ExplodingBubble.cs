@@ -69,9 +69,9 @@ public class ExplodingBubble : BasicBubble
                             knockback *= primaryKnockbackIncrease;
 
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
                         if (playerCollider != null)
                         {

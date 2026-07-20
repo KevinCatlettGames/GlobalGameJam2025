@@ -14,6 +14,8 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
     [SerializeField] private GameObject splat;
+    [SerializeField] private GameObject fakeSplat; 
+
     [SerializeField] private LayerMask groundedLayerMask;
     private float progress = 0f;
     private const float raycastDistance = 5f;
@@ -50,11 +52,15 @@ public class GrenadeBubble : BasicBubble
 
         if (isLocalFake)
         {
-            fizzleEffect = hitEffect;
-            if(IsServer)
-                ChangeHitEffectClientRpc();
+            fizzleEffect = hitEffect;         
             Pop();
             return;
+        }
+
+        if (IsServer)
+        {
+            fizzleEffect = hitEffect;
+            ChangeHitEffectClientRpc();
         }
 
         if (other != null && other.CompareTag("Player"))
@@ -82,9 +88,6 @@ public class GrenadeBubble : BasicBubble
         if (IsServer)
             ChangeHitEffectClientRpc();
 
-        if (isLocalFake) return;
-
-
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -97,29 +100,32 @@ public class GrenadeBubble : BasicBubble
             {
                 if (col.CompareTag("Player"))
                 {
-                    GameManager gameManager = GameManager.Instance;
-                    PlayerController player = col.GetComponent<PlayerController>();
-                    if (player != null)
+                    if (IsServer)
                     {
-                        float explosionDamage = damage;
-                        float explosionKnockback = knockback;
-                        if (player.gameObject == primaryTarget)
+                        GameManager gameManager = GameManager.Instance;
+                        PlayerController player = col.GetComponent<PlayerController>();
+                        if (player != null)
                         {
-                            explosionDamage *= primaryTargetMod;
-                            explosionKnockback *= primaryTargetMod;
-                        }
-                        if (gameManager.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, explosionKnockback, explosionDamage);
-                        else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, explosionKnockback, explosionDamage);
+                            float explosionDamage = damage;
+                            float explosionKnockback = knockback;
+                            if (player.gameObject == primaryTarget)
+                            {
+                                explosionDamage *= primaryTargetMod;
+                                explosionKnockback *= primaryTargetMod;
+                            }
+                            if (gameManager.PlayingLocal)
+                                player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage);
+                            else
+                                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage);
 
-                        gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
-                        player.StartVulnerable(vulnerableDuration);
+                            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+                            player.StartVulnerable(vulnerableDuration);
 
-                        if (playerCollider != null)
-                        {
-                            var controller = playerCollider.GetComponent<PlayerController>();
-                            if (controller != null) controller.GainUltCharge(explosionDamage, true);
+                            if (playerCollider != null)
+                            {
+                                var controller = playerCollider.GetComponent<PlayerController>();
+                                if (controller != null) controller.GainUltCharge(explosionDamage, true);
+                            }
                         }
                     }
                 }
@@ -140,7 +146,13 @@ public class GrenadeBubble : BasicBubble
             {
                 GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<DamageField>()?.SetID(OwnerID);
+                puddle.GetComponent<DamageField>()?.SetID(OwnerID.Value);
+                puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
+            }
+            else if(isLocalFake)
+            {
+                GameObject puddle = Instantiate(fakeSplat, hitInfo.point, transform.rotation);
+                puddle.GetComponent<Puddle>().isLocalFake = true;
             }
         }
     }

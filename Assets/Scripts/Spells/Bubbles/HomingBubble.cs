@@ -93,7 +93,7 @@ public class HomingBubble : BasicBubble
         // This authoritative damage pipeline remains totally safe on connected network game clients
         if (playerHit != null && hasHitPlayer)
         {
-            effect.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(playerHit, OwnerID, damage, damageDelay);
+            effect.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(playerHit, OwnerID.Value, damage, damageDelay);
         }
     }
 

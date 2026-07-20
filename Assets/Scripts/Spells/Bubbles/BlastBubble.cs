@@ -7,6 +7,7 @@ public class BlastBubble : BasicBubble
 {
     [Header("Special Stats")]
     [SerializeField] private GameObject splat;
+    [SerializeField] private GameObject fakeSplat;
     [SerializeField] private LayerMask groundedLayerMask;
     [SerializeField] private float extraOffset = 4.5f;
     [SerializeField] private float shooterKnb = 8f;
@@ -17,9 +18,7 @@ public class BlastBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider);
         transform.position += direction * extraOffset;
 
-        if (GameManager.Instance.PlayingLocal || isLocalFake)
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
-        else if (IsServer)
+        if (IsServer)
             playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
     }
 
@@ -31,27 +30,22 @@ public class BlastBubble : BasicBubble
         {
             if (ignoredColliders.Contains(col)) continue;
 
-            if (isLocalFake)
-            {
-                if (col.CompareTag("Player") || col.CompareTag("Bubble"))
-                {
-                    Pop();
-                    return;
-                }
-                continue;
-            }
-
             if (col.CompareTag("Player"))
             {
                 var player = col.GetComponent<PlayerController>();
                 GameManager gameManager = GameManager.Instance;
 
                 if (gameManager.PlayingLocal)
-                    player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                 else
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                {
+                    if(IsServer)
+                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                }
 
-                gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                if(IsServer)
+                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+
                 if (!isUlt && playerCollider != null) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                 fizzleEffect = hitEffect;
             }
@@ -77,9 +71,16 @@ public class BlastBubble : BasicBubble
             {
                 GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID);
+                puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
+                puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID.Value);
+            }
+            else if(isLocalFake)
+            {
+                GameObject puddle = Instantiate(fakeSplat, hitInfo.point, transform.rotation);
+                puddle.GetComponent<Puddle>().isLocalFake = true;
             }
         }
+
         base.Pop();
     }
 }

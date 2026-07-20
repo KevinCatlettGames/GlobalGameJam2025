@@ -32,8 +32,8 @@ public class SlashBubble : BasicBubble
         }
 
         // Initialize sub-slasher configuration parameters safely
-        if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID);
-        if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID);
+        if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
+        if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
 
         hasInflated = true;
     }
@@ -47,7 +47,7 @@ public class SlashBubble : BasicBubble
         }
     }
 
-    protected override IEnumerator BubbleRangeLimit(float customLifetime = 0f)
+    protected override IEnumerator BubbleRangeLimit()
     {
         while (!hasInflated)
             yield return null;
@@ -77,7 +77,7 @@ public class SlashBubble : BasicBubble
         {
             if (IsServer)
             {
-                OwnerID = reflector.OwnerID;
+                OwnerID.Value = reflector.OwnerID;
             }
             Reflect(Vector3.zero);
             return;

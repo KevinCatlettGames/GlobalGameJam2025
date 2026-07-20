@@ -55,17 +55,6 @@ public class SnipeBubble : BasicBubble
             }
         }
 
-        // --- 2. LOCAL FAKE SHORT CIRCUIT ---
-        if (isLocalFake)
-        {
-            // Visually detonate the client preview instantly on impact with environmental surfaces or targets
-            if (other.CompareTag("Player") || other.CompareTag("Wall") || other.CompareTag("Environment"))
-            {
-                Pop();
-            }
-            return;
-        }
-
         // --- 3. AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Player"))
         {
@@ -81,9 +70,9 @@ public class SnipeBubble : BasicBubble
 
     private void CheckMaxSniperDamageAchievement()
     {
-        if (!IsServer) return; // Strict security layer backstop
+        if (!IsServer && !isLocalFake) return; // Strict security layer backstop
 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;

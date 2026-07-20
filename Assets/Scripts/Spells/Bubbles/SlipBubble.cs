@@ -90,12 +90,12 @@ public class SlipBubble : BasicBubble
             {
                 if (GameManager.Instance.PlayingLocal)
                 {
-                    player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                     CreateSlimePuddleLocal(transform.position);
                 }
                 else
                 {
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                    player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
                     CreateSlimePuddleServerRpc(transform.position);
                 }
             }

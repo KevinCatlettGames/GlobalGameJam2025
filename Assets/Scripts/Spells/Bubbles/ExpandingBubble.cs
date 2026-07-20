@@ -82,9 +82,9 @@ public class ExpandingBubble : BasicBubble
             if (player != null)
             {
                 if (GameManager.Instance.PlayingLocal)
-                    player.ApplyKnockbackLocal(OwnerID, direction, knockbackRatio * currentSize, damageRatio * currentSize);
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockbackRatio * currentSize, damageRatio * currentSize);
                 else
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockbackRatio * currentSize, damageRatio * currentSize);
+                    player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockbackRatio * currentSize, damageRatio * currentSize);
             }
             Pop();
         }

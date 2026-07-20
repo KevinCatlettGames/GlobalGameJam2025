@@ -16,7 +16,7 @@ public class RevolverBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        OwnerID = ID;
+        OwnerID.Value = ID;
         direction = dir;
 
         if (playerCollider != null)
@@ -40,8 +40,6 @@ public class RevolverBubble : BasicBubble
         float rotation = -(maxAmmo - 1);
         rotation *= .5f;
 
-        int baseCastID = this.castID;
-
         for (int i = 0; i < maxAmmo; i++)
         {
             Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
@@ -55,16 +53,9 @@ public class RevolverBubble : BasicBubble
             }
 
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            int uniqueBulletID = (baseCastID * 10) + i;
 
             if (IsServer)
             {
-                if (bubbleScript != null)
-                {
-                    bubbleScript.syncedCastID.Value = uniqueBulletID;
-                    bubbleScript.castID = uniqueBulletID;
-                }
-
                 NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
                 if (netObj != null)
                     netObj.Spawn();
@@ -77,16 +68,12 @@ public class RevolverBubble : BasicBubble
                 if (bubbleScript != null)
                 {
                     bubbleScript.isLocalFake = true;
-                    bubbleScript.castID = uniqueBulletID;
-
-                    var playerCtrl = playerCollider?.GetComponent<PlayerController>();
-                    if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
                 }
             }
 
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID, dir, playerCollider);
+                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider);
             }
 
             yield return new WaitForSeconds(delayBetweenShots);
@@ -94,7 +81,6 @@ public class RevolverBubble : BasicBubble
         }
 
         yield return new WaitForSeconds(.1f);
-        if(isLocalFake && visualChildMesh) visualChildMesh.GetComponent<MeshRenderer>().enabled = false;
         if (IsServer) DisableRevolverMeshClientRpc();
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
@@ -120,7 +106,7 @@ public class RevolverBubble : BasicBubble
     {
         if (!IsServer) return;
 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;

@@ -40,7 +40,6 @@ public class GiantBubble : BasicBubble
         if (sphereCollider != null)
         {
             sphereCollider.excludeLayers += LayerMask.GetMask("Player");
-            sphereCollider.excludeLayers += LayerMask.GetMask("Bubble");
         }
 
         bool blink = false;
@@ -53,9 +52,12 @@ public class GiantBubble : BasicBubble
             if (!blink && currentSize > size * .9f)
             {
                 blink = true;
-                if (IsServer)
+                if(IsServer || isLocalFake)
                 {
                     StartCoroutine(Blink());
+                }
+                if (IsServer)
+                {                  
                     StartBlinkClientRpc();
                 }
             }
@@ -63,7 +65,7 @@ public class GiantBubble : BasicBubble
         }
 
         // Only let the server or an independent local singleplayer frame handle instant overlap pops
-        if (IsServer || (isLocalFake && GameManager.Instance.PlayingLocal))
+        if (IsServer || isLocalFake)
         {
             InflateOverlapChack();
         }
@@ -71,7 +73,6 @@ public class GiantBubble : BasicBubble
         if (sphereCollider != null)
         {
             sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
-            sphereCollider.excludeLayers -= LayerMask.GetMask("Bubble");
         }
 
         stationaryParticleSystem.Stop();

@@ -15,7 +15,7 @@ public class ZapBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
     {
-        OwnerID = ID;
+        OwnerID.Value = ID;
         direction = dir;
         this.playerCollider = playerCollider;
 
@@ -74,26 +74,18 @@ public class ZapBubble : BasicBubble
                 {
                     bubbleScript.isLocalFake = true;
 
-                    // Register with the local player controller for safety tracking
-                    var playerCtrl = playerCollider?.GetComponent<PlayerController>();
-                    if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
                 }
             }
             else if (IsServer)
             {
                 NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
                 if (netObj != null) netObj.Spawn();
-
-                if (bubbleScript != null)
-                {
-                    bubbleScript.castID = this.castID; // Link sub-projectiles to the server's tracking cast ID
-                }
             }
 
             // Fire and initialize the sub-projectile across both states
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID, direction, playerCollider);
+                bubbleScript.InitialiseBubble(OwnerID.Value, direction, playerCollider);
             }
 
             yield return new WaitForSeconds(delayBetweenZaps);

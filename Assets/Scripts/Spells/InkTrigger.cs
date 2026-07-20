@@ -25,7 +25,7 @@ public class InkTrigger : MonoBehaviour
         else if (other.CompareTag("Bubble"))
         {
             BasicBubble bubble = other.GetComponent<BasicBubble>();
-            if (bubble && bubble.OwnerID != ownerID)
+            if (bubble && bubble.OwnerID.Value != ownerID)
             {
                 bubble.ChangeSpeed(bubbleSlowFactor);
                 Debug.Log("Slow bubble");

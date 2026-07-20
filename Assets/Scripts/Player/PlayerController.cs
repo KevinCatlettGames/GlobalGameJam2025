@@ -409,27 +409,6 @@ public class PlayerController : NetworkBehaviour
 
     #region Spell System
 
-    [ClientRpc]
-    public void DestroyLocalFakeBubbleClientRpc(int targetCastID)
-    {
-        BasicBubble localFake = GetLocalFakeByCastID(targetCastID);
-        if (localFake != null)
-        {
-            localFake.HideVisualsAndDisablePhysics();
-            Destroy(localFake.gameObject);
-        }
-    }
-
-    public int GenerateNextCastID()
-    {
-        localSpellCounter++;
-        return ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
-    }
-
-    public void RegisterLocalFake(BasicBubble fakeBubble)
-    {
-        activeLocalFakes.Add(fakeBubble);
-    }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
@@ -469,20 +448,6 @@ public class PlayerController : NetworkBehaviour
             controllerRumbler?.Rumble(.15f, 1f, 5f);
     }
 
-    public BasicBubble GetLocalFakeByCastID(int id)
-    {
-        activeLocalFakes.RemoveAll(item => item == null);
-
-        foreach (BasicBubble fake in activeLocalFakes)
-        {
-            if (fake.castID == id)
-            {
-                return fake;
-            }
-        }
-        return null;
-    }
-
     private void CastSpell(bool isFirstSpell)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
@@ -494,8 +459,11 @@ public class PlayerController : NetworkBehaviour
         else
         {
             int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
-            CastSpellServerRpc(isFirstSpell, assignedID);
-            CastSpellLocal(isFirstSpell);
+            if(!IsServer)
+            {
+                CastSpellLocal(isFirstSpell);
+            }
+            CastSpellServerRpc(isFirstSpell, assignedID, playerID);
         }
 
         if (isFirstSpell) isFirstSpellReady = false;
@@ -554,13 +522,39 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, ServerRpcParams rpcParams = default)
+    private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, int casterPlayerID, ServerRpcParams rpcParams = default)
     {
-        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+        float cooldown = spell.CastSpell(casterPlayerID, transform.position, transform.forward, GameManager.Instance.Players[casterPlayerID].controller, isUltCharged, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
+        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID, cooldown);
+        if (isUltCharged)
+        {
+            currentUltCharge = 0;
+            isUltCharged = false;
+            playerHUD.ChargeUlt(false);
+            playerHUD.SetUltSlider(0);
+        }
+        if (isFirstSpell)
+        {
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+        }
+        else
+        {
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
+
+        if (!usedSpell.Contains(spell))
+            usedSpell.Add(spell);
+
+        if (SteamIntegration.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        }
     }
 
     [ClientRpc]
-    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID)
+    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID, float cooldown)
     {
         if (NetworkManager.Singleton.LocalClientId == senderClientId)
         {
@@ -568,8 +562,6 @@ public class PlayerController : NetworkBehaviour
         }
 
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged, senderClientId, assignedID);
 
         if (isUltCharged)
         {
@@ -700,31 +692,9 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void TriggerHandoff(BasicBubble realNetworkBubble, int castID)
-    {
-        StartCoroutine(HandOffCountdownRoutine(realNetworkBubble, castID));
-    }
-
-    private IEnumerator HandOffCountdownRoutine(BasicBubble realNetworkBubble, int castID)
-    {
-        yield return null;
-
-        if (realNetworkBubble == null) yield break;
-
-        BasicBubble localFake = GetLocalFakeByCastID(castID);
-
-        if (localFake != null)
-        {
-            Debug.Log("Hiding server mesh");
-            //localFake.InitializeReconciliation(realNetworkBubble.transform);
-            realNetworkBubble.DisableMeshVisiblity();
-            realNetworkBubble.isMeshHiddenForOwner = true;
-        }
-    }
-
     #endregion
 
-    #region Sprinting
+        #region Sprinting
 
     public void OnSprint(InputAction.CallbackContext context)
     {
@@ -1614,7 +1584,7 @@ public class PlayerController : NetworkBehaviour
 
         foreach (var hit in hits)
         {
-            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID == playerID) continue;
+            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID.Value == playerID) continue;
             
             if (!bubblesInside.Contains(hit))
                 bubblesInside.Add(hit);
@@ -1630,7 +1600,7 @@ public class PlayerController : NetworkBehaviour
             
             if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
                 || bubble.HasPopped
-                || bubble.OwnerID == playerID
+                || bubble.OwnerID.Value == playerID
                 || !isSprinting
                 || !SteamIntegration.instance) return;
                 

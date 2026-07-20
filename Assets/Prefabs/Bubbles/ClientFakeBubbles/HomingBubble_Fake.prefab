@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8278787105483923728}
   - component: {fileID: 8967540784842001651}
-  m_Layer: 12
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,7 +159,7 @@ GameObject:
   - component: {fileID: 776761707349867351}
   - component: {fileID: 2725714991972873173}
   - component: {fileID: 5290342314432603255}
-  m_Layer: 12
+  m_Layer: 7
   m_Name: HomingArea
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -223,7 +223,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5312691156410654386}
-  m_Layer: 12
+  m_Layer: 7
   m_Name: Visuals
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   - component: {fileID: 6328579372015548160}
   - component: {fileID: 4042850172397218679}
   - component: {fileID: 2291989460297538891}
-  m_Layer: 12
+  m_Layer: 7
   m_Name: ContinousParticles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5094,7 +5094,7 @@ GameObject:
   - component: {fileID: 8872848778229961188}
   - component: {fileID: 180658776323209522}
   - component: {fileID: 4757641101379422218}
-  m_Layer: 12
+  m_Layer: 7
   m_Name: DustBurst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9995,12 +9995,17 @@ PrefabInstance:
     - target: {fileID: 449082112856618060, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
       propertyPath: catchUpTime
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
+        type: 3}
+      propertyPath: isLocalFake
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
@@ -10011,6 +10016,11 @@ PrefabInstance:
         type: 3}
       propertyPath: maxTrackingDuration
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078046511075596644, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3019594990852850736, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
@@ -10145,7 +10155,7 @@ PrefabInstance:
     - target: {fileID: -7783160511823895526, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: -3722405182657794361, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
@@ -10165,12 +10175,12 @@ PrefabInstance:
     - target: {fileID: -3215555783603854218, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 856288634350107489, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
@@ -10180,27 +10190,27 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 7036213049465896255, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8219036580044766103, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 9033038278043614338, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 9130621782215722655, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Layer
-      value: 12
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

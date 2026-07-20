@@ -282,7 +282,8 @@ public class LobbyButtons : MonoBehaviour
         MenuSelection.Instance.mainMenu.SetActive(true);
         MenuSelection.Instance.ResetAllCams();
 #else
-        MenuSelection.Instance.localOnline.SetActive(true);
+        if(MenuSelection.Instance && MenuSelection.Instance.localOnline)
+            MenuSelection.Instance.localOnline.SetActive(true);
 #endif
         Destroy(lobbyParent);
     }

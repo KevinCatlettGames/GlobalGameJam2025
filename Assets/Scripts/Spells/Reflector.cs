@@ -40,7 +40,7 @@ public class Reflector : MonoBehaviour
             BasicBubble bubble = other.GetComponent<BasicBubble>();
             if (bubble != null && bubble.isLocalFake)
             {
-                bubble.OwnerID = this.OwnerID;
+                bubble.OwnerID.Value = this.OwnerID;
                 bubble.BubbleCollision(gameObject);
             }
         }
