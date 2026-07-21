@@ -9,9 +9,9 @@ public class WallBubble : BasicBubble
     private int hitPoints = 0;
     private bool stop = false;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
 
         Reflector reflector = GetComponent<Reflector>();
         if (reflector != null)

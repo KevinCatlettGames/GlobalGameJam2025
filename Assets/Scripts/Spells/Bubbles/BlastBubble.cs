@@ -13,9 +13,9 @@ public class BlastBubble : BasicBubble
     [SerializeField] private float shooterKnb = 8f;
     private const float raycastDistance = 5f;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         transform.position += direction * extraOffset;
 
         if (IsServer)

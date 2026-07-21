@@ -25,12 +25,12 @@ public class GiantBubble : BasicBubble
 
     private bool isSmall = false;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
         direction = dir.normalized;
         transform.position += direction * extraOffset;
 
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
     }
 
     protected override IEnumerator Inflate()

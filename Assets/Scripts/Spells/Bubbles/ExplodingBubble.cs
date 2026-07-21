@@ -12,9 +12,9 @@ public class ExplodingBubble : BasicBubble
     private bool hasExploded = false;
     private GameObject primaryTarget;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         canMiss = false;
     }
 

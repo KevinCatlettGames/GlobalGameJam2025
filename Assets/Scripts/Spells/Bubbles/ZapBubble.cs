@@ -13,7 +13,7 @@ public class ZapBubble : BasicBubble
     private Vector3 offset;
     [SerializeField] private EventReference zapSoundEvent;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
         OwnerID.Value = ID;
         direction = dir;
@@ -24,7 +24,6 @@ public class ZapBubble : BasicBubble
             offset = transform.position - playerCollider.transform.position;
         }
 
-        // Play the firing audio instantly on the local client machine
         if (isLocalFake || IsServer)
         {
             RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
@@ -35,7 +34,6 @@ public class ZapBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
-        // Keep the spawner attached to the casting player across both contexts
         if (playerCollider != null)
         {
             transform.position = playerCollider.transform.position + offset;
@@ -58,17 +56,13 @@ public class ZapBubble : BasicBubble
             GameObject bubbleObj = Instantiate(bubblePrefab, transform.position, Quaternion.LookRotation(direction));
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
 
-            // --- CLIENT-SIDE PREDICTION & SERVER SPAWNING GATES ---
             if (isLocalFake)
             {
-                // Remove the network object copy from our client-side visualization fake
                 if (bubbleObj.TryGetComponent<NetworkObject>(out var netObj))
                 {
                     Destroy(netObj);
                 }
 
-                // Place the predicted sub-bullet onto the isolated client collision layer
-                bubbleObj.layer = LayerMask.NameToLayer("FakeProjectiles");
 
                 if (bubbleScript != null)
                 {
@@ -82,10 +76,9 @@ public class ZapBubble : BasicBubble
                 if (netObj != null) netObj.Spawn();
             }
 
-            // Fire and initialize the sub-projectile across both states
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID.Value, direction, playerCollider);
+                bubbleScript.InitialiseBubble(OwnerID.Value, direction, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
             }
 
             yield return new WaitForSeconds(delayBetweenZaps);

@@ -15,6 +15,9 @@ public class BasicBubble : NetworkBehaviour
 
     public SpellType spellType;
     public NetworkVariable<int> OwnerID = new NetworkVariable<int>();
+    public NetworkVariable<int> AssignedSpellID = new NetworkVariable<int>();
+    public BasicBubble fakeCopy = null;
+    public bool fakeWithServerCaster = false;
     protected Vector3 direction;
     protected bool hasPopped;
     [HideInInspector] public bool HasPopped { get { return hasPopped; } }
@@ -64,19 +67,11 @@ public class BasicBubble : NetworkBehaviour
         GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
-    public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool serverSpawnWithClientSpawn)
     {
         OwnerID.Value = ID;
-
-        if (!IsServer && GameManager.Instance.Players[ID].IsOwner)
-        {
-            if (GetComponent<Collider>())
-            {
-                //Debug.Log("Collision ignored between client bubble: " + transform.name + " and player with id: " + ID);
-                Physics.IgnoreCollision(GetComponent<Collider>(), GameManager.Instance.Players[ID].GetComponent<Collider>());
-            }
-        }
-
+        AssignedSpellID.Value = assignedSpellID;
+        this.fakeWithServerCaster = serverSpawnWithClientSpawn;
         direction = dir;
         this.playerCollider = playerCollider;
 
@@ -118,30 +113,14 @@ public class BasicBubble : NetworkBehaviour
             RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
 
         OwnerID.OnValueChanged += OnOwnerIdAssigned;
-        CheckAndDisableCollisionWithLokalFake();
-    }
 
+        AssignedSpellID.OnValueChanged += OnSpellIdAssigned;
 
-    private void CheckAndDisableCollisionWithLokalFake()
-    {
-        if (!GetComponent<Collider>()) return;
-        Collider myCollider = GetComponent<Collider>();
-
-        Collider[] hitColliders = Physics.OverlapBox(
-            transform.position,
-            myCollider.bounds.extents,
-            transform.rotation,
-            LayerMask.GetMask("Bubble")
-        );
-
-        foreach (var hit in hitColliders)
+        if (!IsServer && !isLocalFake)
         {
-            if (hit == myCollider) continue;
-            if (hit.TryGetComponent<BasicBubble>(out var bubble) && bubble.isLocalFake)
+            if (AssignedSpellID.Value != 0)
             {
-                //Debug.Log($"[{gameObject.name}] Found local fake ({hit.name}). Ignoring physics collision.");
-                Physics.IgnoreCollision(myCollider, hit, true);
-                break;
+                TryLinkLocalFake(AssignedSpellID.Value);
             }
         }
     }
@@ -150,7 +129,41 @@ public class BasicBubble : NetworkBehaviour
     {
         base.OnNetworkDespawn();
         OwnerID.OnValueChanged -= OnOwnerIdAssigned;
+        AssignedSpellID.OnValueChanged -= OnSpellIdAssigned;
     }
+
+    private void OnSpellIdAssigned(int previousValue, int newValue)
+    {
+        if (!IsServer && !isLocalFake && newValue != 0)
+        {
+            TryLinkLocalFake(newValue);
+        }
+    }
+
+    private void TryLinkLocalFake(int targetSpellId)
+    {
+        if (fakeCopy != null) return;
+
+        BasicBubble[] allBubbles = FindObjectsByType<BasicBubble>(FindObjectsSortMode.None);
+
+        foreach (var bubble in allBubbles)
+        {
+            if (bubble.isLocalFake && bubble.AssignedSpellID.Value == targetSpellId)
+            {
+                fakeCopy = bubble;
+
+                Collider myCollider = GetComponent<Collider>();
+                Collider fakeCollider = bubble.GetComponent<Collider>();
+                if (myCollider != null && fakeCollider != null)
+                {
+                    Physics.IgnoreCollision(myCollider, fakeCollider, true);
+                }
+
+                break;
+            }
+        }
+    }
+
 
     void OnOwnerIdAssigned(int previousValue, int newValue)
     {
@@ -158,31 +171,38 @@ public class BasicBubble : NetworkBehaviour
     }
 
     void CheckAndHideVisibility(int currentCasterId)
-    {     
+    {
         if (IsServer || isLocalFake) return;
 
         if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
         if (GameManager.Instance.Players[currentCasterId] == null) return;
 
-        if (GameManager.Instance.Players[currentCasterId].IsOwner)
+        if (GameManager.Instance.Players[currentCasterId].IsOwner || fakeWithServerCaster)
         {
-            //Debug.Log("Disabling visibility for the casting client to prevent duplicate visuals.");
-            foreach (var renderer in GetComponentsInChildren<Renderer>())
+            foreach (var renderer in GetComponentsInChildren<Renderer>(true))
                 renderer.enabled = false;
 
-            foreach (ParticleSystem particleSystem in GetComponentsInChildren<ParticleSystem>())
+            foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true))
             {
-                //Debug.Log("disabling particlesystem:" + particleSystem.name);
-                particleSystem.gameObject.SetActive(false);
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ps.gameObject.SetActive(false);
             }
 
-            foreach (TrailRenderer trailRenderer in GetComponentsInChildren<TrailRenderer>())
+            foreach (TrailRenderer trail in GetComponentsInChildren<TrailRenderer>(true))
             {
-                //Debug.Log("disabling trailrenderer:" + trailRenderer.name);
-                trailRenderer.enabled = false;
+                trail.Clear();
+                trail.enabled = false;
+            }
+
+            Collider bubbleCol = GetComponent<Collider>();
+            Collider playerCol = GameManager.Instance.Players[OwnerID.Value].GetComponent<Collider>();
+            if (bubbleCol != null && playerCol != null)
+            {
+                Physics.IgnoreCollision(bubbleCol, playerCol);
             }
         }
     }
+
 
     private void FixedUpdate()
     {
@@ -279,6 +299,7 @@ public class BasicBubble : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
+        Debug.Log("Collided with: " + collision.transform.name);
         if (hasPopped) return;
         HandleCollision(collision);
     }
@@ -299,15 +320,9 @@ public class BasicBubble : NetworkBehaviour
 
     public virtual void BubbleCollision(GameObject other)
     {
-        if (isLocalFake)
-            //Debug.Log("Fake in main bubble collision");
-
         if (hasPopped) return;
         if (other.CompareTag("Player"))
         {
-            if (isLocalFake)
-                //Debug.Log("Fake pop with player");
-
             if (IsServer)
             {
                 var player = other.GetComponent<PlayerController>();
@@ -327,43 +342,33 @@ public class BasicBubble : NetworkBehaviour
             hasHitPlayer = true;
             if (popOnPlayerHit)
             {
-                if (isLocalFake)
-                    //Debug.Log("Fake popping on player hit");
                 Pop();
             }
         }
         else if (other.CompareTag("Bubble"))
         {
-            if (isLocalFake)
-            {
-                //Debug.Log("Fake pop with bubble");
-            }
-
             if (popOnBubbleHit)
             {
-                //Debug.Log("Fake popping on bubble hit");
                 Pop();
             }
         }
         else if (isLocalFake && other.CompareTag("Puddle"))
         {
-            //Debug.Log("Fake trigger on Puddle");
             return;
         }
         else
         {
-            //Debug.Log("Fake popping on something else");
             Pop();
         }
     }
 
     protected virtual void Pop()
     {
-        if (isLocalFake)
-            //Debug.Log("Fake in main pop");
-
         if (hasPopped) return;
         if (!IsServer && !isLocalFake) return;
+
+        if(IsServer)
+            MakeFakePopAswellClientRpc();
 
         hasPopped = true;
         StopAllCoroutines();
@@ -397,9 +402,6 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void Reflect(Vector3 normal)
     {
-        if (isLocalFake)
-            //Debug.Log("Fake in reflect");
-
         if (!IsServer && !isLocalFake) return;
 
         if (playerCollider != null && sphereCollider != null)
@@ -423,8 +425,6 @@ public class BasicBubble : NetworkBehaviour
 
     public virtual void SetSlippy()
     {
-        if (isLocalFake)
-            //Debug.Log("Fake in set slippy");
 
         if (!IsServer && !isLocalFake) return;
         if (isSoaped)
@@ -439,8 +439,6 @@ public class BasicBubble : NetworkBehaviour
 
     public void ChangeSpeed(float factor)
     {
-        if (isLocalFake)
-            //Debug.Log("Fake in change speed");
         if (!IsServer && !isLocalFake) return;
         speed *= factor;
     }
@@ -481,5 +479,15 @@ public class BasicBubble : NetworkBehaviour
             1,
             steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
             steamIntegration.missedShotAchievementID);
+    }
+
+    [ClientRpc]
+    public void MakeFakePopAswellClientRpc()
+    {
+        if (!IsServer && fakeCopy != null)
+        {
+            fakeCopy.fizzleEffect = hitEffect;
+            fakeCopy.Pop();
+        }
     }
 }

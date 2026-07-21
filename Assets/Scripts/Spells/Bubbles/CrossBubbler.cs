@@ -10,9 +10,9 @@ public class CrossBubbler : BasicBubble
 
     private Vector3 crossPoint;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         OwnerID.Value = ID;
         direction = dir;
         crossPoint = transform.position + (direction * crossPointOffset);
@@ -48,7 +48,7 @@ public class CrossBubbler : BasicBubble
 
         if (scriptRight != null)
         {
-            scriptRight.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider);
+            scriptRight.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
         }
 
 
@@ -77,7 +77,7 @@ public class CrossBubbler : BasicBubble
 
         if (scriptLeft != null)
         {
-            scriptLeft.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider);
+            scriptLeft.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider, AssignedSpellID.Value+2, fakeWithServerCaster);
         }
 
         Destroy(gameObject);

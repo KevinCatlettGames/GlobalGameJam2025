@@ -458,12 +458,16 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
+            int assignedSpellID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
             if(!IsServer)
             {
                 CastSpellLocal(isFirstSpell);
             }
-            CastSpellServerRpc(isFirstSpell, assignedID, playerID);
+            CastSpellServerRpc(isFirstSpell, assignedSpellID, playerID);
+            if(IsServer && spell.FakeWithServerCaster)
+            {
+                CastSpellOnServerCastClientRpc(isFirstSpell, playerID, transform.position, transform.forward, isUltCharged, NetworkManager.Singleton.LocalClientId, assignedSpellID);
+            }
         }
 
         if (isFirstSpell) isFirstSpellReady = false;
@@ -482,6 +486,19 @@ public class PlayerController : NetworkBehaviour
                 RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
             SlapAnimServerRpc(isFirstSpell);
         }
+    }
+
+    [ClientRpc]
+    private void CastSpellOnServerCastClientRpc(bool isFirstSpell, int playerID, Vector3 pos, Vector3 dir, bool isUltCharged, ulong clientID, int assignedID)
+    {
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+        Collider casterCollider = null;
+        foreach(PlayerController controller in GameManager.Instance.Players)
+            if(controller != null)
+                if(controller.PlayerID == playerID)
+                    casterCollider = controller.GetComponent<Collider>();
+
+        spell.CastSpell(playerID, pos, dir, casterCollider, isUltCharged, clientID, assignedID);
     }
 
     private void CastSpellLocal(bool isFirstSpell)
@@ -522,11 +539,11 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, int casterPlayerID, ServerRpcParams rpcParams = default)
+    private void CastSpellServerRpc(bool isFirstSpell, int assignedSpellID, int casterPlayerID, ServerRpcParams rpcParams = default)
     {
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-        float cooldown = spell.CastSpell(casterPlayerID, transform.position, transform.forward, GameManager.Instance.Players[casterPlayerID].controller, isUltCharged, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
-        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID, cooldown);
+        float cooldown = spell.CastSpell(casterPlayerID, transform.position, transform.forward, GameManager.Instance.Players[casterPlayerID].controller, isUltCharged, rpcParams.Receive.SenderClientId, assignedSpellID);
+        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, cooldown);
         if (isUltCharged)
         {
             currentUltCharge = 0;
@@ -554,7 +571,7 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID, float cooldown)
+    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, float cooldown)
     {
         if (NetworkManager.Singleton.LocalClientId == senderClientId)
         {
@@ -694,7 +711,7 @@ public class PlayerController : NetworkBehaviour
 
     #endregion
 
-        #region Sprinting
+    #region Sprinting
 
     public void OnSprint(InputAction.CallbackContext context)
     {

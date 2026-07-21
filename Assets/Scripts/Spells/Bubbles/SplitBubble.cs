@@ -45,6 +45,6 @@ public class SplitBubble : BasicBubble
         }
 
         if (bubbleScript != null)
-            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
     }
 }

@@ -12,9 +12,9 @@ public class SnipeBubble : BasicBubble
     private float maxDamage = 0f;
     private float currentDamage = 0f;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
 
         maxDamage = damage;
         currentDamage = minDamage;

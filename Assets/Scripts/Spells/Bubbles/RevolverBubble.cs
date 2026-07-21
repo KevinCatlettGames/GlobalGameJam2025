@@ -14,7 +14,7 @@ public class RevolverBubble : BasicBubble
     private int hitCount = 0;
     private Vector3 offset;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerSpawn)
     {
         OwnerID.Value = ID;
         direction = dir;
@@ -72,7 +72,7 @@ public class RevolverBubble : BasicBubble
 
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider);
+                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
             }
 
             yield return new WaitForSeconds(delayBetweenShots);

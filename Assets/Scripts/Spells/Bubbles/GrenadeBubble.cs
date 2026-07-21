@@ -21,9 +21,9 @@ public class GrenadeBubble : BasicBubble
     private const float raycastDistance = 5f;
     private GameObject primaryTarget = null;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         canMiss = false;
     }
 

@@ -44,6 +44,9 @@ public class SO_Spell : ScriptableObject
     [SerializeField] private bool availableInDemo = true;
     public bool AvailableInDemo { get => availableInDemo; set => availableInDemo = value; }
 
+    [SerializeField] private bool fakeWithServerCaster = false;
+    public bool FakeWithServerCaster { get => fakeWithServerCaster; set => fakeWithServerCaster = value; }
+
     public virtual float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt, ulong senderClientId, int assignedCastID)
     {
         dir.Normalize();
@@ -52,36 +55,26 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
-            //Debug.Log("Spawning server bubble");
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
-
-            if (ID != 0)
-                if (bubbleInstance.GetComponent<Collider>())
-                {
-                    Debug.Log("Collision ignored between server bubble: " + bubbleInstance.transform.name + " and player with id: " + ID);
-                    Physics.IgnoreCollision(bubbleInstance.GetComponent<Collider>(), GameManager.Instance.Players[ID].GetComponent<Collider>());
-                }
-
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
+            if(fakeWithServerCaster)
+                serverScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, true);
+            else
+                serverScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, false);
 
-            serverScript.InitialiseBubble(ID, dir, playerCollider);
         }
-        else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
+        else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId || fakeWithServerCaster)
         {
-            //Debug.Log("Spawning fake bubble");
             GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
-
             BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
             if (fakeScript != null)
             {
                 fakeScript.isLocalFake = true;
-                fakeScript.InitialiseBubble(ID, dir, playerCollider);
+                fakeScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, false);
             }
-
         }
-
         return spellCooldown;
     }
 }
