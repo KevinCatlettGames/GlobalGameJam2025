@@ -356,13 +356,35 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void Teleport(Vector3 destination)
+    public void Teleport(Vector3 destination, Quaternion rotation)
     {
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
         knockbackVelocity = Vector3.zero;
-        controller.enabled = false;
+        playerVelocity = Vector3.zero;
+
+        if (controller != null)
+            controller.enabled = false;
+
         transform.position = destination;
-        controller.enabled = true;
-        //Effects
+        transform.rotation = rotation;
+
+        if (controller != null)
+            controller.enabled = true;
+
+        if (!GameManager.Instance.PlayingLocal && TryGetComponent<Unity.Netcode.Components.NetworkTransform>(out var netTransform))
+        {
+            if (netTransform.CanCommitToTransform)
+            {
+                netTransform.Teleport(destination, rotation, transform.lossyScale);
+            }
+        }
+
+        if (trail != null && !isDead)
+        {
+            trail.Play();
+        }
     }
     #endregion
 
@@ -1434,7 +1456,9 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
-        trail.Play();
+        //trail.Play();
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);

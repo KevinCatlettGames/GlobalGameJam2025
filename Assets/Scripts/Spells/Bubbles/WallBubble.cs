@@ -120,14 +120,7 @@ public class WallBubble : BasicBubble
             base.BubbleMovement();
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void ChangeMaterialServerRpc()
-    {
-        ChangeMaterialClientRpc();
-    }
-
-    [ClientRpc]
-    private void ChangeMaterialClientRpc()
+    public void ChangeMaterial()
     {
         MeshRenderer renderer = GetComponent<MeshRenderer>();
         if (renderer != null && dmgedOutline != null)
@@ -138,6 +131,24 @@ public class WallBubble : BasicBubble
                 materials[1] = dmgedOutline;
                 renderer.materials = materials;
             }
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangeMaterialServerRpc()
+    {
+        ChangeMaterialClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeMaterialClientRpc()
+    {
+        ChangeMaterial();
+
+        if(!IsServer && !isLocalFake)
+        {
+            if (fakeCopy != null && fakeCopy.GetComponent<WallBubble>())               
+                fakeCopy.gameObject.GetComponent<WallBubble>().ChangeMaterial();
         }
     }
 }

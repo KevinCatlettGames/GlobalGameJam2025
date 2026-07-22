@@ -103,12 +103,10 @@ public class GiantBubble : BasicBubble
     public override void HandleTrigger(Collider other)
     {
         if (!isLocalFake) return;
-        Debug.Log("Fake giant in handle trigger");
         if (!hasInflated) return;
         if (hasPopped) return;
         if(!isSmall && other.CompareTag("Bubble"))
         {
-            Debug.Log("Fake Giant going small");
             isSmall = true;
             damage = dmgMini;
             knockback *= knbMod;

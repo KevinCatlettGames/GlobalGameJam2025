@@ -6,6 +6,7 @@ using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class LobbyButtons : MonoBehaviour
@@ -54,11 +55,8 @@ public class LobbyButtons : MonoBehaviour
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
             NetworkManager.Singleton.OnServerStopped += OnServerStopped;
         }
-    }
 
-    private void OnServerStopped(bool obj)
-    {
-        LeaveToMainMenu();
+        SceneManager.activeSceneChanged += SceneManager_activeSceneChanged;
     }
 
     private void OnDisable()
@@ -70,6 +68,7 @@ public class LobbyButtons : MonoBehaviour
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
             NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
         }
+        SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
     }
 
     private void Update()
@@ -283,5 +282,23 @@ public class LobbyButtons : MonoBehaviour
             MenuSelection.Instance.localOnline.SetActive(true);
 #endif
         Destroy(lobbyParent);
+    }
+
+    private void SceneManager_activeSceneChanged(Scene arg0, Scene arg1)
+    {
+        if (arg1.buildIndex != 0)
+        {
+            if (NetworkManager.Singleton != null)
+            {
+                NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+                NetworkManager.Singleton.OnServerStopped -= OnServerStopped;
+            }
+            SceneManager.activeSceneChanged -= SceneManager_activeSceneChanged;
+        }
+    }
+
+    private void OnServerStopped(bool obj)
+    {
+        LeaveToMainMenu();
     }
 }

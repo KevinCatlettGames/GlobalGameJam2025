@@ -22,20 +22,16 @@ public class JumpingFish : NetworkBehaviour
 
     public void Jump(Transform startPos)
     {
-        // --- FIXED FOR RELAY AND STANDALONE ---
-        // If the server calls this, immediately broadcast to everyone
         if (IsServer)
         {
             JumpClientRpc(startPos.position, startPos.rotation);
         }
         else if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            // Fallback: If a client ever triggers this (unlikely for a map event)
             JumpServerRpc(startPos.position, startPos.rotation);
         }
         else
         {
-            // Local fallback execution logic
             ExecuteLocalJump(startPos.position, startPos.rotation);
         }
     }
@@ -52,7 +48,6 @@ public class JumpingFish : NetworkBehaviour
         ExecuteLocalJump(pos, rot);
     }
 
-    // Extracted logic into a single method so ClientRpc and local paths match perfectly
     private void ExecuteLocalJump(Vector3 pos, Quaternion rot)
     {
         if (isJumping) return;

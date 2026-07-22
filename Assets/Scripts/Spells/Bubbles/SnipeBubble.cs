@@ -1,7 +1,5 @@
-using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
-using FMODUnity;
 
 public class SnipeBubble : BasicBubble
 {
