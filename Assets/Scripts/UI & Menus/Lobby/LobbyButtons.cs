@@ -216,12 +216,13 @@ public class LobbyButtons : MonoBehaviour
         }
     }
 
-    private void OnClientDisconnect(ulong clientId)
+    private async void OnClientDisconnect(ulong clientId)
     {
         LobbyPlayerInput inputOfDisconnectedClient = null;    
         LobbyManager.instance.allLobbyPlayerInputs.Remove(inputOfDisconnectedClient);
 
         Debug.Log("Host disconnected — returning to main menu...");
+        await CleanupLobby();
         LeaveToMainMenu();
     }
 
@@ -243,7 +244,7 @@ public class LobbyButtons : MonoBehaviour
 
             if (IsHost())
             {    
-                var options = new UpdateLobbyOptions { IsPrivate = true };
+                var options = new UpdateLobbyOptions { IsPrivate = true, IsLocked = true};
                 await LobbyService.Instance.UpdateLobbyAsync(lobbyId, options);
                 await Task.Delay(100);
                 await LobbyService.Instance.DeleteLobbyAsync(lobbyId);

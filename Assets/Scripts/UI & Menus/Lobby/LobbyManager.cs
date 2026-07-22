@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -225,6 +226,7 @@ public class LobbyManager : NetworkBehaviour
         {
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
+            GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
         }
 #else
         foreach (var device in InputSystem.devices)
@@ -581,7 +583,7 @@ public class LobbyManager : NetworkBehaviour
             {
                 if (IsServer)
                 {
-                    await GameLobby.instance.LockCurrentLobby();
+                    await GameLobby.instance.ChangeServerLockState(true, true);
                 }
             }
 #endif
@@ -595,7 +597,7 @@ public class LobbyManager : NetworkBehaviour
             {
                 if (IsServer)
                 {
-                    await GameLobby.instance.LockCurrentLobby();
+                    await GameLobby.instance.ChangeServerLockState(true, true);
                 }
             }
 #endif

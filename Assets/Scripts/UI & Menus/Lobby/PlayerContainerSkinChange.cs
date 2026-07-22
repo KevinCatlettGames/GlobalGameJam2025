@@ -1,7 +1,7 @@
+using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using FMODUnity;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
@@ -26,6 +26,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
+        }
 
         blurImage.color = initialBlurColor;
     }
@@ -69,6 +74,9 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     void OnClientConnectedCallback(ulong clientID)
     {
+        if (clientID == NetworkManager.Singleton.LocalClientId) return;
+        if (!IsSpawned || !IsServer) return;
+
         ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
     }
 

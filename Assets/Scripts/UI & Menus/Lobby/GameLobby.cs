@@ -39,7 +39,10 @@ public class GameLobby : MonoBehaviour
 
     public GameObject lobby;
     public GameObject onlineMatchmakingParent;
+    public GameObject publicLobbiesParent;
     public GameObject lobbyNotFoundText;
+    public bool currentServerIsPrivate = true;
+
 
     private void Awake()
     {
@@ -69,9 +72,15 @@ public class GameLobby : MonoBehaviour
             onlineCreationUI.lobbyUI.SetActive(false);
             ChangeJoinTextState(true);
 
+            if(!isPrivate)
+            {
+                Debug.Log("Should be public, setting private for now");
+                currentServerIsPrivate = false;
+            }
+
             GlobalLobby.CurrentLobby = await LobbyService.Instance.CreateLobbyAsync(lobbyName, 4, new CreateLobbyOptions
             {
-                IsPrivate = isPrivate,
+                IsPrivate = true,
             });
 
             var allocation = await AllocateRelay();
@@ -118,6 +127,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            publicLobbiesParent.SetActive(false);
             lobbyNotFoundText.SetActive(true);
         }
     }
@@ -163,6 +173,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            publicLobbiesParent.SetActive(false);
             lobbyNotFoundText.SetActive(true);
         }       
     }
@@ -178,6 +189,7 @@ public class GameLobby : MonoBehaviour
         }
         catch (LobbyServiceException e)
         {
+            publicLobbiesParent.SetActive(false);
             lobbyNotFoundText.SetActive(true);
         }
     }
@@ -185,11 +197,12 @@ public class GameLobby : MonoBehaviour
     {
         try
         {
+            publicLobbiesParent.SetActive(false);
+            onlineCreationUI.lobbyUI.SetActive(false);
             var joinAllocation = await JoinRelay(joinCode);
             ConfigureTransport(joinAllocation);
             NetworkManager.Singleton.StartClient();
-            ChangeJoinTextState(false);
-            onlineCreationUI.lobbyUI.SetActive(false);
+            ChangeJoinTextState(true);
         }
         catch (LobbyServiceException e)
         {
@@ -307,23 +320,22 @@ public class GameLobby : MonoBehaviour
         joiningLobbyText.GetComponent<TextAnimator_TMP>().ResetState();
     }
 
-    public async Task LockCurrentLobby()
+    public async Task ChangeServerLockState(bool makePrivate, bool isLocked)
     {
         try
         {
             var updateOptions = new UpdateLobbyOptions
             {
-                IsPrivate = true,
-                IsLocked = true
+                IsPrivate = makePrivate,
+                IsLocked = isLocked
             };
             Lobby updatedLobby = await LobbyService.Instance.UpdateLobbyAsync(GlobalLobby.CurrentLobby.Id, updateOptions);
 
-            Debug.Log($"Lobby {updatedLobby.Id} successfully locked down. " +
-                          $"Private: {updatedLobby.IsPrivate}, Locked: {updatedLobby.IsLocked}");
+            //Debug.Log($"Private: {updatedLobby.IsPrivate}, Locked: {updatedLobby.IsLocked}");
         }   
         catch (LobbyServiceException e)
         {
-            Debug.LogError($"Failed to lock down lobby: {e.Message}");
+            Debug.LogError($"Failed to change lockstate of lobby: {e.Message}");
         }
     }
 }

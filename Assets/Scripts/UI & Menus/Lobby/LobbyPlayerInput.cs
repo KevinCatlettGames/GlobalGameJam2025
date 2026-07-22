@@ -338,7 +338,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
         }
 
-        if (joined && !LobbyManager.instance.players[playersListID].IsReady)
+        if (joined && !LobbyManager.instance.players[playersListID].IsReady && !TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
             {
@@ -365,7 +365,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
         }
 
-        if (!joined)
+        if (!joined || joined && !LobbyManager.instance.players[playersListID].IsReady && TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
                 lobbyButtons.OnBackToMenuButtonDown();
@@ -529,8 +529,11 @@ public class LobbyPlayerInput : NetworkBehaviour
 
         try
         {
-            Friend friend = new Friend(networkSteamId.Value);
-            steamName.Value = friend.Name;
+            if (IsOwner)
+            {
+                Friend friend = new Friend(networkSteamId.Value);
+                steamName.Value = friend.Name;
+            }
         }
         catch (Exception ex)
         {
