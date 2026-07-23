@@ -39,7 +39,6 @@ public class Puddle : NetworkBehaviour
         if (!IsServer) return;
 
         playerID.Value = playerCollider.GetComponent<PlayerController>().PlayerID;
-        Debug.Log("Set puddle player id to: " + playerID.Value);
     }
 
     private void OnPlayerIdAssigned(int previousValue, int newValue)

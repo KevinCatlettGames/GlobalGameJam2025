@@ -65,6 +65,7 @@ public class SteamIntegration : MonoBehaviour
         try
         {
             InitializeSteam();
+            SetLocaleBasedOnSteamLanguage();
             DontDestroyOnLoad(this);
         }
         catch (System.Exception e)

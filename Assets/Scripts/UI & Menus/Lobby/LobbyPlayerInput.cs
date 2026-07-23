@@ -516,6 +516,9 @@ public class LobbyPlayerInput : NetworkBehaviour
 #if !UNITY_SWITCH
     string GetSteamUserName()
     {
+        int visibleLength = 0;
+        StringInfo stringInfo = null;
+        string truncatedName = string.Empty;
         if (!SteamIntegration.instance || !SteamClient.IsValid)
         {
             Debug.Log("Steam not init");
@@ -524,7 +527,19 @@ public class LobbyPlayerInput : NetworkBehaviour
         
         if(steamName.Value != "Wizzo")
         {
-            return steamName.Value.ToString();
+            steamName.Value = steamName.Value.ToString().Trim();
+            stringInfo = new StringInfo(steamName.Value.ToString());
+            visibleLength = stringInfo.LengthInTextElements;
+            if (visibleLength <= 7)
+            {
+                return steamName.Value.ToString();
+            }
+            truncatedName = stringInfo.SubstringByTextElements(0, 7);
+            if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
+            {
+                truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);
+            }
+            return truncatedName + ".";         
         }
 
         try
@@ -546,13 +561,13 @@ public class LobbyPlayerInput : NetworkBehaviour
             return "Wizzo";
         }
         steamName.Value = steamName.Value.ToString().Trim();
-        StringInfo stringInfo = new StringInfo(steamName.Value.ToString());
-        int visibleLength = stringInfo.LengthInTextElements;
+        stringInfo = new StringInfo(steamName.Value.ToString());
+        visibleLength = stringInfo.LengthInTextElements;
         if (visibleLength <= 7)
         {
             return steamName.Value.ToString();
         }
-        string truncatedName = stringInfo.SubstringByTextElements(0, 7);
+        truncatedName = stringInfo.SubstringByTextElements(0, 7);
         if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
         {
             truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);

@@ -24,7 +24,6 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     private void Start()
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
         transportSwitcher = TransportSwitcher.Instance;
         transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
         transportSwitcher.onSwitchToUnityTransport.AddListener(MakeNonInteractable);
@@ -52,7 +51,8 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void MakeInteractable()
     {
-        button.interactable = true; 
+        if(isActiveAndEnabled)
+            button.interactable = true; 
     }
 
     /// <summary>
@@ -60,6 +60,7 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void MakeNonInteractable()
     {
-        button.interactable = false; 
+        if(isActiveAndEnabled)
+            button.interactable = false; 
     }
 }
