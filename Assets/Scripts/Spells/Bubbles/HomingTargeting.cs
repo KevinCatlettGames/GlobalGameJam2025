@@ -7,7 +7,6 @@ public class HomingTargeting : MonoBehaviour
 
     public Vector3 GetTargetVector()
     {
-        // Clean out any destroyed or null targets from the front of the list
         while (targetsInRange.Count > 0 && targetsInRange[0] == null)
         {
             targetsInRange.RemoveAt(0);
@@ -15,7 +14,6 @@ public class HomingTargeting : MonoBehaviour
 
         if (targetsInRange.Count == 0) return Vector3.zero;
 
-        // Calculate the normalized direction vector toward our target
         Vector3 targetPosition = targetsInRange[0].position;
         Vector3 targetVector = targetPosition - transform.position;
         targetVector.Normalize();
@@ -25,6 +23,8 @@ public class HomingTargeting : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other == null) return;
+
+        if (other.transform.root == transform.root) return;
 
         if (other.CompareTag("Player"))
         {
@@ -62,8 +62,6 @@ public class HomingTargeting : MonoBehaviour
 
         homingCollider.radius = radius;
 
-        // --- CLIENT/SERVER TEAM SAFE CHECK ---
-        // Ensure the GameManager and Team repository exist before filtering team collision rules
         if (GameManager.Instance != null)
         {
             List<PlayerController> team = GameManager.Instance.GetTeam(ID);
@@ -76,11 +74,10 @@ public class HomingTargeting : MonoBehaviour
                         Physics.IgnoreCollision(homingCollider, player.Controller, true);
                     }
                 }
-                return; // Successfully ignored teammates!
+                return;
             }
         }
 
-        // Fallback: If team data isn't initialized on the client yet, at least ignore the shooter
         if (playerCollider != null)
         {
             Physics.IgnoreCollision(homingCollider, playerCollider, true);

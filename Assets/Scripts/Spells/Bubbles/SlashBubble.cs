@@ -10,12 +10,11 @@ public class SlashBubble : BasicBubble
     [SerializeField] private GameObject slasherR;
     [SerializeField] private Transform spinner;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         canMiss = false;
 
-        // Ensure coroutines fire off for both the authoritative server instance and local visual fakes
         StartCoroutine(StartSlashers());
     }
 
@@ -31,23 +30,21 @@ public class SlashBubble : BasicBubble
             yield return null;
         }
 
-        // Initialize sub-slasher configuration parameters safely
-        if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID);
-        if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID);
+        if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
+        if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
 
         hasInflated = true;
     }
 
     protected override void BubbleMovement()
     {
-        // Allow tracking of casting player anchor position across both execution contexts
         if (playerCollider != null)
         {
             transform.position = playerCollider.transform.position;
         }
     }
 
-    protected override IEnumerator BubbleRangeLimit(float customLifetime = 0f)
+    protected override IEnumerator BubbleRangeLimit()
     {
         while (!hasInflated)
             yield return null;
@@ -68,37 +65,32 @@ public class SlashBubble : BasicBubble
     public void SlasherHit(Vector3 slasherDir, GameObject other)
     {
         if (other == null) return;
-        if (!IsServer && !isLocalFake) return; // Ignore unmanaged remote proxy scripts
+        if (!IsServer && !isLocalFake) return;
 
         direction = slasherDir;
 
-        // --- 1. REFLECTION HANDLING (Shared logic to keep rotations synchronized) ---
         if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
             if (IsServer)
             {
-                OwnerID = reflector.OwnerID;
+                OwnerID.Value = reflector.OwnerID;
             }
             Reflect(Vector3.zero);
             return;
         }
 
-        // --- 2. LOCAL FAKE SHORT CIRCUIT ---
         if (isLocalFake)
         {
-            // If the local melee fake intersects an enemy projectile, simulate a clash visual pop on it instantly
             if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble clientBubble))
             {
                 if (clientBubble.OwnerID != OwnerID)
                 {
-                    // Trigger dynamic local popping simulation behavior on opposing client projectile
                     clientBubble.BubbleCollision(gameObject);
                 }
             }
             return;
         }
 
-        // --- 3. AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble serverBubble))
         {
             if (serverBubble.OwnerID != OwnerID)
@@ -114,7 +106,7 @@ public class SlashBubble : BasicBubble
     {
         if (isReflected) return;
         isReflected = !isReflected;
-        speed *= -1f; // Inverts the spin direction natively for client-side matching!
+        speed *= -1f;
 
         if (rangeCoroutine != null)
             StopCoroutine(rangeCoroutine);

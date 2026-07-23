@@ -13,13 +13,17 @@ public class RelayLobbyList : MonoBehaviour
     public List<Lobby> CurrentLobbies { get; private set; } = new List<Lobby>();
     public List<GameObject> lobbyItems = new List<GameObject>();
     
-    private async void Start()
+    private async void OnEnable()
     {
         RefreshLobbyList();
     }
 
     public async void RefreshLobbyList()
     {
+        CancelInvoke(nameof(RefreshLobbyList));
+        
+        if(!gameObject.activeSelf) return;
+
         foreach (GameObject lobbyItem in lobbyItems)
             Destroy(lobbyItem);
         
@@ -29,6 +33,11 @@ public class RelayLobbyList : MonoBehaviour
 
         int lobbyAmountinList = lobbyListContainer.childCount;
         noLobbiesText.SetActive(lobbyAmountinList <= 0);
+
+        if (lobbyItems.Count <= 0)
+            Invoke(nameof(RefreshLobbyList), 5f);
+        else
+            Invoke(nameof(RefreshLobbyList), 30f);
     }
 
     private void PopulateLobbyList()

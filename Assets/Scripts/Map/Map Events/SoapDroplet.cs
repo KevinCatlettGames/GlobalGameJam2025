@@ -91,7 +91,7 @@ public class SoapDroplet : NetworkBehaviour
         }
 
         RuntimeManager.PlayOneShotAttached(splatEvent, gameObject);
-        Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player"));
+        Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player", "LocalPlayer"));
         Vector3 origin;
         Vector3 direction;
         foreach (Collider col in explosionOverlaps)

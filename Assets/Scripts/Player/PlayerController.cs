@@ -356,13 +356,35 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
-    public void Teleport(Vector3 destination)
+    public void Teleport(Vector3 destination, Quaternion rotation)
     {
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+
         knockbackVelocity = Vector3.zero;
-        controller.enabled = false;
+        playerVelocity = Vector3.zero;
+
+        if (controller != null)
+            controller.enabled = false;
+
         transform.position = destination;
-        controller.enabled = true;
-        //Effects
+        transform.rotation = rotation;
+
+        if (controller != null)
+            controller.enabled = true;
+
+        if (!GameManager.Instance.PlayingLocal && TryGetComponent<Unity.Netcode.Components.NetworkTransform>(out var netTransform))
+        {
+            if (netTransform.CanCommitToTransform)
+            {
+                netTransform.Teleport(destination, rotation, transform.lossyScale);
+            }
+        }
+
+        if (trail != null && !isDead)
+        {
+            trail.Play();
+        }
     }
     #endregion
 
@@ -409,27 +431,6 @@ public class PlayerController : NetworkBehaviour
 
     #region Spell System
 
-    [ClientRpc]
-    public void DestroyLocalFakeBubbleClientRpc(int targetCastID)
-    {
-        BasicBubble localFake = GetLocalFakeByCastID(targetCastID);
-        if (localFake != null)
-        {
-            localFake.HideVisualsAndDisablePhysics();
-            Destroy(localFake.gameObject);
-        }
-    }
-
-    public int GenerateNextCastID()
-    {
-        localSpellCounter++;
-        return ((int)NetworkManager.Singleton.LocalClientId * 10000) + localSpellCounter;
-    }
-
-    public void RegisterLocalFake(BasicBubble fakeBubble)
-    {
-        activeLocalFakes.Add(fakeBubble);
-    }
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
@@ -458,7 +459,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnUltCharge(InputAction.CallbackContext context)
     {
-        return; // Remove when Ult is back
+        return;
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
         if (currentUltCharge >= maxUltCharge)
         {
@@ -467,20 +468,6 @@ public class PlayerController : NetworkBehaviour
         }
         else
             controllerRumbler?.Rumble(.15f, 1f, 5f);
-    }
-
-    public BasicBubble GetLocalFakeByCastID(int id)
-    {
-        activeLocalFakes.RemoveAll(item => item == null);
-
-        foreach (BasicBubble fake in activeLocalFakes)
-        {
-            if (fake.castID == id)
-            {
-                return fake;
-            }
-        }
-        return null;
     }
 
     private void CastSpell(bool isFirstSpell)
@@ -493,9 +480,16 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            int assignedID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
-            CastSpellServerRpc(isFirstSpell, assignedID);
-            CastSpellLocal(isFirstSpell);
+            int assignedSpellID = ((int)NetworkManager.Singleton.LocalClientId * 10000) + (localSpellCounter + 1);
+            if(!IsServer)
+            {
+                CastSpellLocal(isFirstSpell);
+            }
+            CastSpellServerRpc(isFirstSpell, assignedSpellID, playerID);
+            if(IsServer && spell.FakeWithServerCaster)
+            {
+                CastSpellOnServerCastClientRpc(isFirstSpell, playerID, transform.position, transform.forward, isUltCharged, NetworkManager.Singleton.LocalClientId, assignedSpellID);
+            }
         }
 
         if (isFirstSpell) isFirstSpellReady = false;
@@ -514,6 +508,19 @@ public class PlayerController : NetworkBehaviour
                 RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
             SlapAnimServerRpc(isFirstSpell);
         }
+    }
+
+    [ClientRpc]
+    private void CastSpellOnServerCastClientRpc(bool isFirstSpell, int playerID, Vector3 pos, Vector3 dir, bool isUltCharged, ulong clientID, int assignedID)
+    {
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+        Collider casterCollider = null;
+        foreach(PlayerController controller in GameManager.Instance.Players)
+            if(controller != null)
+                if(controller.PlayerID == playerID)
+                    casterCollider = controller.GetComponent<Collider>();
+
+        spell.CastSpell(playerID, pos, dir, casterCollider, isUltCharged, clientID, assignedID);
     }
 
     private void CastSpellLocal(bool isFirstSpell)
@@ -554,13 +561,39 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void CastSpellServerRpc(bool isFirstSpell, int clientGeneratedCastID, ServerRpcParams rpcParams = default)
+    private void CastSpellServerRpc(bool isFirstSpell, int assignedSpellID, int casterPlayerID, ServerRpcParams rpcParams = default)
     {
-        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, clientGeneratedCastID);
+        SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
+        float cooldown = spell.CastSpell(casterPlayerID, transform.position, transform.forward, GameManager.Instance.Players[casterPlayerID].controller, isUltCharged, rpcParams.Receive.SenderClientId, assignedSpellID);
+        CastSpellClientRpc(isFirstSpell, rpcParams.Receive.SenderClientId, cooldown);
+        if (isUltCharged)
+        {
+            currentUltCharge = 0;
+            isUltCharged = false;
+            playerHUD.ChargeUlt(false);
+            playerHUD.SetUltSlider(0);
+        }
+        if (isFirstSpell)
+        {
+            firstSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 1));
+        }
+        else
+        {
+            secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
+        }
+
+        if (!usedSpell.Contains(spell))
+            usedSpell.Add(spell);
+
+        if (SteamIntegration.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        }
     }
 
     [ClientRpc]
-    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, int assignedID)
+    private void CastSpellClientRpc(bool isFirstSpell, ulong senderClientId, float cooldown)
     {
         if (NetworkManager.Singleton.LocalClientId == senderClientId)
         {
@@ -568,8 +601,6 @@ public class PlayerController : NetworkBehaviour
         }
 
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
-
-        float cooldown = spell.CastSpell(playerID, transform.position, transform.forward, controller, isUltCharged, senderClientId, assignedID);
 
         if (isUltCharged)
         {
@@ -697,32 +728,6 @@ public class PlayerController : NetworkBehaviour
                 if (SteamIntegration.instance)
                     SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
             }
-        }
-    }
-
-    public void TriggerHandoff(BasicBubble realNetworkBubble, int castID)
-    {
-        StartCoroutine(HandOffCountdownRoutine(realNetworkBubble, castID));
-    }
-
-    private IEnumerator HandOffCountdownRoutine(BasicBubble realNetworkBubble, int castID)
-    {
-        yield return null;
-
-        if (realNetworkBubble == null) yield break;
-
-        BasicBubble localFake = GetLocalFakeByCastID(castID);
-
-        if (localFake != null)
-        {
-            localFake.InitializeReconciliation(realNetworkBubble.transform);
-            realNetworkBubble.SetMeshVisibility(false);
-            realNetworkBubble.isMeshHiddenForOwner = true;
-        }
-        else
-        {
-            realNetworkBubble.SetMeshVisibility(true);
-            realNetworkBubble.isMeshHiddenForOwner = false;
         }
     }
 
@@ -1451,7 +1456,9 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
-        trail.Play();
+        //trail.Play();
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
@@ -1618,7 +1625,7 @@ public class PlayerController : NetworkBehaviour
 
         foreach (var hit in hits)
         {
-            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID == playerID) continue;
+            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID.Value == playerID) continue;
             
             if (!bubblesInside.Contains(hit))
                 bubblesInside.Add(hit);
@@ -1634,7 +1641,7 @@ public class PlayerController : NetworkBehaviour
             
             if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
                 || bubble.HasPopped
-                || bubble.OwnerID == playerID
+                || bubble.OwnerID.Value == playerID
                 || !isSprinting
                 || !SteamIntegration.instance) return;
                 

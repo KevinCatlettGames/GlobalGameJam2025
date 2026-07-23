@@ -10,24 +10,19 @@ public class CrossBubbler : BasicBubble
 
     private Vector3 crossPoint;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        OwnerID = ID;
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
+        OwnerID.Value = ID;
         direction = dir;
         crossPoint = transform.position + (direction * crossPointOffset);
         this.playerCollider = playerCollider;
         transform.position = playerCollider.transform.position;
-
         SpawnCrossShots();
     }
 
     private void SpawnCrossShots()
     {
-        int baseCastID = this.castID;
-
-        int rightBulletID = (baseCastID * 10) + 1;
-        int leftBulletID = (baseCastID * 10) + 2;
-
         Vector3 spawnPosition = transform.position + (transform.right * sideOffset);
         Vector3 crossDirection = (crossPoint - spawnPosition).normalized;
 
@@ -37,24 +32,15 @@ public class CrossBubbler : BasicBubble
         if (isLocalFake)
         {
             Destroy(bubbleRight.GetComponent<NetworkObject>());
-            bubbleRight.layer = LayerMask.NameToLayer("FakeProjectiles");
 
             if (scriptRight != null)
             {
                 scriptRight.isLocalFake = true;
-                scriptRight.castID = rightBulletID;
 
-                var playerCtrl = playerCollider?.GetComponent<PlayerController>();
-                if (playerCtrl != null) playerCtrl.RegisterLocalFake(scriptRight);
             }
         }
         else if (IsServer)
         {
-            if (scriptRight != null)
-            {
-                scriptRight.syncedCastID.Value = rightBulletID;
-                scriptRight.castID = rightBulletID;
-            }
 
             NetworkObject netObj = bubbleRight.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
@@ -62,7 +48,7 @@ public class CrossBubbler : BasicBubble
 
         if (scriptRight != null)
         {
-            scriptRight.InitialiseBubble(OwnerID, crossDirection, playerCollider);
+            scriptRight.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
         }
 
 
@@ -75,33 +61,23 @@ public class CrossBubbler : BasicBubble
 
         if (IsServer)
         {
-            if (scriptLeft != null)
-            {
-                scriptLeft.syncedCastID.Value = leftBulletID;
-                scriptLeft.castID = leftBulletID;
-            }
-
             NetworkObject netObj = bubbleLeft.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
         }
         else if (isLocalFake)
         {
             Destroy(bubbleLeft.GetComponent<NetworkObject>());
-            bubbleLeft.layer = LayerMask.NameToLayer("FakeProjectiles");
 
             if (scriptLeft != null)
             {
                 scriptLeft.isLocalFake = true;
-                scriptLeft.castID = leftBulletID;
 
-                var playerCtrl = playerCollider?.GetComponent<PlayerController>();
-                if (playerCtrl != null) playerCtrl.RegisterLocalFake(scriptLeft);
             }
         }
 
         if (scriptLeft != null)
         {
-            scriptLeft.InitialiseBubble(OwnerID, crossDirection, playerCollider);
+            scriptLeft.InitialiseBubble(OwnerID.Value, crossDirection, playerCollider, AssignedSpellID.Value+2, fakeWithServerCaster);
         }
 
         Destroy(gameObject);

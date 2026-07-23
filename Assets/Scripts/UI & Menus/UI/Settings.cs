@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using FMODUnity;
+using UnityEngine.Events;
 
 public class Settings : MonoBehaviour
 {
@@ -83,6 +84,7 @@ public class Settings : MonoBehaviour
     [SerializeField] private Button resetButton;
     [SerializeField] private Button backButton;
     [SerializeField] private StudioEventEmitter emitter;
+    public UnityEvent OnBackPressed; 
     #endregion
 
     public enum Tab { Video, Audio, Game }
@@ -271,8 +273,9 @@ public class Settings : MonoBehaviour
     private void ExitSettings(InputAction.CallbackContext obj)
     {
 #if !UNITY_SWITCH
-        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return; 
-#endif 
+        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return;
+#endif
+        OnBackPressed?.Invoke();
         backButton.onClick?.Invoke();
     }
 

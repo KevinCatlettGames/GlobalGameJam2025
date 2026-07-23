@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode; 
@@ -47,7 +46,7 @@ public class SlipTrigger : MonoBehaviour
 
     private void CheckMakeBubbleSlipperyAchievement(BasicBubble spedUpBubble)
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID 
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID.Value
             || !SteamIntegration.instance) return;
         
         SteamIntegration steamIntegration = SteamIntegration.instance;

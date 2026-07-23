@@ -14,7 +14,10 @@ public class BasicBubble : NetworkBehaviour
     };
 
     public SpellType spellType;
-    public int OwnerID = -1;
+    public NetworkVariable<int> OwnerID = new NetworkVariable<int>();
+    public NetworkVariable<int> AssignedSpellID = new NetworkVariable<int>();
+    public BasicBubble fakeCopy = null;
+    public bool fakeWithServerCaster = false;
     protected Vector3 direction;
     protected bool hasPopped;
     [HideInInspector] public bool HasPopped { get { return hasPopped; } }
@@ -57,38 +60,18 @@ public class BasicBubble : NetworkBehaviour
     protected bool isUlt = false;
     protected bool hasHitPlayer = false;
 
-    // Local Fake Variables
-    [HideInInspector] public bool isLocalFake = false;
-    [HideInInspector] public NetworkVariable<int> syncedCastID = new NetworkVariable<int>(0, NetworkVariableReadPermission.Everyone, NetworkVariableWritePermission.Server);
-    private int _localFakeCastID;
-    [HideInInspector] public Transform serverBubbleTarget;
-    [SerializeField] protected Transform visualChildMesh;
-    [SerializeField] private float visualBlendSpeed = 3f;
-    private Vector3 visualOffset;
-    public int castID
-    {
-        get => isLocalFake ? _localFakeCastID : syncedCastID.Value;
-        set
-        {
-            if (isLocalFake) _localFakeCastID = value;
-            else if (IsServer) syncedCastID.Value = value;
-        }
-    }
-    public bool isMeshHiddenForOwner = false;
-    private bool isInitialized = false;
-    private float trackingSpeed = 0f;
-    public float catchUpTime = 0.2f;
-    private float safetyTimer = 0f;
-    public float maxTrackingDuration = 0.35f;
+    public bool isLocalFake = false;
 
     private void Start()
     {
         GameManager.Instance.OnGameEnded += DestroyBubble;
     }
 
-    public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public virtual void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool serverSpawnWithClientSpawn)
     {
-        OwnerID = ID;
+        OwnerID.Value = ID;
+        AssignedSpellID.Value = assignedSpellID;
+        this.fakeWithServerCaster = serverSpawnWithClientSpawn;
         direction = dir;
         this.playerCollider = playerCollider;
 
@@ -117,30 +100,8 @@ public class BasicBubble : NetworkBehaviour
             {
                 Physics.IgnoreCollision(sphereCollider, col);
             }
-            StartCoroutine(Inflate());
-        }
-    }
 
-    public void InitializeReconciliation(Transform serverTarget)
-    {
-        serverBubbleTarget = serverTarget;
-        if (visualChildMesh != null && serverTarget != null)
-        {
-            if (serverTarget.TryGetComponent<BasicBubble>(out var serverBubble))
-            {
-                this.castID = serverBubble.castID;
-            }
-            float currentRTT = GetCurrentRTTInSeconds();
-            catchUpTime = Mathf.Clamp(currentRTT * 1.2f, 0.12f, 0.45f);
-            maxTrackingDuration = Mathf.Clamp((currentRTT * 2.5f) + 0.2f, 0.4f, 1.5f);
-            Vector3 worldOffset = serverTarget.position - transform.position;
-            visualOffset = transform.InverseTransformDirection(worldOffset);
-            if (rangeCoroutine != null)
-                StopCoroutine(rangeCoroutine);
-            float trueTimeSpent = worldOffset.magnitude / speed;
-            float remainingServerLifetime = (range / speed) - trueTimeSpent;
-            remainingServerLifetime = Mathf.Max(remainingServerLifetime, 0.05f);
-            rangeCoroutine = StartCoroutine(BubbleRangeLimit(remainingServerLifetime));
+            StartCoroutine(Inflate());
         }
     }
 
@@ -151,39 +112,97 @@ public class BasicBubble : NetworkBehaviour
         if (!IsOwner)
             RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
 
-        if (!IsServer && NetworkManager.Singleton != null)
+        OwnerID.OnValueChanged += OnOwnerIdAssigned;
+
+        AssignedSpellID.OnValueChanged += OnSpellIdAssigned;
+
+        if (!IsServer && !isLocalFake)
         {
-            if (syncedCastID.Value != 0)
-                OnCastIDSynced();
-            else
-                syncedCastID.OnValueChanged += HandleCastIDChange;
+            if (AssignedSpellID.Value != 0)
+            {
+                TryLinkLocalFake(AssignedSpellID.Value);
+            }
         }
     }
 
-    private void HandleCastIDChange(int previousValue, int newValue)
+    public override void OnNetworkDespawn()
     {
-        syncedCastID.OnValueChanged -= HandleCastIDChange;
-        OnCastIDSynced();
+        base.OnNetworkDespawn();
+        OwnerID.OnValueChanged -= OnOwnerIdAssigned;
+        AssignedSpellID.OnValueChanged -= OnSpellIdAssigned;
     }
 
-    private void OnCastIDSynced()
+    private void OnSpellIdAssigned(int previousValue, int newValue)
     {
-        var players = FindObjectsByType<PlayerController>(FindObjectsSortMode.None);
-        foreach (var p in players)
+        if (!IsServer && !isLocalFake && newValue != 0)
         {
-            if (p.IsLocalPlayer)
+            TryLinkLocalFake(newValue);
+        }
+    }
+
+    private void TryLinkLocalFake(int targetSpellId)
+    {
+        if (fakeCopy != null) return;
+
+        BasicBubble[] allBubbles = FindObjectsByType<BasicBubble>(FindObjectsSortMode.None);
+
+        foreach (var bubble in allBubbles)
+        {
+            if (bubble.isLocalFake && bubble.AssignedSpellID.Value == targetSpellId)
             {
-                p.TriggerHandoff(this, this.castID);
+                fakeCopy = bubble;
+
+                Collider myCollider = GetComponent<Collider>();
+                Collider fakeCollider = bubble.GetComponent<Collider>();
+                if (myCollider != null && fakeCollider != null)
+                {
+                    Physics.IgnoreCollision(myCollider, fakeCollider, true);
+                }
+
                 break;
             }
         }
     }
 
-    public void SetMeshVisibility(bool visible)
+
+    void OnOwnerIdAssigned(int previousValue, int newValue)
     {
-        foreach (var renderer in GetComponentsInChildren<Renderer>())
-            renderer.enabled = visible;
+        CheckAndHideVisibility(newValue);
     }
+
+    void CheckAndHideVisibility(int currentCasterId)
+    {
+        if (IsServer || isLocalFake) return;
+
+        if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
+        if (GameManager.Instance.Players[currentCasterId] == null) return;
+
+        if (GameManager.Instance.Players[currentCasterId].IsOwner || fakeWithServerCaster)
+        {
+            foreach (var renderer in GetComponentsInChildren<Renderer>(true))
+                renderer.enabled = false;
+
+            foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true))
+            {
+                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                ps.gameObject.SetActive(false);
+            }
+
+            foreach (TrailRenderer trail in GetComponentsInChildren<TrailRenderer>(true))
+            {
+                trail.Clear();
+                trail.enabled = false;
+            }
+
+            Collider bubbleCol = GetComponent<Collider>();
+            Collider playerCol = GameManager.Instance.Players[OwnerID.Value].GetComponent<Collider>();
+            if (bubbleCol != null && playerCol != null)
+            {
+                Physics.IgnoreCollision(bubbleCol, playerCol);
+            }
+        }
+    }
+
 
     private void FixedUpdate()
     {
@@ -197,72 +216,10 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-    protected virtual void Update()
-    {
-        if (isLocalFake)
-        {
-            safetyTimer += Time.deltaTime;
-
-            if (serverBubbleTarget != null && visualChildMesh != null)
-            {
-                Vector3 worldOffset = serverBubbleTarget.position - transform.position;
-                Vector3 currentLocalTarget = transform.InverseTransformDirection(worldOffset);
-
-                if (!isInitialized)
-                {
-                    float initialDistance = Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget);
-                    trackingSpeed = initialDistance / catchUpTime;
-                    isInitialized = true;
-                }
-
-                visualChildMesh.localPosition = Vector3.MoveTowards(
-                    visualChildMesh.localPosition,
-                    currentLocalTarget,
-                    trackingSpeed * Time.deltaTime
-                );
-
-                if (Vector3.Distance(visualChildMesh.localPosition, currentLocalTarget) < 0.1f)
-                {
-                    ExecuteHandoffCleanUp();
-                    return;
-                }
-            }
-
-            if (safetyTimer >= maxTrackingDuration)
-            {
-                ExecuteHandoffCleanUp();
-                return;
-            }
-        }
-        else if (visualChildMesh != null)
-        {
-            visualChildMesh.localPosition = Vector3.zero;
-            isInitialized = false;
-        }
-    }
-
-    private void ExecuteHandoffCleanUp()
-    {
-        if (serverBubbleTarget != null)
-        {
-            BasicBubble realBubble = serverBubbleTarget.GetComponent<BasicBubble>();
-            if (realBubble != null)
-            {
-                realBubble.SetMeshVisibility(true);
-                realBubble.isMeshHiddenForOwner = false;
-
-                var realCollider = realBubble.GetComponent<Collider>();
-                if (realCollider != null) realCollider.enabled = true;
-            }
-        }
-
-        serverBubbleTarget = null;
-        Destroy(gameObject);
-    }
-
     protected virtual IEnumerator Inflate()
     {
         if (sphereCollider != null) sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+
         while (currentSize < size)
         {
             currentSize += inflationSpeed * Time.deltaTime;
@@ -292,58 +249,72 @@ public class BasicBubble : NetworkBehaviour
         transform.position = nextPosition;
     }
 
-    protected virtual IEnumerator BubbleRangeLimit(float customLifetime = 0f)
+    protected virtual IEnumerator BubbleRangeLimit()
     {
-        float lifetime = (customLifetime > 0f) ? customLifetime : (range / speed);
-
+        float lifetime = range / speed;
         yield return new WaitForSeconds(lifetime);
 
-        if (canMiss && isLocalFake)
+        if (canMiss)
             IncrementMissedShotAchievement();
 
         Pop();
     }
 
-    private void OnCollisionEnter(Collision collision)
-    {
-        if (hasPopped) return;
-        if (!IsServer) return;
-        HandleCollision(collision);
+    private void OnTriggerEnter(Collider other)
+    {    
+        if (hasPopped || !isLocalFake) return;
+        if (other.transform.root == transform.root) return;
+        HandleTrigger(other);
     }
 
-    private void OnTriggerEnter(Collider other)
+    public virtual void HandleTrigger(Collider other)
     {
-        if (hasPopped || other == null) return;
-
-        if (!IsServer && !isLocalFake) return;
-
         if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            if (IsServer)
-                OwnerID = reflector.OwnerID;
+            OwnerID.Value = reflector.OwnerID;
 
-            Vector3 approximateNormal = (transform.position - other.transform.position).normalized;
-            Reflect(approximateNormal);
+            Collider myCollider = GetComponent<Collider>();
+            Vector3 reflectNormal = Vector3.up;
+
+            bool hasOverlap = Physics.ComputePenetration(
+                myCollider, transform.position, transform.rotation,
+                other, other.transform.position, other.transform.rotation,
+                out Vector3 direction, out float distance
+            );
+
+            if (hasOverlap)
+                reflectNormal = direction;
+            else
+                reflectNormal = (transform.position - other.transform.position).normalized;
+
+            Reflect(reflectNormal);
+            return;
         }
+
+        if(isLocalFake && other.CompareTag("Bubble") && other.GetComponent<NetworkObject>().IsSpawned || isLocalFake && other.CompareTag("Puddle"))
+            return;
+
+        BubbleCollision(other.gameObject);
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        Debug.Log("Collided with: " + collision.transform.name);
+        if (hasPopped) return;
+        HandleCollision(collision);
     }
 
     private void HandleCollision(Collision collision)
     {
         if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            if (IsServer) OwnerID = reflector.OwnerID;
+            if (IsServer || isLocalFake) OwnerID.Value = reflector.OwnerID;
             Vector3 reflectNormal = collision.GetContact(0).normal;
             Reflect(reflectNormal);
             return;
         }
 
-        if (isLocalFake && !collision.gameObject.CompareTag("Player") && !collision.gameObject.CompareTag("Bubble"))
-        {
-            HideVisualsAndDisablePhysics();
-            return;
-        }
-
-        if (IsServer)
+        if (IsServer || isLocalFake)
             BubbleCollision(collision.gameObject);
     }
 
@@ -352,31 +323,38 @@ public class BasicBubble : NetworkBehaviour
         if (hasPopped) return;
         if (other.CompareTag("Player"))
         {
-            var player = other.GetComponent<PlayerController>();
-            GameManager gameManager = GameManager.Instance;
-            if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-            else
+            if (IsServer)
             {
-                if (IsOwner && !isLocalFake)
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-            }
-
-            if (!isLocalFake)
-            {
-                gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                var player = other.GetComponent<PlayerController>();
+                GameManager gameManager = GameManager.Instance;
+                if (gameManager.PlayingLocal)
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                else
+                {
+                    if (IsOwner && !isLocalFake)
+                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                }
+                gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
                 if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             }
 
             fizzleEffect = hitEffect;
             hasHitPlayer = true;
             if (popOnPlayerHit)
+            {
                 Pop();
+            }
         }
         else if (other.CompareTag("Bubble"))
         {
             if (popOnBubbleHit)
+            {
                 Pop();
+            }
+        }
+        else if (isLocalFake && other.CompareTag("Puddle"))
+        {
+            return;
         }
         else
         {
@@ -389,21 +367,15 @@ public class BasicBubble : NetworkBehaviour
         if (hasPopped) return;
         if (!IsServer && !isLocalFake) return;
 
+        if(IsServer)
+            MakeFakePopAswellClientRpc();
+
         hasPopped = true;
         StopAllCoroutines();
 
         if (IsServer)
         {
             SpawnPopEffectClientRpc(transform.position);
-
-            if (playerCollider != null && !GameManager.Instance.PlayingLocal)
-            {
-                var shooterController = playerCollider.GetComponent<PlayerController>();
-                if (shooterController != null)
-                {
-                    shooterController.DestroyLocalFakeBubbleClientRpc(castID);
-                }
-            }
             NetworkObject.Despawn(true);
             Destroy(gameObject);
         }
@@ -447,12 +419,13 @@ public class BasicBubble : NetworkBehaviour
         if (IsServer)
         {
             damage *= reflectDmgIncrease;
-            isReflected = true;
         }
+        isReflected = true;
     }
 
     public virtual void SetSlippy()
     {
+
         if (!IsServer && !isLocalFake) return;
         if (isSoaped)
             speed += soapSecSpeedIncrease;
@@ -473,19 +446,20 @@ public class BasicBubble : NetworkBehaviour
     [ClientRpc]
     protected virtual void SpawnPopEffectClientRpc(Vector3 pos)
     {
-        if (isMeshHiddenForOwner)
-        {
-            return;
-        }
+        if (!IsServer && GameManager.Instance.Players[OwnerID.Value].IsOwner) return; 
 
         if (fizzleEffect == null) return;
         Instantiate(fizzleEffect, pos, Quaternion.identity);
     }
 
+
     private void DestroyBubble()
     {
-        if (!IsServer) return;
-        NetworkObject.Despawn(true);
+        if (!IsServer && !isLocalFake) return;
+
+        if(IsServer)
+            NetworkObject.Despawn(true);
+
         Destroy(gameObject);
     }
 
@@ -498,7 +472,7 @@ public class BasicBubble : NetworkBehaviour
     protected void IncrementMissedShotAchievement()
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID || !SteamIntegration.instance) return;
+            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
         SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID,
@@ -507,22 +481,13 @@ public class BasicBubble : NetworkBehaviour
             steamIntegration.missedShotAchievementID);
     }
 
-    private void OnDrawGizmos()
+    [ClientRpc]
+    public void MakeFakePopAswellClientRpc()
     {
-        if (serverBubbleTarget == null) return;
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(serverBubbleTarget.position, .5f);
-    }
-    private float GetCurrentRTTInSeconds()
-    {
-        if (NetworkManager.Singleton != null && NetworkManager.Singleton.NetworkConfig.NetworkTransport != null)
+        if (!IsServer && fakeCopy != null)
         {
-            var transport = NetworkManager.Singleton.NetworkConfig.NetworkTransport;
-            ulong serverId = NetworkManager.ServerClientId;
-
-            float rttMs = transport.GetCurrentRtt(serverId);
-            return Mathf.Max(rttMs / 1000f, 0.01f);
+            fakeCopy.fizzleEffect = hitEffect;
+            fakeCopy.Pop();
         }
-        return 0.1f;
     }
 }

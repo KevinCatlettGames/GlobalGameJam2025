@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.Netcode;
 using UnityEngine;
 
 public class GiantBubble : BasicBubble
@@ -24,15 +25,21 @@ public class GiantBubble : BasicBubble
 
     private bool isSmall = false;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        direction = dir.normalized;
         transform.position += direction * extraOffset;
+
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
     }
 
     protected override IEnumerator Inflate()
     {
-        sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        if (sphereCollider != null)
+        {
+            sphereCollider.excludeLayers += LayerMask.GetMask("Player");
+        }
+
         bool blink = false;
         while (currentSize < size)
         {
@@ -43,37 +50,85 @@ public class GiantBubble : BasicBubble
             if (!blink && currentSize > size * .9f)
             {
                 blink = true;
-                StartCoroutine(Blink());
+                if(IsServer || isLocalFake)
+                {
+                    StartCoroutine(Blink());
+                }
+                if (IsServer)
+                {                  
+                    StartBlinkClientRpc();
+                }
             }
             yield return null;
         }
 
-        InflateOverlapChack();
+        if (IsServer || isLocalFake)
+        {
+            InflateOverlapChack();
+        }
 
-        sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        if (sphereCollider != null)
+        {
+            sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
+        }
+
         stationaryParticleSystem.Stop();
         bigParticleSystem.Play();
         hasInflated = true;
+
+        if (IsServer)
+            SetVFXAfterInflationClientRpc();
     }
 
     protected override void BubbleMovement()
     {
         if (!IsServer && !isLocalFake) return;
         if (!hasInflated) return;
+
         base.BubbleMovement();
     }
+
     private IEnumerator Blink()
     {
-        GetComponent<Animation>().Play();
-        Material[] materials = meshRenderer.materials;
-        meshRenderer.materials = blinkMaterials;
-        yield return new WaitForSeconds(.15f);
-        meshRenderer.materials = materials;
+        if (GetComponent<Animation>() != null) GetComponent<Animation>().Play();
+        if (meshRenderer != null)
+        {
+            Material[] materials = meshRenderer.materials;
+            meshRenderer.materials = blinkMaterials;
+            yield return new WaitForSeconds(.15f);
+            meshRenderer.materials = materials;
+        }
     }
+
+    public override void HandleTrigger(Collider other)
+    {
+        if (!isLocalFake) return;
+        if (!hasInflated) return;
+        if (hasPopped) return;
+        if(!isSmall && other.CompareTag("Bubble"))
+        {
+            isSmall = true;
+            damage = dmgMini;
+            knockback *= knbMod;
+            speed *= speedMod;
+            hitEffect = smallHitEffect;
+            spellType = SpellType.SmallerGiant;
+            if (bigTrail != null) bigTrail.emitting = false;
+            if (smallTrail != null) smallTrail.emitting = true;
+            size *= sizMod;
+            transform.localScale = Vector3.one * size;
+            bigParticleSystem.Stop();
+            smallParticleSystem.Play();
+            return;
+        }
+        base.HandleTrigger(other);
+    }
+
     public override void BubbleCollision(GameObject other)
     {
         if (isLocalFake) return;
         if (hasPopped) return;
+
         if (!isSmall && other.CompareTag("Bubble"))
         {
             isSmall = true;
@@ -82,14 +137,19 @@ public class GiantBubble : BasicBubble
             speed *= speedMod;
             hitEffect = smallHitEffect;
             spellType = SpellType.SmallerGiant;
-            bigTrail.emitting = false;
-            smallTrail.emitting = true;
+            if (bigTrail != null) bigTrail.emitting = false;
+            if (smallTrail != null) smallTrail.emitting = true;
             size *= sizMod;
             transform.localScale = Vector3.one * size;
             bigParticleSystem.Stop();
             smallParticleSystem.Play();
+
+            if (IsServer)
+                SetCollisionStateClientRpc();
+
             return;
         }
+
         if (!isSmall && other.CompareTag("Player"))
         {
             Vector3 v = other.transform.position - transform.position;
@@ -106,5 +166,38 @@ public class GiantBubble : BasicBubble
         }
 
         base.BubbleCollision(other);
+    }
+
+    [ClientRpc]
+    void SetVFXAfterInflationClientRpc()
+    {
+        if (IsServer) return;
+        stationaryParticleSystem.Stop();
+        bigParticleSystem.Play();
+    }
+
+    [ClientRpc]
+    void StartBlinkClientRpc()
+    {
+        if (IsServer) return;
+        StartCoroutine(Blink());
+    }
+
+    [ClientRpc]
+    void SetCollisionStateClientRpc()
+    {
+        if (IsServer) return;
+        isSmall = true;
+        damage = dmgMini;
+        knockback *= knbMod;
+        speed *= speedMod;
+        hitEffect = smallHitEffect;
+        spellType = SpellType.SmallerGiant;
+        if (bigTrail != null) bigTrail.emitting = false;
+        if (smallTrail != null) smallTrail.emitting = true;
+        size *= sizMod;
+        transform.localScale = Vector3.one * size;
+        bigParticleSystem.Stop();
+        smallParticleSystem.Play();
     }
 }

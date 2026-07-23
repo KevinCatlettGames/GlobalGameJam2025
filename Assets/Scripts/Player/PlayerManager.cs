@@ -386,32 +386,48 @@ public class PlayerManager : NetworkBehaviour
 
     public void ResetPlayerPosition(int playerID)
     {
+        if (playerID < 0 || playerID >= spawnPoints.Length) return;
+
+        Vector3 targetPos = spawnPoints[playerID].position;
+        Quaternion targetRot = spawnPoints[playerID].rotation;
+
         if (GameManager.Instance.PlayingLocal)
         {
-            if (playerID < localPlayers.Count)
+            if (playerID < localPlayers.Count && localPlayers[playerID] != null)
             {
                 var localPlayer = localPlayers[playerID];
-                localPlayer.transform.position = spawnPoints[playerID].position;
-                localPlayer.transform.rotation = spawnPoints[playerID].rotation;
-                TargetGroupManager.Instance.AddToGroup(localPlayer.transform);
+                if (localPlayer.TryGetComponent<PlayerController>(out var playerController))
+                {
+                    playerController.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    localPlayer.transform.SetPositionAndRotation(targetPos, targetRot);
+                }
+
+                TargetGroupManager.Instance?.AddToGroup(localPlayer.transform);
             }
         }
         else
         {
-            if (playerID >= players.Count)
-            {
-                return;
-            }
+            if (playerID >= players.Count) return;
 
             if (players[playerID].TryGet(out NetworkObject networkObject))
             {
                 var playerGameObject = networkObject.gameObject;
-                playerGameObject.transform.position = spawnPoints[playerID].position;
-                playerGameObject.transform.rotation = spawnPoints[playerID].rotation;
-                TargetGroupManager.Instance.AddToGroup(playerGameObject.transform);
+
+                if (playerGameObject.TryGetComponent<PlayerController>(out var playerController))
+                {
+                    playerController.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    playerGameObject.transform.SetPositionAndRotation(targetPos, targetRot);
+                }
+
+                TargetGroupManager.Instance?.AddToGroup(playerGameObject.transform);
             }
         }
     }
-
     #endregion
 }

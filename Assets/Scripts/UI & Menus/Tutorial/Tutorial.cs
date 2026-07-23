@@ -275,9 +275,16 @@ public class Tutorial : MonoBehaviour
         if (items == null || items.Length == 0) return;
 
         var item = items[index];
-        bool hasVideo = item.ItemClip != null;
+        bool hasVideo = false; 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR
+        hasVideo = item.WindowsClip != null;
+#endif
+#if UNITY_SWITCH
+        hasVideo = item.WindowsClip != null;
+#else
+        hasVideo = item.LinuxClip != null;
+#endif
 
-        // Performance Fix: Clean up player completely before touching new clip references
         videoPlayer.Stop();
         videoPlayer.clip = null;
 
@@ -295,8 +302,16 @@ public class Tutorial : MonoBehaviour
 
         if (hasVideo)
         {
-            videoPlayer.clip = item.ItemClip;
-            videoPlayer.Prepare(); // Safely triggers background hardware prep
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR
+            videoPlayer.clip = item.WindowsClip;
+#endif
+#if UNITY_SWITCH
+            videoPlayer.clip = item.WindowsClip;
+#else
+            videoPlayer.clip = item.LinuxClip;
+#endif
+
+            videoPlayer.Prepare();
         }
 
         bool hasMainImage = item.ItemMainImage != null;
@@ -432,7 +447,7 @@ public class Tutorial : MonoBehaviour
             }
         }
     }
-    #endregion
+#endregion
 
     public void SetTab(Tab tab, bool initialSet)
     {

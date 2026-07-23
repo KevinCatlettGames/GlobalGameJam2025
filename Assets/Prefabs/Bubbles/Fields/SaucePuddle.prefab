@@ -120,7 +120,7 @@ GameObject:
   - component: {fileID: 4013047506130983582}
   m_Layer: 7
   m_Name: SaucePuddle
-  m_TagString: Untagged
+  m_TagString: Puddle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -282,9 +282,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  waitDuration: 1
+  waitDuration: 3
   destroyOnRestart: 1
   fadeDuration: 0.3
+  isLocalFake: 0
+  spriteRenderer: {fileID: 976542331781092153}
+  particleSystem: {fileID: 3256932945042107490}
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0

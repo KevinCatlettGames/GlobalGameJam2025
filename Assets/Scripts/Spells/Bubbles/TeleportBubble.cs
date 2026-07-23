@@ -13,12 +13,10 @@ public class TeleportBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return; // Allow processing for the server and local fakes
+        if (!IsServer && !isLocalFake) return;
 
-        // --- LOCAL FAKE SHORT CIRCUIT ---
         if (isLocalFake)
         {
-            // Instantly transition to explosion visual effects locally on impact without processing teleportation or state logic
             if (other.CompareTag("Player") || other.CompareTag("Bubble") || other.CompareTag("Wall") || other.CompareTag("Environment"))
             {
                 Pop();
@@ -26,18 +24,17 @@ public class TeleportBubble : BasicBubble
             return;
         }
 
-        // --- AUTHORITATIVE SERVER COLLISION DETECTION ---
         if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
             GameManager gameManager = GameManager.Instance;
 
             if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
             else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
 
             if (playerCollider != null)
             {
@@ -47,7 +44,7 @@ public class TeleportBubble : BasicBubble
                     if (!isUlt) playerController.GainUltCharge(damage, true);
                     fizzleEffect = hitEffect;
                     Explode();
-                    playerController.Teleport(other.transform.position - teleportOffset * direction);
+                    //playerController.Teleport(other.transform.position - teleportOffset * direction);
                 }
             }
 
@@ -67,7 +64,7 @@ public class TeleportBubble : BasicBubble
 
     private void Explode()
     {
-        if (!IsServer) return; // Explicit safety fallback to avoid local simulation execution
+        if (!IsServer) return;
         if (hasExploded) return;
         hasExploded = true;
         fizzleEffect = hitEffect;
@@ -84,11 +81,11 @@ public class TeleportBubble : BasicBubble
                 if (player != null)
                 {
                     if (gameManager.PlayingLocal)
-                        player.ApplyKnockbackLocal(OwnerID, direction, explosionKnockback, explosionDamage);
+                        player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage);
                     else
-                        player.ApplyKnockbackServerRpc(OwnerID, direction, explosionKnockback, explosionDamage);
+                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage);
 
-                    gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
 
                     if (playerCollider != null)
                     {

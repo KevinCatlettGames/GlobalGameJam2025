@@ -88,9 +88,8 @@ public class Clam : MonoBehaviour
                 PlayerController player = col.GetComponent<PlayerController>();
                 direction = player.GetComponent<CharacterController>().velocity;
 
-                if (player != null)
+                if (player != null && NetworkManager.Singleton.IsServer)
                 {
-
                     if (GameManager.Instance.PlayingLocal)
                         player.ApplyKnockbackLocal(-1, direction, knockback, damage);
 

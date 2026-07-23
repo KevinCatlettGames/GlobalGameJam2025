@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8278787105483923728}
   - component: {fileID: 8967540784842001651}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -159,6 +159,7 @@ GameObject:
   - component: {fileID: 776761707349867351}
   - component: {fileID: 2725714991972873173}
   - component: {fileID: 5290342314432603255}
+  - component: {fileID: 3568575036477090839}
   m_Layer: 7
   m_Name: HomingArea
   m_TagString: Untagged
@@ -214,6 +215,33 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73b46d62e7058ff43b89513b9f6f1468, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!54 &3568575036477090839
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4479467971072663062}
+  serializedVersion: 4
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_CenterOfMass: {x: 0, y: 0, z: 0}
+  m_InertiaTensor: {x: 1, y: 1, z: 1}
+  m_InertiaRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ImplicitCom: 1
+  m_ImplicitTensor: 1
+  m_UseGravity: 0
+  m_IsKinematic: 1
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &4718872057352153108
 GameObject:
   m_ObjectHideFlags: 0
@@ -261,7 +289,7 @@ GameObject:
   - component: {fileID: 6328579372015548160}
   - component: {fileID: 4042850172397218679}
   - component: {fileID: 2291989460297538891}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ContinousParticles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5094,7 +5122,7 @@ GameObject:
   - component: {fileID: 8872848778229961188}
   - component: {fileID: 180658776323209522}
   - component: {fileID: 4757641101379422218}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DustBurst
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9992,10 +10020,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: HomingBubble_Fake
       objectReference: {fileID: 0}
+    - target: {fileID: 449082112856618060, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
       propertyPath: catchUpTime
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
+        type: 3}
+      propertyPath: isLocalFake
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2017015158376714901, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
@@ -10006,6 +10044,11 @@ PrefabInstance:
         type: 3}
       propertyPath: maxTrackingDuration
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078046511075596644, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3019594990852850736, guid: 0d447dcacb4c3f5498a97bcb34b85c98,
         type: 3}
@@ -10137,6 +10180,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -7783160511823895526, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: -3722405182657794361, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Materials.Array.size
@@ -10152,10 +10200,45 @@ PrefabInstance:
       propertyPath: 'm_Materials.Array.data[1]'
       value: 
       objectReference: {fileID: 2100000, guid: d9bd01c8e09e88d4dbcec089cb0e142d, type: 2}
+    - target: {fileID: -3215555783603854218, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 856288634350107489, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: fa3e29cc88ce041479c73a5bb5e9c392,
         type: 3}
       propertyPath: m_Name
       value: animatedRig_HomingBubble2
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 7036213049465896255, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 8219036580044766103, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 9033038278043614338, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 9130621782215722655, guid: fa3e29cc88ce041479c73a5bb5e9c392,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

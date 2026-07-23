@@ -61,11 +61,8 @@ public class PauseManager : MonoBehaviour
     
     private void OnClientDisconnect(ulong clientId)
     {
-        if (clientId == 1)
-        {
-            Debug.Log("Host disconnected — returning to main menu...");
-            ReturnToMainMenu();
-        }
+        Debug.Log("Player disconnected — returning to main menu...");
+        ReturnToMainMenu();
     }
 
     private void OnDisable()

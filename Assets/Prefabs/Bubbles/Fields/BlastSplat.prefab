@@ -118,7 +118,7 @@ GameObject:
   - component: {fileID: -102426369728766144}
   m_Layer: 7
   m_Name: BlastSplat
-  m_TagString: Untagged
+  m_TagString: Puddle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -270,6 +270,11 @@ MonoBehaviour:
   waitDuration: 3
   destroyOnRestart: 1
   fadeDuration: 0.3
+  isLocalFake: 0
+  spriteRenderer: {fileID: 976542331781092153}
+  particleSystem: {fileID: 3256932945042107490}
+  playerID:
+    m_InternalValue: 0
 --- !u!114 &-102426369728766144
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -282,7 +287,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc71c8a5aea8cbd4aabaa2192e8cff8e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
   bubbleSlowFactor: 0.5
+  ownerID:
+    m_InternalValue: -1
 --- !u!1 &6016588618270415726
 GameObject:
   m_ObjectHideFlags: 0
