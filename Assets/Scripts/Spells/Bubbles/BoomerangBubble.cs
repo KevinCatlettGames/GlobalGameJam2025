@@ -13,7 +13,7 @@ public class BoomerangBubble : BasicBubble
     [SerializeField] private float stayDuration = 1f;
     [SerializeField] private float catchRange = 5f;
 
-    protected override IEnumerator BubbleRangeLimit(float customLifetime = 0f)
+    protected override IEnumerator BubbleRangeLimit()
     {
         float lifetime = range / speed;
         float baseSpeed = speed;

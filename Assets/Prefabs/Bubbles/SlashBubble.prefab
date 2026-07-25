@@ -153,7 +153,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 16
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 1
   size: 2
   damage: 17
   knockback: 3
@@ -172,14 +177,6 @@ MonoBehaviour:
       Data4: 1862568052
     Path: event:/sfx/spells/basic_spell
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
   slasherL: {fileID: 4085058672625568606}
   slasherR: {fileID: 1825400191264691308}
   spinner: {fileID: 2106622327485818667}

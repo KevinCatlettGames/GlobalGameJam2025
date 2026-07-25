@@ -1,7 +1,8 @@
+using FMODUnity;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using FMODUnity;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
@@ -26,6 +27,11 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
+        }
 
         blurImage.color = initialBlurColor;
     }
@@ -69,8 +75,18 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     void OnClientConnectedCallback(ulong clientID)
     {
+        if (clientID == NetworkManager.Singleton.LocalClientId) return;
+        if (!IsSpawned || !IsServer) return;
+        StartCoroutine(WaitAndShareValues(clientID));
+    }
+
+    IEnumerator WaitAndShareValues(ulong clientID)
+    {
+        yield return new WaitForSeconds(2f);
         ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
     }
+
+
 
     [ClientRpc]
     void ShareValuesClientRpc(ulong clientID, int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
@@ -288,8 +304,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     bool isSkinLocked(SkinSO skinToCheck)
     {
-        bool skinLocked = false;
-
         for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;

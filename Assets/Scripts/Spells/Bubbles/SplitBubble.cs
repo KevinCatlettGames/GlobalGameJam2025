@@ -37,25 +37,14 @@ public class SplitBubble : BasicBubble
             NetworkObject netObj = bubble.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
 
-            if (bubbleScript != null)
-                bubbleScript.castID = this.castID;
         }
         else if (isLocalFake)
         {
             if (bubble.TryGetComponent<NetworkObject>(out var netObj))
                 Destroy(netObj);
-
-            bubble.layer = LayerMask.NameToLayer("FakeProjectiles");
-
-            if (bubbleScript != null)
-            {
-                bubbleScript.isLocalFake = true;
-                var playerCtrl = playerCollider?.GetComponent<PlayerController>();
-                if (playerCtrl != null) playerCtrl.RegisterLocalFake(bubbleScript);
-            }
         }
 
         if (bubbleScript != null)
-            bubbleScript.InitialiseBubble(OwnerID, splitDirection, playerCollider);
+            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
     }
 }

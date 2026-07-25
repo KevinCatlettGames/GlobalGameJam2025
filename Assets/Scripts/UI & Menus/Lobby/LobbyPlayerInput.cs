@@ -4,6 +4,7 @@ using Steamworks;
 using System;
 using System.Collections;
 using System.Globalization;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -37,7 +38,13 @@ public class LobbyPlayerInput : NetworkBehaviour
     0,
     NetworkVariableReadPermission.Everyone,
     NetworkVariableWritePermission.Owner
-);
+    );
+
+    public readonly NetworkVariable<FixedString32Bytes> steamName = new NetworkVariable<FixedString32Bytes>(
+    "Wizzo",
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Owner
+    );
 
     private void OnEnable()
     {
@@ -249,7 +256,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     [ClientRpc]
     void UpdateSteamAccountInfoClientRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
-    {
+    {       
         lobbyManager.playerContainers[playerID].GetComponent<PlayerContainerManager>().SetAccountInfo(isActive, userName, networkSteamID);
     }
 
@@ -331,7 +338,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
         }
 
-        if (joined && !LobbyManager.instance.players[playersListID].IsReady)
+        if (joined && !LobbyManager.instance.players[playersListID].IsReady && !TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
             {
@@ -358,7 +365,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
         }
 
-        if (!joined)
+        if (!joined || joined && !LobbyManager.instance.players[playersListID].IsReady && TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
                 lobbyButtons.OnBackToMenuButtonDown();
@@ -509,35 +516,58 @@ public class LobbyPlayerInput : NetworkBehaviour
 #if !UNITY_SWITCH
     string GetSteamUserName()
     {
+        int visibleLength = 0;
+        StringInfo stringInfo = null;
+        string truncatedName = string.Empty;
         if (!SteamIntegration.instance || !SteamClient.IsValid)
         {
             Debug.Log("Steam not init");
             return "Wizzo";
         }
-        string fullName = null;
+        
+        if(steamName.Value != "Wizzo")
+        {
+            steamName.Value = steamName.Value.ToString().Trim();
+            stringInfo = new StringInfo(steamName.Value.ToString());
+            visibleLength = stringInfo.LengthInTextElements;
+            if (visibleLength <= 7)
+            {
+                return steamName.Value.ToString();
+            }
+            truncatedName = stringInfo.SubstringByTextElements(0, 7);
+            if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
+            {
+                truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);
+            }
+            return truncatedName + ".";         
+        }
+
         try
         {
-            Friend friend = new Friend(networkSteamId.Value);
-            fullName = friend.Name;
+            if (IsOwner)
+            {
+                Friend friend = new Friend(networkSteamId.Value);
+                steamName.Value = friend.Name;
+            }
         }
         catch (Exception ex)
         {
             Debug.LogWarning($"[Steam] Failed to read SteamClient.Name on this platform: {ex.Message}");
             return "Wizzo";
         }
-        if (string.IsNullOrWhiteSpace(fullName))
+        if (string.IsNullOrWhiteSpace(steamName.Value.ToString()))
         {
             Debug.Log("Has only white spaces");
             return "Wizzo";
         }
-        fullName = fullName.Trim();
-        StringInfo stringInfo = new StringInfo(fullName);
-        int visibleLength = stringInfo.LengthInTextElements;
+        steamName.Value = steamName.Value.ToString().Trim();
+        stringInfo = new StringInfo(steamName.Value.ToString());
+        visibleLength = stringInfo.LengthInTextElements;
         if (visibleLength <= 7)
         {
-            return fullName;
+            return steamName.Value.ToString();
         }
-        string truncatedName = stringInfo.SubstringByTextElements(0, 7);
+        truncatedName = stringInfo.SubstringByTextElements(0, 7);
         if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
         {
             truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);

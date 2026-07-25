@@ -99,7 +99,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5058588600479402659}
   - component: {fileID: 6389784746036545902}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: BubbleTrailEffect
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -146,7 +146,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2157631866430460567}
   - component: {fileID: 4672576628176047692}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -304,7 +304,7 @@ GameObject:
   - component: {fileID: 6331339394131505294}
   - component: {fileID: 3226941850642219319}
   - component: {fileID: 2505088953038190775}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5139,10 +5139,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: SoapBubble_Fake
       objectReference: {fileID: 0}
+    - target: {fileID: 449082112856618060, guid: 84cf2b3afd599f844b5b1cb19c420382,
+        type: 3}
+      propertyPath: m_Layer
+      value: 7
+      objectReference: {fileID: 0}
     - target: {fileID: 722815488170458032, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
       propertyPath: GlobalObjectIdHash
       value: 1735875054
+      objectReference: {fileID: 0}
+    - target: {fileID: 2078046511075596644, guid: 84cf2b3afd599f844b5b1cb19c420382,
+        type: 3}
+      propertyPath: m_IsTrigger
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 3019594990852850736, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
@@ -5197,12 +5207,17 @@ PrefabInstance:
     - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
       propertyPath: range
-      value: 0.2
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
       propertyPath: catchUpTime
       value: 0.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
+        type: 3}
+      propertyPath: isLocalFake
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
@@ -5216,9 +5231,21 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
         type: 3}
+      propertyPath: fakeSoapSplatObject
+      value: 
+      objectReference: {fileID: 6868377257770418707, guid: fef2cd526967c1644b763a8649e171f3,
+        type: 3}
+    - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
+        type: 3}
       propertyPath: maxTrackingDuration
       value: 0.35
       objectReference: {fileID: 0}
+    - target: {fileID: 5962117118813620173, guid: 84cf2b3afd599f844b5b1cb19c420382,
+        type: 3}
+      propertyPath: fakeSoapPuddleObject
+      value: 
+      objectReference: {fileID: 8956098083285962564, guid: f8151d81196bf044680879fc1fe2e231,
+        type: 3}
     m_RemovedComponents:
     - {fileID: 8954989852802518801, guid: 84cf2b3afd599f844b5b1cb19c420382, type: 3}
     - {fileID: 2496754563199330475, guid: 84cf2b3afd599f844b5b1cb19c420382, type: 3}

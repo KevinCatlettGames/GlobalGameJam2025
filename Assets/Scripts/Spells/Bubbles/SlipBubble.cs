@@ -9,9 +9,9 @@ public class SlipBubble : BasicBubble
 
     private SlimeTrail slimeTrail;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
 
         Vector3 trailPos = new Vector3(transform.position.x, 0.06f, transform.position.z);
 
@@ -90,12 +90,12 @@ public class SlipBubble : BasicBubble
             {
                 if (GameManager.Instance.PlayingLocal)
                 {
-                    player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                     CreateSlimePuddleLocal(transform.position);
                 }
                 else
                 {
-                    player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                    player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
                     CreateSlimePuddleServerRpc(transform.position);
                 }
             }

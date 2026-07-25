@@ -35,7 +35,7 @@ public class RelayServerHeartbeat : MonoBehaviour
             heartbeatTimer -= Time.deltaTime;
             if (heartbeatTimer <= 0)
             {
-                float heartBeatTimerMax = 15f; 
+                float heartBeatTimerMax = 13f; 
                 heartbeatTimer = heartBeatTimerMax;
                 LobbyService.Instance.SendHeartbeatPingAsync(joinedLobby.Id.ToString());
             }

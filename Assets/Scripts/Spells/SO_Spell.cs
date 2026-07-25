@@ -44,6 +44,9 @@ public class SO_Spell : ScriptableObject
     [SerializeField] private bool availableInDemo = true;
     public bool AvailableInDemo { get => availableInDemo; set => availableInDemo = value; }
 
+    [SerializeField] private bool fakeWithServerCaster = false;
+    public bool FakeWithServerCaster { get => fakeWithServerCaster; set => fakeWithServerCaster = value; }
+
     public virtual float CastSpell(int ID, Vector3 pos, Vector3 dir, Collider playerCollider, bool isUlt, ulong senderClientId, int assignedCastID)
     {
         dir.Normalize();
@@ -52,37 +55,26 @@ public class SO_Spell : ScriptableObject
 
         if (NetworkManager.Singleton.IsServer)
         {
-            float rttInMs = NetworkManager.Singleton.NetworkConfig.NetworkTransport.GetCurrentRtt(senderClientId);
-            float oneWayTime = (rttInMs / 2f) / 1000f + (Time.fixedDeltaTime / 2f);
-
             GameObject bubbleInstance = Instantiate(isUlt ? ultBubble : bubble, baseSpawnPos, Quaternion.LookRotation(dir));
             BasicBubble serverScript = bubbleInstance.GetComponent<BasicBubble>();
-            bubbleInstance.transform.position += dir * (serverScript.Speed * oneWayTime);
             NetworkObject netObj = bubbleInstance.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
+            if(fakeWithServerCaster)
+                serverScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, true);
+            else
+                serverScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, false);
 
-            serverScript.castID = assignedCastID;
-            serverScript.InitialiseBubble(ID, dir, playerCollider);
         }
-        else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId)
+        else if (!NetworkManager.Singleton.IsServer && NetworkManager.Singleton.LocalClientId == senderClientId || fakeWithServerCaster)
         {
             GameObject fakeInstance = Instantiate(isUlt ? fakeUltBubble : fakeBubble, baseSpawnPos, Quaternion.LookRotation(dir));
-
-            fakeInstance.layer = LayerMask.NameToLayer("FakeProjectiles");
-
             BasicBubble fakeScript = fakeInstance.GetComponent<BasicBubble>();
             if (fakeScript != null)
             {
                 fakeScript.isLocalFake = true;
-                fakeScript.castID = assignedCastID;
-                fakeScript.InitialiseBubble(ID, dir, playerCollider);
+                fakeScript.InitialiseBubble(ID, dir, playerCollider, assignedCastID, false);
             }
-
-            var playerCtrl = playerCollider.GetComponent<PlayerController>();
-            if (playerCtrl != null && fakeScript != null)
-                playerCtrl.RegisterLocalFake(fakeScript);
         }
-
         return spellCooldown;
     }
 }

@@ -183,7 +183,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 8
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 2
   damage: 16
   knockback: 2
@@ -204,19 +209,13 @@ MonoBehaviour:
       Data4: 1032818776
     Path: event:/sfx/spells/slippery_spell
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
   soapDropInterval: 0.2
   soapPuddleObject: {fileID: 5835028745261568127, guid: 600a0e3882b13d4419654c6d22705dc3,
     type: 3}
+  fakeSoapPuddleObject: {fileID: 0}
   soapSplatObject: {fileID: 5835028745261568127, guid: 04d1e41d2fbf5994c83cab526629c556,
     type: 3}
+  fakeSoapSplatObject: {fileID: 0}
   groundedLayerMask:
     serializedVersion: 2
     m_Bits: 512
@@ -480,13 +479,13 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7048560152110986845}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0.690104, w: 0.7237103}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: -0.5117404, y: 0.48797727, z: -0.4879772, w: 0.51174045}
+  m_LocalPosition: {x: 0, y: 0, z: -1.3}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 289634372074958516}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: -87.277}
+  m_LocalEulerAnglesHint: {x: -2.723, y: 90, z: -90}
 --- !u!198 &4681537013687091648
 ParticleSystem:
   m_ObjectHideFlags: 0
@@ -675,9 +674,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startColor:
       serializedVersion: 2
-      minMaxState: 0
-      minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.76862746, g: 0.8010558, b: 1, a: 1}
+      minMaxState: 2
+      minColor: {r: 0.6083638, g: 0.53333336, b: 1, a: 1}
+      maxColor: {r: 0.627451, g: 0.7635359, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -899,7 +898,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationX:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -952,7 +951,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotationY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 0
       minScalar: 0
       maxCurve:
@@ -1005,8 +1004,8 @@ ParticleSystem:
         m_RotationOrder: 4
     startRotation:
       serializedVersion: 2
-      minMaxState: 0
-      scalar: 0
+      minMaxState: 3
+      scalar: 6.283185
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -1324,7 +1323,7 @@ ParticleSystem:
     rateOverTime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 300
+      scalar: 150
       minScalar: 10
       maxCurve:
         serializedVersion: 2
@@ -1941,7 +1940,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 44a520e9f81447d458def2e0755805e6, type: 3}
+    - sprite: {fileID: 21300000, guid: 61cf8d4749148cb4693b92753339686e, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:

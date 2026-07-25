@@ -2,7 +2,7 @@ using System.Collections;
 using FMODUnity;
 using UnityEngine;
 using UnityEngine.Splines;
-using Unity.Netcode; 
+using Unity.Netcode;
 
 public class JumpingFish : NetworkBehaviour
 {
@@ -14,6 +14,7 @@ public class JumpingFish : NetworkBehaviour
     [SerializeField] private ParticleSystem dipVFX;
     [SerializeField] private float vfxDelay = .5f;
     [SerializeField] private EventReference emergeEvent;
+
     void Start()
     {
         splineAnimate = fish.GetComponent<SplineAnimate>();
@@ -21,36 +22,18 @@ public class JumpingFish : NetworkBehaviour
 
     public void Jump(Transform startPos)
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        if (IsServer)
+        {
+            JumpClientRpc(startPos.position, startPos.rotation);
+        }
+        else if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
             JumpServerRpc(startPos.position, startPos.rotation);
         }
         else
         {
-            if (isJumping) return;
-            transform.position = startPos.position;
-            transform.rotation = startPos.rotation;
-            if (announceVFX)
-                announceVFX.Play();
-            RuntimeManager.PlayOneShotAttached(emergeEvent, gameObject);
-            StartCoroutine(JumpCoroutine());
+            ExecuteLocalJump(startPos.position, startPos.rotation);
         }
-    }
-
-    private IEnumerator JumpCoroutine()
-    {
-        yield return new WaitForSeconds(vfxDelay);
-        if (jumpVFX)
-            jumpVFX.Play();
-        isJumping = true;
-        fish.SetActive(true);
-        splineAnimate.Restart(true);
-        yield return new WaitForSeconds(splineAnimate.Duration - .2f);
-        if (dipVFX)
-            dipVFX.Play();
-        yield return new WaitForSeconds(.2f);
-        fish.SetActive(false);
-        isJumping = false;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -60,14 +43,41 @@ public class JumpingFish : NetworkBehaviour
     }
 
     [ClientRpc]
-     void JumpClientRpc(Vector3 pos, Quaternion rot)
+    void JumpClientRpc(Vector3 pos, Quaternion rot)
+    {
+        ExecuteLocalJump(pos, rot);
+    }
+
+    private void ExecuteLocalJump(Vector3 pos, Quaternion rot)
     {
         if (isJumping) return;
+
         transform.position = pos;
         transform.rotation = rot;
+
         if (announceVFX)
             announceVFX.Play();
+
         RuntimeManager.PlayOneShotAttached(emergeEvent, gameObject);
         StartCoroutine(JumpCoroutine());
+    }
+
+    private IEnumerator JumpCoroutine()
+    {
+        yield return new WaitForSeconds(vfxDelay);
+        if (jumpVFX)
+            jumpVFX.Play();
+
+        isJumping = true;
+        fish.SetActive(true);
+        splineAnimate.Restart(true);
+
+        yield return new WaitForSeconds(splineAnimate.Duration - .2f);
+        if (dipVFX)
+            dipVFX.Play();
+
+        yield return new WaitForSeconds(.2f);
+        fish.SetActive(false);
+        isJumping = false;
     }
 }

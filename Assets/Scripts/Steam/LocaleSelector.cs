@@ -5,7 +5,6 @@ using TMPro;
 
 public class LocaleSelector : MonoBehaviour
 {
-    public TMP_Dropdown languageDropdown;
     public static LocaleSelector Instance;
     private bool active = false;
     

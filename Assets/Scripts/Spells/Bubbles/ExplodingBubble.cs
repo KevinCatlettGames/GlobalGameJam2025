@@ -12,9 +12,9 @@ public class ExplodingBubble : BasicBubble
     private bool hasExploded = false;
     private GameObject primaryTarget;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         canMiss = false;
     }
 
@@ -69,9 +69,9 @@ public class ExplodingBubble : BasicBubble
                             knockback *= primaryKnockbackIncrease;
 
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
                         if (playerCollider != null)
                         {
