@@ -269,6 +269,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 52664ae4e18dfe6488f84bb1edfa00b8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  virtualCamera: {fileID: 2110777991818369739}
   zoomSpeed: 0.3
   maxSize: 22
   minSize: 16
@@ -277,7 +278,12 @@ MonoBehaviour:
   zoomOutThreshold: 16
   minBound: 2.5
   maxBound: 20
-  virtualCamera: {fileID: 2110777991818369739}
+  isPanning: 1
+  defaultPosition: {x: 0, y: 0, z: 0}
+  panSpeed: 0.75
+  maxPanDistance: 5
+  panThreshold: 3
+  panStrengh: 0.5
 --- !u!1 &2527301316074673492
 GameObject:
   m_ObjectHideFlags: 0

@@ -9,22 +9,28 @@ public class TargetGroupManager : MonoBehaviour
     public static TargetGroupManager Instance;
     private List<Transform> targetGroup = new List<Transform> ();
 
-    [SerializeField] private float zoomSpeed = .3f;
+    [SerializeField] private CinemachineVirtualCamera virtualCamera;
     [Header("Zoom Sizes")]
+    [SerializeField] private float zoomSpeed = .3f;
     [SerializeField] private float maxSize = 21f;
     [SerializeField] private float minSize = 16f;
     [SerializeField] private float defaultSize = 19.75f;
 
-
     [Header("Zoom Thresholds")]
     [SerializeField] private float zoomInThreshold = 5f;
     [SerializeField] private float zoomOutThreshold = 15f;
-
     [SerializeField] private float minBound = 2.5f;
     [SerializeField] private float maxBound = 20f;
 
-    [SerializeField] private CinemachineVirtualCamera virtualCamera;
+    [Header("Pan")]
+    [SerializeField] private bool isPanning = true;
+    [SerializeField] private Vector3 defaultPosition;
+    [SerializeField] private float panSpeed = 1f;
+    [SerializeField] private float maxPanDistance = 5f;
+    [SerializeField] private float panThreshold = 2f;
+    [SerializeField] private float panStrengh = .5f;
 
+    private Vector3 targetPosition = Vector3.zero;
     private float targetSize = 0f;
     private float minStep = 0f;
     private float maxStep = 0f;
@@ -40,7 +46,7 @@ public class TargetGroupManager : MonoBehaviour
             Destroy(this);
         }
 
-
+        defaultPosition = transform.position;
         minStep = (defaultSize - minSize) / (zoomInThreshold - minBound);
         maxStep = (maxSize - defaultSize) / (maxBound - zoomOutThreshold);
     }
@@ -52,8 +58,35 @@ public class TargetGroupManager : MonoBehaviour
 
     private void LateUpdate()
     {
-        float boundsWidth = GetBoundsWidth();
-        if (boundsWidth == -1)
+        Bounds bounds = GetBounds();
+        Zoom(bounds);
+        if (isPanning)
+        {
+            Pan(bounds);
+        }
+    }
+    private void Pan(Bounds bounds)
+    {
+        Vector3 followPosition = bounds.center;
+        followPosition.y = 0f;
+        if (followPosition.magnitude > panThreshold)
+        {
+            followPosition *= panStrengh;
+            Vector3.ClampMagnitude(followPosition, maxPanDistance);
+        }
+        else
+        {
+            followPosition = Vector3.zero;
+        }
+        //Debug.DrawLine(Vector3.zero, bounds.center, Color.red);
+        //Debug.DrawLine(Vector3.zero, followPosition, Color.green);
+        targetPosition = followPosition + defaultPosition;
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * panSpeed);
+    }
+    private void Zoom(Bounds bounds)
+    {
+        float boundsWidth = bounds.extents.x;
+        if (boundsWidth == 0)
         {
             targetSize = defaultSize;
         }
@@ -71,7 +104,7 @@ public class TargetGroupManager : MonoBehaviour
         }
         else
         {
-           targetSize = defaultSize;
+            targetSize = defaultSize;
         }
 
         virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, targetSize, Time.deltaTime * zoomSpeed);
@@ -83,16 +116,16 @@ public class TargetGroupManager : MonoBehaviour
         targetSize = defaultSize;
     }
 
-    private float GetBoundsWidth()
+    private Bounds GetBounds()
     {
         if (targetGroup.Count <= 1)
-            return -1;
+            return new Bounds();
         Bounds bounds = new Bounds();
         foreach (Transform t in targetGroup)
         {
             bounds.Encapsulate(t.transform.position);
         }
-        return bounds.extents.x;
+        return bounds;
     }
 
     public void AddToGroup(Transform t)
