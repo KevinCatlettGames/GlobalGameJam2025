@@ -71,12 +71,9 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             playerInput.DeactivateInput();
 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer && IsOwner)
-        {
-            StartCoroutine(WaitAndJoinOnlinePlayer());
-        }
+        // REMOVED: The 'IsServer && IsOwner' check that blocked non-host clients from auto-joining
 #if UNITY_SWITCH
-        StartCoroutine(WaitAndJoinOnlinePlayer());
+    StartCoroutine(WaitAndJoinOnlinePlayer());
 #endif
     }
 
@@ -106,7 +103,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return; 
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return;
 
         if (!IsOwner)
         {
@@ -127,6 +124,12 @@ public class LobbyPlayerInput : NetworkBehaviour
                 networkSteamId.Value = Steamworks.SteamClient.SteamId;
             }
             ownerClientID.Value = NetworkManager.Singleton.LocalClientId;
+
+            // FIX: Trigger joining for any client owner when spawned on relay networks
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                StartCoroutine(WaitAndJoinOnlinePlayer());
+            }
         }
     }
 
@@ -187,18 +190,21 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
         playerIndex.Value = -1;
 
+        // FIX: Check occupied property instead of go.activeSelf
         foreach (GameObject go in lobbyManager.playerContainers)
         {
-            if (go.activeSelf)
+            PlayerContainerManager containerManager = go.GetComponent<PlayerContainerManager>();
+
+            if (containerManager.occupied)
                 continue;
             else
             {
-                playerIndex.Value = go.GetComponent<PlayerContainerManager>().uiIndex;
+                playerIndex.Value = containerManager.uiIndex;
                 if (!TransportSwitcher.Instance.isUsingRelay)
-                    go.GetComponent<PlayerContainerManager>().occupied = true;
+                    containerManager.occupied = true;
                 else
                 {
-                    go.GetComponent<PlayerContainerManager>().ToggleYouText(true);
+                    containerManager.ToggleYouText(true);
                     SetOccupiedPlayerContainerServerRpc(playerIndex.Value, true);
 
 #if !UNITY_SWITCH
@@ -233,6 +239,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         joined = true;
     }
 
+
     [ServerRpc(RequireOwnership = false)]
     void SetOccupiedPlayerContainerServerRpc(int id, bool value)
     {
@@ -243,6 +250,7 @@ public class LobbyPlayerInput : NetworkBehaviour
     void SetOccupiedPlayerContainerClientRpc(int id, bool value)
     {
         lobbyManager.playerContainers[id].GetComponent<PlayerContainerManager>().occupied = value;
+        lobbyManager.UpdatePlayerUI(); // Ensure UI reflects the updated occupied state immediately
     }
 
     [ServerRpc(RequireOwnership = false)]

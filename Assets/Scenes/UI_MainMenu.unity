@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.24012105, g: 0.27362183, b: 0.3584906, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: 725826b87c1edf0488ecf2af546ee4c3, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: ac4c64a758e4e414ab39e3cd99850c27, type: 2}
   m_HaloStrength: 1
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -23041,7 +23041,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e1c95836dba480b4a99c07693c85d7f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rotationSpeed: -0.5
+  pitchSpeed: -0.5
+  yawSpeed: 0
+  rollSpeed: 0
 --- !u!1 &1468472509
 GameObject:
   m_ObjectHideFlags: 0
@@ -28838,60 +28840,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36667db5a6453294b9960149d7dcf9ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isFullVersion: 0
-  achievementNames:
-  - ZERO_DAMAGE_TAKEN
-  - X_DAMAGE_TAKEN
-  - X_WEAPONS_PICKED_UP
-  - USE_EVERY_WEAPON
-  - DASH_BACK
-  - SMALLER_GIANT_KILLS
-  - MAX_RANGE_SNIPER_SHOT_DAMAGE
-  - REVOLVER_ALL_SHOTS_HIT
-  - DOUBLE_KILL
-  - TRIPLE_KILL
-  - SLIPPERY_KILL
-  - MAKE_BUBBLE_SLIPPERY
-  - MISSED_SHOT
-  - REFLECTED_KILL
-  - BUBBLE_DODGE
-  - SHOTS_HIT_IN_A_ROW
-  statNames:
-  - DASH_BACK_AMOUNT
-  - SMALLER_GIANT_KILLS_AMOUNT
-  - MAX_RANGE_SNIPER_DAMAGE
-  - REVOLVER_ALL_SHOTS_HIT_AMOUNT
-  - SLIPPERY_KILL_AMOUNT
-  - MAKE_BUBBLE_SLIPPERY_AMOUNT
-  - MISSED_SHOT_AMOUNT
-  - REFLECTED_KILL_AMOUNT
-  - BUBBLE_DODGE_AMOUNT
-  statThresholds: 3200000032000000102700003200000032000000e8030000e80300003200000032000000
-  zeroDamageAchievementID: 0
-  damagedAchievementID: 1
-  weaponsPickedUpAchievementID: 2
-  allWeaponsUsedAchievementID: 3
-  regainGroundAchievementID: 4
-  smallerGiantKillsAchievementID: 5
-  maxRangeSniperDamageAchievementID: 6
-  allRevolverShotsHitAchievementID: 7
-  doubleKillAchievementID: 8
-  tripleKillAchievementID: 9
-  slipperyKillAchievementID: 10
-  makeBubbleSlipperyAchievementID: 11
-  missedShotAchievementID: 12
-  reflectedKillAchievementID: 13
-  bubbleDodgeAchievementID: 14
-  shotsHitInARowAchievementID: 15
-  regainGroundStatID: 0
-  smallerGiantKillsStatID: 1
-  maxSniperDamageStatID: 2
-  allShotsHitStatID: 3
-  slipperyKillStatID: 4
-  makeBubbleSlipperyStatID: 5
-  missedShotStatID: 6
-  reflectedKillStatID: 7
-  bubbleDodgeStatID: 8
+  isFullVersion: 1
+  achievementSOs:
+  - {fileID: 11400000, guid: e9e42c3a18ed16b4d82cca55df475aa4, type: 2}
+  - {fileID: 11400000, guid: 5783cd79527155d40b456f7b0c94cf2c, type: 2}
+  - {fileID: 11400000, guid: 1d12a31c8bc4a1a43842a7253fb79488, type: 2}
+  - {fileID: 11400000, guid: 23245586f7164444cb97a660253e548b, type: 2}
+  - {fileID: 11400000, guid: 5e677b468f34b0f49a4ac155085741be, type: 2}
+  - {fileID: 11400000, guid: 19eb6047d3aca0949976f7fbbdf5b2cc, type: 2}
+  - {fileID: 11400000, guid: 8ab617f607d31b442962d73ab2db616d, type: 2}
+  - {fileID: 11400000, guid: acd28929b67f3af41b332c592616956e, type: 2}
+  - {fileID: 11400000, guid: 70c5fd3c303193246b758a04dbdfcfaa, type: 2}
+  - {fileID: 11400000, guid: 89427cd4776b8da438bf8c9f0f3cd48a, type: 2}
+  - {fileID: 11400000, guid: ae38b375b3a723d4ebc89f912d2077d9, type: 2}
+  - {fileID: 11400000, guid: 627c10ff86ef933419c455ee3b6cac91, type: 2}
+  - {fileID: 11400000, guid: 7e05dd850e4bc3e43aa7613b4865306d, type: 2}
+  - {fileID: 11400000, guid: d1af6ca5fee72b440b40790f80afb22f, type: 2}
+  - {fileID: 11400000, guid: 23bcba7fac21c1643ae66c081751cec7, type: 2}
+  - {fileID: 11400000, guid: adb518e6fd734604395f2ea3b4b78f38, type: 2}
+  - {fileID: 11400000, guid: a23bae09e49663c4d8f069b3254ef196, type: 2}
+  - {fileID: 11400000, guid: 74a48b2f4fc88ef40b42da79309acf59, type: 2}
+  - {fileID: 11400000, guid: ea541d73912dc6a4e8fa963b62259096, type: 2}
+  - {fileID: 11400000, guid: 667feaa4a2c89aa4ca9f96dff58a335f, type: 2}
+  - {fileID: 11400000, guid: 3e6a7657ab82b304fa178d362c91ec8a, type: 2}
+  - {fileID: 11400000, guid: 91fb5547f5f931f46a128005c53fab43, type: 2}
+  - {fileID: 11400000, guid: 522b518fc80e1b44981a63530b8e6b51, type: 2}
+  - {fileID: 11400000, guid: 6388002e63e939743b08f8447c9e3ce2, type: 2}
+  - {fileID: 11400000, guid: 4ae7f50752aa55941baadc1c47903d3e, type: 2}
+  - {fileID: 11400000, guid: c100bb3c3fc73f84da4797499130d187, type: 2}
+  - {fileID: 11400000, guid: 0d81bbf16d065ce4692bc395ce64b9a8, type: 2}
+  - {fileID: 11400000, guid: ccff91ce399c826419b0c67259b9dd16, type: 2}
+  - {fileID: 11400000, guid: 0c72ec2cfbae7ea499f09cc62baa908f, type: 2}
 --- !u!4 &2069642205
 Transform:
   m_ObjectHideFlags: 0

@@ -50,9 +50,6 @@ public class SlipTrigger : MonoBehaviour
             || !SteamIntegration.instance) return;
         
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.makeBubbleSlipperyStatID, 
-            1, 
-            steamIntegration.StatThresholds[steamIntegration.makeBubbleSlipperyStatID], 
-            steamIntegration.makeBubbleSlipperyAchievementID);
+        SteamIntegration.instance.IncrementIntSteamStat(4,1);
     }
 }

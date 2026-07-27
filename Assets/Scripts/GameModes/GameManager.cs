@@ -201,20 +201,20 @@ public class GameManager : NetworkBehaviour
         hitReferences[index].wasSlippery = wasSlippery;
         hitReferences[index].wasReflected = wasReflected;
 
-        foreach (PlayerController playerController in players)
-        {
-            if (playerController == null) continue; 
+        //foreach (PlayerController playerController in players)
+        //{
+        //    if (playerController == null) continue; 
             
-            if (index == playerController.PlayerID)
-            {
-                playerController.UnlockShotsHitInARowAchievement(true);
-            }
+        //    if (index == playerController.PlayerID)
+        //    {
+        //        playerController.UnlockShotsHitInARowAchievement(true);
+        //    }
 
-            if (playerHitID == playerController.PlayerID)
-            {
-                playerController.UnlockShotsHitInARowAchievement(false);
-            }
-        }
+        //    if (playerHitID == playerController.PlayerID)
+        //    {
+        //        playerController.UnlockShotsHitInARowAchievement(false);
+        //    }
+        //}
     }
 
     public virtual void EndGame()
@@ -315,7 +315,7 @@ public class GameManager : NetworkBehaviour
         {
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
-            IncrementSlipperyKillAchievement(killCredit);
+            //IncrementSlipperyKillAchievement(killCredit);
             IncrementReflectedKillAchievement(killCredit);
         }
         CheckForRoundEndServerRpc();       
@@ -347,7 +347,7 @@ public class GameManager : NetworkBehaviour
         {
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
-            IncrementSlipperyKillAchievement(killCredit);
+            //IncrementSlipperyKillAchievement(killCredit);
             IncrementReflectedKillAchievement(killCredit);
         }
         CheckForRoundEndLocal();
@@ -399,7 +399,7 @@ public class GameManager : NetworkBehaviour
             || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.UnlockAchievement(steamIntegration.zeroDamageAchievementID);
+        SteamIntegration.instance.UnlockAchievement(16);
     }
 
     protected void UnlockRoundEndWithXDamageAchievement(int winnerID)
@@ -410,7 +410,7 @@ public class GameManager : NetworkBehaviour
             || !SteamIntegration.instance) return;
         
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.UnlockAchievement(steamIntegration.damagedAchievementID);
+        SteamIntegration.instance.UnlockAchievement(12);
     }
 
     private void IncrementSmallerGiantBubbleKillAchievement(int playerID)
@@ -421,12 +421,10 @@ public class GameManager : NetworkBehaviour
             || !SteamIntegration.instance) return;
         
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.smallerGiantKillsStatID, 
-            1, 
-            steamIntegration.StatThresholds[steamIntegration.smallerGiantKillsStatID], 
-            steamIntegration.smallerGiantKillsAchievementID);
+        SteamIntegration.instance.IncrementIntSteamStat(0, 1);
+        SteamIntegration.instance.IncrementIntSteamStat(22, 1);
     }
-    
+
     private void UnlockMultiKillAchievements(int killerID)
     {
         if (!enableAchivements) return;
@@ -443,24 +441,24 @@ public class GameManager : NetworkBehaviour
             
         int killsWithinWindow = playerKillTimestamps[killerID].Count;
         if (killsWithinWindow == 2)
-            SteamIntegration.instance.UnlockAchievement(steamIntegration.doubleKillAchievementID);
+            SteamIntegration.instance.UnlockAchievement(13);
         else if (killsWithinWindow == 3)
-            SteamIntegration.instance.UnlockAchievement(steamIntegration.tripleKillAchievementID);
+            SteamIntegration.instance.UnlockAchievement(27);
     }
 
-    private void IncrementSlipperyKillAchievement(int killerID)
-    {
-        if (!enableAchivements) return;
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
-            || !SteamIntegration.instance 
-            || !hitReferences[killerID].wasSlippery) return;
+    //private void IncrementSlipperyKillAchievement(int killerID)
+    //{
+    //    if (!enableAchivements) return;
+    //    if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
+    //        || !SteamIntegration.instance 
+    //        || !hitReferences[killerID].wasSlippery) return;
         
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.slipperyKillStatID, 
-            1, 
-            steamIntegration.StatThresholds[steamIntegration.slipperyKillStatID], 
-            steamIntegration.slipperyKillAchievementID);
-    }
+    //    SteamIntegration steamIntegration = SteamIntegration.instance;
+    //    SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.slipperyKillStatID, 
+    //        1, 
+    //        steamIntegration.StatThresholds[steamIntegration.slipperyKillStatID], 
+    //        steamIntegration.slipperyKillAchievementID);
+    //}
     
     private void IncrementReflectedKillAchievement(int killerID)
     {
@@ -470,10 +468,7 @@ public class GameManager : NetworkBehaviour
             || !hitReferences[killerID].wasReflected) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.reflectedKillStatID, 
-            1, 
-            steamIntegration.StatThresholds[steamIntegration.reflectedKillStatID], 
-            steamIntegration.reflectedKillAchievementID);
+        SteamIntegration.instance.IncrementIntSteamStat(3, 1);
     }
     #endregion
 }

@@ -29,7 +29,6 @@ public class WallBubble : BasicBubble
 
     public override void HandleTrigger(Collider other)
     {
-        //Debug.Log("In Walls handle trigger");
         if (hasPopped || other == null) return;
 
         if (other.CompareTag("Player"))
@@ -39,8 +38,15 @@ public class WallBubble : BasicBubble
 
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
+            // FIX: Check if the bubble we hit is actually another WallBubble!
+            // WallBubbles shouldn't destroy or damage each other when spawned together.
+            if (other.TryGetComponent<WallBubble>(out var hitWall))
+            {
+                return; // Ignore collision between walls
+            }
+
             hitPoints--;
-            //Debug.Log("Fake wall hit by bubble");
+
             foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
             {
                 if (renderer != null && dmgedOutline != null)
@@ -64,6 +70,7 @@ public class WallBubble : BasicBubble
             stop = true;
         }
     }
+
 
     public override void BubbleCollision(GameObject other)
     {

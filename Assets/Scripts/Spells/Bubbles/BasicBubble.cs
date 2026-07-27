@@ -471,14 +471,14 @@ public class BasicBubble : NetworkBehaviour
 
     protected void IncrementMissedShotAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-            NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !SteamIntegration.instance) return;
+        //if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+        //    NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !SteamIntegration.instance) return;
 
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID,
-            1,
-            steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
-            steamIntegration.missedShotAchievementID);
+        //SteamIntegration steamIntegration = SteamIntegration.instance;
+        //SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID,
+        //    1,
+        //    steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
+        //    steamIntegration.missedShotAchievementID);
     }
 
     [ClientRpc]
