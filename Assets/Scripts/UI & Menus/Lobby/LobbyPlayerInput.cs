@@ -68,6 +68,9 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void Start()
     {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            playerInput.DeactivateInput();
+
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer && IsOwner)
         {
             StartCoroutine(WaitAndJoinOnlinePlayer());
@@ -129,24 +132,18 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void OnInputEventReceived(InputEventPtr eventPtr)
     {
-        // 1. We only care about events that contain actual input state data
         if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
             return;
 
-        // 2. Find which device sent this raw event
         InputDevice clickedDevice = InputSystem.GetDeviceById(eventPtr.deviceId);
         if (clickedDevice == null) return;
 
-        // 3. Run your safety/ownership checks
         if (!IsOwner || isQuitting || !playerInput.enabled) return;
 
-        // 4. Filter out Mouse, Touchscreen, and other non-physical device polling
         if (clickedDevice is Mouse || clickedDevice is Touchscreen) return;
 
-        // 5. Check if we actually need to switch devices
         if (playerInput.devices.Count > 0 && playerInput.devices[0] == clickedDevice) return;
 
-        // 6. We found a NEW active device! Run your pairing/switching logic
         playerInput.user.UnpairDevices();
         UnityEngine.InputSystem.Users.InputUser.PerformPairingWithDevice(clickedDevice, user: playerInput.user);
 
@@ -458,14 +455,16 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void PlaySFX(bool shareWithClients, int referenceID)
     {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
-        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
-        fmodEvent.start();
-        fmodEvent.release();
-
-        if(TransportSwitcher.Instance.isUsingRelay && shareWithClients)
+        if (TransportSwitcher.Instance.isUsingRelay && shareWithClients)
         {
             PlaySFXServerRpc(playerIndex.Value, referenceID);
+        }
+        else
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+            fmodEvent.start();
+            fmodEvent.release();
         }
     }
 
@@ -479,8 +478,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     [ClientRpc]
     private void PlaySFXClientRpc(int playerID, int referenceID)
     {
-        if (playerIndex.Value == playerID) return; 
-
         EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
         fmodEvent.start();

@@ -74,19 +74,22 @@ public class WallBubble : BasicBubble
         {
             return;
         }
-     
+
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
 
-            MeshRenderer renderer = GetComponent<MeshRenderer>();
-            if (renderer != null && dmgedOutline != null)
+            if (!isLocalFake)
             {
-                Material[] materials = renderer.materials;
-                if (materials.Length > 1)
+                MeshRenderer renderer = GetComponent<MeshRenderer>();
+                if (renderer != null && dmgedOutline != null)
                 {
-                    materials[1] = dmgedOutline;
-                    renderer.materials = materials;
+                    Material[] materials = renderer.materials;
+                    if (materials.Length > 1)
+                    {
+                        materials[1] = dmgedOutline;
+                        renderer.materials = materials;
+                    }
                 }
             }
 
@@ -94,7 +97,7 @@ public class WallBubble : BasicBubble
             {
                 ChangeMaterialServerRpc();
             }
-            
+
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
             if (otherBubble != null)
             {
@@ -123,6 +126,10 @@ public class WallBubble : BasicBubble
     public void ChangeMaterial()
     {
         MeshRenderer renderer = GetComponent<MeshRenderer>();
+
+        if (isLocalFake)
+            renderer = GetComponentInChildren<MeshRenderer>();
+
         if (renderer != null && dmgedOutline != null)
         {
             Material[] materials = renderer.materials;
@@ -145,10 +152,17 @@ public class WallBubble : BasicBubble
     {
         ChangeMaterial();
 
-        if(!IsServer && !isLocalFake)
+        if (!IsServer || isLocalFake)
         {
-            if (fakeCopy != null && fakeCopy.GetComponent<WallBubble>())               
-                fakeCopy.gameObject.GetComponent<WallBubble>().ChangeMaterial();
+            WallBubble[] allBubbles = FindObjectsByType<WallBubble>(FindObjectsSortMode.None);
+            foreach (var bubble in allBubbles)
+            {
+                if (bubble.isLocalFake && bubble.AssignedSpellID.Value == this.AssignedSpellID.Value)
+                {
+                    bubble.ChangeMaterial();
+                    break;
+                }
+            }
         }
     }
 }

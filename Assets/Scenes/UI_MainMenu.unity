@@ -28838,7 +28838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36667db5a6453294b9960149d7dcf9ba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isFullVersion: 1
+  isFullVersion: 0
   achievementNames:
   - ZERO_DAMAGE_TAKEN
   - X_DAMAGE_TAKEN
@@ -29201,7 +29201,6 @@ GameObject:
   - component: {fileID: 2124460581}
   - component: {fileID: 2124460580}
   - component: {fileID: 2124460579}
-  - component: {fileID: 2124460583}
   - component: {fileID: 2124460585}
   - component: {fileID: 2124460586}
   - component: {fileID: 2124460587}
@@ -29430,19 +29429,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2124460576}
   m_CullTransparentMesh: 1
---- !u!114 &2124460583
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2124460576}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: de6758b710aa0be4d966f253997a1c70, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  button: {fileID: 2124460580}
 --- !u!114 &2124460585
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29528,27 +29514,15 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2124460576}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b039eaf02118a3445b604da2f0bc3907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  turnOffIfToggle: 0
+  turnOffIfToggle: 1
   OnInteractionDisabled:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2124460583}
-        m_TargetAssemblyTypeName: SetButtonInteractableDependingOnTransport, Assembly-CSharp
-        m_MethodName: set_enabled
-        m_Mode: 6
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &2126803317 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2619440775987597509, guid: a27d0d55d454db44fae51c54a90438aa,
