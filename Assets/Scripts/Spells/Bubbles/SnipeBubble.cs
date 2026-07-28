@@ -68,11 +68,7 @@ public class SnipeBubble : BasicBubble
             || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        steamIntegration.IncrementIntSteamStat(
-            steamIntegration.maxSniperDamageStatID,
-            (int)maxDamage,
-            steamIntegration.StatThresholds[steamIntegration.maxSniperDamageStatID],
-            steamIntegration.maxRangeSniperDamageAchievementID
-        );
+        steamIntegration.IncrementIntSteamStat(1, (int)maxDamage);
+        steamIntegration.IncrementIntSteamStat(24, (int)maxDamage);
     }
 }

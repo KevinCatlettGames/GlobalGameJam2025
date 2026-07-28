@@ -112,6 +112,6 @@ public class RevolverBubble : BasicBubble
             || !SteamIntegration.instance) return;
 
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        steamIntegration.IncrementIntSteamStat(steamIntegration.allShotsHitStatID, 1, steamIntegration.StatThresholds[steamIntegration.allShotsHitStatID], steamIntegration.allRevolverShotsHitAchievementID);
+        steamIntegration.IncrementIntSteamStat(6, 1);
     }
 }

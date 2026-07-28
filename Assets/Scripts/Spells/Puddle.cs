@@ -50,15 +50,11 @@ public class Puddle : NetworkBehaviour
     {
         if (IsServer || isLocalFake) return;
 
-        // Guard clause for array indexing safely:
-        // Make sure the ID isn't negative, fits in the array, and the element isn't null
         if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
         if (GameManager.Instance.Players[currentCasterId] == null) return;
 
-        // Check if the player in that array index is the local owner
         if (GameManager.Instance.Players[currentCasterId].IsOwner)
         {
-            Debug.Log("Disabling visibility for the casting client to prevent duplicate visuals.");
             if (spriteRenderer)
                 spriteRenderer.enabled = false;
             if (particleSystem)
