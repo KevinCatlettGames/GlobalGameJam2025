@@ -154,6 +154,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 lastPosition;
     private float desyncThreshold = 0.05f;
     private bool wasMovingLastFrame = false;
+    private bool inputEnabled = true;
 
     #endregion
 
@@ -239,7 +240,7 @@ public class PlayerController : NetworkBehaviour
     }
     protected void Update()
     {
-        if (!initialized || isDead) return;
+        if (!inputEnabled || !initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
@@ -1460,10 +1461,20 @@ public class PlayerController : NetworkBehaviour
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
+        StartCoroutine(EntranceCoroutine(0));
+    }
+
+    private IEnumerator EntranceCoroutine(float initalDelay)
+    {
+        inputEnabled = false;
+        yield return new WaitForSeconds(initalDelay);
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
+        yield return null;
+        yield return new WaitForSeconds(mainAnimator.GetCurrentAnimatorStateInfo(0).length);
+        inputEnabled = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
