@@ -11,6 +11,8 @@ public class SkinSO : ScriptableObject
     [SerializeField] private int index; 
     [SerializeField] private GameObject skinPrefab;
     [SerializeField] private bool availableInDemo;
+    [SerializeField] private SO_Achievement unlockAchievement;
+    public SO_Achievement UnlockAchievement {  get { return unlockAchievement; } }
 
     public Sprite[] HeadSprites => headSprites;
     

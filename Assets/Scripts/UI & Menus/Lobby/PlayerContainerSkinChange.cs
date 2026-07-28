@@ -22,6 +22,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     bool init;
     bool wasInit = false;
     public GameObject emptyPlayerContainer;
+    public SkinUnlockTextHandler skinUnlockHandler;
 
     private void OnDisable()
     {
@@ -300,6 +301,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
             if (currentSkinSelection)
                 currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
+
+        skinUnlockHandler.SetSkinUnlockText(skinToUse);
     }
 
     bool isSkinLocked(SkinSO skinToCheck)

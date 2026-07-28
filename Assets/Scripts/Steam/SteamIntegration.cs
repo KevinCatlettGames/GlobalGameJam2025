@@ -1,29 +1,38 @@
 using System;
 using UnityEngine;
 using EditorAttributes;
+
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 using Steamworks;
 using Steamworks.Data;
-using System.Collections.Generic;
+#endif
 
 public class SteamIntegration : MonoBehaviour
 {
     public static SteamIntegration instance;
 
+    // Event fired when Steam stats are successfully fetched
+    public static event Action OnSteamStatsReady;
+
     [Header("Steam initialization")]
-    [SerializeField] bool isFullVersion; 
+    [SerializeField] private bool isFullVersion;
     public bool IsFullVersion => isFullVersion;
 
-    private bool statsLoaded = false;
-
-    [SerializeField] private List<SO_Achievement> achievementSOs;
+    public bool statsLoaded = false;
 
     private void Awake()
     {
-        gameObject.transform.parent = null;
+        transform.parent = null;
 
         if (instance == null)
+        {
             instance = this;
-        else Destroy(gameObject);
+            DontDestroyOnLoad(gameObject);
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
@@ -32,10 +41,8 @@ public class SteamIntegration : MonoBehaviour
         try
         {
             InitializeSteam();
-            SetLocaleBasedOnSteamLanguage();
-            DontDestroyOnLoad(this);
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
             Debug.LogError($"Error initializing Steam: {e.Message}");
         }
@@ -52,7 +59,7 @@ public class SteamIntegration : MonoBehaviour
         if (SteamClient.IsValid)
             SteamClient.Shutdown();
     }
-    
+
     private void InitializeSteam()
     {
         try
@@ -60,27 +67,44 @@ public class SteamIntegration : MonoBehaviour
             if (SteamClient.IsValid)
             {
                 bool loaded = SteamUserStats.RequestCurrentStats();
-                
                 if (loaded)
                 {
-                    statsLoaded = true;
-                    SetLocaleBasedOnSteamLanguage();
+                    OnSteamStatsLoaded();
                 }
                 return;
             }
 
-            if(isFullVersion) 
-                Steamworks.SteamClient.Init(3670670);
-            else
-                Steamworks.SteamClient.Init(3769210);
-            
+            uint appId = isFullVersion ? 3670670u : 3769210u;
+            SteamClient.Init(appId);
+
+            // Listen to Facepunch's native callback when UserStats arrive
+            SteamUserStats.OnAchievementProgress += OnAchievementProgressCallback;
+
             bool success = SteamUserStats.RequestCurrentStats();
             if (success)
-                statsLoaded = true;           
+            {
+                OnSteamStatsLoaded();
+            }
         }
         catch (Exception e)
         {
+            Debug.LogWarning($"Steam Client Init failed: {e.Message}");
         }
+    }
+
+    private void OnSteamStatsLoaded()
+    {
+        statsLoaded = true;
+        SetLocaleBasedOnSteamLanguage();
+
+        // Notify any listeners (like AchievementSaveSystem)
+        Debug.Log("Steam stats loaded successfully - Invoking OnSteamStatsReady");
+        OnSteamStatsReady?.Invoke();
+    }
+
+    private void OnAchievementProgressCallback(Achievement ach, int progress, int max)
+    {
+        // Optional callback for stat progress triggers
     }
 #endif
 
@@ -88,212 +112,158 @@ public class SteamIntegration : MonoBehaviour
     private void SetLocaleBasedOnSteamLanguage()
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
         try
         {
-            Debug.Log("Steam Language: " + Steamworks.SteamApps.GameLanguage);
-            
             if (LocaleSelector.Instance)
             {
                 switch (SteamApps.GameLanguage)
                 {
-                    case "english":
-                        LocaleSelector.Instance.ChangeLocale(0);
-                        Debug.Log("Locale set to english");
-                        break;
-                    case "french":
-                        LocaleSelector.Instance.ChangeLocale(1);
-                        Debug.Log("Locale set to french");
-                        break;
-                    case "german":
-                        LocaleSelector.Instance.ChangeLocale(2);
-                        Debug.Log("Locale set to german");
-                        break;
-                    case "italian":
-                        LocaleSelector.Instance.ChangeLocale(3);
-                        Debug.Log("Locale set to italian");
-                        break;
-                    case "polish":
-                        LocaleSelector.Instance.ChangeLocale(4);
-                        Debug.Log("Locale set to polish");
-                        break;
-                    case "brazilian":
-                        LocaleSelector.Instance.ChangeLocale(5);
-                        Debug.Log("Locale set to portuguese (brazil)");
-                        break;
-                    case "spanish":
-                        LocaleSelector.Instance.ChangeLocale(6);
-                        Debug.Log("Locale set to spanish");
-                        break;
-                    case "turkish":
-                        LocaleSelector.Instance.ChangeLocale(7);
-                        Debug.Log("Locale set to turkish");
-                        break;
-                    default:
-                        LocaleSelector.Instance.ChangeLocale(0);
-                        Debug.Log("Locale set to english");
-                        break;
+                    case "english": LocaleSelector.Instance.ChangeLocale(0); break;
+                    case "french": LocaleSelector.Instance.ChangeLocale(1); break;
+                    case "german": LocaleSelector.Instance.ChangeLocale(2); break;
+                    case "italian": LocaleSelector.Instance.ChangeLocale(3); break;
+                    case "polish": LocaleSelector.Instance.ChangeLocale(4); break;
+                    case "brazilian": LocaleSelector.Instance.ChangeLocale(5); break;
+                    case "spanish": LocaleSelector.Instance.ChangeLocale(6); break;
+                    case "turkish": LocaleSelector.Instance.ChangeLocale(7); break;
+                    default: LocaleSelector.Instance.ChangeLocale(0); break;
                 }
             }
         }
-        catch
+        catch (Exception e)
         {
-            //Debug.LogError("No steam locale settable");
+            Debug.LogWarning($"Failed setting locale from Steam: {e.Message}");
         }
 #endif
     }
-#endregion
-    
+    #endregion
+
     #region Achievements
-    [Button]
-    public void UnlockAllAchievements()
+    public bool IsThisAchievementUnlocked(string achievementID)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
         try
         {
-            foreach (SO_Achievement achievementSO in achievementSOs)
-            {
-                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSO.AchievementName);
-                ach.Trigger();
-            }
-            Debug.Log("All achievements unlocked");
+            if (!SteamClient.IsValid) return false;
+
+            var ach = new Steamworks.Data.Achievement(achievementID);
+            return ach.State;
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            Debug.Log(e);
+            Debug.LogError($"Error checking achievement {achievementID}: {e.Message}");
+            return false;
         }
+#else
+        return false;
 #endif
     }
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
-    [Button]
-    public void ClearAllAchievements()
-    {
-        try
-        {
-            foreach (SO_Achievement achievementSO in achievementSOs)
-            {
-                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSO.AchievementName);
-                ach.Clear();
-            }
-            Debug.Log("All achievements cleared");
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log(e);
-        }
-    }
-    
-    [Button]
-    public void ResetAllStats()
-    {
-        try
-        {
-            if (!statsLoaded)
-            {
-                Debug.LogWarning("Steam stats not loaded yet.");
-                return;
-            }
-
-            foreach (SO_Achievement achievementSO in achievementSOs)
-                SteamUserStats.SetStat(achievementSO.StatName, 0);
-    
-            SteamUserStats.StoreStats();
-            Debug.Log("All stats reset");
-        }
-        catch (System.Exception e)
-        {
-            Debug.LogError($"ResetAllStats failed: {e}");
-        }
-    }
-    
-    
-    [Button]
-    public void IsThisAchievementUnlocked(int id)
-    {
-        try
-        {
-            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
-            Debug.Log($"Achievement {id} status: " + ach.State);
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log(e);
-        }
-    }
-#endif
-    [Button]
     public void UnlockAchievement(int achievementIndex)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
         if (!SteamClient.IsValid) return;
 
-        Achievement ach = new Steamworks.Data.Achievement(achievementSOs[achievementIndex].AchievementName);
-        Debug.Log("Achievement Unlocked");
+        var list = AchievementSaveSystem.instance.AchievementList;
+        if (achievementIndex < 0 || achievementIndex >= list.Count) return;
+
+        string id = list[achievementIndex].AchievementName;
+        var ach = new Steamworks.Data.Achievement(id);
         ach.Trigger();
+        Debug.Log($"Steam Achievement Unlocked: {id}");
 #endif
     }
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-
-    [Button]
     public void ClearAchievement(int achievementIndex)
     {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (!SteamClient.IsValid) return;
+
         try
         {
-            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSOs[achievementIndex].AchievementName);
-            ach.Clear();
-            Debug.Log($"Achievement {achievementSOs[achievementIndex].AchievementName} cleared");
-        }
-        catch (System.Exception e)
-        {
-            Debug.Log(e);
-        }
-    }
-#endif
+            var list = AchievementSaveSystem.instance.AchievementList;
+            if (achievementIndex < 0 || achievementIndex >= list.Count) return;
 
-    [Button]
+            string id = list[achievementIndex].AchievementName;
+            var ach = new Steamworks.Data.Achievement(id);
+            ach.Clear();
+            Debug.Log($"Steam Achievement Cleared: {id}");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed clearing achievement: {e.Message}");
+        }
+#endif
+    }
+
+    public void ResetAllStats()
+    {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        try
+        {
+            if (!statsLoaded) return;
+
+            foreach (SO_Achievement achievementSO in AchievementSaveSystem.instance.AchievementList)
+            {
+                SteamUserStats.SetStat(achievementSO.StatName, 0);
+            }
+
+            SteamUserStats.StoreStats();
+            Debug.Log("All Steam stats reset");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"ResetAllStats failed: {e.Message}");
+        }
+#endif
+    }
+
     public void IncrementIntSteamStat(int achievementIndex, int incrementAmount)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (!isFullVersion || !SteamClient.IsValid || !statsLoaded) return;
 
-        if (!isFullVersion) return;  
-        
         try
         {
-            if (!statsLoaded)
-            {
-                Debug.LogWarning("Steam stats not loaded yet.");
-                return;
-            }
-    
-            int currentValue = SteamUserStats.GetStatInt(achievementSOs[achievementIndex].StatName);
-            Debug.Log("Stat current value: " + currentValue);
-    
+            SO_Achievement ach = AchievementSaveSystem.instance.AchievementList[achievementIndex];
+
+            int currentValue = SteamUserStats.GetStatInt(ach.StatName);
             int newValue = currentValue + incrementAmount;
-            Debug.Log("Stat new value: " + newValue);
-    
-            if (newValue >= achievementSOs[achievementIndex].StatThreshold)
-            {
-                Debug.Log("Value was higher then threshold, reduced it to threshold " + achievementSOs[achievementIndex].StatThreshold);
-                newValue = achievementSOs[achievementIndex].StatThreshold;
-            }
-    
-            SteamUserStats.SetStat(achievementSOs[achievementIndex].StatName, newValue);
-    
-            if (newValue >= achievementSOs[achievementIndex].StatThreshold)
+
+            if (newValue >= ach.StatThreshold)
+                newValue = ach.StatThreshold;
+
+            SteamUserStats.SetStat(ach.StatName, newValue);
+
+            if (newValue >= ach.StatThreshold)
                 UnlockAchievement(achievementIndex);
-    
+
             SteamUserStats.StoreStats();
         }
-        catch (System.Exception e)
+        catch (Exception e)
         {
-            Debug.Log(e);
+            Debug.LogError($"IncrementIntSteamStat failed: {e.Message}");
         }
 #endif
     }
-#endregion Achievements
+
+    public int GetSteamStatInt(string statName)
+    {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (!SteamClient.IsValid || !statsLoaded) return 0;
+        try
+        {
+            return SteamUserStats.GetStatInt(statName);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed reading stat {statName}: {e.Message}");
+            return 0;
+        }
+#else
+    return 0;
+#endif
     }
+
+    #endregion
+}
