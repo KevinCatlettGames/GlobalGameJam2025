@@ -53,6 +53,8 @@ public class Countdown : MonoBehaviour
     {
         int currentCount = countdownTime;
 
+        yield return new WaitForSeconds(1.2f);
+
         countdownImage.enabled = true;
 
         while (currentCount > 0)
@@ -72,10 +74,10 @@ public class Countdown : MonoBehaviour
         {
             countdownImage.sprite = goSprite;
         }
-        onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);
 
+        onCountdownComplete?.Invoke();
         countdownImage.enabled = false;
     }
 }

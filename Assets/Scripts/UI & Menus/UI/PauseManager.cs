@@ -87,8 +87,6 @@ public class PauseManager : MonoBehaviour
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            Vector2 mousePosition = new Vector2(.35f * Screen.width, .75f * Screen.height);
-            Mouse.current.WarpCursorPosition(mousePosition);
         }
         else
         {

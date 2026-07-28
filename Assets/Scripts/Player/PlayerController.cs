@@ -1466,7 +1466,10 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator EntranceCoroutine(float initalDelay)
     {
         inputEnabled = false;
-        yield return new WaitForSeconds(initalDelay);
+        if (initalDelay > 0)
+        {
+            yield return new WaitForSeconds(initalDelay);
+        }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
@@ -1555,6 +1558,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
+        StartCoroutine(EntranceCoroutine(0.7f * (playerID + 1))); //Delay to sync with countdwon
     }
 
     [ClientRpc]

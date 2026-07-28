@@ -48,7 +48,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        countdown.onCountdownComplete.AddListener(StartPlayerJoining);
+        countdown.OnCountdownStart.AddListener(StartPlayerJoining);
     }
 
     private void OnDisable()
