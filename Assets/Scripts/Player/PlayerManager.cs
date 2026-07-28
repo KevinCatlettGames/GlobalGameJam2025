@@ -330,25 +330,23 @@ public class PlayerManager : NetworkBehaviour
         }
 
         List<int> legalSpells = new List<int>();
+        bool isFullVersion = true;
+
+        if (SteamIntegration.instance)
+            isFullVersion = SteamIntegration.instance.IsFullVersion;
+
         for (int i = 0; i < ItemSpawner.Instance.GetSpellCount(); i++)
         {
-            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            var item = ItemSpawner.Instance.SpawnableItems[i];
+
+            if (item.CanUse && (isFullVersion || item.AvailableInDemo))
             {
-                if (ItemSpawner.Instance.SpawnableItems[i].CanUse)
-                {
-                    legalSpells.Add(i);
-                }
-            }
-            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
-            {
-                if (ItemSpawner.Instance.SpawnableItems[i].CanUse && ItemSpawner.Instance.SpawnableItems[i].AvailableInDemo)
-                {
-                    legalSpells.Add(i);
-                }
+                legalSpells.Add(i);
             }
         }
-        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
-        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
+
+        syncedFirstSpellIndex.Value = legalSpells[UnityEngine.Random.Range(0, legalSpells.Count)];
+        syncedSecondSpellIndex.Value = legalSpells[UnityEngine.Random.Range(0, legalSpells.Count)];
     }
 
 

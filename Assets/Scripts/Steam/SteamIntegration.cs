@@ -3,6 +3,7 @@ using UnityEngine;
 using EditorAttributes;
 using Steamworks;
 using Steamworks.Data;
+using System.Collections.Generic;
 
 public class SteamIntegration : MonoBehaviour
 {
@@ -14,41 +15,7 @@ public class SteamIntegration : MonoBehaviour
 
     private bool statsLoaded = false;
 
-    [Header("Achievements")]
-    [SerializeField] string[] achievementNames;
-    [SerializeField] string[] statNames;
-    [SerializeField] private int[] statThresholds; 
-    
-    [Header("Achievement References")]
-    public int zeroDamageAchievementID = 0;
-    public int damagedAchievementID = 1;
-    public int weaponsPickedUpAchievementID = 2;
-    public int allWeaponsUsedAchievementID = 3;
-    public int regainGroundAchievementID = 4;
-    public int smallerGiantKillsAchievementID = 5;
-    public int maxRangeSniperDamageAchievementID = 6;
-    public int allRevolverShotsHitAchievementID = 7;
-    public int doubleKillAchievementID = 8;
-    public int tripleKillAchievementID = 9;
-    public int slipperyKillAchievementID = 10;
-    public int makeBubbleSlipperyAchievementID = 11;
-    public int missedShotAchievementID = 12;
-    public int reflectedKillAchievementID = 13;
-    public int bubbleDodgeAchievementID = 14;
-    public int shotsHitInARowAchievementID = 15;
-
-    [Header("Stat References")]
-    public int regainGroundStatID = 0;
-    public int smallerGiantKillsStatID = 1;
-    public int maxSniperDamageStatID = 2;
-    public int allShotsHitStatID = 3;
-    public int slipperyKillStatID = 4;
-    public int makeBubbleSlipperyStatID = 5;
-    public int missedShotStatID = 6;
-    public int reflectedKillStatID = 7;
-    public int bubbleDodgeStatID = 8;
-
-    public int[] StatThresholds => statThresholds;
+    [SerializeField] private List<SO_Achievement> achievementSOs;
 
     private void Awake()
     {
@@ -185,9 +152,9 @@ public class SteamIntegration : MonoBehaviour
 
         try
         {
-            foreach (string id in achievementNames)
+            foreach (SO_Achievement achievementSO in achievementSOs)
             {
-                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
+                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSO.AchievementName);
                 ach.Trigger();
             }
             Debug.Log("All achievements unlocked");
@@ -206,9 +173,9 @@ public class SteamIntegration : MonoBehaviour
     {
         try
         {
-            foreach (string id in achievementNames)
+            foreach (SO_Achievement achievementSO in achievementSOs)
             {
-                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id);
+                Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSO.AchievementName);
                 ach.Clear();
             }
             Debug.Log("All achievements cleared");
@@ -229,9 +196,9 @@ public class SteamIntegration : MonoBehaviour
                 Debug.LogWarning("Steam stats not loaded yet.");
                 return;
             }
-    
-            foreach (string id in statNames)
-                SteamUserStats.SetStat(id, 0);
+
+            foreach (SO_Achievement achievementSO in achievementSOs)
+                SteamUserStats.SetStat(achievementSO.StatName, 0);
     
             SteamUserStats.StoreStats();
             Debug.Log("All stats reset");
@@ -258,34 +225,28 @@ public class SteamIntegration : MonoBehaviour
     }
 #endif
     [Button]
-    public void UnlockAchievement(int achievementNameID)
+    public void UnlockAchievement(int achievementIndex)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
-        if (!SteamClient.IsValid) return; 
-        
-        for (int i = 0; i < achievementNames.Length; i++)
-        {
-            if (i == achievementNameID)
-            {
-                Achievement ach = new Steamworks.Data.Achievement(achievementNames[i]);
-                //Debug.Log("Achievement Unlocked");
-                ach.Trigger();
-            }
-        }
+        if (!SteamClient.IsValid) return;
+
+        Achievement ach = new Steamworks.Data.Achievement(achievementSOs[achievementIndex].AchievementName);
+        Debug.Log("Achievement Unlocked");
+        ach.Trigger();
 #endif
     }
 
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
     [Button]
-    public void ClearAchievement(int id)
+    public void ClearAchievement(int achievementIndex)
     {
         try
         {
-            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(id.ToString());
+            Steamworks.Data.Achievement ach = new Steamworks.Data.Achievement(achievementSOs[achievementIndex].AchievementName);
             ach.Clear();
-            Debug.Log($"Achievement {id} cleared");
+            Debug.Log($"Achievement {achievementSOs[achievementIndex].AchievementName} cleared");
         }
         catch (System.Exception e)
         {
@@ -295,7 +256,7 @@ public class SteamIntegration : MonoBehaviour
 #endif
 
     [Button]
-    public void IncrementIntSteamStat(int statNameID, int incrementAmount, int achievementThreshold, int achievementNameID)
+    public void IncrementIntSteamStat(int achievementIndex, int incrementAmount)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
 
@@ -305,26 +266,26 @@ public class SteamIntegration : MonoBehaviour
         {
             if (!statsLoaded)
             {
-                //Debug.LogWarning("Steam stats not loaded yet.");
+                Debug.LogWarning("Steam stats not loaded yet.");
                 return;
             }
     
-            int currentValue = SteamUserStats.GetStatInt(statNames[statNameID]);
-            //Debug.Log("Stat current value: " + currentValue);
+            int currentValue = SteamUserStats.GetStatInt(achievementSOs[achievementIndex].StatName);
+            Debug.Log("Stat current value: " + currentValue);
     
             int newValue = currentValue + incrementAmount;
-            //Debug.Log("Stat new value: " + newValue);
+            Debug.Log("Stat new value: " + newValue);
     
-            if (newValue >= achievementThreshold)
+            if (newValue >= achievementSOs[achievementIndex].StatThreshold)
             {
-                //Debug.Log("Value was higher then threshold, reduced it to threshold " + achievementThreshold);
-                newValue = achievementThreshold;
+                Debug.Log("Value was higher then threshold, reduced it to threshold " + achievementSOs[achievementIndex].StatThreshold);
+                newValue = achievementSOs[achievementIndex].StatThreshold;
             }
     
-            SteamUserStats.SetStat(statNames[statNameID], newValue);
+            SteamUserStats.SetStat(achievementSOs[achievementIndex].StatName, newValue);
     
-            if (newValue >= achievementThreshold)
-                UnlockAchievement(achievementNameID);
+            if (newValue >= achievementSOs[achievementIndex].StatThreshold)
+                UnlockAchievement(achievementIndex);
     
             SteamUserStats.StoreStats();
         }

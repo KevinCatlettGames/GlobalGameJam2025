@@ -29,7 +29,6 @@ public class WallBubble : BasicBubble
 
     public override void HandleTrigger(Collider other)
     {
-        //Debug.Log("In Walls handle trigger");
         if (hasPopped || other == null) return;
 
         if (other.CompareTag("Player"))
@@ -39,8 +38,15 @@ public class WallBubble : BasicBubble
 
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
+            // FIX: Check if the bubble we hit is actually another WallBubble!
+            // WallBubbles shouldn't destroy or damage each other when spawned together.
+            if (other.TryGetComponent<WallBubble>(out var hitWall))
+            {
+                return; // Ignore collision between walls
+            }
+
             hitPoints--;
-            //Debug.Log("Fake wall hit by bubble");
+
             foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
             {
                 if (renderer != null && dmgedOutline != null)
@@ -65,6 +71,7 @@ public class WallBubble : BasicBubble
         }
     }
 
+
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
@@ -74,19 +81,22 @@ public class WallBubble : BasicBubble
         {
             return;
         }
-     
+
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
             hitPoints--;
 
-            MeshRenderer renderer = GetComponent<MeshRenderer>();
-            if (renderer != null && dmgedOutline != null)
+            if (!isLocalFake)
             {
-                Material[] materials = renderer.materials;
-                if (materials.Length > 1)
+                MeshRenderer renderer = GetComponent<MeshRenderer>();
+                if (renderer != null && dmgedOutline != null)
                 {
-                    materials[1] = dmgedOutline;
-                    renderer.materials = materials;
+                    Material[] materials = renderer.materials;
+                    if (materials.Length > 1)
+                    {
+                        materials[1] = dmgedOutline;
+                        renderer.materials = materials;
+                    }
                 }
             }
 
@@ -94,7 +104,7 @@ public class WallBubble : BasicBubble
             {
                 ChangeMaterialServerRpc();
             }
-            
+
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
             if (otherBubble != null)
             {
@@ -123,6 +133,10 @@ public class WallBubble : BasicBubble
     public void ChangeMaterial()
     {
         MeshRenderer renderer = GetComponent<MeshRenderer>();
+
+        if (isLocalFake)
+            renderer = GetComponentInChildren<MeshRenderer>();
+
         if (renderer != null && dmgedOutline != null)
         {
             Material[] materials = renderer.materials;
@@ -145,10 +159,17 @@ public class WallBubble : BasicBubble
     {
         ChangeMaterial();
 
-        if(!IsServer && !isLocalFake)
+        if (!IsServer || isLocalFake)
         {
-            if (fakeCopy != null && fakeCopy.GetComponent<WallBubble>())               
-                fakeCopy.gameObject.GetComponent<WallBubble>().ChangeMaterial();
+            WallBubble[] allBubbles = FindObjectsByType<WallBubble>(FindObjectsSortMode.None);
+            foreach (var bubble in allBubbles)
+            {
+                if (bubble.isLocalFake && bubble.AssignedSpellID.Value == this.AssignedSpellID.Value)
+                {
+                    bubble.ChangeMaterial();
+                    break;
+                }
+            }
         }
     }
 }

@@ -82,7 +82,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     IEnumerator WaitAndShareValues(ulong clientID)
     {
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1f);
         ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
     }
 

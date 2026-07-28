@@ -68,12 +68,12 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void Start()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer && IsOwner)
-        {
-            StartCoroutine(WaitAndJoinOnlinePlayer());
-        }
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            playerInput.DeactivateInput();
+
+        // REMOVED: The 'IsServer && IsOwner' check that blocked non-host clients from auto-joining
 #if UNITY_SWITCH
-        StartCoroutine(WaitAndJoinOnlinePlayer());
+    StartCoroutine(WaitAndJoinOnlinePlayer());
 #endif
     }
 
@@ -103,7 +103,7 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public override void OnNetworkSpawn()
     {
-        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return; 
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return;
 
         if (!IsOwner)
         {
@@ -124,29 +124,29 @@ public class LobbyPlayerInput : NetworkBehaviour
                 networkSteamId.Value = Steamworks.SteamClient.SteamId;
             }
             ownerClientID.Value = NetworkManager.Singleton.LocalClientId;
+
+            // FIX: Trigger joining for any client owner when spawned on relay networks
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                StartCoroutine(WaitAndJoinOnlinePlayer());
+            }
         }
     }
 
     private void OnInputEventReceived(InputEventPtr eventPtr)
     {
-        // 1. We only care about events that contain actual input state data
         if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
             return;
 
-        // 2. Find which device sent this raw event
         InputDevice clickedDevice = InputSystem.GetDeviceById(eventPtr.deviceId);
         if (clickedDevice == null) return;
 
-        // 3. Run your safety/ownership checks
         if (!IsOwner || isQuitting || !playerInput.enabled) return;
 
-        // 4. Filter out Mouse, Touchscreen, and other non-physical device polling
         if (clickedDevice is Mouse || clickedDevice is Touchscreen) return;
 
-        // 5. Check if we actually need to switch devices
         if (playerInput.devices.Count > 0 && playerInput.devices[0] == clickedDevice) return;
 
-        // 6. We found a NEW active device! Run your pairing/switching logic
         playerInput.user.UnpairDevices();
         UnityEngine.InputSystem.Users.InputUser.PerformPairingWithDevice(clickedDevice, user: playerInput.user);
 
@@ -190,18 +190,21 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
         playerIndex.Value = -1;
 
+        // FIX: Check occupied property instead of go.activeSelf
         foreach (GameObject go in lobbyManager.playerContainers)
         {
-            if (go.activeSelf)
+            PlayerContainerManager containerManager = go.GetComponent<PlayerContainerManager>();
+
+            if (containerManager.occupied)
                 continue;
             else
             {
-                playerIndex.Value = go.GetComponent<PlayerContainerManager>().uiIndex;
+                playerIndex.Value = containerManager.uiIndex;
                 if (!TransportSwitcher.Instance.isUsingRelay)
-                    go.GetComponent<PlayerContainerManager>().occupied = true;
+                    containerManager.occupied = true;
                 else
                 {
-                    go.GetComponent<PlayerContainerManager>().ToggleYouText(true);
+                    containerManager.ToggleYouText(true);
                     SetOccupiedPlayerContainerServerRpc(playerIndex.Value, true);
 
 #if !UNITY_SWITCH
@@ -236,6 +239,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         joined = true;
     }
 
+
     [ServerRpc(RequireOwnership = false)]
     void SetOccupiedPlayerContainerServerRpc(int id, bool value)
     {
@@ -246,6 +250,7 @@ public class LobbyPlayerInput : NetworkBehaviour
     void SetOccupiedPlayerContainerClientRpc(int id, bool value)
     {
         lobbyManager.playerContainers[id].GetComponent<PlayerContainerManager>().occupied = value;
+        lobbyManager.UpdatePlayerUI(); // Ensure UI reflects the updated occupied state immediately
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -458,14 +463,16 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void PlaySFX(bool shareWithClients, int referenceID)
     {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
-        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
-        fmodEvent.start();
-        fmodEvent.release();
-
-        if(TransportSwitcher.Instance.isUsingRelay && shareWithClients)
+        if (TransportSwitcher.Instance.isUsingRelay && shareWithClients)
         {
             PlaySFXServerRpc(playerIndex.Value, referenceID);
+        }
+        else
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+            fmodEvent.start();
+            fmodEvent.release();
         }
     }
 
@@ -479,8 +486,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     [ClientRpc]
     private void PlaySFXClientRpc(int playerID, int referenceID)
     {
-        if (playerIndex.Value == playerID) return; 
-
         EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
         fmodEvent.start();

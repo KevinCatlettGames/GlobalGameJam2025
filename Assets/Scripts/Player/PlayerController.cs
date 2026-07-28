@@ -551,14 +551,14 @@ public class PlayerController : NetworkBehaviour
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
 
-        if (!usedSpell.Contains(spell))
-            usedSpell.Add(spell);
+        //if (!usedSpell.Contains(spell))
+        //    usedSpell.Add(spell);
 
-        if (SteamIntegration.instance)
-        {
-            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        }
+        //if (SteamIntegration.instance)
+        //{
+        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        //}
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -583,14 +583,14 @@ public class PlayerController : NetworkBehaviour
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
 
-        if (!usedSpell.Contains(spell))
-            usedSpell.Add(spell);
+        //if (!usedSpell.Contains(spell))
+        //    usedSpell.Add(spell);
 
-        if (SteamIntegration.instance)
-        {
-            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        }
+        //if (SteamIntegration.instance)
+        //{
+        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        //}
     }
 
     [ClientRpc]
@@ -616,14 +616,14 @@ public class PlayerController : NetworkBehaviour
         else
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
 
-        if (!usedSpell.Contains(spell))
-            usedSpell.Add(spell);
+        //if (!usedSpell.Contains(spell))
+        //    usedSpell.Add(spell);
 
-        if (SteamIntegration.instance)
-        {
-            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        }
+        //if (SteamIntegration.instance)
+        //{
+        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
+        //}
     }
 
     #endregion
@@ -674,7 +674,7 @@ public class PlayerController : NetworkBehaviour
         if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
         {
             if (SteamIntegration.instance)
-                SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
+                SteamIntegration.instance.UnlockAchievement(15);
         }
     }
 
@@ -727,7 +727,7 @@ public class PlayerController : NetworkBehaviour
             if (pickedUpSpellsAmount >= pickedUpSpellsNeeded)
             {
                 if (SteamIntegration.instance)
-                    SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.weaponsPickedUpAchievementID);
+                    SteamIntegration.instance.UnlockAchievement(15);
             }
         }
     }
@@ -984,14 +984,13 @@ public class PlayerController : NetworkBehaviour
     #region Damage
 
     [ServerRpc]
-    public void ApplyImpulseServerRpc(Vector3 direction, float force) => ApplyImpulseClientRpc(direction, force);
-    [ClientRpc]
-    public void ApplyImpulseClientRpc(Vector3 direction, float force)
+    public void ApplyImpulseServerRpc(Vector3 direction, float force)
     {
         direction.y = 0;
         direction.Normalize();
         knockbackVelocity += direction * force;
     }
+
     public void ApplyImpulseLocal(Vector3 direction, float force)
     {
         direction.y = 0;
@@ -1623,10 +1622,7 @@ public class PlayerController : NetworkBehaviour
             || !SteamIntegration.instance) return;
         
         SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.regainGroundStatID,
-            1, 
-            SteamIntegration.instance.StatThresholds[steamIntegration.regainGroundStatID], 
-            steamIntegration.regainGroundAchievementID);
+        SteamIntegration.instance.IncrementIntSteamStat(25, 1);
     }
 
     private void IncrementDodgeBubbleAchievement()
@@ -1656,36 +1652,33 @@ public class PlayerController : NetworkBehaviour
                 || !isSprinting
                 || !SteamIntegration.instance) return;
                 
-                SteamIntegration steamIntegration = SteamIntegration.instance;
-                SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.bubbleDodgeStatID, 
-                    1, 
-                    steamIntegration.StatThresholds[steamIntegration.bubbleDodgeStatID], 
-                    steamIntegration.bubbleDodgeAchievementID);
+            SteamIntegration steamIntegration = SteamIntegration.instance;
+            SteamIntegration.instance.IncrementIntSteamStat(17, 1);
         }
     }
 
-    public void UnlockShotsHitInARowAchievement(bool hitAPlayer)
-    {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
-            || !SteamIntegration.instance) return;
+    //public void UnlockShotsHitInARowAchievement(bool hitAPlayer)
+    //{
+    //    if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
+    //        || !SteamIntegration.instance) return;
         
-        if (hitAPlayer)
-        {
-            // hit a player
-            shotsHitInARowAmount++;
-            if (shotsHitInARowAmount >= shotsHitInARowAmountNeeded)
-            {
-                SteamIntegration steamIntegration = SteamIntegration.instance;
-                SteamIntegration.instance.UnlockAchievement(steamIntegration.shotsHitInARowAchievementID);
-            }
-        }
-        else
-        {
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-                NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
-            shotsHitInARowAmount = 0; 
-        }
-    }
+    //    if (hitAPlayer)
+    //    {
+    //        // hit a player
+    //        shotsHitInARowAmount++;
+    //        if (shotsHitInARowAmount >= shotsHitInARowAmountNeeded)
+    //        {
+    //            SteamIntegration steamIntegration = SteamIntegration.instance;
+    //            SteamIntegration.instance.UnlockAchievement(steamIntegration.shotsHitInARowAchievementID);
+    //        }
+    //    }
+    //    else
+    //    {
+    //        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
+    //            NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
+    //        shotsHitInARowAmount = 0; 
+    //    }
+    //}
     
     #endregion
 

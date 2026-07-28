@@ -91,36 +91,40 @@ public class SoapDroplet : NetworkBehaviour
         }
 
         RuntimeManager.PlayOneShotAttached(splatEvent, gameObject);
-        Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player", "LocalPlayer"));
-        Vector3 origin;
-        Vector3 direction;
-        foreach (Collider col in explosionOverlaps)
-        {
-            if (col == null) continue;
-            origin = transform.position;
-            direction = col.transform.position - transform.position;
-            if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
-            {
-                if (col.CompareTag("Player"))
-                {
-                    PlayerController player = col.GetComponent<PlayerController>();
-                    if (player != null)
-                    {
-                        if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
-                        else
-                            player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
-                    }
-                }
-                else
-                {
-                    BasicBubble bubble = col.GetComponent<BasicBubble>();
-                    if (bubble != null)
-                    {
-                        bubble.BubbleCollision(this.gameObject);
-                    }
-                }
 
+        if (IsServer)
+        {
+            Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, radius * size, LayerMask.GetMask("Bubble", "Player", "LocalPlayer"));
+            Vector3 origin;
+            Vector3 direction;
+            foreach (Collider col in explosionOverlaps)
+            {
+                if (col == null) continue;
+                origin = transform.position;
+                direction = col.transform.position - transform.position;
+                if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
+                {
+                    if (col.CompareTag("Player"))
+                    {
+                        PlayerController player = col.GetComponent<PlayerController>();
+                        if (player != null)
+                        {
+                            if (GameManager.Instance.PlayingLocal)
+                                player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
+                            else
+                                player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
+                        }
+                    }
+                    else
+                    {
+                        BasicBubble bubble = col.GetComponent<BasicBubble>();
+                        if (bubble != null)
+                        {
+                            bubble.BubbleCollision(this.gameObject);
+                        }
+                    }
+
+                }
             }
         }
         Destroy(effect);
