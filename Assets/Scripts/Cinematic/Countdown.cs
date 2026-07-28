@@ -53,7 +53,7 @@ public class Countdown : MonoBehaviour
     {
         int currentCount = countdownTime;
 
-        yield return new WaitForSeconds(1.2f);
+        yield return new WaitForSeconds(1.2f); //Delay for entry animations
 
         countdownImage.enabled = true;
 
