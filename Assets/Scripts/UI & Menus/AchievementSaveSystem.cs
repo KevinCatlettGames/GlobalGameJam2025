@@ -1,5 +1,4 @@
 using EditorAttributes;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -48,7 +47,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private void HandleSteamStatsReady()
     {
-        Debug.Log("Syncing local stats and achievements with Steam...");
+        //Debug.Log("Syncing local stats and achievements with Steam...");
         SyncAchievementsFromPlatform();
     }
 
@@ -104,16 +103,12 @@ public class AchievementSaveSystem : MonoBehaviour
         if (steamUpdated)
         {
             Steamworks.SteamUserStats.StoreStats();
-            Debug.Log("Offline progress successfully pushed to Steam!");
+            //Debug.Log("Offline progress successfully pushed to Steam!");
         }
 #endif
     }
 
     #region Achievement Unlocks
-
-    /// <summary>
-    /// Unlocks an achievement both locally (Switch/PC) and on Steam.
-    /// </summary>
     [Button]
     public void UnlockAchievement(int index)
     {
@@ -121,11 +116,9 @@ public class AchievementSaveSystem : MonoBehaviour
 
         SO_Achievement ach = achievementList[index];
 
-        // 1. Local Unlock (Switch & PC)
         SetLocalAchievementState(ach.AchievementName, true);
         PlayerPrefs.Save();
 
-        // 2. Steam Unlock
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
@@ -133,7 +126,7 @@ public class AchievementSaveSystem : MonoBehaviour
         }
 #endif
 
-        Debug.Log($"Achievement Unlocked: {ach.AchievementName}");
+        //Debug.Log($"Achievement Unlocked: {ach.AchievementName}");
     }
 
     [Button]
@@ -142,7 +135,7 @@ public class AchievementSaveSystem : MonoBehaviour
         if (index < 0 || index >= achievementList.Count) return false;
 
         string key = ACHIEV_SAVE_PREFIX + achievementList[index].AchievementName;
-        Debug.Log("Achievement is: " + PlayerPrefs.GetInt(key));
+        //Debug.Log("Achievement is: " + PlayerPrefs.GetInt(key));
         return PlayerPrefs.GetInt(key, 0) == 1;
     }
 
@@ -169,17 +162,13 @@ public class AchievementSaveSystem : MonoBehaviour
         }
 #endif
 
-        Debug.Log($"Achievement Cleared: {ach.AchievementName}");
+        //Debug.Log($"Achievement Cleared: {ach.AchievementName}");
     }
 
     #endregion
 
     #region Stat Tracking (Incremental Achievements)
 
-    /// <summary>
-    /// Call this from gameplay to add progress toward an achievement stat.
-    /// Works seamlessly on Nintendo Switch, PC offline, and Steam.
-    /// </summary>
     [Button]
     public void IncrementStat(int achievementIndex, int amount = 1)
     {
@@ -188,13 +177,11 @@ public class AchievementSaveSystem : MonoBehaviour
         SO_Achievement ach = achievementList[achievementIndex];
         if (string.IsNullOrEmpty(ach.StatName)) return;
 
-        // 1. Calculate & Save Local Stat
         int currentVal = GetStatInt(ach.StatName);
         int newVal = Mathf.Min(currentVal + amount, ach.StatThreshold);
         SetStatInt(ach.StatName, newVal);
         PlayerPrefs.Save();
 
-        // 2. Push EXACT updated value to Steam
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
@@ -202,7 +189,6 @@ public class AchievementSaveSystem : MonoBehaviour
         }
 #endif
 
-        // 3. Local & Platform Unlock Check
         if (newVal >= ach.StatThreshold && !IsAchievementUnlocked(achievementIndex))
         {
             UnlockAchievement(achievementIndex);
@@ -255,7 +241,7 @@ public class AchievementSaveSystem : MonoBehaviour
 #endif
         }
         PlayerPrefs.Save();
-        Debug.Log("All achievements and stats cleared.");
+        //Debug.Log("All achievements and stats cleared.");
     }
     #endregion
 }

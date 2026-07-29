@@ -1,5 +1,3 @@
-using FMODUnity;
-using System.Collections;
 using UnityEngine;
 
 public class HomingBubble : BasicBubble

@@ -1,4 +1,3 @@
-using FMODUnity;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -16,16 +15,35 @@ public class SplitBubble : BasicBubble
         if (!hasHitPlayer)
             offsetDistance = .75f;
 
-        SpawnChildBubble(offsetAngle);
-        SpawnChildBubble(-offsetAngle);
+        SpawnChildPair();
 
         base.Pop();
     }
 
-    private void SpawnChildBubble(float angle)
+    private void SpawnChildPair()
     {
         if (bubblePrefab == null) return;
 
+        SplitTracker sharedTracker = new SplitTracker();
+
+        GameObject bubbleA = SpawnSingleChild(offsetAngle);
+        GameObject bubbleB = SpawnSingleChild(-offsetAngle);
+
+        if (bubbleA != null)
+        {
+            var hA = bubbleA.GetComponent<SplitAchievementHandler>();
+            if (hA) hA.tracker = sharedTracker;
+        }
+
+        if (bubbleB != null)
+        {
+            var hB = bubbleB.GetComponent<SplitAchievementHandler>();
+            if (hB) hB.tracker = sharedTracker;
+        }
+    }
+
+    private GameObject SpawnSingleChild(float angle)
+    {
         Vector3 splitDirection = Quaternion.AngleAxis(angle, Vector3.up) * direction;
         Vector3 spawnPosition = transform.position + (splitDirection * offsetDistance);
 
@@ -36,7 +54,6 @@ public class SplitBubble : BasicBubble
         {
             NetworkObject netObj = bubble.GetComponent<NetworkObject>();
             if (netObj != null) netObj.Spawn();
-
         }
         else if (isLocalFake)
         {
@@ -45,6 +62,8 @@ public class SplitBubble : BasicBubble
         }
 
         if (bubbleScript != null)
-            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
+            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
+
+        return bubble;
     }
 }

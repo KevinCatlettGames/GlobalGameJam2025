@@ -558,7 +558,7 @@ public class PlayerController : NetworkBehaviour
         if (!usedSpell.Contains(spell))
         {
             usedSpell.Add(spell);
-            Debug.Log("Added to used spells");
+            //Debug.Log("Added to used spells");
         }
 
         if (AchievementSaveSystem.instance)

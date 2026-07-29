@@ -97,8 +97,7 @@ public class SteamIntegration : MonoBehaviour
         statsLoaded = true;
         SetLocaleBasedOnSteamLanguage();
 
-        // Notify any listeners (like AchievementSaveSystem)
-        Debug.Log("Steam stats loaded successfully - Invoking OnSteamStatsReady");
+        //Debug.Log("Steam stats loaded successfully - Invoking OnSteamStatsReady");
         OnSteamStatsReady?.Invoke();
     }
 
@@ -170,7 +169,7 @@ public class SteamIntegration : MonoBehaviour
         string id = list[achievementIndex].AchievementName;
         var ach = new Steamworks.Data.Achievement(id);
         ach.Trigger();
-        Debug.Log($"Steam Achievement Unlocked: {id}");
+        //Debug.Log($"Steam Achievement Unlocked: {id}");
 #endif
     }
 
@@ -225,16 +224,13 @@ public class SteamIntegration : MonoBehaviour
 
         try
         {
-            // 1. Update the Steam Stat directly with the exact calculated value
             SteamUserStats.SetStat(statName, newValue);
 
-            // 2. Trigger the Steam Overlay progress popup (e.g., "50/100 Kills")
             if (newValue < threshold)
             {
-                SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
+                //SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
             }
 
-            // 3. Save stats to Steam servers
             SteamUserStats.StoreStats();
         }
         catch (Exception e)

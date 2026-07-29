@@ -8,7 +8,6 @@ public class DemolishBubble : BasicBubble
     {
         if (hasPopped || other == null) return;
 
-        // --- LOCAL FAKE SEPARATION ---
         if (isLocalFake)
         {
             if (other.CompareTag("Wall"))
@@ -16,14 +15,12 @@ public class DemolishBubble : BasicBubble
                 RisingWall risingWall = other.GetComponentInParent<RisingWall>();
                 if (risingWall != null)
                 {
-                    risingWall.Sink(true); // Let the wall sink instantly on the client's screen
+                    risingWall.Sink(true);
                 }
             }
-            // Ignore player hit mechanics here; let base piercing logic continue
             return;
         }
 
-        // --- AUTHORITATIVE SERVER LOGIC ---
         if (other.CompareTag("Player"))
         {
             var player = other.GetComponent<PlayerController>();
@@ -49,13 +46,10 @@ public class DemolishBubble : BasicBubble
                 risingWall.Sink(true);
             }
         }
-
-        // Notice: No Pop() call here, which preserves its awesome piercing capability!
     }
 
     protected override void BubbleMovement()
     {
-        // Allow the local visual fake bubble to accelerate identically to the server's version
         if (hasInflated)
         {
             speed *= 1 + (acceleration * Time.fixedDeltaTime);

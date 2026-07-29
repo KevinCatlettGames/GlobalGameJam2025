@@ -111,7 +111,7 @@ public class RevolverBubble : BasicBubble
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !AchievementSaveSystem.instance) return;
 
-        Debug.Log("Increment all shots hit revolver ach");
+        //Debug.Log("Increment all shots hit revolver ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(19, 1);
         achSaveSystem.IncrementStat(6, 1);

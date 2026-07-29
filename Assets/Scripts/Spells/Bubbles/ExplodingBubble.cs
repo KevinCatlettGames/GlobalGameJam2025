@@ -11,6 +11,7 @@ public class ExplodingBubble : BasicBubble
     private bool isReadyToExpode = false;
     private bool hasExploded = false;
     private GameObject primaryTarget;
+    private bool wasDetonatedByBubble = false;
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
@@ -26,15 +27,25 @@ public class ExplodingBubble : BasicBubble
         if (other != null && other.CompareTag("Bubble") && popOnBubbleHit)
         {
             var otherBubble = other.GetComponent<BasicBubble>();
-            if (otherBubble != null) OwnerID = otherBubble.OwnerID;
+            if (otherBubble != null)
+            {
+                // Detonated by player's own bubble
+                if (otherBubble.OwnerID.Value == OwnerID.Value)
+                {
+                    wasDetonatedByBubble = true;
+                }
+                OwnerID = otherBubble.OwnerID;
+            }
         }
         else if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
+
         fizzleEffect = hitEffect;
         if (IsOwner)
             ChangeToExplosionServerRpc();
+
         Pop();
     }
 
@@ -78,7 +89,15 @@ public class ExplodingBubble : BasicBubble
                             var controller = playerCollider.GetComponent<PlayerController>();
                             if (controller != null) controller.GainUltCharge(damage, true);
                             if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
-
+                            if (controller != null)
+                            {
+                                GameManager.Instance.RegisterExplosionHit(
+                                    OwnerID.Value,
+                                    player.PlayerID,
+                                    AssignedSpellID.Value,
+                                    wasDetonatedByBubble
+                                );
+                            }
                         }
 
                         if (col.gameObject == primaryTarget)
@@ -95,6 +114,22 @@ public class ExplodingBubble : BasicBubble
                 }
             }
         }
+    }
+
+    public void OnExplosionKilledPlayer()
+    {
+        if (!wasDetonatedByBubble) return;
+
+        UnlockDetonationMultiKillAchievement(OwnerID.Value);
+    }
+    private void UnlockDetonationMultiKillAchievement(int killerID)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
+            || !AchievementSaveSystem.instance) return;
+
+        // Replace YOUR_ACHIEVEMENT_ID with the actual ID integer
+        AchievementSaveSystem.instance.IncrementStat(5, 1);
+        //Debug.Log($"Achievement Unlocked: 2 KOs from detonating own explosive with another bubble!");
     }
 
     protected override void Pop()
