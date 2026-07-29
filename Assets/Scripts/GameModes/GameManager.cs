@@ -60,12 +60,13 @@ public class GameManager : NetworkBehaviour
         public int playerHitID = -1;
         public bool wasSlippery;
         public bool wasReflected;
+        public bool wasHitByExplosion;
+        public bool wasSlowed;
     }
     
     [SerializeField] private float multiKillTimeWindow = 3f;
     private Dictionary<int, List<float>> playerKillTimestamps  = new Dictionary<int, List<float>>();
     [SerializeField] private int damageAmountForAchievement = 300;
-    [SerializeField] private bool enableAchivements = true;
     
     private void Awake()
     {
@@ -192,7 +193,7 @@ public class GameManager : NetworkBehaviour
         this.playerStates = playerStates;
     }
 
-    public void ChangeHitReference(int index, BasicBubble.SpellType spellType, int playerHitID, bool wasSlippery, bool wasReflected)
+    public void ChangeHitReference(int index, BasicBubble.SpellType spellType, int playerHitID, bool wasSlippery, bool wasReflected, bool wasHitByExplosion)
     {
         if (index < 0 || index >= hitReferences.Length) 
             return;
@@ -200,21 +201,7 @@ public class GameManager : NetworkBehaviour
         hitReferences[index].playerHitID = playerHitID;
         hitReferences[index].wasSlippery = wasSlippery;
         hitReferences[index].wasReflected = wasReflected;
-
-        //foreach (PlayerController playerController in players)
-        //{
-        //    if (playerController == null) continue; 
-            
-        //    if (index == playerController.PlayerID)
-        //    {
-        //        playerController.UnlockShotsHitInARowAchievement(true);
-        //    }
-
-        //    if (playerHitID == playerController.PlayerID)
-        //    {
-        //        playerController.UnlockShotsHitInARowAchievement(false);
-        //    }
-        //}
+        hitReferences[index].wasHitByExplosion = wasHitByExplosion;
     }
 
     public virtual void EndGame()
@@ -311,12 +298,12 @@ public class GameManager : NetworkBehaviour
     {
         DeathReportClientRpc(playerID, killCredit);
 
-        if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
-            //IncrementSlipperyKillAchievement(killCredit);
             IncrementReflectedKillAchievement(killCredit);
+            IncrementSlowedPlayersKilledAchievement(killCredit);
         }
         CheckForRoundEndServerRpc();       
     }
@@ -343,12 +330,12 @@ public class GameManager : NetworkBehaviour
                 ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
         
-        if (enableAchivements && killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
+        if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
-            //IncrementSlipperyKillAchievement(killCredit);
             IncrementReflectedKillAchievement(killCredit);
+            IncrementSlowedPlayersKilledAchievement(killCredit);
         }
         CheckForRoundEndLocal();
     }
@@ -393,45 +380,54 @@ public class GameManager : NetworkBehaviour
     
     protected void UnlockRoundEndWithZeroDamageAchievement(int winnerID)
     {
-        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage > 0
-            || !SteamIntegration.instance) return;
+            || !AchievementSaveSystem.instance) return;
 
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.UnlockAchievement(16);
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.UnlockAchievement(16);
     }
 
     protected void UnlockRoundEndWithXDamageAchievement(int winnerID)
     {
-        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID 
             || players[winnerID].Damage < damageAmountForAchievement
-            || !SteamIntegration.instance) return;
-        
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.UnlockAchievement(12);
+            || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.UnlockAchievement(12);
     }
 
     private void IncrementSmallerGiantBubbleKillAchievement(int playerID)
     {
-        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
             || hitReferences[playerID].spellType != BasicBubble.SpellType.SmallerGiant
-            || !SteamIntegration.instance) return;
-        
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(0, 1);
-        SteamIntegration.instance.IncrementIntSteamStat(22, 1);
+            || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(0, 1);
+        achSaveSystem.IncrementStat(22, 1);
+    }
+
+    public void UnlockDieFromOwnExplosionAchievement(int playerID)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID
+            || hitReferences[playerID].spellType != BasicBubble.SpellType.Exploding && hitReferences[playerID].spellType != BasicBubble.SpellType.Grenade
+            || !AchievementSaveSystem.instance) return;
+
+        if (playerID != hitReferences[playerID].playerHitID) return;
+        if (!hitReferences[playerID].wasHitByExplosion) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.UnlockAchievement(14);
     }
 
     private void UnlockMultiKillAchievements(int killerID)
     {
-        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
-            || !SteamIntegration.instance) return;
+            || !AchievementSaveSystem.instance) return;
         
-        SteamIntegration steamIntegration = SteamIntegration.instance;
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
 
         if (!playerKillTimestamps.ContainsKey(killerID))
             playerKillTimestamps[killerID] = new List<float>();
@@ -441,34 +437,28 @@ public class GameManager : NetworkBehaviour
             
         int killsWithinWindow = playerKillTimestamps[killerID].Count;
         if (killsWithinWindow == 2)
-            SteamIntegration.instance.UnlockAchievement(13);
+            achSaveSystem.UnlockAchievement(13);
         else if (killsWithinWindow == 3)
-            SteamIntegration.instance.UnlockAchievement(27);
+            achSaveSystem.UnlockAchievement(27);
     }
-
-    //private void IncrementSlipperyKillAchievement(int killerID)
-    //{
-    //    if (!enableAchivements) return;
-    //    if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
-    //        || !SteamIntegration.instance 
-    //        || !hitReferences[killerID].wasSlippery) return;
-        
-    //    SteamIntegration steamIntegration = SteamIntegration.instance;
-    //    SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.slipperyKillStatID, 
-    //        1, 
-    //        steamIntegration.StatThresholds[steamIntegration.slipperyKillStatID], 
-    //        steamIntegration.slipperyKillAchievementID);
-    //}
     
     private void IncrementReflectedKillAchievement(int killerID)
     {
-        if (!enableAchivements) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID 
-            || !SteamIntegration.instance 
+            || !AchievementSaveSystem.instance 
             || !hitReferences[killerID].wasReflected) return;
 
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(3, 1);
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(3, 1);
     }
+
+    private void IncrementSlowedPlayersKilledAchievement(int killerID)
+    {
+        if (!AchievementSaveSystem.instance || !players[hitReferences[killerID].playerHitID].WasSlowedWhenLastHit) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(9, 1);
+    }
+
     #endregion
 }

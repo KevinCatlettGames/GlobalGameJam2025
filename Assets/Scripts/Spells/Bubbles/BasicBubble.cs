@@ -37,6 +37,7 @@ public class BasicBubble : NetworkBehaviour
     protected Collider playerCollider;
     protected List<Collider> ignoredColliders = new List<Collider>();
     protected bool isSoaped = false;
+    public bool IsSoaped {  get { return isSoaped; } }
     protected bool isReflected = false;
     protected bool hasInflated = false;
 
@@ -203,7 +204,6 @@ public class BasicBubble : NetworkBehaviour
         }
     }
 
-
     private void FixedUpdate()
     {
         if (isLocalFake)
@@ -299,7 +299,7 @@ public class BasicBubble : NetworkBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        Debug.Log("Collided with: " + collision.transform.name);
+        //Debug.Log("Collided with: " + collision.transform.name);
         if (hasPopped) return;
         HandleCollision(collision);
     }
@@ -334,7 +334,7 @@ public class BasicBubble : NetworkBehaviour
                     if (IsOwner && !isLocalFake)
                         player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
                 }
-                gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+                gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
                 if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
             }
 
@@ -471,14 +471,13 @@ public class BasicBubble : NetworkBehaviour
 
     protected void IncrementMissedShotAchievement()
     {
-        //if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-        //    NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !SteamIntegration.instance) return;
+        if (!IsServer && !isLocalFake) return;
 
-        //SteamIntegration steamIntegration = SteamIntegration.instance;
-        //SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.missedShotStatID,
-        //    1,
-        //    steamIntegration.StatThresholds[steamIntegration.missedShotStatID],
-        //    steamIntegration.missedShotAchievementID);
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
+            || !AchievementSaveSystem.instance) return;
+        Debug.Log("Incrementing missed shot ach");
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(21, 1);
     }
 
     [ClientRpc]

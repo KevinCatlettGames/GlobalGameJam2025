@@ -8,7 +8,8 @@ public class HomingBubble : BasicBubble
     [Header("Homing")]
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float homingRadius = 5f;
-
+    float timeAlive = 0;
+    bool achUnlocked = false;
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
@@ -23,6 +24,22 @@ public class HomingBubble : BasicBubble
             Debug.LogWarning("HomingTargeting component not found on HomingBubble.");
         }
     }
+
+    private void Update()
+    {
+        if (achUnlocked) return;
+        if (timeAlive <= 2.4f)
+        {
+            timeAlive += Time.deltaTime;
+        }
+        else if (timeAlive >= 2.4f)
+        {
+            achUnlocked = true;
+            if (AchievementSaveSystem.instance != null)
+                AchievementSaveSystem.instance.UnlockAchievement(7);
+        } 
+    }
+
     protected override void BubbleMovement()
     {
         if (!hasInflated)

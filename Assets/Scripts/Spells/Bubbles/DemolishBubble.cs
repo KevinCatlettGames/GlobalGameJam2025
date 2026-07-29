@@ -34,7 +34,7 @@ public class DemolishBubble : BasicBubble
             else
                 player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
-            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
 
             if (hitEffect != null)
             {

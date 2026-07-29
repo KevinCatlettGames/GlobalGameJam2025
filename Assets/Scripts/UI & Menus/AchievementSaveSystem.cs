@@ -1,6 +1,7 @@
-using UnityEngine;
-using System.Collections.Generic;
 using EditorAttributes;
+using System;
+using System.Collections.Generic;
+using UnityEngine;
 
 public class AchievementSaveSystem : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private void Awake()
     {
+        transform.parent = null;
         if (instance == null)
         {
             instance = this;
@@ -50,46 +52,59 @@ public class AchievementSaveSystem : MonoBehaviour
         SyncAchievementsFromPlatform();
     }
 
-    /// <summary>
-    /// Syncs Steam stats & unlocks down into local PlayerPrefs.
-    /// </summary>
     public void SyncAchievementsFromPlatform()
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance == null || !SteamIntegration.instance.statsLoaded) return;
 
-        bool updatedAny = false;
+        bool localUpdated = false;
+        bool steamUpdated = false;
 
         for (int i = 0; i < achievementList.Count; i++)
         {
             SO_Achievement ach = achievementList[i];
 
-            // 1. Sync Achievement Unlock State
             bool isUnlockedInSteam = SteamIntegration.instance.IsThisAchievementUnlocked(ach.AchievementName);
-            if (isUnlockedInSteam)
+            bool isUnlockedLocally = IsAchievementUnlocked(i);
+
+            if (isUnlockedInSteam && !isUnlockedLocally)
             {
                 SetLocalAchievementState(ach.AchievementName, true);
-                updatedAny = true;
+                localUpdated = true;
+            }
+            else if (isUnlockedLocally && !isUnlockedInSteam)
+            {
+                SteamIntegration.instance.UnlockAchievement(i);
+                steamUpdated = true;
             }
 
-            // 2. Sync Progress Stat Value (if achievement uses stats)
             if (!string.IsNullOrEmpty(ach.StatName))
             {
                 int steamStatVal = SteamIntegration.instance.GetSteamStatInt(ach.StatName);
                 int localStatVal = GetStatInt(ach.StatName);
 
-                // Steam is authority; take the higher value
                 if (steamStatVal > localStatVal)
                 {
                     SetStatInt(ach.StatName, steamStatVal);
-                    updatedAny = true;
+                    localUpdated = true;
+                }
+                else if (localStatVal > steamStatVal)
+                {
+                    SteamIntegration.instance.SetSteamStatInt(ach.StatName, localStatVal);
+                    steamUpdated = true;
                 }
             }
         }
 
-        if (updatedAny)
+        if (localUpdated)
         {
             PlayerPrefs.Save();
+        }
+
+        if (steamUpdated)
+        {
+            Steamworks.SteamUserStats.StoreStats();
+            Debug.Log("Offline progress successfully pushed to Steam!");
         }
 #endif
     }
@@ -137,6 +152,26 @@ public class AchievementSaveSystem : MonoBehaviour
         PlayerPrefs.SetInt(key, unlocked ? 1 : 0);
     }
 
+    [Button]
+    public void ClearAchievement(int index)
+    {
+        if (index < 0 || index >= achievementList.Count) return;
+
+        SO_Achievement ach = achievementList[index];
+
+        SetLocalAchievementState(ach.AchievementName, false);
+        PlayerPrefs.Save();
+
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (SteamIntegration.instance != null)
+        {
+            SteamIntegration.instance.ClearAchievement(index);
+        }
+#endif
+
+        Debug.Log($"Achievement Cleared: {ach.AchievementName}");
+    }
+
     #endregion
 
     #region Stat Tracking (Incremental Achievements)
@@ -153,21 +188,21 @@ public class AchievementSaveSystem : MonoBehaviour
         SO_Achievement ach = achievementList[achievementIndex];
         if (string.IsNullOrEmpty(ach.StatName)) return;
 
-        // 1. Update Local PlayerPrefs Stat
+        // 1. Calculate & Save Local Stat
         int currentVal = GetStatInt(ach.StatName);
         int newVal = Mathf.Min(currentVal + amount, ach.StatThreshold);
         SetStatInt(ach.StatName, newVal);
         PlayerPrefs.Save();
 
-        // 2. Update Steam Stat
+        // 2. Push EXACT updated value to Steam
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
-            SteamIntegration.instance.IncrementIntSteamStat(achievementIndex, amount);
+            SteamIntegration.instance.SetSteamStatIntAndIndicate(ach.StatName, ach.AchievementName, newVal, ach.StatThreshold);
         }
 #endif
 
-        // 3. Local Unlock Check (Triggers unlock for Nintendo Switch / Offline play)
+        // 3. Local & Platform Unlock Check
         if (newVal >= ach.StatThreshold && !IsAchievementUnlocked(achievementIndex))
         {
             UnlockAchievement(achievementIndex);
@@ -222,6 +257,5 @@ public class AchievementSaveSystem : MonoBehaviour
         PlayerPrefs.Save();
         Debug.Log("All achievements and stats cleared.");
     }
-
     #endregion
 }

@@ -19,8 +19,11 @@ public class SlipTrigger : MonoBehaviour
         else if (other.CompareTag("Bubble"))
         {
             BasicBubble bubble = other.GetComponent<BasicBubble>();
+            
+            if (!bubble.IsSoaped && !bubble.GetComponent<SoapBubble>())
+                CheckMakeBubbleSlipperyAchievement(bubble);
+
             bubble.SetSlippy();
-            CheckMakeBubbleSlipperyAchievement(bubble);
         }
     }
 
@@ -47,9 +50,9 @@ public class SlipTrigger : MonoBehaviour
     private void CheckMakeBubbleSlipperyAchievement(BasicBubble spedUpBubble)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID.Value
-            || !SteamIntegration.instance) return;
-        
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(4,1);
+            || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(4,1);
     }
 }

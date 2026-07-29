@@ -65,10 +65,10 @@ public class SnipeBubble : BasicBubble
         if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !SteamIntegration.instance) return;
+            || !AchievementSaveSystem.instance) return;
 
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        steamIntegration.IncrementIntSteamStat(1, (int)maxDamage);
-        steamIntegration.IncrementIntSteamStat(24, (int)maxDamage);
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(1, (int)maxDamage);
+        achSaveSystem.IncrementStat(24, (int)maxDamage);
     }
 }

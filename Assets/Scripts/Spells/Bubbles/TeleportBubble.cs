@@ -34,7 +34,7 @@ public class TeleportBubble : BasicBubble
             else
                 player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
-            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
 
             if (playerCollider != null)
             {
@@ -85,7 +85,7 @@ public class TeleportBubble : BasicBubble
                     else
                         player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage);
 
-                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
 
                     if (playerCollider != null)
                     {

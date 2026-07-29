@@ -77,6 +77,8 @@ public class ExplodingBubble : BasicBubble
                         {
                             var controller = playerCollider.GetComponent<PlayerController>();
                             if (controller != null) controller.GainUltCharge(damage, true);
+                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
+
                         }
 
                         if (col.gameObject == primaryTarget)

@@ -218,31 +218,28 @@ public class SteamIntegration : MonoBehaviour
 #endif
     }
 
-    public void IncrementIntSteamStat(int achievementIndex, int incrementAmount)
+    public void SetSteamStatIntAndIndicate(string statName, string achievementAPIName, int newValue, int threshold)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (!isFullVersion || !SteamClient.IsValid || !statsLoaded) return;
 
         try
         {
-            SO_Achievement ach = AchievementSaveSystem.instance.AchievementList[achievementIndex];
+            // 1. Update the Steam Stat directly with the exact calculated value
+            SteamUserStats.SetStat(statName, newValue);
 
-            int currentValue = SteamUserStats.GetStatInt(ach.StatName);
-            int newValue = currentValue + incrementAmount;
+            // 2. Trigger the Steam Overlay progress popup (e.g., "50/100 Kills")
+            if (newValue < threshold)
+            {
+                SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
+            }
 
-            if (newValue >= ach.StatThreshold)
-                newValue = ach.StatThreshold;
-
-            SteamUserStats.SetStat(ach.StatName, newValue);
-
-            if (newValue >= ach.StatThreshold)
-                UnlockAchievement(achievementIndex);
-
+            // 3. Save stats to Steam servers
             SteamUserStats.StoreStats();
         }
         catch (Exception e)
         {
-            Debug.LogError($"IncrementIntSteamStat failed: {e.Message}");
+            Debug.LogError($"Failed updating Steam stat '{statName}': {e.Message}");
         }
 #endif
     }
@@ -262,6 +259,21 @@ public class SteamIntegration : MonoBehaviour
         }
 #else
     return 0;
+#endif
+    }
+
+    public void SetSteamStatInt(string statName, int value)
+    {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (!SteamClient.IsValid || !statsLoaded) return;
+        try
+        {
+            SteamUserStats.SetStat(statName, value);
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Failed setting Steam stat {statName}: {e.Message}");
+        }
 #endif
     }
 
