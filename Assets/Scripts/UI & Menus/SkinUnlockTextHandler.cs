@@ -26,6 +26,13 @@ public class SkinUnlockTextHandler : MonoBehaviour
 
     public void SetSkinUnlockText(SkinSO skinSO)
     {
+        if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+        {
+            HideUnlockUI();
+            return;
+        }    
+
+
         if (skinSO == null)
         {
             HideUnlockUI();
