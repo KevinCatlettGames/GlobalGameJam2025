@@ -2627,12 +2627,6 @@ PrefabInstance:
       objectReference: {fileID: 1542867656}
     - target: {fileID: 7444545396222946852, guid: 5f1bf6cc977cc7a4bbeb525fc25f678b,
         type: 3}
-      propertyPath: skin
-      value: 
-      objectReference: {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4,
-        type: 2}
-    - target: {fileID: 7444545396222946852, guid: 5f1bf6cc977cc7a4bbeb525fc25f678b,
-        type: 3}
       propertyPath: dummyPlayerHUD
       value: 
       objectReference: {fileID: 5758177152077098226}
@@ -13649,16 +13643,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   gameModeType: 0
-  teamIDs: 00000000000000000000000000000000
-  teamA: []
-  teamB: []
-  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
-    type: 3}
   playEndless: 1
   gameSettings: {fileID: 11400000, guid: 0d3e08fb5cee10e4fb4b717d4c05c4cc, type: 2}
   mapEvent: {fileID: 0}
+  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
+    type: 3}
   playerInputManager: {fileID: 1608606915266651744}
-  PlayingLocal: 0
   countdown: {fileID: 1939145951}
   deathZones:
   - {fileID: 1153670602}
@@ -13670,10 +13660,12 @@ MonoBehaviour:
   - {fileID: 1512005561}
   - {fileID: 1204978858}
   - {fileID: 1015452931}
+  PlayingLocal: 0
+  teamIDs: 00000000000000000000000000000000
+  teamA: []
+  teamB: []
   hitReferences: []
-  multiKillTimeWindow: 3
   damageAmountForAchievement: 300
-  enableAchivements: 0
 --- !u!1 &1664649816040308261
 GameObject:
   m_ObjectHideFlags: 0
@@ -61683,7 +61675,6 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   shotsHitInARowAmountNeeded: 10
-  pickedUpSpellsNeeded: 20
   resetPosition: {x: 10, y: 2, z: 0}
   minResetDistance: 1
   skin: {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4, type: 2}
