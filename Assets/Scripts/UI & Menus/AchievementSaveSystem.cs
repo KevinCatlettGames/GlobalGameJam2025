@@ -244,4 +244,14 @@ public class AchievementSaveSystem : MonoBehaviour
         //Debug.Log("All achievements and stats cleared.");
     }
     #endregion
+
+#if UNITY_EDITOR
+    public void Update()
+    {
+        if(Input.GetKeyDown(KeyCode.Keypad0))
+            UnlockAllAchievements();
+        if (Input.GetKeyDown(KeyCode.Keypad1))
+            ClearAllAchievements();
+    }
+#endif
 }
