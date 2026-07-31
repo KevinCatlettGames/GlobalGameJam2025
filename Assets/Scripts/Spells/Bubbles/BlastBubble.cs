@@ -44,7 +44,7 @@ public class BlastBubble : BasicBubble
                 }
 
                 if(IsServer)
-                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
 
                 if (!isUlt && playerCollider != null) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                 fizzleEffect = hitEffect;
