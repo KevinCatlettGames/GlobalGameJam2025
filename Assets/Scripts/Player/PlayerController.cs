@@ -1474,8 +1474,8 @@ public class PlayerController : NetworkBehaviour
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
-        float animationTime = 1.06f;
-        yield return new WaitForSeconds(0.4f);
+        float animationTime = 1.06f; //Duration of entrance animation
+        yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
         if (initalDelay > 0)
