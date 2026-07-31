@@ -1,6 +1,5 @@
 ﻿using FMOD.Studio;
 using FMODUnity;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -1513,7 +1512,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void ResetHudClientRpc() => playerHUD.ResetHUD();
 
-    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
+    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject, bool dropInJoin)
     {
         currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
@@ -1586,7 +1585,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(4f)); //Delay to sync with countdown
+        StartCoroutine(EntranceCoroutine(dropInJoin? 0 : 4f)); //Delay to sync with countdown
     }
 
     [ClientRpc]

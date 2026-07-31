@@ -31,6 +31,7 @@ public class PlayerManager : NetworkBehaviour
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
 
+    private bool dropInJoin = false;
     
     private void Awake()
     {
@@ -72,6 +73,7 @@ public class PlayerManager : NetworkBehaviour
             {
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
+                dropInJoin = true;
             }
 
             playerInputManager.enabled = true;
@@ -201,7 +203,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -237,7 +239,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -378,7 +380,7 @@ public class PlayerManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            Debug.Log("PlayerManager: THERE IS NO LOBBY MANAGER! DEATH TO ALL");
         }
     }
 
