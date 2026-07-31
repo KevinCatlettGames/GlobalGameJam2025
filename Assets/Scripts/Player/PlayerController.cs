@@ -434,7 +434,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -447,7 +447,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned|| !inputEnabled) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -738,7 +738,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
 
         if (!canSprint || isSlowed)
         {
@@ -835,7 +835,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnEmote(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
 
         Vector2 value = context.ReadValue<Vector2>();
         if (GameManager.Instance.PlayingLocal)
@@ -1466,16 +1466,20 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator EntranceCoroutine(float initalDelay)
     {
         inputEnabled = false;
+        float startDelay = 0.7f * (playerID + 1);
         if (initalDelay > 0)
         {
-            yield return new WaitForSeconds(initalDelay);
+            yield return new WaitForSeconds(startDelay - 0.7f * (playerID + 1));
         }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
         yield return null;
-        yield return new WaitForSeconds(mainAnimator.GetCurrentAnimatorStateInfo(0).length);
+        if (initalDelay > 0)
+            yield return new WaitForSeconds(initalDelay - startDelay);
+        else
+            yield return new WaitForSeconds(mainAnimator.GetCurrentAnimatorStateInfo(0).length);
         inputEnabled = true;
     }
 
@@ -1558,7 +1562,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(0.7f * (playerID + 1))); //Delay to sync with countdwon
+        StartCoroutine(EntranceCoroutine(3f)); //Delay to sync with countdwon
     }
 
     [ClientRpc]
