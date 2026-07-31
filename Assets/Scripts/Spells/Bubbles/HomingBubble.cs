@@ -45,4 +45,26 @@ public class HomingBubble : BasicBubble
 
         base.BubbleMovement();
     }
+
+    public override void BubbleCollision(GameObject other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            hitTarget = other.GetComponent<PlayerController>();
+        }
+        base.BubbleCollision(other);
+    }
+
+    [ClientRpc]
+    protected override void SpawnPopEffectClientRpc(Vector3 pos)
+    {
+        if (!IsServer && GameManager.Instance.Players[OwnerID.Value].IsOwner) return; 
+
+        if (fizzleEffect == null) return;
+        GameObject vfx = Instantiate(fizzleEffect, pos, Quaternion.identity);
+        if (hitTarget != null)
+        {
+            vfx.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(hitTarget, OwnerID.Value, damage, secondDmgDelay);
+        }
+    }
 }
