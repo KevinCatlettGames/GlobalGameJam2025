@@ -1,5 +1,6 @@
 using FMODUnity;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,7 +22,8 @@ public class Item : NetworkBehaviour
     [SerializeField] private float itemBlinkIntervall = 0.4f;
     [SerializeField] private Material itemMaterial;
     [SerializeField] private bool disableDespawn = false;
-
+    [SerializeField] private float disableTime = .5f;
+    
     private Material spellMaterial;
 
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
@@ -74,8 +76,32 @@ public class Item : NetworkBehaviour
         if (pickUpEffect != null) 
             Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         PlayPickupSoundServerRpc();
-        if (IsServer && !disableDespawn)
-            GetComponent<NetworkObject>().Despawn();
+        if (!disableDespawn)
+        {
+            if (IsServer)
+                GetComponent<NetworkObject>().Despawn();
+        }
+        else
+        {
+            List<Transform> children = new List<Transform>();
+            foreach (Transform child in transform)
+            {
+                Debug.Log(child.name);
+                children.Add(child);
+                child.gameObject.SetActive(false);
+            }
+            SphereCollider sphereCollider = GetComponent<SphereCollider>();
+            sphereCollider.enabled = false;
+            Debug.Log("Disabled");
+            yield return new WaitForSeconds(0.1f);
+            Debug.Log("Disabled no more");
+            foreach (Transform child in children)
+            {
+                Debug.Log(child.name);
+                child.gameObject.SetActive(true);
+            }
+            sphereCollider.enabled = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)

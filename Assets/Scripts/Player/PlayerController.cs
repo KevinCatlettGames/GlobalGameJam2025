@@ -1574,6 +1574,7 @@ public class PlayerController : NetworkBehaviour
             mainAnimator = childAnimatorObject.GetComponent<Animator>();
             shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
             shaderManager?.SetStatusIndicator(statusIndicator);
+            
         }
         
         playerHUD.UpdateDamageText((int)damage);

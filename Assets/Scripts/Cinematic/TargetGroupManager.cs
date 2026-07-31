@@ -55,7 +55,7 @@ public class TargetGroupManager : MonoBehaviour
 
     private void Start()
     {
-        GameManager.Instance.OnGameStarted += ResetZoom;
+        //GameManager.Instance.OnGameStarted += ResetZoom;
     }
 
     private void LateUpdate()
@@ -119,12 +119,17 @@ public class TargetGroupManager : MonoBehaviour
 
     private Bounds GetBounds()
     {
-        if (targetGroup.Count <= 1)
-            return new Bounds();
         Bounds bounds = new Bounds();
-        foreach (Transform t in targetGroup)
+        if (targetGroup.Count > 0)
         {
-            bounds.Encapsulate(t.transform.position);
+            foreach (Transform t in targetGroup)
+            {
+                bounds.Encapsulate(t.transform.position);
+            }
+        }
+        else
+        {
+            bounds.Encapsulate(Vector3.zero);
         }
         return bounds;
     }
@@ -143,6 +148,6 @@ public class TargetGroupManager : MonoBehaviour
 
     private void OnDestroy()
     {
-        GameManager.Instance.OnGameStarted -= ResetZoom;
+        //GameManager.Instance.OnGameStarted -= ResetZoom;
     }
 }

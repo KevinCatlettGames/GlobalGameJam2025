@@ -12,7 +12,7 @@ public class DummyController : PlayerController
 
     private void Start()
     {
-        SetUpPlayer(1, dummyPlayerHUD, null, skin, true);
+        SetUpPlayer(5, dummyPlayerHUD, null, skin, true);
         controller = GetComponent<CharacterController>();
         SetSpells(0, 0);
         isUsingGamepad = true;
@@ -20,6 +20,7 @@ public class DummyController : PlayerController
         initialized = true;
         dummyPlayerHUD.gameObject.SetActive(true);
         dummyPlayerHUD.InitialisePlayerHUD(skin);
+        TargetGroupManager.Instance.AddToGroup(transform);
     }
 
     private void Update()

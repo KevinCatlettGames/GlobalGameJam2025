@@ -211,8 +211,6 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
-
-        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     public void OnPlayerJoined(PlayerInput input)
@@ -247,8 +245,6 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
-
-        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -404,8 +400,6 @@ public class PlayerManager : NetworkBehaviour
                 {
                     localPlayer.transform.SetPositionAndRotation(targetPos, targetRot);
                 }
-
-                TargetGroupManager.Instance?.AddToGroup(localPlayer.transform);
             }
         }
         else
