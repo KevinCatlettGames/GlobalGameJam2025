@@ -1469,7 +1469,7 @@ public class PlayerController : NetworkBehaviour
         float startDelay = 0.7f * (playerID + 1);
         if (initalDelay > 0)
         {
-            yield return new WaitForSeconds(startDelay - 0.7f * (playerID + 1));
+            yield return new WaitForSeconds(startDelay);
         }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
