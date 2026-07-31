@@ -1,6 +1,4 @@
-using Steamworks;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 public class DummyController : PlayerController
 {

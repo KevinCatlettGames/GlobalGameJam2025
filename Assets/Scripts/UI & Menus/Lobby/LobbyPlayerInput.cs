@@ -291,7 +291,8 @@ public class LobbyPlayerInput : NetworkBehaviour
 
         if (context.performed && !LobbyManager.instance.players[playersListID].IsReady)
         {
-            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion && !LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.AvailableInDemo)
+            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion && !LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.AvailableInDemo
+                || AchievementSaveSystem.instance && LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement.AchievementID))
             {
                 PlaySFX(false, 3);
                 return;

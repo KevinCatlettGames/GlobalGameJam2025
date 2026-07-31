@@ -88,8 +88,11 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float slowFactor = .4f;
     [SerializeField] private GameObject dashDisabledUI;
     private bool isVulnerable = false;
+    public bool IsVulnerable {  get { return isVulnerable; } }
     private int slowCounter = 0;
     private bool isSlowed = false;
+    private bool wasSlowedWhenLastHit = false;
+    public bool WasSlowedWhenLastHit { get { return wasSlowedWhenLastHit; } }
     private int slipperyCounter = 0;
     private bool isSlippery = false; 
     private Coroutine vulnerableRoutine = null;
@@ -191,7 +194,7 @@ public class PlayerController : NetworkBehaviour
     private HashSet<Collider> bubblesInside = new HashSet<Collider>();
     [SerializeField] private int shotsHitInARowAmountNeeded = 10;
     private int shotsHitInARowAmount = 0;
-    [SerializeField] private int pickedUpSpellsNeeded = 20;
+    private int pickedUpSpellsNeeded = 10;
     
     #endregion
 
@@ -317,6 +320,8 @@ public class PlayerController : NetworkBehaviour
         else if (killCreditID != -1 && controller.isGrounded)
         {
             killCreditID = -1;
+            if (wasSlowedWhenLastHit)
+                wasSlowedWhenLastHit = false;
         }
 
         move += playerVelocity * Time.deltaTime;
@@ -551,14 +556,17 @@ public class PlayerController : NetworkBehaviour
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
 
-        //if (!usedSpell.Contains(spell))
-        //    usedSpell.Add(spell);
+        if (!usedSpell.Contains(spell))
+        {
+            usedSpell.Add(spell);
+            //Debug.Log("Added to used spells");
+        }
 
-        //if (SteamIntegration.instance)
-        //{
-        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        //}
+        if (AchievementSaveSystem.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                AchievementSaveSystem.instance.UnlockAchievement(28);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -583,14 +591,17 @@ public class PlayerController : NetworkBehaviour
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
         }
 
-        //if (!usedSpell.Contains(spell))
-        //    usedSpell.Add(spell);
+        if (!usedSpell.Contains(spell))
+        {
+            usedSpell.Add(spell);
+            Debug.Log("Added to used spells");
+        }
 
-        //if (SteamIntegration.instance)
-        //{
-        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        //}
+        if (AchievementSaveSystem.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                AchievementSaveSystem.instance.UnlockAchievement(28);
+        }
     }
 
     [ClientRpc]
@@ -616,14 +627,17 @@ public class PlayerController : NetworkBehaviour
         else
             secondSpellCoroutine = StartCoroutine(SpellCooldown(cooldown, 2));
 
-        //if (!usedSpell.Contains(spell))
-        //    usedSpell.Add(spell);
+        if (!usedSpell.Contains(spell))
+        {
+            usedSpell.Add(spell);
+            Debug.Log("Added to used spells");
+        }
 
-        //if (SteamIntegration.instance)
-        //{
-        //    if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-        //        SteamIntegration.instance.UnlockAchievement(SteamIntegration.instance.allWeaponsUsedAchievementID);
-        //}
+        if (AchievementSaveSystem.instance)
+        {
+            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
+                AchievementSaveSystem.instance.UnlockAchievement(28);
+        }
     }
 
     #endregion
@@ -1023,6 +1037,9 @@ public class PlayerController : NetworkBehaviour
             splashEffect.Play();
         }
 
+        if (isSlowed)
+            wasSlowedWhenLastHit = true;
+
         direction.y = 0;
         // Fixed knockback for -2 ID
         float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
@@ -1100,6 +1117,9 @@ public class PlayerController : NetworkBehaviour
             splashEffect.Play();
         }
 
+        if (isSlowed)
+            wasSlowedWhenLastHit = true;
+
         direction.y = 0;
         // Fixed knockback for -2 ID
         float mul = (ID == -2) ? 1 : (1 + (damage * damageModifier));
@@ -1167,7 +1187,11 @@ public class PlayerController : NetworkBehaviour
             DeadAnimServerRpc(true);
         }
 
-        if (playerID == killCreditID) killCreditID = -1;
+        if (playerID == killCreditID)
+        {
+            GameManager.Instance.UnlockDieFromOwnExplosionAchievement(playerID);
+            killCreditID = -1;
+        }
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -1627,41 +1651,48 @@ public class PlayerController : NetworkBehaviour
         }
         
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
-            || !SteamIntegration.instance) return;
+            || !AchievementSaveSystem.instance) return;
         
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(25, 1);
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(25, 1);
     }
 
     private void IncrementDodgeBubbleAchievement()
     {
+        bubblesInside.RemoveWhere(b => b == null);
         Vector3 boxCenter = transform.position + boxCenterOffset;
         Collider[] hits = Physics.OverlapBox(boxCenter, boxHalfExtents, Quaternion.identity, bubbleLayer);
 
         foreach (var hit in hits)
         {
-            if (hit == null || !hit.GetComponent<BasicBubble>() || hit.GetComponent<BasicBubble>() && hit.GetComponent<BasicBubble>().OwnerID.Value == playerID) continue;
-            
-            if (!bubblesInside.Contains(hit))
-                bubblesInside.Add(hit);
+            if (hit == null) continue;
+
+            if (hit.TryGetComponent<BasicBubble>(out var bubble))
+            {
+                if (bubble.OwnerID.Value == playerID) continue;
+
+                if (!bubblesInside.Contains(hit))
+                    bubblesInside.Add(hit);
+            }
         }
 
         var exiting = bubblesInside.Where(b => !hits.Contains(b)).ToList();
+
         foreach (var b in exiting)
         {
             bubblesInside.Remove(b);
-            if (b == null || !b.GetComponent<BasicBubble>()) return; 
-            
-            BasicBubble bubble = b.GetComponent<BasicBubble>();
-            
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
-                || bubble.HasPopped
-                || bubble.OwnerID.Value == playerID
-                || !isSprinting
-                || !SteamIntegration.instance) return;
-                
-            SteamIntegration steamIntegration = SteamIntegration.instance;
-            SteamIntegration.instance.IncrementIntSteamStat(17, 1);
+
+            if (b == null) continue;
+
+            if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
+
+            bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer) continue;
+
+            if (bubble.HasPopped || !isSprinting) continue;
+        
+            if (AchievementSaveSystem.instance != null)
+                AchievementSaveSystem.instance.IncrementStat(17, 1);
         }
     }
 
@@ -1669,7 +1700,7 @@ public class PlayerController : NetworkBehaviour
     //{
     //    if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
     //        || !SteamIntegration.instance) return;
-        
+
     //    if (hitAPlayer)
     //    {
     //        // hit a player
@@ -1687,7 +1718,7 @@ public class PlayerController : NetworkBehaviour
     //        shotsHitInARowAmount = 0; 
     //    }
     //}
-    
+
     #endregion
 
     #region RPC Animations

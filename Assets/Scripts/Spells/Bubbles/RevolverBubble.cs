@@ -106,12 +106,14 @@ public class RevolverBubble : BasicBubble
 
     private void CheckAllShotsHitAchievement()
     {
-        if (!IsServer) return;
+       if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !SteamIntegration.instance) return;
+            || !AchievementSaveSystem.instance) return;
 
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        steamIntegration.IncrementIntSteamStat(6, 1);
+        //Debug.Log("Increment all shots hit revolver ach");
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(19, 1);
+        achSaveSystem.IncrementStat(6, 1);
     }
 }

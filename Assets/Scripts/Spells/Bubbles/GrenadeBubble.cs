@@ -1,8 +1,4 @@
-using FMODUnity;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
-using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 public class GrenadeBubble : BasicBubble
@@ -66,7 +62,14 @@ public class GrenadeBubble : BasicBubble
         if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
+            IncrementPerfectGrenadeHitAchievement();
         }
+
+        if(other != null && other.CompareTag("Bubble") && other.GetComponent<GrenadeBubble>() && other.GetComponent<GrenadeBubble>().OwnerID.Value != OwnerID.Value)
+        {
+            UnlockHitTwoGrenadesMidairAchievement();
+        }
+
         fizzleEffect = hitEffect;
         if (IsServer)
             ChangeHitEffectClientRpc();
@@ -118,13 +121,15 @@ public class GrenadeBubble : BasicBubble
                             else
                                 player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage);
 
-                            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected);
+                            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
                             player.StartVulnerable(vulnerableDuration);
 
                             if (playerCollider != null)
                             {
                                 var controller = playerCollider.GetComponent<PlayerController>();
                                 if (controller != null) controller.GainUltCharge(explosionDamage, true);
+                                if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
+
                             }
                         }
                     }
@@ -168,5 +173,19 @@ public class GrenadeBubble : BasicBubble
     {
         if (IsServer) return;
         fizzleEffect = hitEffect;
+    }
+
+    private void IncrementPerfectGrenadeHitAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem.instance.IncrementStat(8);
+    }
+
+    private void UnlockHitTwoGrenadesMidairAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem.instance.UnlockAchievement(18);
     }
 }

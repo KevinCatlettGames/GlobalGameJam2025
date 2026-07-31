@@ -10,6 +10,8 @@ public class HomingBubble : BasicBubble
     [SerializeField] private float secondDmgDelay = .25f;
     private PlayerController hitTarget;
 
+    float timeAlive = 0;
+    bool achUnlocked = false;
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
@@ -42,25 +44,5 @@ public class HomingBubble : BasicBubble
         }
 
         base.BubbleMovement();
-    }
-    public override void BubbleCollision(GameObject other)
-    {
-        if (other.CompareTag("Player"))
-            hitTarget = other.GetComponent<PlayerController>();        
-
-        base.BubbleCollision(other);
-    }
-
-    [ClientRpc]
-    protected override void SpawnPopEffectClientRpc(Vector3 pos)
-    {
-        if (!IsServer && GameManager.Instance.Players[OwnerID.Value].IsOwner) return;
-
-        if (fizzleEffect == null) return;
-        GameObject fx = Instantiate(fizzleEffect, pos, Quaternion.identity);
-        if (fx != null && hitTarget != null)
-        {
-            fx.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(hitTarget, OwnerID.Value, damage, secondDmgDelay);
-        }
     }
 }

@@ -54,7 +54,8 @@ public class SkinButtonHandler : MonoBehaviour
         foreach (TextMeshProUGUI text in selectionTexts)
             text.enabled = false;
 
-        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo 
+            || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
             GetComponent<Image>().color = disabledColor;
         else
             GetComponent<Image>().color = standardImageColor;
@@ -136,7 +137,7 @@ public class SkinButtonHandler : MonoBehaviour
 
         if (isSelectedNow)
         {
-            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
                 GetComponent<Image>().color = disabledColor;
             else
                 GetComponent<Image>().color = skinSo.Color;
@@ -144,7 +145,7 @@ public class SkinButtonHandler : MonoBehaviour
         }
         else
         {
-            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
                 GetComponent<Image>().color = disabledColor;
             else
                 GetComponent<Image>().color = standardImageColor;
