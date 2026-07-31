@@ -10,7 +10,9 @@ public class TargetGroupManager : MonoBehaviour
     private List<Transform> targetGroup = new List<Transform> ();
 
     [SerializeField] private CinemachineVirtualCamera virtualCamera;
-    [Header("Zoom Sizes")]
+
+    [Header("Zoom Sizes")] [SerializeField]
+    private bool isZooming = true;
     [SerializeField] private float zoomSpeed = .3f;
     [SerializeField] private float maxSize = 21f;
     [SerializeField] private float minSize = 16f;
@@ -59,11 +61,10 @@ public class TargetGroupManager : MonoBehaviour
     private void LateUpdate()
     {
         Bounds bounds = GetBounds();
-        Zoom(bounds);
+        if (isZooming)
+            Zoom(bounds);
         if (isPanning)
-        {
             Pan(bounds);
-        }
     }
     private void Pan(Bounds bounds)
     {

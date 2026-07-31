@@ -1444,8 +1444,6 @@ public class PlayerController : NetworkBehaviour
             ResetHudServerRpc();
         }
 
-        canvas.SetActive(true);
-
         movementInput = Vector2.zero;
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
@@ -1466,6 +1464,7 @@ public class PlayerController : NetworkBehaviour
     private IEnumerator EntranceCoroutine(float initalDelay)
     {
         inputEnabled = false;
+        canvas.SetActive(false);
         float startDelay = 0.7f * (playerID + 1);
         if (initalDelay > 0)
         {
@@ -1475,11 +1474,12 @@ public class PlayerController : NetworkBehaviour
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
-        yield return null;
+        float animationTime = 1.06f;
+        yield return new WaitForSeconds(0.4f);
+        canvas.SetActive(true);
+        yield return new WaitForSeconds(animationTime - 0.4f);
         if (initalDelay > 0)
-            yield return new WaitForSeconds(initalDelay - startDelay);
-        else
-            yield return new WaitForSeconds(mainAnimator.GetCurrentAnimatorStateInfo(0).length);
+            yield return new WaitForSeconds(initalDelay - startDelay - animationTime);
         inputEnabled = true;
     }
 
