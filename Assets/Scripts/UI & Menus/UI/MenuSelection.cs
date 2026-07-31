@@ -21,7 +21,9 @@ public class MenuSelection : MonoBehaviour
         if(Instance == null)
             Instance = this;
         else
-            Destroy(gameObject);      
+            Destroy(gameObject);
+
+        Time.timeScale = 1;
     }
 
     void Start()

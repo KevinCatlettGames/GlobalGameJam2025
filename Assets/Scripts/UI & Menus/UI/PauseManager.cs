@@ -61,7 +61,6 @@ public class PauseManager : MonoBehaviour
     
     private void OnClientDisconnect(ulong clientId)
     {
-        Debug.Log("Player disconnected — returning to main menu...");
         ReturnToMainMenu();
     }
 
@@ -85,8 +84,10 @@ public class PauseManager : MonoBehaviour
             if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
 
-            Cursor.lockState = CursorLockMode.None;
+            Cursor.lockState = CursorLockMode.Locked;
+            Cursor.lockState = CursorLockMode.None; 
             Cursor.visible = true;
+
             Vector2 mousePosition = new Vector2(.35f * Screen.width, .75f * Screen.height);
             Mouse.current.WarpCursorPosition(mousePosition);
         }
@@ -158,9 +159,7 @@ public class PauseManager : MonoBehaviour
 
     public async void ReturnToMainMenu()
     {
-        Cursor.visible = true;
-        Time.timeScale = 1f; 
-        
+        Cursor.visible = false;        
         try
         {
             if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
@@ -215,6 +214,21 @@ public class PauseManager : MonoBehaviour
 
     void LoadMainMenu()
     {
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.OnFadeComplete += Load;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+        else
+        {
+            Load();
+        }
+    }
+
+    void Load()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= Load;
         SceneManager.LoadScene("UI_MainMenu");
     }
     

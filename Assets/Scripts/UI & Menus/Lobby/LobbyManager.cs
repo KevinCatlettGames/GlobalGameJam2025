@@ -573,7 +573,8 @@ public class LobbyManager : NetworkBehaviour
     {
         HandleLobbyContinueServerRpc();
 
-        await Task.Delay(1000);
+        if(TransportSwitcher.Instance.isUsingRelay)
+            await Task.Delay(1000);
 
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
         {
