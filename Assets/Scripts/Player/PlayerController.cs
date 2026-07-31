@@ -1562,7 +1562,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(3f)); //Delay to sync with countdwon
+        StartCoroutine(EntranceCoroutine(4f)); //Delay to sync with countdown
     }
 
     [ClientRpc]
