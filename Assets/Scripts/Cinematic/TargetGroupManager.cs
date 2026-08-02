@@ -62,12 +62,21 @@ public class TargetGroupManager : MonoBehaviour
     private void LateUpdate()
     {
         Bounds bounds = GetBounds();
+
         if (isZooming)
-            Zoom(bounds);
+            targetSize = Zoom(bounds);
+        else
+            targetSize = defaultSize;
         if (isPanning)
-            Pan(bounds);
+            targetPosition = Pan(bounds);
+        else
+            targetPosition = defaultPosition;
+
+        //transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, panSpeed);
+        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * panSpeed);
+        virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, targetSize, Time.deltaTime * zoomSpeed);
     }
-    private void Pan(Bounds bounds)
+    private Vector3 Pan(Bounds bounds)
     {
         Vector3 followPosition = bounds.center;
         followPosition.y = 0f;
@@ -80,10 +89,10 @@ public class TargetGroupManager : MonoBehaviour
         {
             followPosition = Vector3.zero;
         }
-        targetPosition = followPosition + defaultPosition;
-        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, panSpeed);
+
+        return followPosition + defaultPosition;
     }
-    private void Zoom(Bounds bounds)
+    private float Zoom(Bounds bounds)
     {
         float boundsWidth = bounds.extents.x;
         if (boundsWidth == 0)
@@ -107,7 +116,7 @@ public class TargetGroupManager : MonoBehaviour
             targetSize = defaultSize;
         }
 
-        virtualCamera.m_Lens.OrthographicSize = Mathf.Lerp(virtualCamera.m_Lens.OrthographicSize, targetSize, Time.deltaTime * zoomSpeed);
+        return targetSize;
     }
 
     public void ResetZoom()
