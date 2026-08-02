@@ -7,9 +7,12 @@ public class ChangeInputFieldTextToCode : MonoBehaviour
     
     private void Start()
     {
-        if(inputField == null)
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+
+        if (inputField == null)
             inputField = GetComponent<TMP_InputField>();
             
         inputField.text = GlobalLobby.CurrentLobby.LobbyCode; 
+#endif
     }
 }

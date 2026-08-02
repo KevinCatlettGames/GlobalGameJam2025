@@ -1,3 +1,4 @@
+using Steamworks;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,8 @@ public class PlayerContainerManager : MonoBehaviour
     [SerializeField] private Image readyImage;
     [SerializeField] private TextMeshProUGUI unreadyText;
     [SerializeField] private TextMeshProUGUI readyText;
+    [SerializeField] private TextMeshProUGUI youText;
+    public PlayerProfileDisplay playerProfileDisplay;
 
     public bool isReady = false;
     public bool occupied = false;
@@ -26,10 +29,10 @@ public class PlayerContainerManager : MonoBehaviour
     }
 
     private void Start()
-    {      
+    {
         foreach (var player in LobbyManager.instance.players)
         {
-            if ((int)player.ClientId == uiIndex)
+            if (player.PlayerIndex == uiIndex)
             {
                 isReady = player.IsReady;
                 readyImage.enabled = isReady ? false : true;
@@ -39,13 +42,12 @@ public class PlayerContainerManager : MonoBehaviour
                 break;
             }
         }
-
         gameObject.SetActive(false);
     }
 
-    public void ReadyStateUpdated(ulong clientId, bool state)
+    public void ReadyStateUpdated(int playerIndex, bool state)
     {
-        if ((int)clientId != uiIndex) return;   
+        if (playerIndex != uiIndex) return;   
 
         if(state)
         {
@@ -61,5 +63,21 @@ public class PlayerContainerManager : MonoBehaviour
             unreadyText.enabled = true;
             readyText.enabled = false;
         }
+    }
+
+    public void ToggleYouText(bool value)
+    {
+        youText.enabled = value;
+    }
+
+    public void SetAccountInfo(bool value, string userName, ulong networkSteamID)
+    {
+        if (!SteamClient.IsValid || !TransportSwitcher.Instance.isUsingRelay) return;
+        youText.enabled = value;
+        if(userName == string.Empty)
+            userName = "Wizzo";
+
+        youText.text = userName;
+        playerProfileDisplay.ShowSteamAvatarBySteamID(networkSteamID);
     }
 }

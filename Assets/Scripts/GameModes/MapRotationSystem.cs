@@ -24,7 +24,7 @@ public class MapRotationSystem : MonoBehaviour
         }
         else
         {
-            Destroy(gameObject);
+            this.enabled = false;
         }
 
         if(mapSetting) 
@@ -58,16 +58,17 @@ public class MapRotationSystem : MonoBehaviour
         chosenMap = availableMaps[Random.Range(0, availableMaps.Count)];
         chosenMap.PlayedThisLoop = true;
 
+        mapSetting = chosenMap;
+        maxRounds = chosenMap.MapRounds;
         LoadMap();
-
         return true;
     }
 
     public void LoadMap()
-    {       
+    {
         NetworkManager.Singleton.SceneManager.LoadScene(
-            chosenMap.SceneName,
-            LoadSceneMode.Single
-        );
+                   chosenMap.SceneName,
+                   LoadSceneMode.Single
+               );
     }
 }

@@ -6,7 +6,20 @@ public class DemolishBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped) return;
+        if (hasPopped || other == null) return;
+
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Wall"))
+            {
+                RisingWall risingWall = other.GetComponentInParent<RisingWall>();
+                if (risingWall != null)
+                {
+                    risingWall.Sink(true);
+                }
+            }
+            return;
+        }
 
         if (other.CompareTag("Player"))
         {
@@ -14,13 +27,16 @@ public class DemolishBubble : BasicBubble
             GameManager gameManager = GameManager.Instance;
 
             if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
             else
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
 
-            gameManager.ChangeHitReference(OwnerID, spellType, player.PlayerID, isSoaped, isReflected);
+            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
 
-            var effect = Instantiate(hitEffect, transform.position, Quaternion.identity);
+            if (hitEffect != null)
+            {
+                Instantiate(hitEffect, transform.position, Quaternion.identity);
+            }
         }
         else if (other.CompareTag("Wall"))
         {
@@ -28,7 +44,6 @@ public class DemolishBubble : BasicBubble
             if (risingWall != null)
             {
                 risingWall.Sink(true);
-                //Effect/Archievenemt can go here
             }
         }
     }

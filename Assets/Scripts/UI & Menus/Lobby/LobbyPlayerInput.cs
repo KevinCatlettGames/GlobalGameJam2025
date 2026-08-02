@@ -1,49 +1,176 @@
-using FMOD.Studio;
+﻿using FMOD.Studio;
 using FMODUnity;
+using Steamworks;
+using System;
 using System.Collections;
+using System.Globalization;
+using Unity.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.Utilities;
+using UnityEngine.UI;
 
-public class LobbyPlayerInput : MonoBehaviour
-{  
+public class LobbyPlayerInput : NetworkBehaviour
+{
     LobbyManager lobbyManager;
     LobbyButtons lobbyButtons;
     private PlayerInput playerInput;
-
-    [SerializeField] EventReference skinChangeReference;
-    [SerializeField] EventReference joinReference;
-    [SerializeField] EventReference readyReference;
-    [SerializeField] EventReference unreadyReference;
-    [SerializeField] EventReference buttonReference;
-    bool firstJoined = true;
+    [SerializeField] EventReference[] eventReferences;
     private bool isQuitting;
     bool joined = false;
-    int lobbyPlayerInputIndex = -1;
+    public readonly NetworkVariable<int> playerIndex = new NetworkVariable<int>(
+        0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner
+    );
+    [SerializeField] InputActionAsset switchInputActionAsset;
+    private System.IDisposable anyButtonListener;
+
+    public readonly NetworkVariable<ulong> networkSteamId = new NetworkVariable<ulong>(
+        0,
+        NetworkVariableReadPermission.Everyone,
+        NetworkVariableWritePermission.Owner
+    );
+
+    public readonly NetworkVariable<ulong> ownerClientID = new NetworkVariable<ulong>(
+    0,
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Owner
+    );
+
+    public readonly NetworkVariable<FixedString32Bytes> steamName = new NetworkVariable<FixedString32Bytes>(
+    "Wizzo",
+    NetworkVariableReadPermission.Everyone,
+    NetworkVariableWritePermission.Owner
+    );
 
     private void OnEnable()
     {
         playerInput = GetComponent<PlayerInput>();
-      
+
+#if UNITY_SWITCH && !UNITY_EDITOR
+        playerInput.actions = switchInputActionAsset;
+#endif
+
         lobbyManager = LobbyManager.instance;
-        if(!lobbyManager.allLobbyPlayerInputs.Contains(this))
+        if (!lobbyManager.allLobbyPlayerInputs.Contains(this))
         {
             lobbyManager.allLobbyPlayerInputs.Add(this);
         }
 
         lobbyButtons = LobbyManager.instance.GetComponent<LobbyButtons>();
-        lobbyManager.OnLeavingLobby.AddListener(DestroySelf);    
+        lobbyManager.OnLeavingLobby.AddListener(DestroySelf);
+
+        NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;               
+    }
+
+    private void Start()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            playerInput.DeactivateInput();
+
+        // REMOVED: The 'IsServer && IsOwner' check that blocked non-host clients from auto-joining
+#if UNITY_SWITCH
+    StartCoroutine(WaitAndJoinOnlinePlayer());
+#endif
+    }
+
+    public void HandleJoinAfterValuesAreShared()
+    {
+        if(IsOwner)
+        StartCoroutine(WaitAndJoinOnlinePlayer());
+    }
+
+    private IEnumerator WaitAndJoinOnlinePlayer()
+    {
+        playerInput.DeactivateInput();
+        yield return new WaitForSeconds(.5f);
+        InputAction.CallbackContext ctx = new InputAction.CallbackContext();
+        OnJoined(ctx);
+        playerInput.ActivateInput();
     }
 
     private void OnDisable()
     {
         if (lobbyManager != null)
             lobbyManager.OnLeavingLobby.RemoveListener(DestroySelf);
+
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return;
+        anyButtonListener?.Dispose();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        if (TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay) return;
+
+        if (!IsOwner)
+        {
+            playerInput.enabled = false;
+            return;
+        }
+
+        playerInput.enabled = false;
+        if (playerInput.user.valid)
+            playerInput.user.UnpairDevices();
+        playerInput.enabled = true;
+
+        if (IsOwner)
+        {
+            anyButtonListener = InputSystem.onEvent.Call(OnInputEventReceived);
+            if (Steamworks.SteamClient.IsValid)
+            {
+                networkSteamId.Value = Steamworks.SteamClient.SteamId;
+            }
+            ownerClientID.Value = NetworkManager.Singleton.LocalClientId;
+
+            // FIX: Trigger joining for any client owner when spawned on relay networks
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                StartCoroutine(WaitAndJoinOnlinePlayer());
+            }
+        }
+    }
+
+    private void OnInputEventReceived(InputEventPtr eventPtr)
+    {
+        if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
+            return;
+
+        InputDevice clickedDevice = InputSystem.GetDeviceById(eventPtr.deviceId);
+        if (clickedDevice == null) return;
+
+        if (!IsOwner || isQuitting || !playerInput.enabled) return;
+
+        if (clickedDevice is Mouse || clickedDevice is Touchscreen) return;
+
+        if (playerInput.devices.Count > 0 && playerInput.devices[0] == clickedDevice) return;
+
+        playerInput.user.UnpairDevices();
+        UnityEngine.InputSystem.Users.InputUser.PerformPairingWithDevice(clickedDevice, user: playerInput.user);
+
+        if (clickedDevice is Gamepad)
+            playerInput.user.ActivateControlScheme("Gamepad");
+        else if (clickedDevice is Keyboard)
+            playerInput.user.ActivateControlScheme("Keyboard");
+
+        if (joined && playerIndex.Value != -1)
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, clickedDevice);
+    }
+
+    void OnClientConnectedCallback(ulong clientID)
+    {
+#if !UNITY_SWITCH
+        UpdateSteamAccountInfoServerRpc(playerIndex.Value, true, GetSteamUserName(), networkSteamId.Value);
+#endif
     }
 
     private void DestroySelf()
     {
         isQuitting = true;
+
+        anyButtonListener?.Dispose();
 
         if (playerInput != null)
             playerInput.enabled = false;
@@ -61,33 +188,81 @@ public class LobbyPlayerInput : MonoBehaviour
     {
         if (joined) return;
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
-        lobbyPlayerInputIndex = -1;
+        playerIndex.Value = -1;
+
+        // FIX: Check occupied property instead of go.activeSelf
         foreach (GameObject go in lobbyManager.playerContainers)
         {
-            if (go.activeSelf)
+            PlayerContainerManager containerManager = go.GetComponent<PlayerContainerManager>();
+
+            if (containerManager.occupied)
                 continue;
             else
             {
-                lobbyPlayerInputIndex = go.GetComponent<PlayerContainerManager>().uiIndex;
-                go.GetComponent<PlayerContainerManager>().occupied = true;
+                playerIndex.Value = containerManager.uiIndex;
+                if (!TransportSwitcher.Instance.isUsingRelay)
+                    containerManager.occupied = true;
+                else
+                {
+                    containerManager.ToggleYouText(true);
+                    SetOccupiedPlayerContainerServerRpc(playerIndex.Value, true);
+
+#if !UNITY_SWITCH
+                    UpdateSteamAccountInfoServerRpc(playerIndex.Value, true, GetSteamUserName(), networkSteamId.Value);
+#endif
+                }
+
                 break;
             }
         }
 
-        if (lobbyPlayerInputIndex == -1)
+        if (playerIndex.Value == -1)
             return;
 
-        lobbyManager.SetReady(lobbyPlayerInputIndex, false);
-        LobbyPlayerValues.Instance.AssignDeviceToPlayer(lobbyPlayerInputIndex, playerInput.devices[0]);
+        if (!TransportSwitcher.Instance.isUsingRelay)
+            lobbyManager.SetReady(playerIndex.Value, false);
+        else
+            lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+
+        if (playerInput.devices.Count > 0)
+        {
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0]);
+        }
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
-            if(playerContainer.GetComponent<PlayerContainerManager>().occupied)
+            if (playerContainer.GetComponent<PlayerContainerManager>().occupied)
                 playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
         }
 
-        PlaySFX(joinReference);
+        PlaySFX(true, 1);
         joined = true;
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    void SetOccupiedPlayerContainerServerRpc(int id, bool value)
+    {
+        SetOccupiedPlayerContainerClientRpc(id, value);
+    }
+
+    [ClientRpc]
+    void SetOccupiedPlayerContainerClientRpc(int id, bool value)
+    {
+        lobbyManager.playerContainers[id].GetComponent<PlayerContainerManager>().occupied = value;
+        lobbyManager.UpdatePlayerUI(); // Ensure UI reflects the updated occupied state immediately
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void UpdateSteamAccountInfoServerRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
+    {
+        UpdateSteamAccountInfoClientRpc(playerID, isActive, userName, networkSteamID);
+    }
+
+    [ClientRpc]
+    void UpdateSteamAccountInfoClientRpc(int playerID, bool isActive, string userName, ulong networkSteamID)
+    {       
+        lobbyManager.playerContainers[playerID].GetComponent<PlayerContainerManager>().SetAccountInfo(isActive, userName, networkSteamID);
     }
 
     public void OnConfirmed(InputAction.CallbackContext context)
@@ -97,25 +272,45 @@ public class LobbyPlayerInput : MonoBehaviour
         if (!isActiveAndEnabled) return;
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
-            if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == lobbyPlayerInputIndex && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
+            if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == playerIndex.Value && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
             {
-                PlaySFX(buttonReference);
+                PlaySFX(true, 3);
                 return;
             }
         }
         if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
 
-        if (context.performed && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
-        {
+        int playersListID = -1;
 
-            lobbyManager.SetReady(lobbyPlayerInputIndex, true);
+        for (int i = 0; i < lobbyManager.players.Count; i++)
+        {
+            if (playerIndex.Value == lobbyManager.players[i].PlayerIndex)
+                playersListID = i;
+        }
+
+        if (context.performed && !LobbyManager.instance.players[playersListID].IsReady)
+        {
+            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion && !LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.AvailableInDemo
+                || AchievementSaveSystem.instance && LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement.AchievementID))
+            {
+                PlaySFX(false, 3);
+                return;
+            }
+
+            if (!TransportSwitcher.Instance.isUsingRelay)
+                lobbyManager.SetReady(playersListID, true);
+            else
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, true);
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+            {
+                if (playerContainer.activeSelf)
+                    playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+            }
 
-            PlaySFX(readyReference);
-        }     
+            PlaySFX(true, 2);
+        }
     }
 
     public void OnCancelled(InputAction.CallbackContext context)
@@ -125,34 +320,58 @@ public class LobbyPlayerInput : MonoBehaviour
 
         if (lobbyManager._MatchSettingsSelection.activeSelf)
         {
-            PlaySFX(buttonReference);
+            PlaySFX(true, 3);
             lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
             return;
         }
 
-        if (joined && LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
+        int playersListID = -1;
+
+        for (int i = 0; i < lobbyManager.players.Count; i++)
         {
-            lobbyManager.SetReady(lobbyPlayerInputIndex, false);
-            PlaySFX(buttonReference);
+            if (playerIndex.Value == lobbyManager.players[i].PlayerIndex)
+                playersListID = i;
+        }
+
+        if (joined && LobbyManager.instance.players[playersListID].IsReady)
+        {
+            if (!TransportSwitcher.Instance.isUsingRelay)
+                lobbyManager.SetReady(playerIndex.Value, false);
+            else
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+
+            PlaySFX(true, 3);
             return;
         }
 
-        if (joined && !LobbyManager.instance.players[lobbyPlayerInputIndex].IsReady)
+        if (joined && !LobbyManager.instance.players[playersListID].IsReady && !TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
             {
-                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerSkinChange>().ResetContainer();
-                lobbyManager.playerContainers[lobbyPlayerInputIndex].GetComponent<PlayerContainerManager>().occupied = false;
-                lobbyManager.RemovePlayer(lobbyPlayerInputIndex);
+                if (!TransportSwitcher.Instance.isUsingRelay)
+                {
+                    lobbyManager.playerContainers[playerIndex.Value].GetComponent<PlayerContainerSkinChange>().ResetContainer();
+                    lobbyManager.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().occupied = false;
+                }
+                else
+                {
+                    lobbyManager.playerContainers[playerIndex.Value].GetComponent<PlayerContainerSkinChange>().ResetContainerServerRpc();
+                    lobbyManager.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().ToggleYouText(false);
+
+                    SetOccupiedPlayerContainerServerRpc(playerIndex.Value, false);
+                    UpdateSteamAccountInfoServerRpc(playerIndex.Value, false, "Wizzo", networkSteamId.Value);
+                    LobbyPlayerValues.Instance.RemovePlayerValueServerRpc(playerIndex.Value);
+                }
+
+                lobbyManager.RemovePlayer(playerIndex.Value);
                 joined = false;
                 lobbyManager.CheckAllReady();
-                LobbyPlayerValues.Instance.playerValuesList[lobbyPlayerInputIndex].Device = null;
-                PlaySFX(buttonReference);
+                PlaySFX(true, 3);
             }
             return;
         }
 
-        if (!joined)
+        if (!joined || joined && !LobbyManager.instance.players[playersListID].IsReady && TransportSwitcher.Instance.isUsingRelay)
         {
             if (context.started)
                 lobbyButtons.OnBackToMenuButtonDown();
@@ -160,8 +379,8 @@ public class LobbyPlayerInput : MonoBehaviour
                 lobbyButtons.OnBackToMenuButtonUp();
         }
 
-            foreach (GameObject playerContainer in lobbyManager.playerContainers)
-                playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
+        foreach (GameObject playerContainer in lobbyManager.playerContainers)
+            playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
     }
 
     private bool canNavigateSkins = true;
@@ -171,10 +390,8 @@ public class LobbyPlayerInput : MonoBehaviour
         if (isQuitting) return;
         if (!joined) return;
         if (!isActiveAndEnabled) return;
-
-        if (lobbyManager.players[lobbyPlayerInputIndex].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
+        if (lobbyManager.players[playerIndex.Value].IsReady || lobbyManager._MatchSettingsSelection.activeSelf)
             return;
-
         Vector2 input = context.ReadValue<Vector2>();
 
         if (input.magnitude < 0.5f || input.x == 0 && input.y == 0)
@@ -187,11 +404,25 @@ public class LobbyPlayerInput : MonoBehaviour
             return;
 
         canNavigateSkins = false;
-        lobbyManager.playerContainers[lobbyPlayerInputIndex]
+
+        if (!TransportSwitcher.Instance.isUsingRelay)
+            lobbyManager.playerContainers[playerIndex.Value]
                 .GetComponent<PlayerContainerSkinChange>()
                 .ChangeSkin(context.ReadValue<Vector2>());
+        else
+        {
 
-        PlaySFX(skinChangeReference);
+            lobbyManager.playerContainers[playerIndex.Value]
+            .GetComponent<PlayerContainerSkinChange>()
+            .ChangeSkin(context.ReadValue<Vector2>());
+
+            lobbyManager.playerContainers[playerIndex.Value]
+            .GetComponent<PlayerContainerSkinChange>()
+            .ChangeSkinServerRpc(context.ReadValue<Vector2>(), NetworkManager.Singleton.LocalClientId);
+        }
+
+        PlaySFX(true, 0);
+
     }
 
     private bool canNavigateTeam = true;
@@ -203,7 +434,7 @@ public class LobbyPlayerInput : MonoBehaviour
         if (!isActiveAndEnabled) return;
         if (lobbyManager._MatchSettingsSelection.activeSelf)
             return;
-        if(LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
+        if (LobbyManager.instance.SelectedGameMode != GameManager.GameModeType.Team) return;
 
         Vector2 input = context.ReadValue<Vector2>();
 
@@ -217,21 +448,51 @@ public class LobbyPlayerInput : MonoBehaviour
             return;
 
         canNavigateTeam = false;
+        if (TransportSwitcher.Instance.isUsingRelay)
+        {
+            lobbyManager.UpdateTeamServerRpc(playerIndex.Value);
+        }
+        else
+        {
+            lobbyManager.playerContainers[playerIndex.Value]
+                     .GetComponentInChildren<TeamSelection>()
+                     .ChangeTeam();
+        }
 
-        lobbyManager.playerContainers[lobbyPlayerInputIndex]
-                 .GetComponentInChildren<TeamSelection>()
-                 .ChangeTeam();
-
-        PlaySFX(skinChangeReference);
+        PlaySFX(true, 0);
     }
 
-    private void PlaySFX(EventReference eventReference)
+    private void PlaySFX(bool shareWithClients, int referenceID)
     {
-        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReference);
+        if (TransportSwitcher.Instance.isUsingRelay && shareWithClients)
+        {
+            PlaySFXServerRpc(playerIndex.Value, referenceID);
+        }
+        else
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+            fmodEvent.start();
+            fmodEvent.release();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void PlaySFXServerRpc(int playerID, int referenceID)
+    {
+        PlaySFXClientRpc(playerID, referenceID);
+    }
+
+
+    [ClientRpc]
+    private void PlaySFXClientRpc(int playerID, int referenceID)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
         fmodEvent.start();
         fmodEvent.release();
     }
+
 
     public void OnStartGame(InputAction.CallbackContext context)
     {
@@ -241,10 +502,10 @@ public class LobbyPlayerInput : MonoBehaviour
         if (lobbyManager._MatchSettingsSelection.activeSelf) return;
 
         if (context.started)
-            lobbyButtons.StartGameHold(lobbyPlayerInputIndex);
+            lobbyButtons.StartGameHold(playerIndex.Value);
 
         if (context.canceled)
-            lobbyButtons.StopStartGameHold(lobbyPlayerInputIndex);
+            lobbyButtons.StopStartGameHold(playerIndex.Value);
     }
 
     public void OnToggleMatchSettings(InputAction.CallbackContext context)
@@ -254,7 +515,70 @@ public class LobbyPlayerInput : MonoBehaviour
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
-        PlaySFX(buttonReference);
+        PlaySFX(false, 3);
         lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
     }
+
+#if !UNITY_SWITCH
+    string GetSteamUserName()
+    {
+        int visibleLength = 0;
+        StringInfo stringInfo = null;
+        string truncatedName = string.Empty;
+        if (!SteamIntegration.instance || !SteamClient.IsValid)
+        {
+            Debug.Log("Steam not init");
+            return "Wizzo";
+        }
+        
+        if(steamName.Value != "Wizzo")
+        {
+            steamName.Value = steamName.Value.ToString().Trim();
+            stringInfo = new StringInfo(steamName.Value.ToString());
+            visibleLength = stringInfo.LengthInTextElements;
+            if (visibleLength <= 7)
+            {
+                return steamName.Value.ToString();
+            }
+            truncatedName = stringInfo.SubstringByTextElements(0, 7);
+            if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
+            {
+                truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);
+            }
+            return truncatedName + ".";         
+        }
+
+        try
+        {
+            if (IsOwner)
+            {
+                Friend friend = new Friend(networkSteamId.Value);
+                steamName.Value = friend.Name;
+            }
+        }
+        catch (Exception ex)
+        {
+            Debug.LogWarning($"[Steam] Failed to read SteamClient.Name on this platform: {ex.Message}");
+            return "Wizzo";
+        }
+        if (string.IsNullOrWhiteSpace(steamName.Value.ToString()))
+        {
+            Debug.Log("Has only white spaces");
+            return "Wizzo";
+        }
+        steamName.Value = steamName.Value.ToString().Trim();
+        stringInfo = new StringInfo(steamName.Value.ToString());
+        visibleLength = stringInfo.LengthInTextElements;
+        if (visibleLength <= 7)
+        {
+            return steamName.Value.ToString();
+        }
+        truncatedName = stringInfo.SubstringByTextElements(0, 7);
+        if (truncatedName.Length > 0 && char.IsHighSurrogate(truncatedName[truncatedName.Length - 1]))
+        {
+            truncatedName = truncatedName.Substring(0, truncatedName.Length - 1);
+        }
+        return truncatedName + ".";
+    }
+#endif
 }

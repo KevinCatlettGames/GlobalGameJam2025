@@ -36,6 +36,9 @@ public class WinScreenManager : MonoBehaviour
 
     private void OnEnable()
     {
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
         gameUI.SetActive(false);
         eventSystem.SetSelectedGameObject(restartButton.gameObject);
         ShowWinnerUsingWinScore();
@@ -81,7 +84,7 @@ public class WinScreenManager : MonoBehaviour
             playerImages[i].sprite =
                 LobbyPlayerValues.Instance
                 .playerValuesList[playerID]
-                .Skin.LobbySprite;
+                .Skin.SplashArt;
 
             if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
             {

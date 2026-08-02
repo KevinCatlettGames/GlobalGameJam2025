@@ -56,4 +56,10 @@ public class DeathzoneWall : NetworkBehaviour
         BoxCollider col = GetComponent<BoxCollider>();
         col.enabled = true;
     }
+
+    public void DisableCol()
+    {
+        BoxCollider col = GetComponent<BoxCollider>();
+        col.enabled = false;
+    }
 }

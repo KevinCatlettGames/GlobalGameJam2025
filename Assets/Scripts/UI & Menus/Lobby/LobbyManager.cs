@@ -1,14 +1,15 @@
-using Unity.Netcode;
+using FMODUnity;
 using System;
-using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using TMPro;
+using Unity.Netcode;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-using FMODUnity;
-using TMPro;
-using UnityEngine.InputSystem;
 
 public class LobbyManager : NetworkBehaviour
 {
@@ -60,6 +61,7 @@ public class LobbyManager : NetworkBehaviour
 
     public List<LobbyPlayerInput> allLobbyPlayerInputs = new List<LobbyPlayerInput>();
 
+    public bool canAddNewDevices = true; 
 
     public GameManager.GameModeType SelectedGameMode
     {
@@ -106,22 +108,12 @@ public class LobbyManager : NetworkBehaviour
 
     [Header("Network Players")]
 
-    /// <summary>
-    /// Network-synced list of players in the lobby.
-    /// </summary>
     public NetworkList<PlayerLobbyState> players = new();
 
     [Tooltip("True if all players are ready.")]
     public bool allPlayersReady;
 
-    /// <summary>
-    /// Invoked when a player's ready state changes.
-    /// </summary>
-    public UnityEvent<ulong, bool> OnReadyStateUpdated;
-
-    /// <summary>
-    /// Invoked when all players finished loading a scene.
-    /// </summary>
+    public UnityEvent<int, bool> OnReadyStateUpdated;
     public UnityEvent OnAllPlayersLoadedIn;
 
     #endregion
@@ -156,6 +148,7 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Start game button.")]
     [SerializeField] private Button startButton;
+    [SerializeField] private GameObject waitingForHost;
 
     [Tooltip("Image component of start button.")]
     [SerializeField] private Image startButtonImage;
@@ -176,6 +169,8 @@ public class LobbyManager : NetworkBehaviour
 
     #region Audio
 
+    public GameObject lobbyPlayer; 
+
     [Header("Audio Emitters")]
 
     [Tooltip("Played when starting the game.")]
@@ -193,8 +188,8 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
-        if (!GetComponent<NetworkObject>().IsSpawned)
-            GetComponent<NetworkObject>().Spawn();
+        if (GameObject.FindWithTag("OnlineMatchmakingUI"))
+            GameObject.FindWithTag("OnlineMatchmakingUI").SetActive(false);
     }
 
     private void Start()
@@ -209,29 +204,45 @@ public class LobbyManager : NetworkBehaviour
             gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
-            playerContainers[player.ClientId].SetActive(true);
+            playerContainers[player.PlayerIndex].SetActive(true);
 
         if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
             NetworkManager.Singleton.SceneManager.OnLoadEventCompleted += OnLoadEventCompleted;
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
+        }
 
         ChangeStartButtonState(false);
-
-        if (TransportSwitcher.Instance.isUsingRelay && !IsHost)
-            UpdateSelectedGameModeForNewClientServerRpc();
-
-        foreach (var device in InputSystem.devices)
+#if !UNITY_SWITCH
+        if (!TransportSwitcher.Instance.isUsingRelay)
         {
+            foreach (var device in InputSystem.devices)
+            {
+                PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+            }
+        }
+        else if (IsServer)
+        {
+            GameObject player = Instantiate(lobbyPlayer);
+            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
+            GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
+        }
+#else
+        foreach (var device in InputSystem.devices)
+        {        
             PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
         }
+#endif
     }
 
     private void OnEnable()
     {
         InputSystem.onDeviceChange += OnDeviceChange;
 
-
         if (TransportSwitcher.Instance.isUsingRelay)
-            players.OnListChanged += OnPlayersListChanged;
+            if (players != null)
+                players.OnListChanged += OnPlayersListChanged;
 
         foreach (MapSettingsSO mapSetting in mapSettings)
         {
@@ -245,9 +256,25 @@ public class LobbyManager : NetworkBehaviour
             spell.CanUse = true;
     }
 
+    void OnClientConnectedCallback(ulong clientID)
+    {
+        if (!IsServer) return;
+        ChangeSelectedGameModeServerRpc();
+        OnClientConnectedWinConditionUpdateServerRpc(clientID);
+    }
+
+    void OnClientDisconnectedCallback(ulong clientID)
+    {
+        //Debug.Log("Client disconnected with cliendID: " + clientID);
+    }
+
     private void OnDisable()
     {
         InputSystem.onDeviceChange -= OnDeviceChange;
+        if (players != null)
+            players.OnListChanged -= OnPlayersListChanged;
+
+        LobbyManager.instance = null;
     }
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
@@ -301,18 +328,20 @@ public class LobbyManager : NetworkBehaviour
 
     public struct PlayerLobbyState : INetworkSerializable, IEquatable<PlayerLobbyState>
     {
-        public ulong ClientId;
+        public int PlayerIndex;
+        public ulong ClientIndex;
         public bool IsReady;
 
         public void NetworkSerialize<T>(BufferSerializer<T> serializer) where T : IReaderWriter
         {
-            serializer.SerializeValue(ref ClientId);
+            serializer.SerializeValue(ref PlayerIndex);
+            serializer.SerializeValue(ref ClientIndex);
             serializer.SerializeValue(ref IsReady);
         }
 
         public bool Equals(PlayerLobbyState other)
         {
-            return ClientId == other.ClientId;
+            return PlayerIndex == other.PlayerIndex && ClientIndex == other.ClientIndex && IsReady == other.IsReady;
         }
     }
 
@@ -322,22 +351,25 @@ public class LobbyManager : NetworkBehaviour
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].ClientId == (ulong)playerIndex)
+            if (players[i].PlayerIndex == playerIndex)
             {
                 index = i;
                 break;
             }
         }
-
         if (index == -1)
         {
-            players.Add(new PlayerLobbyState { ClientId = (ulong)playerIndex, IsReady = false });
+            int zero = 0;
+            players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = (ulong)zero, IsReady = false });
+
             CheckAllReady();
             UpdatePlayerUI();
             return;
         }
 
         var player = players[index];
+
+
         var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
         TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
 
@@ -346,7 +378,7 @@ public class LobbyManager : NetworkBehaviour
             player.IsReady = true;
             players[index] = player;
 
-            OnReadyStateUpdated?.Invoke((ulong)playerIndex, true);
+            OnReadyStateUpdated?.Invoke(playerIndex, true);
             CheckAllReady();
             UpdatePlayerUI();
         }
@@ -355,7 +387,8 @@ public class LobbyManager : NetworkBehaviour
             player.IsReady = false;
             players[index] = player;
 
-            OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);
+
+            OnReadyStateUpdated?.Invoke(playerIndex, false);
             CheckAllReady();
             UpdatePlayerUI();
         }
@@ -363,25 +396,62 @@ public class LobbyManager : NetworkBehaviour
 
     public void RemovePlayer(int playerIndex)
     {
-        PlayerLobbyState stateToChange; 
-        foreach (PlayerLobbyState state in players)
+        if (!TransportSwitcher.Instance.isUsingRelay)
         {
-            if (state.ClientId == (ulong)playerIndex)
-                stateToChange = state;
-        }
+            for (int i = 0; i < players.Count; i++)
+            {
+                if (players[i].PlayerIndex == playerIndex)
+                {
+                    var state = players[i];
+                    state.IsReady = false;
+                    players[i] = state;
 
-        stateToChange.IsReady = false;
-        OnReadyStateUpdated?.Invoke((ulong)playerIndex, false);     
+                    OnReadyStateUpdated?.Invoke(playerIndex, false);
+                    return;
+                }
+            }
+        }
+        else
+        {
+            RemovePlayerServerRpc(playerIndex);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(ulong clientID, bool state)
+    void RemovePlayerServerRpc(int playerIndex)
+    {
+        Debug.Log("In remove");
+        PlayerLobbyState playerToRemove = new PlayerLobbyState();
+
+        for (int i = 0; i < players.Count; i++)
+        {
+            if (players[i].PlayerIndex == playerIndex)
+            {
+                Debug.Log("Found player");
+                var state = players[i];
+                state.IsReady = false;
+                players[i] = state;
+                playerToRemove = players[i];
+                OnReadyStateUpdated?.Invoke(playerIndex, false);
+                break;
+            }
+        }
+
+        if (playerToRemove.PlayerIndex == playerIndex)
+        {
+            Debug.Log("Found player to remove");
+            players.Remove(playerToRemove);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state)
     {
         int index = -1;
 
         for (int i = 0; i < players.Count; i++)
         {
-            if (players[i].ClientId == clientID)
+            if (players[i].PlayerIndex == playerIndex)
             {
                 index = i;
                 break;
@@ -390,8 +460,9 @@ public class LobbyManager : NetworkBehaviour
 
         if (index == -1)
         {
-            players.Add(new PlayerLobbyState { ClientId = clientID, IsReady = false });
-            AddNewPlayerValuesClientRpc((int)clientID);
+            players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = clientIndex, IsReady = false });
+          
+            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false);           
             index = players.Count - 1;
         }
         else
@@ -399,12 +470,12 @@ public class LobbyManager : NetworkBehaviour
             var player = players[index];
             var skinChange = playerContainers[index].GetComponent<PlayerContainerSkinChange>();
             TeamSelection teamSelection = teamSelections[index].GetComponent<TeamSelection>();
-            
+
             if ((!player.IsReady && !skinChange.currentlyOnLocked) || player.IsReady)
-            {                
+            {
                 player.IsReady = state;
                 players[index] = player;
-                InvokeOnReadyStateUpdatedClientRpc(clientID,state);
+                InvokeOnReadyStateUpdatedClientRpc(playerIndex, state);
             }
         }
 
@@ -412,19 +483,9 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ClientRpc]
-    private void AddNewPlayerValuesClientRpc(int clientID)
+    private void InvokeOnReadyStateUpdatedClientRpc(int playerIndex, bool state)
     {
-        LobbyPlayerValues.Instance.playerValuesList.Add(
-            new LobbyPlayerValues.PlayerValues(clientID, null, possibleSkins[clientID], -1)
-        );
-
-        LobbyPlayerValues.Instance.SortPlayerValues();
-    }
-
-    [ClientRpc]
-    private void InvokeOnReadyStateUpdatedClientRpc(ulong clientID, bool state)
-    {
-        OnReadyStateUpdated?.Invoke(clientID, state);
+        OnReadyStateUpdated?.Invoke(playerIndex, state);
     }
 
     public void CheckAllReady()
@@ -464,7 +525,7 @@ public class LobbyManager : NetworkBehaviour
         allPlayersReady = players.Count >= minPlayers;
 
         if (TransportSwitcher.Instance.isUsingRelay &&
-            NetworkManager.Singleton.ConnectedClients.Count > players.Count)
+                   NetworkManager.Singleton.ConnectedClients.Count > players.Count)
         {
             allPlayersReady = false;
         }
@@ -479,7 +540,7 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (var player in players)
         {
-            int index = (int)player.ClientId;
+            int index = (int)player.PlayerIndex;
             if (index >= 0 && index < playerContainers.Length)
             {
                 if (playerContainers[index].GetComponent<PlayerContainerManager>().occupied)
@@ -491,17 +552,71 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    public IEnumerator LoadGameScene()
+    public void UpdatePlayerUIAndOccupiedState()
+    {
+        foreach (GameObject container in playerContainers)
+            container.SetActive(false);
+
+        foreach (var player in players)
+        {
+            int index = (int)player.PlayerIndex;
+            if (index >= 0 && index < playerContainers.Length)
+            {
+                playerContainers[index].GetComponent<PlayerContainerManager>().occupied = true;
+                emptyPlayerContainers[index].SetActive(false);
+                playerContainers[index].SetActive(true);
+            }
+        }
+    }
+
+    public async Task LoadGameScene()
+    {
+        HandleLobbyContinueServerRpc();
+
+        await Task.Delay(1000);
+
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
+        {
+#if !UNITY_SWITCH
+            SteamJoinHandler.instance.ClearRichPresence();
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (IsServer)
+                {
+                    await GameLobby.instance.ChangeServerLockState(true, true);
+                }
+            }
+#endif
+            MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+        }
+        else
+        {
+#if !UNITY_SWITCH
+            SteamJoinHandler.instance.ClearRichPresence();
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (IsServer)
+                {
+                    await GameLobby.instance.ChangeServerLockState(true, true);
+                }
+            }
+#endif
+            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void HandleLobbyContinueServerRpc()
+    {
+        HandleLobbyContinueClientRpc();
+    }
+
+    [ClientRpc]
+    void HandleLobbyContinueClientRpc()
     {
         PlayStartSFXClientRpc();
         uiParent.SetActive(false);
         GetComponent<PlayerInputManager>().enabled = false;
-        yield return new WaitForSeconds(1f);
-
-        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
-            MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
-        else
-            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
     }
 
     private void ChangeStartButtonState(bool enable)
@@ -512,10 +627,28 @@ public class LobbyManager : NetworkBehaviour
         startButton.gameObject.SetActive(enable);
         startButtonImage.color = enable ? startButtonColorWhenEnabled : Color.gray;
         startButton.interactable = enable;
+
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        {
+            ToggleWaitingForHostTextServerRpc(enable);
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void UpdateSelectedGameModeForNewClientServerRpc()
+    void ToggleWaitingForHostTextServerRpc(bool value)
+    {
+        ToggleWaitingForHostTextClientRpc(value);
+    }
+
+    [ClientRpc]
+    void ToggleWaitingForHostTextClientRpc(bool value)
+    {
+        if (IsHost || IsServer) return;
+        waitingForHost.SetActive(value);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ChangeSelectedGameModeServerRpc()
     {
         ChangeSelectedGameModeClientRpc(selectedGameMode);
     }
@@ -537,6 +670,18 @@ public class LobbyManager : NetworkBehaviour
         selectedGameMode = gameModeType;
         gameModeTypeText.text =
             selectedSO.GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
+
+        foreach (GameObject teamSelection in teamSelections)
+        {
+            teamSelection.SetActive(
+                gameModeType == GameManager.GameModeType.Team
+            );
+        }
+
+        foreach (GameObject skin in LobbyManager.instance.playerContainers)
+        {
+            skin.GetComponent<PlayerContainerSkinChange>().UpdateBlur();
+        }
     }
 
     [ClientRpc]
@@ -631,6 +776,8 @@ public class LobbyManager : NetworkBehaviour
 
     private void HandleMapUsageToggleActiveState()
     {
+        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion) return;
+
         int disabledCount = 0;
 
         foreach (MapSettingsSO mapSetting in mapSettings)
@@ -658,29 +805,100 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                activeCount++;
+            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    activeCount++;
+            }
+            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    activeCount++;
+            }
         }
 
         bool lockActive = activeCount < 2;
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (toggle.isOn)
-                toggle.interactable = !lockActive;
-            else
-                toggle.interactable = true;
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            {
+                if (toggle.isOn)
+                    toggle.interactable = !lockActive;
+                else
+                    toggle.interactable = true;
+            }
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            {
+                if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = !lockActive;
+                else if(!toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
+                    toggle.interactable = true;
+            }
         }
     }
 
     public void SetWinsNeeded(float value)
+    {   
+        SetWinsNeededServerRpc((int)value);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void SetWinsNeededServerRpc(int value)
     {
-        winsNeeded = (int)value;
+        SetWinsNeededClientRpc(value);
+    }
+
+    [ClientRpc]
+    void SetWinsNeededClientRpc(int value)
+    {
+        winsNeeded = value;
         MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
     public void ToggleEndless(bool toggle)
     {
+       ToggleEndlessServerRpc(toggle);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void ToggleEndlessServerRpc(bool toggle)
+    {
+        ToggleEndlessClientRpc(toggle);
+    }
+    [ClientRpc]
+    void ToggleEndlessClientRpc(bool toggle)
+    {
         playEndless = toggle;
+    }
+
+
+    [ServerRpc(RequireOwnership = false)]
+    public void UpdateTeamServerRpc(int playerIndex)
+    {
+        UpdateTeamClientRpc(playerIndex);
+    }
+
+    [ClientRpc]
+    public void UpdateTeamClientRpc(int playerIndex)
+    {
+        playerContainers[playerIndex]
+       .GetComponentInChildren<TeamSelection>()
+       .ChangeTeam();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void OnClientConnectedWinConditionUpdateServerRpc(ulong clientID)
+    {
+        OnClientConnectedWinConditionUpdateClientRpc(clientID, this.playEndless, this.winsNeeded);
+    }
+
+    [ClientRpc]
+    public void OnClientConnectedWinConditionUpdateClientRpc(ulong clientID, bool playEndless, int winsNeeded)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientID) return; 
+
+        this.playEndless = playEndless;
+        this.winsNeeded = winsNeeded;
     }
 }

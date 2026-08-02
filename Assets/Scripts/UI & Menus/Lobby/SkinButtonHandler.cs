@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Steamworks;
+using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -10,6 +11,7 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinButtonHandler topSkinSelection;
     public SkinButtonHandler bottomSkinSelection;
 
+    public int skinButtonHandlerIndex = -1;
     public Image[] selectionimages;
     public TextMeshProUGUI[] selectionTexts;
 
@@ -29,6 +31,9 @@ public class SkinButtonHandler : MonoBehaviour
     private List<int> activePlayers = new List<int>();
 
     bool didFirstInit;
+    public RawImage[] avatarImages;
+
+    PlayerContainerManager currentPlayerContainerManager;
 
     private void Awake()
     {
@@ -49,7 +54,8 @@ public class SkinButtonHandler : MonoBehaviour
         foreach (TextMeshProUGUI text in selectionTexts)
             text.enabled = false;
 
-        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo)
+        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo 
+            || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
             GetComponent<Image>().color = disabledColor;
         else
             GetComponent<Image>().color = standardImageColor;
@@ -57,7 +63,7 @@ public class SkinButtonHandler : MonoBehaviour
         didFirstInit = true;
     }
 
-    public void ChangePlayerIcon(int amount, int playerIndex)
+    public void ChangePlayerIcon(int amount, int playerIndex, PlayerContainerManager playerContainerManager)
     {
         if (playerIndex < 0 || playerIndex >= selectionimages.Length)
             return;
@@ -80,7 +86,7 @@ public class SkinButtonHandler : MonoBehaviour
         }
 
         hoveredAmount = activePlayers.Count;
-
+        currentPlayerContainerManager = playerContainerManager;
         RefreshUI();
     }
 
@@ -90,6 +96,8 @@ public class SkinButtonHandler : MonoBehaviour
         {
             selectionimages[i].enabled = false;
             selectionTexts[i].enabled = false;
+            avatarImages[i].transform.parent.gameObject.SetActive(false);
+            avatarImages[i].texture = null;
         }
 
         for (int slotIndex = 0; slotIndex < activePlayers.Count; slotIndex++)
@@ -101,6 +109,12 @@ public class SkinButtonHandler : MonoBehaviour
 
             selectionTexts[slotIndex].enabled = true;
             selectionTexts[slotIndex].text = "P" + (playerIndex + 1);
+
+            if (TransportSwitcher.Instance.isUsingRelay && SteamClient.IsValid)
+            {
+                avatarImages[slotIndex].transform.parent.gameObject.SetActive(true);
+                avatarImages[slotIndex].texture = LobbyManager.instance.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().playerProfileDisplay.cachedAvatar;
+            }
         }
 
         bool hasHover = activePlayers.Count > 0;
@@ -123,12 +137,18 @@ public class SkinButtonHandler : MonoBehaviour
 
         if (isSelectedNow)
         {
-            GetComponent<Image>().color = skinSo.Color;
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
+                GetComponent<Image>().color = disabledColor;
+            else
+                GetComponent<Image>().color = skinSo.Color;
             shineImage.enabled = true;
         }
         else
         {
-            GetComponent<Image>().color = standardImageColor;
+            if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
+                GetComponent<Image>().color = disabledColor;
+            else
+                GetComponent<Image>().color = standardImageColor;
             shineImage.enabled = false;
         }
     }

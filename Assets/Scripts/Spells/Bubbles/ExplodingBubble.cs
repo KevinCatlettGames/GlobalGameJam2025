@@ -1,6 +1,4 @@
-using FMODUnity;
-using System.Collections;
-using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ExplodingBubble : BasicBubble
@@ -13,35 +11,56 @@ public class ExplodingBubble : BasicBubble
     private bool isReadyToExpode = false;
     private bool hasExploded = false;
     private GameObject primaryTarget;
+    private bool wasDetonatedByBubble = false;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         canMiss = false;
     }
+
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return; 
-        if (other.CompareTag("Bubble") && popOnBubbleHit)
+        if (hasPopped) return;
+        if (!IsServer && !isLocalFake) return;
+
+        if (other != null && other.CompareTag("Bubble") && popOnBubbleHit)
         {
-            OwnerID = other.GetComponent<BasicBubble>().OwnerID;
+            var otherBubble = other.GetComponent<BasicBubble>();
+            if (otherBubble != null)
+            {
+                // Detonated by player's own bubble
+                if (otherBubble.OwnerID.Value == OwnerID.Value)
+                {
+                    wasDetonatedByBubble = true;
+                }
+                OwnerID = otherBubble.OwnerID;
+            }
         }
-        else if (other.CompareTag("Player"))
+        else if (other != null && other.CompareTag("Player"))
         {
             primaryTarget = other;
         }
+
         fizzleEffect = hitEffect;
+        if (IsOwner)
+            ChangeToExplosionServerRpc();
+
         Pop();
     }
+
     protected override void InflateOverlapChack()
     {
         isReadyToExpode = true;
         base.InflateOverlapChack();
     }
+
     public void Explode()
     {
         if (hasExploded) return;
         hasExploded = true;
+        if (isLocalFake) return;
+
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
@@ -59,11 +78,28 @@ public class ExplodingBubble : BasicBubble
                     {
                         if (col.gameObject == primaryTarget)
                             knockback *= primaryKnockbackIncrease;
+
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+
+                        if (playerCollider != null)
+                        {
+                            var controller = playerCollider.GetComponent<PlayerController>();
+                            if (controller != null) controller.GainUltCharge(damage, true);
+                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
+                            if (controller != null)
+                            {
+                                GameManager.Instance.RegisterExplosionHit(
+                                    OwnerID.Value,
+                                    player.PlayerID,
+                                    AssignedSpellID.Value,
+                                    wasDetonatedByBubble
+                                );
+                            }
+                        }
+
                         if (col.gameObject == primaryTarget)
                             knockback /= primaryKnockbackIncrease;
                     }
@@ -76,16 +112,62 @@ public class ExplodingBubble : BasicBubble
                         bubble.BubbleCollision(this.gameObject);
                     }
                 }
-
             }
         }
     }
+
+    public void OnExplosionKilledPlayer()
+    {
+        if (!wasDetonatedByBubble) return;
+
+        UnlockDetonationMultiKillAchievement(OwnerID.Value);
+    }
+    private void UnlockDetonationMultiKillAchievement(int killerID)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
+            || !AchievementSaveSystem.instance) return;
+
+        // Replace YOUR_ACHIEVEMENT_ID with the actual ID integer
+        AchievementSaveSystem.instance.IncrementStat(5, 1);
+        //Debug.Log($"Achievement Unlocked: 2 KOs from detonating own explosive with another bubble!");
+    }
+
     protected override void Pop()
     {
         if (hasPopped) return;
-        if(isReadyToExpode) Explode();
-        else fizzleEffect = earlyFizzleEffect;
+
+        if (isReadyToExpode) Explode();
+        else
+        {
+            fizzleEffect = earlyFizzleEffect;
+            if (IsOwner)
+                ChangeToEarlyFizzleServerRpc();
+
+        }
         base.Pop();
     }
 
+    [ServerRpc]
+    private void ChangeToEarlyFizzleServerRpc()
+    {
+        ChangeToEarlyFizzleClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToEarlyFizzleClientRpc()
+    {
+        fizzleEffect = earlyFizzleEffect;
+    }
+
+    [ServerRpc]
+    private void ChangeToExplosionServerRpc()
+    {
+        ChangeToExplosionClientRpc();
+    }
+
+    [ClientRpc]
+    private void ChangeToExplosionClientRpc()
+    {
+        fizzleEffect = hitEffect;
+    }
 }

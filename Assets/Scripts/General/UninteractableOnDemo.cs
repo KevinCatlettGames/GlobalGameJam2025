@@ -1,13 +1,36 @@
+using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.UI; 
+using UnityEngine.UI;
+using UnityEngine.Events; 
 
 public class UninteractableOnDemo : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    public bool turnOffIfToggle = true;
+    public UnityEvent OnInteractionDisabled; 
+
+    private void OnEnable()
     {
         if (SteamIntegration.instance != null)
+        {
             if (!SteamIntegration.instance.IsFullVersion)
-                GetComponent<Button>().interactable = false;
+            {
+                Selectable uiElement = GetComponent<Selectable>();
+
+                if (uiElement != null)
+                {
+                    uiElement.interactable = false;
+
+                    if (uiElement is Toggle toggleElement && turnOffIfToggle)
+                    {
+                        toggleElement.isOn = false;
+                    }
+                    OnInteractionDisabled?.Invoke();
+                }              
+                else
+                {
+                    Debug.LogWarning($"No Selectable UI component found on {gameObject.name}", gameObject);
+                }
+            }
+        }
     }
 }

@@ -5,16 +5,18 @@ using UnityEngine.Serialization;
 public class SkinSO : ScriptableObject
 {
     [FormerlySerializedAs("sprite")] 
-    [SerializeField] private Sprite[] gameSprites;
-    [SerializeField] private Sprite lobbySprite;
+    [SerializeField] private Sprite[] headSprites;
+    [SerializeField] private Sprite splashArt;
     [SerializeField] private Color color;
     [SerializeField] private int index; 
     [SerializeField] private GameObject skinPrefab;
     [SerializeField] private bool availableInDemo;
+    [SerializeField] private SO_Achievement unlockAchievement;
+    public SO_Achievement UnlockAchievement {  get { return unlockAchievement; } }
 
-    public Sprite[] GameSprites => gameSprites;
+    public Sprite[] HeadSprites => headSprites;
     
-    public Sprite LobbySprite => lobbySprite;
+    public Sprite SplashArt => splashArt;
     
     public Color Color => color;
 

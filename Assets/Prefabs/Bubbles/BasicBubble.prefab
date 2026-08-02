@@ -5010,6 +5010,15 @@ MonoBehaviour:
       Data3: -1059374198
       Data4: 1862568052
     Path: event:/sfx/spells/basic_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 15
+  isMeshHiddenForOwner: 0
+  catchUpTime: 100
+  maxTrackingDuration: 1
 --- !u!54 &8333720517595282313
 Rigidbody:
   m_ObjectHideFlags: 0
@@ -5104,15 +5113,15 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!114 &-9100837447648041081
 MonoBehaviour:

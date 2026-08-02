@@ -129,6 +129,9 @@ public class GameModeSelection : NetworkBehaviour
 
         UpdateGameModeSelectionUI();
 
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            lobbyManager.ChangeSelectedGameModeServerRpc();
+
         RefreshNavigation(currentIndex, enumLength);
 
         buttonOnClickEmitter.Play();

@@ -129,15 +129,15 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!114 &-4365314959441589678
 MonoBehaviour:
@@ -153,7 +153,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 16
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 1
   size: 2
   damage: 17
   knockback: 3
@@ -171,6 +176,7 @@ MonoBehaviour:
       Data3: -1059374198
       Data4: 1862568052
     Path: event:/sfx/spells/basic_spell
+  isLocalFake: 0
   slasherL: {fileID: 4085058672625568606}
   slasherR: {fileID: 1825400191264691308}
   spinner: {fileID: 2106622327485818667}

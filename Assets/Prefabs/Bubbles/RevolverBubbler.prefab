@@ -4960,6 +4960,15 @@ MonoBehaviour:
       Data3: -1367878520
       Data4: -719275316
     Path: event:/sfx/spells/revolver_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 15
+  isMeshHiddenForOwner: 0
+  catchUpTime: 0.2
+  maxTrackingDuration: 0.35
   maxAmmo: 6
   delayBetweenShots: 0.05
   spread: 12
@@ -5002,15 +5011,15 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!1 &8360917069752652375
 GameObject:

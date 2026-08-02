@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Unity.Netcode; 
@@ -20,8 +19,11 @@ public class SlipTrigger : MonoBehaviour
         else if (other.CompareTag("Bubble"))
         {
             BasicBubble bubble = other.GetComponent<BasicBubble>();
+            
+            if (!bubble.IsSoaped && !bubble.GetComponent<SoapBubble>())
+                CheckMakeBubbleSlipperyAchievement(bubble);
+
             bubble.SetSlippy();
-            CheckMakeBubbleSlipperyAchievement(bubble);
         }
     }
 
@@ -47,13 +49,10 @@ public class SlipTrigger : MonoBehaviour
 
     private void CheckMakeBubbleSlipperyAchievement(BasicBubble spedUpBubble)
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID 
-            || !SteamIntegration.instance) return;
-        
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        SteamIntegration.instance.IncrementIntSteamStat(steamIntegration.makeBubbleSlipperyStatID, 
-            1, 
-            steamIntegration.StatThresholds[steamIntegration.makeBubbleSlipperyStatID], 
-            steamIntegration.makeBubbleSlipperyAchievementID);
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID.Value
+            || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(4,1);
     }
 }

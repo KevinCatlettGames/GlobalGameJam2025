@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 
 public class ScoreManager : MonoBehaviour
@@ -244,7 +245,7 @@ public class ScoreManager : MonoBehaviour
                 panel.gameObject.SetActive(true);
 
                 panel.SetPortrait(
-                    playerHUDs[entry.playerID].Skin.GameSprites[0],
+                    playerHUDs[entry.playerID].Skin.HeadSprites[0],
                     playerHUDs[entry.playerID].Skin.Color,
                     0
                 );
@@ -293,7 +294,7 @@ public class ScoreManager : MonoBehaviour
 
                 for(int j = 0; j < teamPlayers.Count; j++)
                 {
-                    Sprite sprite = teamPlayers.Count > 0 ? teamPlayers[j].CurrentSkinSO.GameSprites[0] : null;
+                    Sprite sprite = teamPlayers.Count > 0 ? teamPlayers[j].CurrentSkinSO.HeadSprites[0] : null;
 
                     panel.SetPortrait(
                         sprite,
@@ -360,7 +361,9 @@ public class ScoreManager : MonoBehaviour
         {
             pendingWins = new int[4];
             pendingKills = new int[4];
-            restartText.SetActive(true);
+
+            if(NetworkManager.Singleton.IsServer)
+                restartText.SetActive(true);
         }
 
         scoresResolved = true;

@@ -1,6 +1,5 @@
 using Unity.Netcode;
 using UnityEngine;
-using FMODUnity;
 
 public class SlipBubble : BasicBubble
 {
@@ -10,18 +9,29 @@ public class SlipBubble : BasicBubble
 
     private SlimeTrail slimeTrail;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
 
-        if (IsServer)
+        Vector3 trailPos = new Vector3(transform.position.x, 0.06f, transform.position.z);
+
+        if (isLocalFake)
         {
-            Vector3 trailPos = new Vector3(transform.position.x, 0.06f, transform.position.z);
+            if (slimeTrailObject != null)
+            {
+                GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
+                Destroy(trail.GetComponent<NetworkObject>());
+                slimeTrail = trail.GetComponent<SlimeTrail>();
+                slimeTrail?.InitialiseTrail(speed);
+            }
+        }
+        else if (IsServer)
+        {
             GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
             slimeTrail = trail.GetComponent<SlimeTrail>();
-            slimeTrail.InitialiseTrail(speed);
+            slimeTrail?.InitialiseTrail(speed);
 
-            trail.GetComponent<NetworkObject>().Spawn();
+            trail.GetComponent<NetworkObject>()?.Spawn();
         }
     }
 
@@ -29,7 +39,7 @@ public class SlipBubble : BasicBubble
     {
         slimeTrail?.StopTrail();
 
-        if (slimeTrail != null)
+        if (slimeTrail != null && !isLocalFake)
         {
             NetworkObject trailNetObj = slimeTrail.gameObject.GetComponent<NetworkObject>();
             if (trailNetObj != null && trailNetObj.IsSpawned)
@@ -43,6 +53,8 @@ public class SlipBubble : BasicBubble
 
     private void Update()
     {
+        if (!IsServer && !isLocalFake) return;
+
         if (slimeTrail != null && !Physics.Raycast(transform.position, Vector3.down, 5f, groundedLayerMask))
         {
             if (!slimeTrail.isStopped)
@@ -54,21 +66,38 @@ public class SlipBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
+
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Player"))
+            {
+                CreateSlimePuddleLocal(transform.position);
+                Pop();
+            }
+            else if (other.CompareTag("Wall"))
+            {
+                Pop();
+            }
+            return;
+        }
 
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
-
-            if (GameManager.Instance.PlayingLocal)
+            if (player != null)
             {
-                player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
-                CreateSlimePuddleLocal(transform.position);
-            }
-            else
-            {
-                player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
-                CreateSlimePuddleServerRpc(transform.position);
+                if (GameManager.Instance.PlayingLocal)
+                {
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                    CreateSlimePuddleLocal(transform.position);
+                }
+                else
+                {
+                    player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                    CreateSlimePuddleServerRpc(transform.position);
+                }
             }
 
             Pop();
@@ -81,9 +110,9 @@ public class SlipBubble : BasicBubble
         Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
         GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
-        puddleTrail.StopTrail();
+        puddleTrail?.StopTrail();
 
-        puddle.GetComponent<NetworkObject>().Spawn();
+        puddle.GetComponent<NetworkObject>()?.Spawn();
     }
 
     private void CreateSlimePuddleLocal(Vector3 position)
@@ -91,11 +120,11 @@ public class SlipBubble : BasicBubble
         Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
         GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
-        puddleTrail.StopTrail();
+        puddleTrail?.StopTrail();
     }
 
     public override void SetSlippy()
     {
-        
+        // Left deliberately empty
     }
 }

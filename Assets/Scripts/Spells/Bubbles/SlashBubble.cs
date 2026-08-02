@@ -5,79 +5,109 @@ using UnityEngine;
 
 public class SlashBubble : BasicBubble
 {
-	[Header("SpecialStats")] 
-	[SerializeField] private GameObject slasherL;
-	[SerializeField] private GameObject slasherR;
-	[SerializeField] private Transform spinner;
-	
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider){
-		base.InitialiseBubble(ID, dir, playerCollider);
-		canMiss = false;
-		StartCoroutine(StartSlashers());
+    [Header("SpecialStats")]
+    [SerializeField] private GameObject slasherL;
+    [SerializeField] private GameObject slasherR;
+    [SerializeField] private Transform spinner;
+
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
+    {
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
+        canMiss = false;
+
+        StartCoroutine(StartSlashers());
     }
 
     private IEnumerator StartSlashers()
     {
-	    while (currentSize < size)
-	    {
-		    currentSize += inflationSpeed * Time.deltaTime;
-		    if (currentSize > size) currentSize = size;
+        while (currentSize < size)
+        {
+            currentSize += inflationSpeed * Time.deltaTime;
+            if (currentSize > size) currentSize = size;
 
-		    slasherL.transform.localScale = Vector3.one * currentSize;
-		    slasherR.transform.localScale = Vector3.one * currentSize;
-		    yield return null;
-	    }
+            if (slasherL != null) slasherL.transform.localScale = Vector3.one * currentSize;
+            if (slasherR != null) slasherR.transform.localScale = Vector3.one * currentSize;
+            yield return null;
+        }
 
-	    slasherL.GetComponentInChildren<Slasher>().SetInflated(playerCollider, OwnerID);
-	    slasherR.GetComponentInChildren<Slasher>().SetInflated(playerCollider, OwnerID);
-	    hasInflated = true;
+        if (slasherL != null) slasherL.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
+        if (slasherR != null) slasherR.GetComponentInChildren<Slasher>()?.SetInflated(playerCollider, OwnerID.Value);
+
+        hasInflated = true;
     }
-	protected override void BubbleMovement()
-	{
-		transform.position = playerCollider.transform.position;
-	}
 
-	protected override IEnumerator BubbleRangeLimit()
-	{
-		while (!hasInflated)
-			yield return null;
-		
-		float roatation = 0f;
-		float angle = 0f;
-		while (Mathf.Abs(roatation) < range)
-		{
-			angle = speed * Time.deltaTime;
-			transform.Rotate(Vector3.up * (angle));
-			roatation += angle;
-			yield return null;
-		}
-		Pop();
-	}
+    protected override void BubbleMovement()
+    {
+        if (playerCollider != null)
+        {
+            transform.position = playerCollider.transform.position;
+        }
+    }
 
-	public void SlasherHit(Vector3 slasherDir, GameObject other)
-	{
-		direction = slasherDir;
+    protected override IEnumerator BubbleRangeLimit()
+    {
+        while (!hasInflated)
+            yield return null;
+
+        float rotation = 0f;
+        float angle = 0f;
+        while (Mathf.Abs(rotation) < range)
+        {
+            angle = speed * Time.deltaTime;
+            transform.Rotate(Vector3.up * angle);
+            rotation += angle;
+            yield return null;
+        }
+
+        Pop();
+    }
+
+    public void SlasherHit(Vector3 slasherDir, GameObject other)
+    {
+        if (other == null) return;
+        if (!IsServer && !isLocalFake) return;
+
+        direction = slasherDir;
+
         if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
-            OwnerID = reflector.OwnerID;
+            if (IsServer)
+            {
+                OwnerID.Value = reflector.OwnerID;
+            }
             Reflect(Vector3.zero);
             return;
         }
-		if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble bubble))
-		{
-			if (bubble.OwnerID != OwnerID)
-			{
-				bubble.BubbleCollision(gameObject);
-			}
-		}
+
+        if (isLocalFake)
+        {
+            if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble clientBubble))
+            {
+                if (clientBubble.OwnerID != OwnerID)
+                {
+                    clientBubble.BubbleCollision(gameObject);
+                }
+            }
+            return;
+        }
+
+        if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble serverBubble))
+        {
+            if (serverBubble.OwnerID != OwnerID)
+            {
+                serverBubble.BubbleCollision(gameObject);
+            }
+        }
+
         BubbleCollision(other);
-	}
+    }
 
     protected override void Reflect(Vector3 normal)
     {
-		if (isReflected) return;
-		isReflected = !isReflected;
-		speed *= -1f;
+        if (isReflected) return;
+        isReflected = !isReflected;
+        speed *= -1f;
+
         if (rangeCoroutine != null)
             StopCoroutine(rangeCoroutine);
 

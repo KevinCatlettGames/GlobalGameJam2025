@@ -38,14 +38,6 @@ public class TimedGM : GameManager
         StartCoroutine(AwardVictory());
     }
 
-    private void Update()
-    {
-        if (ScoreManager.Instance.ScoresResolved && isReadyToRestart && (Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Return)))
-        {
-            RestartGame();
-        }
-    }
-
     private IEnumerator AwardVictory()
     {
         yield return new WaitForSeconds(gameEndDelay);

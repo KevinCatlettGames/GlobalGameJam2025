@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -18,17 +17,20 @@ public class SoapMapEvent : MapEvent
 
     private void Start()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         maxWaveSize = droplets.Length;
         startWaveSize = waveSize;
     }
     protected override void StartEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         isSpawning = true;
         StartCoroutine(SpawnWaves());
     }
 
     protected override void StopEvent()
     {
+        if (!NetworkManager.Singleton.IsServer) return;
         isSpawning = false;
         waveSize = startWaveSize;
         StopAllCoroutines();
@@ -38,7 +40,7 @@ public class SoapMapEvent : MapEvent
         yield return new WaitForSeconds(pauseDuration);
         while (isSpawning)
         {
-            waringIndicator.SetActive(true);
+            ToggleWarningIndicatorServerRpc(true);
             yield return new WaitForSeconds(1f);
             for (int i = 0; i < waveSize; i++)
             {
@@ -48,8 +50,7 @@ public class SoapMapEvent : MapEvent
             }
             
             yield return new WaitForSeconds(waveDuration);
-            waringIndicator.SetActive(false);
-            
+            ToggleWarningIndicatorServerRpc(false);            
             if (waveSize < maxWaveSize)
             {
                 waveSize += waveSizeIncrease;
@@ -59,5 +60,17 @@ public class SoapMapEvent : MapEvent
             
             yield return new WaitForSeconds(pauseDuration);
         }
+    }
+
+    [ServerRpc]
+    void ToggleWarningIndicatorServerRpc(bool value)
+    {
+        ToggleWarningIndicatorClientRpc(value);
+    }
+
+    [ClientRpc]
+    void ToggleWarningIndicatorClientRpc(bool value)
+    {
+        waringIndicator.SetActive(value);
     }
 }

@@ -32,20 +32,27 @@ public class Countdown : MonoBehaviour
     }
 
     public void StartCountdown()
-    {
+    {  
         CameraHandler.Instance.onCinematicEnd.RemoveListener(StartCountdown);
+        if (CameraHandler.Instance.playCinematicAtStart)
+        {
+            OnCountdownStart?.Invoke();
 
-        OnCountdownStart?.Invoke();
+            if (countdownCoroutine != null)
+                StopCoroutine(countdownCoroutine);
 
-        if (countdownCoroutine != null)
-            StopCoroutine(countdownCoroutine);
-
-        countdownCoroutine = StartCoroutine(CountdownRoutine());
+            countdownCoroutine = StartCoroutine(CountdownRoutine());
+        }
+        else
+        {
+            onCountdownComplete?.Invoke();
+        }
     }
 
     private IEnumerator CountdownRoutine()
     {
         int currentCount = countdownTime;
+        yield return new WaitForSeconds(1.2f); //Delay for entry animations
 
         countdownImage.enabled = true;
 
@@ -56,7 +63,6 @@ public class Countdown : MonoBehaviour
             if (spriteIndex >= 0 && spriteIndex < countdownSprites.Length)
             {
                 countdownImage.sprite = countdownSprites[spriteIndex];
-                //countdownEmitters[spriteIndex].Play();
             }
 
             yield return new WaitForSeconds(timeBetweenElements);
@@ -66,13 +72,11 @@ public class Countdown : MonoBehaviour
         if (goSprite != null)
         {
             countdownImage.sprite = goSprite;
-            //goEmitter.Play();
         }
-
-        onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);
 
+        onCountdownComplete?.Invoke();
         countdownImage.enabled = false;
     }
 }

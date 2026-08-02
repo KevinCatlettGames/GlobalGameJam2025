@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: -8130209325750812584}
   m_Layer: 7
   m_Name: SoapSplat
-  m_TagString: Untagged
+  m_TagString: Puddle
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -248,6 +248,9 @@ MonoBehaviour:
   waitDuration: 5
   destroyOnRestart: 1
   fadeDuration: 0.3
+  isLocalFake: 0
+  spriteRenderer: {fileID: 976542331781092153}
+  particleSystem: {fileID: 3256932945042107490}
 --- !u!95 &-8130209325750812584
 Animator:
   serializedVersion: 7
@@ -491,9 +494,9 @@ ParticleSystem:
         m_RotationOrder: 4
     startColor:
       serializedVersion: 2
-      minMaxState: 0
-      minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.7137255, g: 0.94356513, b: 1, a: 1}
+      minMaxState: 2
+      minColor: {r: 0.7063124, g: 0.6273585, b: 1, a: 1}
+      maxColor: {r: 0.7137255, g: 0.923149, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -1757,7 +1760,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 44a520e9f81447d458def2e0755805e6, type: 3}
+    - sprite: {fileID: 21300000, guid: 61cf8d4749148cb4693b92753339686e, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:

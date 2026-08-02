@@ -11,12 +11,13 @@ using System.Threading.Tasks;
 
 public class PauseManager : MonoBehaviour
 {
+    public static PauseManager Instance;
     [SerializeField] private EventReference togglePauseSound; 
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
     [SerializeField] private SO_Scores scores;
-
+    
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = true;
@@ -25,6 +26,13 @@ public class PauseManager : MonoBehaviour
     private InputSystemUIInputModule inputModuleUI;
     private InputAction pauseAction;
     private InputAction backAction;
+
+    private void Awake()
+    {
+        if(Instance == null)
+            Instance = this;
+    }
+
     private void Start()
     {
         eventSystem = EventSystem.current;
@@ -47,24 +55,18 @@ public class PauseManager : MonoBehaviour
 
     private void OnEnable()
     {
-        // Subscribe to NGO disconnects as fallback
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
     }
     
     private void OnClientDisconnect(ulong clientId)
     {
-        // Fired for any disconnect; only care if host disconnects
-        if (clientId == 1)
-        {
-            Debug.Log("Host disconnected — returning to main menu...");
-            ReturnToMainMenu();
-        }
+        Debug.Log("Player disconnected — returning to main menu...");
+        ReturnToMainMenu();
     }
 
     private void OnDisable()
     {
-        // Unsubscribe NGO disconnects
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
     }
@@ -85,8 +87,6 @@ public class PauseManager : MonoBehaviour
 
             Cursor.lockState = CursorLockMode.None;
             Cursor.visible = true;
-            Vector2 mousePosition = new Vector2(.35f * Screen.width, .75f * Screen.height);
-            Mouse.current.WarpCursorPosition(mousePosition);
         }
         else
         {
@@ -170,7 +170,7 @@ public class PauseManager : MonoBehaviour
                 {
                     var options = new UpdateLobbyOptions { IsPrivate = true };
                     await LobbyService.Instance.UpdateLobbyAsync(lobbyId, options);
-                    await Task.Delay(100); // tiny pause to ensure update propagates
+                    await Task.Delay(100);
                     await LobbyService.Instance.DeleteLobbyAsync(lobbyId);
                 }
                 else
@@ -233,6 +233,7 @@ public class PauseManager : MonoBehaviour
     {
          TogglePause();       
     }
+
     public void OnBackInput(InputAction.CallbackContext context)
     {
         if (!isCurrentlyPaused) return;

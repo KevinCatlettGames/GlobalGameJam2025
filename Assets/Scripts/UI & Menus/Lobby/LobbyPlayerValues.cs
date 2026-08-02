@@ -1,12 +1,13 @@
-using UnityEngine;
-using UnityEngine.InputSystem;
 using System.Collections.Generic;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class LobbyPlayerValues : NetworkBehaviour
 {
     public static LobbyPlayerValues Instance;
+    public GameObject lobbyPlayer;
 
     [System.Serializable]
     public class PlayerValues
@@ -21,7 +22,7 @@ public class LobbyPlayerValues : NetworkBehaviour
             PlayerIndex = playerIndex;
             Device = device;
             Skin = skin;
-            TeamIndex = -1;
+            TeamIndex = teamIndex;
         }
     }
 
@@ -32,18 +33,25 @@ public class LobbyPlayerValues : NetworkBehaviour
     private void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+            DontDestroyOnLoad(gameObject);
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 
     private void Start()
     {
-        DontDestroyOnLoad(gameObject);
         SceneManager.sceneLoaded += SceneManagerOnsceneLoaded;
 
-        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnectedCallback;
+        }
     }
 
     private void OnDisable()
@@ -54,87 +62,131 @@ public class LobbyPlayerValues : NetworkBehaviour
     private void OnDestroy()
     {
         SceneManager.sceneLoaded -= SceneManagerOnsceneLoaded;
+
+        if (NetworkManager.Singleton != null)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
+            NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnectedCallback;
+        }
     }
 
     private void SceneManagerOnsceneLoaded(Scene scene, LoadSceneMode mode)
     {
         if (scene.buildIndex == 0)
+        {
             Destroy(gameObject);
+            return;
+        }
 
-        List<PlayerValues> playersToRemove = new List<PlayerValues>();
-
-
-        foreach(PlayerValues playerValues in playerValuesList)
-            if(playerValues.Device == null)
-                playersToRemove.Add(playerValues);
-
-        foreach (PlayerValues p in playersToRemove)
-            playerValuesList.Remove(p);
-
-        playersToRemove.Clear();
+        if (TransportSwitcher.Instance != null && !TransportSwitcher.Instance.isUsingRelay)
+        {
+            playerValuesList.RemoveAll(p => p.Device == null);
+        }
     }
 
     private void OnClientConnectedCallback(ulong clientId)
     {
-        Invoke(nameof(SharePlayerValues), 0.5f);
+        if (!IsServer) return;
+
+        if (lobbyPlayer != null)
+        {
+            GameObject player = Instantiate(lobbyPlayer);
+            player.GetComponent<NetworkObject>().SpawnAsPlayerObject(clientId, true);
+        }
+
+        SharePlayerValuesToClient(clientId);
     }
 
-    private void SharePlayerValues()
+    private void OnClientDisconnectedCallback(ulong clientId)
+    {
+        if (!IsServer) return;
+
+        RemovePlayerValueServerRpc((int)clientId);
+    }
+
+    private void SharePlayerValuesToClient(ulong clientIDToShareTo)
     {
         foreach (PlayerValues pv in playerValuesList)
         {
-            bool isReady = LobbyManager.instance.playerContainers[pv.PlayerIndex]
-                .GetComponent<PlayerContainerManager>()
-                .isReady;
+            bool isReady = false;
+            if (LobbyManager.instance != null && LobbyManager.instance.playerContainers.Length > pv.PlayerIndex)
+            {
+                var manager = LobbyManager.instance.playerContainers[pv.PlayerIndex].GetComponent<PlayerContainerManager>();
+                if (manager != null) isReady = manager.isReady;
+            }
 
-            SharePlayerValuesServerRpc(pv.PlayerIndex, pv.Skin.Index, isReady);
+            SyncSinglePlayerClientRpc(pv.PlayerIndex, isReady, clientIDToShareTo, pv.TeamIndex);
         }
-    }
-
-    [ServerRpc(RequireOwnership = true)]
-    private void SharePlayerValuesServerRpc(int playerIndex, int skinIndex, bool isReady)
-    {
-        SharePlayerValuesClientRpc(playerIndex, skinIndex, isReady);
     }
 
     [ClientRpc]
-    private void SharePlayerValuesClientRpc(int playerIndex, int skinIndex, bool isReady)
+    private void SyncSinglePlayerClientRpc(int playerIndex, bool isReady, ulong targetClientId, int teamIndex)
     {
-        if (IsServer)
-            return;
+        if (NetworkManager.Singleton.LocalClientId != targetClientId) return;
 
-        playerValuesList.Clear();
+        SkinSO defaultSkin = (LobbyManager.instance != null && LobbyManager.instance.PossibleSkins.Length > 0)
+            ? LobbyManager.instance.PossibleSkins[0]
+            : null;
 
-        SkinSO skinToUse = LobbyManager.instance.PossibleSkins[0];
-
-        foreach (SkinSO skin in LobbyManager.instance.PossibleSkins)
+        var existing = playerValuesList.Find(p => p.PlayerIndex == playerIndex);
+        if (existing == null)
         {
-            if (skin.Index == skinIndex)
-            {
-                skinToUse = skin;
-                break;
-            }
+            playerValuesList.Add(new PlayerValues(playerIndex, null, defaultSkin, teamIndex));
         }
 
-        playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse, -1));
-
         SortPlayerValues();
-        LobbyManager.instance.UpdatePlayerUI();
 
-        var skinChange = LobbyManager.instance.playerContainers[playerIndex]
-            .GetComponent<PlayerContainerSkinChange>();
-
-        skinChange.currentColorIndex = skinToUse.Index;
-        skinChange.UpdateSkinServerRpc();
-
-        if (isReady &&
-            !LobbyManager.instance.playerContainers[playerIndex]
-                .GetComponent<PlayerContainerManager>()
-                .isReady)
+        if (LobbyManager.instance != null)
         {
-            LobbyManager.instance.playerContainers[playerIndex]
-                .GetComponent<PlayerContainerManager>()
-                .ReadyStateUpdated((ulong)playerIndex, false);
+            LobbyManager.instance.UpdatePlayerUIAndOccupiedState();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void AddNewPlayerValueServerRpc(int playerIndex, int skinIndex, bool isReady)
+    {
+        AddNewPlayerValueClientRpc(playerIndex, skinIndex, isReady);
+    }
+
+
+    [ClientRpc]
+    public void AddNewPlayerValueClientRpc(int playerIndex, int skinIndex, bool isReady)
+    {
+        SkinSO skinToUse = null;
+        if (LobbyManager.instance != null && LobbyManager.instance.PossibleSkins.Length > 0)
+        {
+            skinToUse = System.Array.Find(LobbyManager.instance.PossibleSkins, s => s.Index == skinIndex)
+                        ?? LobbyManager.instance.PossibleSkins[0];
+        }
+
+        var existingPlayer = playerValuesList.Find(pd => pd.PlayerIndex == playerIndex);
+        if (existingPlayer == null)
+        {
+            playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse, -1));
+            SortPlayerValues();
+        }
+
+        if (LobbyManager.instance != null)
+        {
+            LobbyManager.instance.UpdatePlayerUIAndOccupiedState();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void RemovePlayerValueServerRpc(int playerIndex)
+    {
+        RemovePlayerValueClientRpc(playerIndex);
+    }
+
+    [ClientRpc]
+    public void RemovePlayerValueClientRpc(int playerIndex)
+    {
+        playerValuesList.RemoveAll(pd => pd.PlayerIndex == playerIndex);
+        SortPlayerValues();
+
+        if (LobbyManager.instance != null)
+        {
+            LobbyManager.instance.UpdatePlayerUIAndOccupiedState();
         }
     }
 
@@ -145,29 +197,21 @@ public class LobbyPlayerValues : NetworkBehaviour
 
     public void AssignDeviceToPlayer(int playerIndex, InputDevice device)
     {
-        if (playerIndex < 0 || playerIndex >= maxPlayers)
-            return;
-
-        if (device == null)
+        if (playerIndex < 0 || playerIndex >= maxPlayers || device == null)
             return;
 
         var existingPlayer = playerValuesList.Find(pd => pd.PlayerIndex == playerIndex);
-
         if (existingPlayer != null)
         {
             existingPlayer.Device = device;
         }
         else
         {
-            playerValuesList.Add(
-                new PlayerValues(
-                    playerIndex,
-                    device,
-                    LobbyManager.instance.PossibleSkins[0],
-                    -1
-                )
-            );
+            SkinSO defaultSkin = (LobbyManager.instance != null && LobbyManager.instance.PossibleSkins.Length > 0)
+                ? LobbyManager.instance.PossibleSkins[0]
+                : null;
 
+            playerValuesList.Add(new PlayerValues(playerIndex, device, defaultSkin, -1));
             SortPlayerValues();
         }
     }
@@ -180,12 +224,10 @@ public class LobbyPlayerValues : NetworkBehaviour
 
     public int AssignDeviceToNextFreePlayer(InputDevice device)
     {
-        if (device == null)
-            return -1;
+        if (device == null) return -1;
 
         int existingIndex = GetPlayerIndex(device);
-        if (existingIndex != -1)
-            return existingIndex;
+        if (existingIndex != -1) return existingIndex;
 
         for (int i = 0; i < maxPlayers; i++)
         {
@@ -201,25 +243,13 @@ public class LobbyPlayerValues : NetworkBehaviour
 
     public InputDevice GetDevice(int playerIndex)
     {
-        for (int i = 0; i < playerValuesList.Count; i++)
-        {
-            if (playerValuesList[i].PlayerIndex == playerIndex)
-                return playerValuesList[i].Device;
-        }
-
-        return null;
+        var pd = playerValuesList.Find(p => p.PlayerIndex == playerIndex);
+        return pd?.Device;
     }
 
     public void RemoveDevice(int playerIndex)
     {
-        for (int i = 0; i < playerValuesList.Count; i++)
-        {
-            if (playerValuesList[i].PlayerIndex == playerIndex)
-            {
-                playerValuesList.RemoveAt(i);
-                SortPlayerValues();
-                break;
-            }
-        }
+        playerValuesList.RemoveAll(p => p.PlayerIndex == playerIndex);
+        SortPlayerValues();
     }
 }

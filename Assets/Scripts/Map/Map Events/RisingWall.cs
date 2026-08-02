@@ -73,4 +73,12 @@ public class RisingWall : MonoBehaviour
         animator.speed = 1;
         gameObject.SetActive(false);
     }
+
+    private void OnDisable()
+    {
+        if (idleEvent != null && idleEvent.IsPlaying())
+        {
+            idleEvent.Stop();
+        }
+    }
 }

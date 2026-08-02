@@ -1,5 +1,6 @@
 using System.Collections;
 using Unity.Netcode;
+using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 public class Puddle : NetworkBehaviour
@@ -8,19 +9,66 @@ public class Puddle : NetworkBehaviour
     [SerializeField] private bool destroyOnRestart = true;
     [SerializeField] private float fadeDuration = .3f;
     private Animator animator;
+    public bool isLocalFake = false;
+    [SerializeField] SpriteRenderer spriteRenderer;
+    [SerializeField] ParticleSystem particleSystem;
+    public NetworkVariable<int> playerID = new NetworkVariable<int>();
 
     private void Start()
     {
         if (destroyOnRestart) GameManager.Instance.OnGameStarted += DestroyOnRestart;
 
-        if (IsServer) StartCoroutine(DespawnAfterDelay(waitDuration));
+        if (IsServer || isLocalFake) StartCoroutine(DespawnAfterDelay(waitDuration));
         animator = GetComponent<Animator>();
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+        playerID.OnValueChanged += OnPlayerIdAssigned;
+        CheckAndHideVisibility(playerID.Value);
+    }
+
+    public override void OnNetworkDespawn()
+    {
+        playerID.OnValueChanged -= OnPlayerIdAssigned;
+    }
+
+    public void InitialisePuddle(Collider playerCollider)
+    {
+        if (!IsServer) return;
+
+        playerID.Value = playerCollider.GetComponent<PlayerController>().PlayerID;
+    }
+
+    private void OnPlayerIdAssigned(int previousValue, int newValue)
+    {
+        CheckAndHideVisibility(newValue);
+    }
+
+    private void CheckAndHideVisibility(int currentCasterId)
+    {
+        if (IsServer || isLocalFake) return;
+
+        if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
+        if (GameManager.Instance.Players[currentCasterId] == null) return;
+
+        if (GameManager.Instance.Players[currentCasterId].IsOwner)
+        {
+            if (spriteRenderer)
+                spriteRenderer.enabled = false;
+            if (particleSystem)
+                particleSystem.gameObject.SetActive(false);
+        }
     }
 
     private void DestroyOnRestart()
     {
-        if (!IsServer) return;
-        NetworkObject.Despawn();  
+        if (!IsServer && !isLocalFake) return;
+
+        if (IsServer)
+            NetworkObject.Despawn();
+
         Destroy(gameObject);
     }
 
@@ -32,9 +80,24 @@ public class Puddle : NetworkBehaviour
     private IEnumerator DespawnAfterDelay(float delay)
     {
         yield return new WaitForSeconds(delay - fadeDuration);
-        animator.SetTrigger("Fade");
+
+        if (IsServer)
+            SetFadeAnimClientRpc();
+        if (isLocalFake)
+            animator.SetTrigger("Fade");
+
         yield return new WaitForSeconds(fadeDuration);
-        NetworkObject.Despawn();
+
+        if (IsServer)
+            NetworkObject.Despawn();
+
         Destroy(gameObject);
+    }
+
+    [ClientRpc]
+    void SetFadeAnimClientRpc()
+    {
+        if (animator)
+            animator.SetTrigger("Fade");
     }
 }

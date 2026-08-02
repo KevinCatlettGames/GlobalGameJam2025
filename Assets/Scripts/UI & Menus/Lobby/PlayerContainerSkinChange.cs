@@ -1,7 +1,8 @@
+using FMODUnity;
+using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
-using FMODUnity;
 
 public class PlayerContainerSkinChange : NetworkBehaviour
 {
@@ -21,11 +22,17 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     bool init;
     bool wasInit = false;
     public GameObject emptyPlayerContainer;
+    public SkinUnlockTextHandler skinUnlockHandler;
 
     private void OnDisable()
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
+
+        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
+        }
 
         blurImage.color = initialBlurColor;
     }
@@ -37,13 +44,18 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
     private void OnEnable()
     {
+        Init();
+    }
+
+    void Init()
+    {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.AddListener(ReadyStateUpdated);
 
         if (init && !wasInit)
         {
             currentSkinSelection = allSkinSelections[playerIndex];
-            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
             UpdateSkin();
@@ -51,12 +63,56 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         init = true;
         UpdateBlur();
-
     }
 
-    public void ReadyStateUpdated(ulong clientId, bool state)
+
+    private void Start()
     {
-        if ((int)clientId == playerIndex)
+        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
+        {
+            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
+        }
+    }
+
+    void OnClientConnectedCallback(ulong clientID)
+    {
+        if (clientID == NetworkManager.Singleton.LocalClientId) return;
+        if (!IsSpawned || !IsServer) return;
+        StartCoroutine(WaitAndShareValues(clientID));
+    }
+
+    IEnumerator WaitAndShareValues(ulong clientID)
+    {
+        yield return new WaitForSeconds(1f);
+        ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
+    }
+
+
+
+    [ClientRpc]
+    void ShareValuesClientRpc(ulong clientID, int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
+    {
+        if (NetworkManager.Singleton.LocalClientId != clientID) return;
+        init = true;
+        wasInit = true;
+        this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        this.currentColorIndex = currentColorIndex;
+        this.currentlyOnLocked = currentlyOnLocked;
+        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        avatar.GetComponent<ScaleToCorrectSize>().Play();
+        UpdateSkin();
+        UpdateBlur();
+        foreach(LobbyPlayerInput lobbyPlayerInput in LobbyManager.instance.allLobbyPlayerInputs)
+        {
+            if (lobbyPlayerInput.IsOwner)
+                lobbyPlayerInput.HandleJoinAfterValuesAreShared();
+        }
+    }
+
+    public void ReadyStateUpdated(int playerIndex, bool state)
+    {
+        if (playerIndex == this.playerIndex)
         {
             currentSkinSelection.ToggleReadyVisuals();
         }
@@ -69,7 +125,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         currentlyOnLocked = isSkinLocked(skinToUse);
         playerTextImage.color = skinToUse.Color;
-        avatar.sprite = skinToUse.LobbySprite;
+        avatar.sprite = skinToUse.SplashArt;
 
         if (currentlyOnLocked)
             avatar.color = Color.gray;
@@ -85,14 +141,30 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentColorIndex = increment
             ? (currentColorIndex + 1) % totalSkins
             : (currentColorIndex - 1 + totalSkins) % totalSkins;
-
         UpdateSkin();
         cycleEmitter.Play();
     }
 
     public void ResetContainer()
     {
-        currentSkinSelection.ChangePlayerIcon(-1,playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1,playerIndex, GetComponent<PlayerContainerManager>());
+        currentSkinSelection = null;
+        emptyPlayerContainer.SetActive(true);
+        wasInit = false;
+        init = true;
+        gameObject.SetActive(false);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ResetContainerServerRpc()
+    {
+        ResetContainerClientRpc();
+    }
+
+    [ClientRpc]
+    void ResetContainerClientRpc()
+    {
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         currentSkinSelection = null;
         emptyPlayerContainer.SetActive(true);
         wasInit = false;
@@ -114,7 +186,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
                     break;
                 }
             }
-            currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+            currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
             currentSkinSelection = availableSkin;
             currentColorIndex = currentSkinSelection.skinSo.Index;
             avatar.GetComponent<ScaleToCorrectSize>().Play();
@@ -123,25 +195,25 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         else if (skinChangeInput.x > 0)
         {
-            if (!currentSkinSelection.rightSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.rightSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.rightSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.rightSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.x < 0)
         {
-            if (!currentSkinSelection.leftSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.leftSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.leftSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.leftSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.y > 0)
         {
-            if (!currentSkinSelection.topSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.topSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.topSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.topSkinSelection;
             availableSkin = skinToCheck;
         }
         else if (skinChangeInput.y < 0)
         {
-            if (!currentSkinSelection.bottomSkinSelection || !SteamIntegration.instance.IsFullVersion && !currentSkinSelection.bottomSkinSelection.skinSo.AvailableInDemo) return;
+            if (!currentSkinSelection.bottomSkinSelection) return;
             SkinButtonHandler skinToCheck = currentSkinSelection.bottomSkinSelection;
             availableSkin = skinToCheck;                 
         }
@@ -159,12 +231,25 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         }
         if (availableSkin == null) return; 
 
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex);
+        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
         currentSkinSelection = availableSkin;
         currentColorIndex = currentSkinSelection.skinSo.Index;
         avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateBlur();
         UpdateSkin();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    public void ChangeSkinServerRpc(Vector2 skinChangeInput, ulong clientThatCalledThis)
+    {
+        ChangeSkinClientRpc(skinChangeInput, clientThatCalledThis);
+    }
+
+    [ClientRpc]
+    public void ChangeSkinClientRpc(Vector2 skinChangeInput, ulong clientThatCalledThis)
+    {
+        if (NetworkManager.Singleton.LocalClientId == clientThatCalledThis) return;
+        ChangeSkin(skinChangeInput);
     }
 
 
@@ -202,30 +287,29 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         SkinSO skinToUse = LobbyManager.instance.PossibleSkins[currentColorIndex];
         playerTextImage.color = skinToUse.Color;
-        avatar.sprite = skinToUse.LobbySprite;
+        avatar.sprite = skinToUse.SplashArt;
 
         if (currentlyOnLocked)
         {
             avatar.color = Color.gray;
             if (currentSkinSelection)
-                currentSkinSelection.ChangePlayerIcon(1, playerIndex);
+                currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
         else
         {
             avatar.color = Color.white;
             if (currentSkinSelection)
-                currentSkinSelection.ChangePlayerIcon(1, playerIndex);
+                currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
+
+        skinUnlockHandler.SetSkinUnlockText(skinToUse);
     }
 
     bool isSkinLocked(SkinSO skinToCheck)
     {
-        bool skinLocked = false;
-
         for (int i = 0; i < LobbyPlayerValues.Instance.playerValuesList.Count; i++)
         {
             if (i == playerIndex) continue;
-
             var otherSkin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
             if (otherSkin != null && otherSkin == skinToCheck &&
                 i < LobbyManager.instance.players.Count &&

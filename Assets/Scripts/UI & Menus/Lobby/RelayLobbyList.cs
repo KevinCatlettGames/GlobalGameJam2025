@@ -3,51 +3,43 @@ using Unity.Services.Lobbies.Models;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 using UnityEngine;
-
-/// <summary>
-/// Handles fetching, storing, and displaying a list of public relay lobbies.
-/// Populates a UI scroll list with lobby entries and allows refreshing.
-/// </summary>
 public class RelayLobbyList : MonoBehaviour
 {
     [Header("UI References")]
-    public GameObject publicLobbyListPrefab; // Prefab representing each lobby entry
-    public Transform lobbyListContainer;     // Parent transform for instantiated lobby items
+    public GameObject publicLobbyListPrefab;
+    public Transform lobbyListContainer;
+    public GameObject noLobbiesText;
 
-    /// <summary>
-    /// List of currently fetched lobbies.
-    /// </summary>
     public List<Lobby> CurrentLobbies { get; private set; } = new List<Lobby>();
-
-    /// <summary>
-    /// List of instantiated lobby UI items.
-    /// </summary>
     public List<GameObject> lobbyItems = new List<GameObject>();
     
-    /// <summary>
-    /// Unity Start. Automatically refreshes the lobby list on start.
-    /// </summary>
-    private async void Start()
+    private async void OnEnable()
     {
         RefreshLobbyList();
     }
 
-    /// <summary>
-    /// Refreshes the lobby list by fetching public lobbies and populating the UI.
-    /// </summary>
     public async void RefreshLobbyList()
     {
+        CancelInvoke(nameof(RefreshLobbyList));
+        
+        if(!gameObject.activeSelf) return;
+
         foreach (GameObject lobbyItem in lobbyItems)
             Destroy(lobbyItem);
         
         lobbyItems.Clear();
         CurrentLobbies = await GetPublicLobbiesAsync(20);
         PopulateLobbyList();
+
+        int lobbyAmountinList = lobbyListContainer.childCount;
+        noLobbiesText.SetActive(lobbyAmountinList <= 0);
+
+        if (lobbyItems.Count <= 0)
+            Invoke(nameof(RefreshLobbyList), 5f);
+        else
+            Invoke(nameof(RefreshLobbyList), 30f);
     }
 
-    /// <summary>
-    /// Populates the UI list with current lobbies.
-    /// </summary>
     private void PopulateLobbyList()
     {
         foreach (Transform child in lobbyListContainer)
@@ -68,11 +60,6 @@ public class RelayLobbyList : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Queries the Unity Lobby Service for public lobbies with available slots.
-    /// </summary>
-    /// <param name="maxResults">Maximum number of lobbies to return.</param>
-    /// <returns>List of lobbies returned by the query.</returns>
     public async Task<List<Lobby>> GetPublicLobbiesAsync(int maxResults = 20)
     {
         var options = new QueryLobbiesOptions

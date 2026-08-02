@@ -1,7 +1,5 @@
-using FMODUnity;
-using System.Collections;
 using UnityEngine;
-using Unity.Netcode; 
+using Unity.Netcode;
 
 public class SnipeBubble : BasicBubble
 {
@@ -11,18 +9,21 @@ public class SnipeBubble : BasicBubble
     private float damageScaling = 0f;
     private float maxDamage = 0f;
     private float currentDamage = 0f;
-    
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        base.InitialiseBubble(ID, dir, playerCollider);
+        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
 
         maxDamage = damage;
         currentDamage = minDamage;
-        damageScaling = (maxDamage - minDamage) / damageRampUpDistance;
+
+        damageScaling = damageRampUpDistance > 0f ? ((maxDamage - minDamage) / damageRampUpDistance) : 0f;
     }
 
     protected override void BubbleMovement()
     {
+        if (!IsServer && !isLocalFake) return;
+
         base.BubbleMovement();
 
         if (currentDamage < maxDamage)
@@ -34,35 +35,40 @@ public class SnipeBubble : BasicBubble
 
     public override void BubbleCollision(GameObject other)
     {
-        if (hasPopped || !IsServer) return;
+        if (hasPopped || other == null) return;
+        if (!IsServer && !isLocalFake) return;
 
-        if (other.CompareTag("Player"))
-        {
-            if (currentDamage >= maxDamage)
-                CheckMaxSniperDamageAchievement();
-        }
-        else if (other.CompareTag("Bubble"))
+        if (other.CompareTag("Bubble"))
         {
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
-            if (otherBubble.spellType == SpellType.Snipe)
+            if (otherBubble != null && otherBubble.spellType == SpellType.Snipe)
             {
                 Pop();
                 return;
             }
         }
+     
+        if (other.CompareTag("Player"))
+        {
+            if (currentDamage >= maxDamage)
+            {
+                CheckMaxSniperDamageAchievement();
+            }
+        }
+
         damage = currentDamage;
         base.BubbleCollision(other);
     }
 
-    void CheckMaxSniperDamageAchievement()
+    private void CheckMaxSniperDamageAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID 
-            || !SteamIntegration.instance) return;
-        
-        SteamIntegration steamIntegration = SteamIntegration.instance;
-        steamIntegration.IncrementIntSteamStat(steamIntegration.maxSniperDamageStatID, 
-            (int)maxDamage,
-            steamIntegration.StatThresholds[steamIntegration.maxSniperDamageStatID], 
-            steamIntegration.maxRangeSniperDamageAchievementID);
+        if (!IsServer && !isLocalFake) return;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
+            || !AchievementSaveSystem.instance) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(1, (int)maxDamage);
+        achSaveSystem.IncrementStat(24, (int)maxDamage);
     }
 }

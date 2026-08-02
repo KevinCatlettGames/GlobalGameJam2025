@@ -7,63 +7,80 @@ public class HomingTargeting : MonoBehaviour
 
     public Vector3 GetTargetVector()
     {
-        if (targetsInRange.Count == 0) return Vector3.zero;
- 
-        if(targetsInRange[0] != null)
-        {
-            Vector3 tartetVector = targetsInRange[0].transform.position;
-            tartetVector = tartetVector - transform.position;
-            tartetVector.Normalize();
-            return tartetVector;
-        }
-        else
+        while (targetsInRange.Count > 0 && targetsInRange[0] == null)
         {
             targetsInRange.RemoveAt(0);
         }
-        
-        return Vector3.zero;
+
+        if (targetsInRange.Count == 0) return Vector3.zero;
+
+        Vector3 targetPosition = targetsInRange[0].position;
+        Vector3 targetVector = targetPosition - transform.position;
+        targetVector.Normalize();
+        return targetVector;
     }
+
     private void OnTriggerEnter(Collider other)
     {
+        if (other == null) return;
+
+        if (other.transform.root == transform.root) return;
+
         if (other.CompareTag("Player"))
         {
-            targetsInRange.Add(other.transform);
+            if (!targetsInRange.Contains(other.transform))
+            {
+                targetsInRange.Add(other.transform);
+            }
         }
         else if (other.CompareTag("Bubble"))
         {
             if (other.TryGetComponent<ExplodingBubble>(out ExplodingBubble explodingBubble))
             {
-                targetsInRange.Add(other.transform);
-            }           
+                if (!targetsInRange.Contains(other.transform))
+                {
+                    targetsInRange.Add(other.transform);
+                }
+            }
         }
     }
+
     private void OnTriggerExit(Collider other)
     {
+        if (other == null) return;
+
         if ((other.CompareTag("Player") || other.CompareTag("Bubble")) && targetsInRange.Contains(other.transform))
         {
             targetsInRange.Remove(other.transform);
         }
     }
+
     public void SetTargeting(float radius, Collider playerCollider, int ID)
     {
-        SphereCollider homigCollider = GetComponent<SphereCollider>();
-        if (homigCollider != null)
+        SphereCollider homingCollider = GetComponent<SphereCollider>();
+        if (homingCollider == null) return;
+
+        homingCollider.radius = radius;
+
+        if (GameManager.Instance != null)
         {
             List<PlayerController> team = GameManager.Instance.GetTeam(ID);
             if (team != null)
             {
                 foreach (PlayerController player in team)
                 {
-                    if (player != null)
-                        Physics.IgnoreCollision(homigCollider, player.Controller, true);
+                    if (player != null && player.Controller != null)
+                    {
+                        Physics.IgnoreCollision(homingCollider, player.Controller, true);
+                    }
                 }
-            }
-            else
-            {
-                if (playerCollider != null)
-                    Physics.IgnoreCollision(homigCollider, playerCollider, true);
+                return;
             }
         }
-        homigCollider.radius = radius;
+
+        if (playerCollider != null)
+        {
+            Physics.IgnoreCollision(homingCollider, playerCollider, true);
+        }
     }
 }

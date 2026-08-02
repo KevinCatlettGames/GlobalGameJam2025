@@ -16,42 +16,60 @@ public class Slasher : MonoBehaviour
     {
         if (collider != null)
         {
-            List<PlayerController> team = GameManager.Instance.GetTeam(ID);
-            if (team != null)
+            // --- CLIENT/SERVER TEAM SAFE CHECK ---
+            if (GameManager.Instance != null)
             {
-                foreach (PlayerController player in team)
+                List<PlayerController> team = GameManager.Instance.GetTeam(ID);
+                if (team != null)
                 {
-                    if (player != null)
-                        ignoredColliders.Add(player.Controller);
+                    foreach (PlayerController player in team)
+                    {
+                        if (player != null && player.Controller != null)
+                            ignoredColliders.Add(player.Controller);
+                    }
+                }
+                else
+                {
+                    if (playerCollider != null)
+                        ignoredColliders.Add(playerCollider);
                 }
             }
-            else
+            else if (playerCollider != null)
             {
-                if (playerCollider != null)
-                    ignoredColliders.Add(playerCollider);
+                ignoredColliders.Add(playerCollider);
             }
 
             foreach (Collider col in ignoredColliders)
             {
-                Physics.IgnoreCollision(collider, col);
+                if (col != null)
+                {
+                    Physics.IgnoreCollision(collider, col);
+                }
             }
-        } 
+        }
         inflated = true;
     }
 
     public void OnTriggerEnter(Collider other)
     {
-        if(!inflated)
-            return;
-        if(other.CompareTag("Wall"))
+        if (!inflated || other == null) return;
+
+        // Block processing if the parent script is deactivated or missing
+        if (slasherBubble == null) return;
+
+        if (other.CompareTag("Wall"))
         {
             SpawnPopEffect();
-            slasherParent.SetActive(false);
+            if (slasherParent != null) slasherParent.SetActive(false);
             return;
         }
-        if(other.gameObject != null && !other.isTrigger)
+
+        if (!other.isTrigger)
         {
             SpawnHitEffect();
+
+            // Forwards direction and target to the parent SlashBubble.
+            // Our prediction gates in SlashBubble.SlasherHit will intercept fake hits safely!
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
         }
     }
@@ -61,14 +79,18 @@ public class Slasher : MonoBehaviour
         if (popEffect && !hasPopped)
         {
             hasPopped = true;
-            Instantiate(popEffect, collider.transform.position, Quaternion.identity);
+            Vector3 spawnPos = collider != null ? collider.transform.position : transform.position;
+            Instantiate(popEffect, spawnPos, Quaternion.identity);
         }
     }
 
     public void SpawnHitEffect()
     {
         if (hitEffect)
-            Instantiate(hitEffect, collider.transform.position, Quaternion.identity);
+        {
+            Vector3 spawnPos = collider != null ? collider.transform.position : transform.position;
+            Instantiate(hitEffect, spawnPos, Quaternion.identity);
+        }
     }
 
     private void OnDestroy()

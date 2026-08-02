@@ -2,7 +2,6 @@ using FMODUnity;
 using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
-using static UnityEngine.UI.Image;
 
 public class ZapBubble : BasicBubble
 {
@@ -14,35 +13,77 @@ public class ZapBubble : BasicBubble
     private Vector3 offset;
     [SerializeField] private EventReference zapSoundEvent;
 
-    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider)
+    public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
-        OwnerID = ID;
+        OwnerID.Value = ID;
         direction = dir;
-        offset = transform.position - playerCollider.transform.position;
         this.playerCollider = playerCollider;
-        RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+
+        if (playerCollider != null)
+        {
+            offset = transform.position - playerCollider.transform.position;
+        }
+
+        if (isLocalFake || IsServer)
+        {
+            RuntimeManager.PlayOneShotAttached(soundEvent, gameObject);
+        }
+
         StartCoroutine(ZapCoroutine());
     }
+
     protected override void BubbleMovement()
     {
-        transform.position = playerCollider.transform.position + offset;
+        if (playerCollider != null)
+        {
+            transform.position = playerCollider.transform.position + offset;
+        }
     }
+
     private IEnumerator ZapCoroutine()
     {
-        RuntimeManager.PlayOneShotAttached(zapSoundEvent, gameObject);
+        if (isLocalFake || IsServer)
+        {
+            RuntimeManager.PlayOneShotAttached(zapSoundEvent, gameObject);
+        }
+
         yield return new WaitForSeconds(initialDelay);
+
         for (int i = 0; i < zaps; i++)
         {
-            GameObject bubbleObj = Instantiate(bubblePrefab, transform.position, Quaternion.LookRotation(direction));
-            NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-            if (netObj != null)
-                netObj.Spawn();
+            if (bubblePrefab == null) yield break;
 
+            GameObject bubbleObj = Instantiate(bubblePrefab, transform.position, Quaternion.LookRotation(direction));
             BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
-            bubbleScript.InitialiseBubble(OwnerID, direction, playerCollider);
-            
+
+            if (isLocalFake)
+            {
+                if (bubbleObj.TryGetComponent<NetworkObject>(out var netObj))
+                {
+                    Destroy(netObj);
+                }
+
+
+                if (bubbleScript != null)
+                {
+                    bubbleScript.isLocalFake = true;
+
+                }
+            }
+            else if (IsServer)
+            {
+                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
+                if (netObj != null) netObj.Spawn();
+            }
+
+            if (bubbleScript != null)
+            {
+                bubbleScript.InitialiseBubble(OwnerID.Value, direction, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
+            }
+
             yield return new WaitForSeconds(delayBetweenZaps);
         }
+
         Pop();
     }
 }

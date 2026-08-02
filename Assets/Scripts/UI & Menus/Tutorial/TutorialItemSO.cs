@@ -1,17 +1,25 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Video;
-using UnityEngine.UI; 
+using UnityEngine.UI;
+using UnityEngine.Localization; 
 
 [CreateAssetMenu(fileName = "New Tutorial ItemSO", menuName = "Scriptable Objects/SO_TutorialItem")]
 public class TutorialItemSO : ScriptableObject
 {
     [Header("Video")]
-    [SerializeField] private VideoClip itemClip;
-    public VideoClip ItemClip
+    [SerializeField] private VideoClip windowsClip;
+    public VideoClip WindowsClip
     {
-        get => itemClip;
-        set => itemClip = value;
+        get => windowsClip;
+        set => windowsClip = value;
+    }
+
+    [SerializeField] private VideoClip linuxClip;
+    public VideoClip LinuxClip
+    {
+        get => linuxClip;
+        set => linuxClip = value;
     }
 
     [SerializeField] private Color clipOutlineColor;
@@ -89,6 +97,14 @@ public class TutorialItemSO : ScriptableObject
         get => itemDescription;
         set => itemDescription = value;
     }
+
+    [SerializeField] private LocalizedString itemDescriptionLocalizedString;
+    public LocalizedString ItemDescriptionLocalizedString
+    {
+        get => itemDescriptionLocalizedString;
+        set => itemDescriptionLocalizedString = value;
+    }
+
 
     [Header("Settings")]
     [SerializeField] private bool useButton;

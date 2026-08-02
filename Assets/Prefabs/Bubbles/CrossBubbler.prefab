@@ -184,15 +184,15 @@ MonoBehaviour:
   SyncScaleX: 1
   SyncScaleY: 1
   SyncScaleZ: 1
-  PositionThreshold: 0.001
-  RotAngleThreshold: 0.01
-  ScaleThreshold: 0.01
+  PositionThreshold: 0.05
+  RotAngleThreshold: 2
+  ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
   UseHalfFloatPrecision: 0
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 1
+  Interpolate: 0
   SlerpPosition: 0
 --- !u!114 &325368298175758438
 MonoBehaviour:
@@ -226,9 +226,20 @@ MonoBehaviour:
       Data3: -1059374198
       Data4: 1862568052
     Path: event:/sfx/spells/basic_spell
+  isLocalFake: 0
+  syncedCastID:
+    m_InternalValue: 0
+  serverBubbleTarget: {fileID: 0}
+  visualChildMesh: {fileID: 0}
+  visualBlendSpeed: 15
+  isMeshHiddenForOwner: 0
+  catchUpTime: 0.2
+  maxTrackingDuration: 0.35
   crossPointOffset: 10
   sideOffset: 5
   crossBubble: {fileID: 449082112856618060, guid: 508021dbc3ed7234c8a10aeb29b224b1,
+    type: 3}
+  fakeCrossBubble: {fileID: 5642596509045499791, guid: 9cb07e4a7bb1bd24e8d05c2aa1e3b799,
     type: 3}
 --- !u!1 &3866570355573510464
 GameObject:

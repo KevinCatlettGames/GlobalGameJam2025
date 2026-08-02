@@ -59,6 +59,7 @@ public class PlayerStateHandler : MonoBehaviour
 
         LooseLife();
 
+        TargetGroupManager.Instance.RemoveFromGroup(transform);
         playerController.Die();
         Invoke(nameof(DisablePlayer), 2f);
     }

@@ -233,26 +233,11 @@ public class MatchSettingsSelection : NetworkBehaviour
     {
         if (!tabTogglingEnabled) return;
 
-        if (!SteamIntegration.instance.IsFullVersion)
-        {
-            switch (currentTab)
-            {
-                case Tab.General:
-                    currentTab = Tab.Spells;
-                        break;
-                case Tab.Spells:
-                    currentTab = Tab.General;
-                    break;
-            }
-        }
-        else
-        {
-            currentTab = forward
-            ? (currentTab == Tab.General ? Tab.Spells :
-               currentTab == Tab.Spells ? Tab.Maps : Tab.General)
-            : (currentTab == Tab.General ? Tab.Maps :
-               currentTab == Tab.Maps ? Tab.Spells : Tab.General);
-        }
+        currentTab = forward
+        ? (currentTab == Tab.General ? Tab.Spells :
+           currentTab == Tab.Spells ? Tab.Maps : Tab.General)
+        : (currentTab == Tab.General ? Tab.Maps :
+           currentTab == Tab.Maps ? Tab.Spells : Tab.General);
 
         SetTab(currentTab);
     }

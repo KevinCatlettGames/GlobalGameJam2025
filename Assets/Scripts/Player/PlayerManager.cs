@@ -31,6 +31,7 @@ public class PlayerManager : NetworkBehaviour
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
 
+    private bool dropInJoin = false;
     
     private void Awake()
     {
@@ -48,7 +49,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        countdown.onCountdownComplete.AddListener(StartPlayerJoining);
+        countdown.OnCountdownStart.AddListener(StartPlayerJoining);
     }
 
     private void OnDisable()
@@ -59,7 +60,7 @@ public class PlayerManager : NetworkBehaviour
 
     public void StartPlayerJoining()
     {
-      Invoke(nameof(StartPlayerJoiningMethod), .5f);
+      Invoke(nameof(StartPlayerJoiningMethod), .1f);
     }
 
     void StartPlayerJoiningMethod()
@@ -72,6 +73,7 @@ public class PlayerManager : NetworkBehaviour
             {
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
+                dropInJoin = true;
             }
 
             playerInputManager.enabled = true;
@@ -201,7 +203,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -209,6 +211,8 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
+
+        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     public void OnPlayerJoined(PlayerInput input)
@@ -235,7 +239,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -243,6 +247,8 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
+
+        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -283,7 +289,7 @@ public class PlayerManager : NetworkBehaviour
             foreach (var player in localPlayers)
             {
                 ResetPlayerComponents(player);
-                if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
+                if (LobbyManager.instance && LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.IndividualRandom)
                     RerollSpells();
             }
         }
@@ -318,7 +324,7 @@ public class PlayerManager : NetworkBehaviour
     private void RerollSpells()
     {
         if (!IsServer && !GameManager.Instance.PlayingLocal) return;
-        if (LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.SharedCustom)
+        if (LobbyManager.instance && LobbyManager.instance.selectedLoadoutType == LoadoutSelection.LoadOutType.SharedCustom)
         {
             syncedFirstSpellIndex.Value = LobbyManager.instance.selectedLeftSpellIndex;
             syncedSecondSpellIndex.Value = LobbyManager.instance.selectedRightSpellIndex;
@@ -326,15 +332,23 @@ public class PlayerManager : NetworkBehaviour
         }
 
         List<int> legalSpells = new List<int>();
+        bool isFullVersion = true;
+
+        if (SteamIntegration.instance)
+            isFullVersion = SteamIntegration.instance.IsFullVersion;
+
         for (int i = 0; i < ItemSpawner.Instance.GetSpellCount(); i++)
         {
-            if (ItemSpawner.Instance.SpawnableItems[i].CanUse)
+            var item = ItemSpawner.Instance.SpawnableItems[i];
+
+            if (item.CanUse && (isFullVersion || item.AvailableInDemo))
             {
                 legalSpells.Add(i);
             }
         }
-        syncedFirstSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
-        syncedSecondSpellIndex.Value = UnityEngine.Random.Range(0, ItemSpawner.Instance.SpawnableItems.Length);
+
+        syncedFirstSpellIndex.Value = legalSpells[UnityEngine.Random.Range(0, legalSpells.Count)];
+        syncedSecondSpellIndex.Value = legalSpells[UnityEngine.Random.Range(0, legalSpells.Count)];
     }
 
 
@@ -360,42 +374,60 @@ public class PlayerManager : NetworkBehaviour
             playerHUDs[playerID].InitialisePlayerHUD(playerID);
 
             if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
-                ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.GameSprites[0], LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.Color);
+                ScoreManager.Instance.InitialiseScorePanel(playerID, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.HeadSprites[0], LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.Color);
             else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
                 ScoreManager.Instance.InitialiseTeamScorePanel(GameManager.Instance.TeamIDs[playerID], playerID);
         }
         else
         {
-            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            Debug.Log("PlayerManager: THERE IS NO LOBBY MANAGER! DEATH TO ALL");
         }
     }
 
     public void ResetPlayerPosition(int playerID)
     {
+        if (playerID < 0 || playerID >= spawnPoints.Length) return;
+
+        Vector3 targetPos = spawnPoints[playerID].position;
+        Quaternion targetRot = spawnPoints[playerID].rotation;
+
         if (GameManager.Instance.PlayingLocal)
         {
-            if (playerID < localPlayers.Count)
+            if (playerID < localPlayers.Count && localPlayers[playerID] != null)
             {
                 var localPlayer = localPlayers[playerID];
-                localPlayer.transform.position = spawnPoints[playerID].position;
-                localPlayer.transform.rotation = spawnPoints[playerID].rotation;
+                if (localPlayer.TryGetComponent<PlayerController>(out var playerController))
+                {
+                    playerController.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    localPlayer.transform.SetPositionAndRotation(targetPos, targetRot);
+                }
+
+                TargetGroupManager.Instance?.AddToGroup(localPlayer.transform);
             }
         }
         else
         {
-            if (playerID >= players.Count)
-            {
-                return;
-            }
+            if (playerID >= players.Count) return;
 
             if (players[playerID].TryGet(out NetworkObject networkObject))
             {
                 var playerGameObject = networkObject.gameObject;
-                playerGameObject.transform.position = spawnPoints[playerID].position;
-                playerGameObject.transform.rotation = spawnPoints[playerID].rotation;
+
+                if (playerGameObject.TryGetComponent<PlayerController>(out var playerController))
+                {
+                    playerController.Teleport(targetPos, targetRot);
+                }
+                else
+                {
+                    playerGameObject.transform.SetPositionAndRotation(targetPos, targetRot);
+                }
+
+                TargetGroupManager.Instance?.AddToGroup(playerGameObject.transform);
             }
         }
     }
-
     #endregion
 }

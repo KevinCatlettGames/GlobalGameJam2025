@@ -1,6 +1,4 @@
-using Steamworks;
 using UnityEngine;
-using UnityEngine.InputSystem.XR;
 
 public class DummyController : PlayerController
 {
@@ -14,7 +12,7 @@ public class DummyController : PlayerController
 
     private void Start()
     {
-        SetUpPlayer(1, dummyPlayerHUD, null, skin);
+        SetUpPlayer(1, dummyPlayerHUD, null, skin, true);
         controller = GetComponent<CharacterController>();
         SetSpells(0, 0);
         isUsingGamepad = true;
@@ -48,4 +46,5 @@ public class DummyController : PlayerController
         base.Update();
     }
 
+    
 }

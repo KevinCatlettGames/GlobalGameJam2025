@@ -5,6 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using FMODUnity;
+using UnityEngine.Events;
 
 public class Settings : MonoBehaviour
 {
@@ -83,6 +84,7 @@ public class Settings : MonoBehaviour
     [SerializeField] private Button resetButton;
     [SerializeField] private Button backButton;
     [SerializeField] private StudioEventEmitter emitter;
+    public UnityEvent OnBackPressed; 
     #endregion
 
     public enum Tab { Video, Audio, Game }
@@ -270,7 +272,10 @@ public class Settings : MonoBehaviour
 
     private void ExitSettings(InputAction.CallbackContext obj)
     {
-        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return; 
+#if !UNITY_SWITCH
+        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return;
+#endif
+        OnBackPressed?.Invoke();
         backButton.onClick?.Invoke();
     }
 
@@ -278,6 +283,10 @@ public class Settings : MonoBehaviour
     {
         if (!useGameTab && tab == Tab.Game)
             tab = Tab.Video;
+
+#if UNITY_SWITCH
+        tab = Tab.Audio; 
+#endif 
 
         currentTab = tab;
 
@@ -355,10 +364,17 @@ public class Settings : MonoBehaviour
         switch (tab)
         {
             case Tab.Video:
+#if UNITY_SWITCH
+                newApplyNav.selectOnUp = videoButton;
+                newResetNav.selectOnUp = videoButton;
+                newVideoNav.selectOnDown = resetButton;
+                newAudioNav.selectOnDown = applyButton;
+#else
                 newApplyNav.selectOnUp = graphicsQualityDropdown;
                 newResetNav.selectOnUp = graphicsQualityDropdown;
                 newVideoNav.selectOnDown = fullScreenToggle;
                 newAudioNav.selectOnDown = fullScreenToggle;
+#endif
                 break;
             case Tab.Audio:
                 newApplyNav.selectOnUp = musicSlider;
@@ -460,7 +476,7 @@ public class Settings : MonoBehaviour
         PlayerPrefs.SetInt("ResolutionLevel", pendingResolution);
         PlayerPrefs.SetInt("QualityLevel", pendingQuality);
 
-        PlayerPrefs.Save();
+        SaveManager.Save();
 
         EventSystem.current.SetSelectedGameObject(resetButton.gameObject);
         UpdateApplyButton();
