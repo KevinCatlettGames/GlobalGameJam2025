@@ -36,6 +36,7 @@ public class TargetGroupManager : MonoBehaviour
     private float targetSize = 0f;
     private float minStep = 0f;
     private float maxStep = 0f;
+    private Vector3 velocity = Vector3.zero;
 
     private void Awake()
     {
@@ -79,10 +80,8 @@ public class TargetGroupManager : MonoBehaviour
         {
             followPosition = Vector3.zero;
         }
-        //Debug.DrawLine(Vector3.zero, bounds.center, Color.red);
-        //Debug.DrawLine(Vector3.zero, followPosition, Color.green);
         targetPosition = followPosition + defaultPosition;
-        transform.position = Vector3.Lerp(transform.position, targetPosition, Time.deltaTime * panSpeed);
+        transform.position = Vector3.SmoothDamp(transform.position, targetPosition, ref velocity, panSpeed);
     }
     private void Zoom(Bounds bounds)
     {

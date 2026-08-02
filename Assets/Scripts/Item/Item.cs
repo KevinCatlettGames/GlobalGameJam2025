@@ -70,9 +70,11 @@ public class Item : NetworkBehaviour
     {
         yield return new WaitForEndOfFrame();
 
-        StopAllCoroutines();
-        if(!disableDespawn)
+        if (!disableDespawn)
+        {
+            StopAllCoroutines();
             ItemSpawner.Instance.currentAmount--;
+        }
         if (pickUpEffect != null) 
             Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         PlayPickupSoundServerRpc();
@@ -86,18 +88,14 @@ public class Item : NetworkBehaviour
             List<Transform> children = new List<Transform>();
             foreach (Transform child in transform)
             {
-                Debug.Log(child.name);
                 children.Add(child);
                 child.gameObject.SetActive(false);
             }
             SphereCollider sphereCollider = GetComponent<SphereCollider>();
             sphereCollider.enabled = false;
-            Debug.Log("Disabled");
-            yield return new WaitForSeconds(0.1f);
-            Debug.Log("Disabled no more");
+            yield return new WaitForSeconds(0.5f);
             foreach (Transform child in children)
             {
-                Debug.Log(child.name);
                 child.gameObject.SetActive(true);
             }
             sphereCollider.enabled = true;
