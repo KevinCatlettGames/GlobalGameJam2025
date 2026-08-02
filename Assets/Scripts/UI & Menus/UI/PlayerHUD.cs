@@ -52,12 +52,14 @@ public class PlayerHUD : NetworkBehaviour
 
     [Header("GameSettings")]
     [SerializeField] private SO_GameSettings gameSettings;
+    [SerializeField] private bool isDummy = false;
 
     private int lifes = 0;
     private int maxLifes = 0;
 
     private void Start()
     {
+        if (isDummy) return;
         firstCoverImage.fillAmount = firstCoverFill;
         secondCoverImage.fillAmount = secondCoverFill;
         if (gameSettings != null)
@@ -75,6 +77,7 @@ public class PlayerHUD : NetworkBehaviour
 
     private void Update()
     {
+        if (isDummy) return;
         if (firstCoverFill > 0f)
         {
             firstCoverFill -= firstCDRate * Time.deltaTime;
@@ -97,6 +100,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void InitialisePlayerHUD(int playerID)
     {
+        if (isDummy) return;
         skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
 
         if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
@@ -123,6 +127,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void InitialisePlayerHUD(SkinSO skin)
     {
+        if (isDummy) return;
         foreach (var uiElement in coloredUI)
         {
             uiElement.color = skin.Color;
@@ -133,6 +138,7 @@ public class PlayerHUD : NetworkBehaviour
 
     public void SetSpell(int spellID, Sprite spellImage, Sprite spellUsedImage)
     {
+        if (isDummy) return;
         switch (spellID)
         {
             case 1:
@@ -156,6 +162,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void SetSpellCooldown(int spellID, float cooldownRate)
     {
+        if (isDummy) return;
         switch (spellID)
         {
             case 1:
@@ -175,6 +182,7 @@ public class PlayerHUD : NetworkBehaviour
     }
     public void AnimateSpellIcon(int spellID)
     {
+        if (isDummy) return;
         switch (spellID)
         {
             case 1:
@@ -225,7 +233,7 @@ public class PlayerHUD : NetworkBehaviour
         }
     }
 
-    public void UpdateDamageText(int damage)
+    public virtual void UpdateDamageText(int damage)
     {
         if (damageText != null)
         {
@@ -238,7 +246,7 @@ public class PlayerHUD : NetworkBehaviour
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
             damageTypewriter.enabled = true;
         }
-        if (damage >= highDamageThreshold && currentPortraitIndex != 2)
+        if (damage >= highDamageThreshold && currentPortraitIndex != 2 && !isDummy)
         {
             SetPortrait(1);
             highDamageIndicator.SetBool("hasHighDamage", true);
@@ -247,6 +255,7 @@ public class PlayerHUD : NetworkBehaviour
 
     public void DisplayDeath()
     {
+        if (isDummy) return;
         SetPortrait(2);
         UICover.SetActive(true);
         highDamageIndicator.SetBool("hasHighDamage", false);
@@ -259,6 +268,7 @@ public class PlayerHUD : NetworkBehaviour
 
     private void ResetLifes()
     {
+        if (isDummy) return;
         if (maxLifes == -1) return;
         lifes = maxLifes;
         lifesTypewriter.ShowText("x" + lifes.ToString());
@@ -266,6 +276,12 @@ public class PlayerHUD : NetworkBehaviour
 
     public void ResetHUD()
     {
+        if (isDummy)
+        {
+            damageTypewriter.enabled = false;
+            UpdateDamageText(0);
+            return;
+        }
         portrait.color = Color.white;
         UICover.SetActive(false);
         damageTypewriter.enabled = false;
@@ -278,6 +294,7 @@ public class PlayerHUD : NetworkBehaviour
 
     private void SetPortrait(int portaritIndex)
     {
+        if (isDummy) return;
         if (portaritIndex == currentPortraitIndex || portaritIndex < 0 || portaritIndex >= portraitSprites.Length) return;
         currentPortraitIndex = portaritIndex;
         portrait.sprite = portraitSprites[currentPortraitIndex];
@@ -292,6 +309,7 @@ public class PlayerHUD : NetworkBehaviour
 
     public void ChargeUlt(bool isCharged)
     {
+        if (isDummy) return;
         Color color = isCharged ? Color.yellow : Color.white;
         firstSpellImage.color = color;
         secondSpellImage.color = color;

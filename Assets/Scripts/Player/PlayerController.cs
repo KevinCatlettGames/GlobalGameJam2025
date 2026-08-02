@@ -1340,7 +1340,7 @@ public class PlayerController : NetworkBehaviour
         }
 
         shaderManager?.SetShaderState(ShaderState.inked, isSlowed);  
-        dashDisabledUI.SetActive(isSlowed);
+        dashDisabledUI?.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
@@ -1444,7 +1444,7 @@ public class PlayerController : NetworkBehaviour
         isSlippery = false;
         slowCounter = 0;
         isSlowed = false;
-        dashDisabledUI.SetActive(false);
+        dashDisabledUI?.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
