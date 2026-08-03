@@ -23,6 +23,7 @@ public class Item : NetworkBehaviour
     [SerializeField] private Material itemMaterial;
     [SerializeField] private bool disableDespawn = false;
     [SerializeField] private float disableTime = .5f;
+    [SerializeField] private List<GameObject> visuals;
     
     private Material spellMaterial;
 
@@ -85,18 +86,16 @@ public class Item : NetworkBehaviour
         }
         else
         {
-            List<Transform> children = new List<Transform>();
-            foreach (Transform child in transform)
+            foreach (GameObject visual in visuals)
             {
-                children.Add(child);
-                child.gameObject.SetActive(false);
+                visual.SetActive(false);
             }
             SphereCollider sphereCollider = GetComponent<SphereCollider>();
             sphereCollider.enabled = false;
-            yield return new WaitForSeconds(0.5f);
-            foreach (Transform child in children)
+            yield return new WaitForSeconds(disableTime);
+            foreach (GameObject visual in visuals)
             {
-                child.gameObject.SetActive(true);
+                visual.SetActive(true);
             }
             sphereCollider.enabled = true;
         }
