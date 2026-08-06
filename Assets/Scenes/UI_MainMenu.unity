@@ -11078,6 +11078,7 @@ GameObject:
   - component: {fileID: 193895447}
   - component: {fileID: 193895452}
   - component: {fileID: 193895453}
+  - component: {fileID: 193895454}
   m_Layer: 5
   m_Name: TutorialButton
   m_TagString: Untagged
@@ -11365,6 +11366,37 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &193895454
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 193895444}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 193895445}
+  outPos: -1089
+  inPos: -532
+  transitionDuration: 1.2
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &195479894
 GameObject:
   m_ObjectHideFlags: 0
@@ -12662,15 +12694,15 @@ RectTransform:
   m_GameObject: {fileID: 337769121}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6999998, y: 1.229696, z: 2.0077}
+  m_LocalScale: {x: 1.6999997, y: 1.229696, z: 2.0076997}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1713028310}
-  m_Father: {fileID: 2036281434}
+  m_Father: {fileID: 1958693613}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -445, y: -307}
+  m_AnchoredPosition: {x: 126.99994, y: -57.00003}
   m_SizeDelta: {x: 196.4, y: 89.9922}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &337769123
@@ -15521,6 +15553,7 @@ GameObject:
   - component: {fileID: 623553322}
   - component: {fileID: 623553323}
   - component: {fileID: 623553324}
+  - component: {fileID: 623553325}
   m_Layer: 0
   m_Name: -----MENUS-----
   m_TagString: Untagged
@@ -15631,6 +15664,18 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &623553325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 623553318}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 27a266b18822a17479c4cff3160af85b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &646593953
 GameObject:
   m_ObjectHideFlags: 0
@@ -15737,6 +15782,7 @@ GameObject:
   - component: {fileID: 654910477}
   - component: {fileID: 654910482}
   - component: {fileID: 654910483}
+  - component: {fileID: 654910484}
   m_Layer: 5
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -16036,6 +16082,37 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &654910484
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 654910474}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 654910475}
+  outPos: -1139
+  inPos: -399
+  transitionDuration: 1.4
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &655868530
 GameObject:
   m_ObjectHideFlags: 0
@@ -20443,9 +20520,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 254901045}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0}
-  m_AnchorMax: {x: 1, y: 0}
-  m_AnchoredPosition: {x: -80.06299, y: 111.3938}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 879.937, y: -428.6062}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1087584534
@@ -20516,6 +20593,7 @@ GameObject:
   - component: {fileID: 1093694725}
   - component: {fileID: 1093694724}
   - component: {fileID: 1093694726}
+  - component: {fileID: 1093694727}
   m_Layer: 5
   m_Name: URLButtonExample
   m_TagString: Untagged
@@ -20753,6 +20831,37 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9d00a3ee64485f34794a5d4e95c5bbd1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1093694727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1093694718}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 1093694719}
+  outPos: -1256
+  inPos: -866
+  transitionDuration: 1.6
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1106787201
 GameObject:
   m_ObjectHideFlags: 0
@@ -20936,6 +21045,7 @@ GameObject:
   - component: {fileID: 1197028531}
   - component: {fileID: 1197028532}
   - component: {fileID: 1197028533}
+  - component: {fileID: 1197028534}
   m_Layer: 5
   m_Name: WishlistText
   m_TagString: Untagged
@@ -20957,10 +21067,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 104076868}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: -693, y: -419}
-  m_SizeDelta: {x: -1651.3533, y: -1000.6987}
+  m_SizeDelta: {x: 268.64673, y: 79.30127}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1197028529
 MonoBehaviour:
@@ -21069,7 +21179,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1197028527}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a9faaa90988777d49aa9feed45df6aff, type: 3}
   m_Name: 
@@ -21130,6 +21240,73 @@ MonoBehaviour:
   references:
     version: 2
     RefIds: []
+--- !u!114 &1197028534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1197028527}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 1197028528}
+  outPos: -1086
+  inPos: -693
+  transitionDuration: 1.6
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1197028531}
+        m_TargetAssemblyTypeName: UIOscillator, Assembly-CSharp
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1197028531}
+        m_TargetAssemblyTypeName: UIOscillator, Assembly-CSharp
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1197028531}
+        m_TargetAssemblyTypeName: UIOscillator, Assembly-CSharp
+        m_MethodName: set_enabled
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1219954184
 GameObject:
   m_ObjectHideFlags: 0
@@ -21538,6 +21715,7 @@ GameObject:
   - component: {fileID: 1245621547}
   - component: {fileID: 1245621544}
   - component: {fileID: 1245621551}
+  - component: {fileID: 1245621552}
   m_Layer: 5
   m_Name: BackButton
   m_TagString: Untagged
@@ -21801,6 +21979,37 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 0
+--- !u!114 &1245621552
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245621542}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 1245621543}
+  outPos: -1139
+  inPos: -399
+  transitionDuration: 1.4
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1248137701
 GameObject:
   m_ObjectHideFlags: 0
@@ -22571,15 +22780,15 @@ RectTransform:
   m_GameObject: {fileID: 1371504810}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.6999998, y: 1.229696, z: 2.0077}
+  m_LocalScale: {x: 1.6999997, y: 1.229696, z: 2.0076997}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1965383934}
-  m_Father: {fileID: 2036281434}
+  m_Father: {fileID: 1958693613}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -681, y: -301}
+  m_AnchoredPosition: {x: -109, y: -57.00003}
   m_SizeDelta: {x: 196.4, y: 89.9922}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1371504812
@@ -25003,6 +25212,7 @@ GameObject:
   - component: {fileID: 1587543311}
   - component: {fileID: 1587543319}
   - component: {fileID: 1587543320}
+  - component: {fileID: 1587543321}
   m_Layer: 5
   m_Name: PlayButton
   m_TagString: Untagged
@@ -25302,6 +25512,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a4da923cadad849987b66cbd1373ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  switchControllerSupport: {fileID: 623553325}
+  localOnlineMenu: {fileID: 1615264941}
+--- !u!114 &1587543321
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1587543309}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 1587543310}
+  outPos: -1039
+  inPos: -682
+  transitionDuration: 1
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1596318190
 GameObject:
   m_ObjectHideFlags: 0
@@ -26265,15 +26508,15 @@ RectTransform:
   m_GameObject: {fileID: 1659925084}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1.139, y: 1.1355929, z: 1.1355928}
+  m_LocalScale: {x: 1.139, y: 1.1355928, z: 1.1355927}
   m_ConstrainProportionsScale: 1
   m_Children: []
-  m_Father: {fileID: 2036281434}
+  m_Father: {fileID: 1958693613}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -567, y: -186}
-  m_SizeDelta: {x: -1650.6725, y: -979.98}
+  m_AnchoredPosition: {x: 9.4, y: 40.6}
+  m_SizeDelta: {x: 169.32751, y: 0.4671631}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1659925086
 MonoBehaviour:
@@ -26297,8 +26540,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: End Game?
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 59282db43a7a99a44a77e07f76adf7bd, type: 2}
-  m_sharedMaterial: {fileID: -6774773588759338174, guid: 59282db43a7a99a44a77e07f76adf7bd,
+  m_fontAsset: {fileID: 11400000, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9, type: 2}
+  m_sharedMaterial: {fileID: 3287235692911558904, guid: 5801bfaad75d1eb4c8be9f3780dcb2a9,
     type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
@@ -27956,6 +28199,76 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1948142500}
   m_CullTransparentMesh: 1
+--- !u!1 &1958693612
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1958693613}
+  - component: {fileID: 1958693614}
+  m_Layer: 5
+  m_Name: ElementParent
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1958693613
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958693612}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1659925085}
+  - {fileID: 1371504811}
+  - {fileID: 337769122}
+  m_Father: {fileID: 2036281434}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -572, y: -250}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1958693614
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1958693612}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 1958693613}
+  outPos: -1149
+  inPos: -572
+  transitionDuration: 1
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &1960280804
 GameObject:
   m_ObjectHideFlags: 0
@@ -29002,9 +29315,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1659925085}
-  - {fileID: 1371504811}
-  - {fileID: 337769122}
+  - {fileID: 1958693613}
   m_Father: {fileID: 1518323749}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -29248,6 +29559,7 @@ GameObject:
   - component: {fileID: 2064813739}
   - component: {fileID: 2064813744}
   - component: {fileID: 2064813745}
+  - component: {fileID: 2064813746}
   m_Layer: 5
   m_Name: LocalButton
   m_TagString: Untagged
@@ -29499,6 +29811,37 @@ MonoBehaviour:
   normalFontSize: 45
   selectedFontSize: 60
   forceSelectOnEnable: 1
+--- !u!114 &2064813746
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2064813736}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 2064813737}
+  outPos: -1039
+  inPos: -682
+  transitionDuration: 1
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &2069642203
 GameObject:
   m_ObjectHideFlags: 0
@@ -29844,6 +30187,7 @@ GameObject:
   - component: {fileID: 2124460585}
   - component: {fileID: 2124460586}
   - component: {fileID: 2124460587}
+  - component: {fileID: 2124460588}
   m_Layer: 5
   m_Name: OnlineButton
   m_TagString: Untagged
@@ -30161,6 +30505,37 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnOffIfToggle: 1
   OnInteractionDisabled:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &2124460588
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2124460576}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 2124460577}
+  outPos: -1089
+  inPos: -532
+  transitionDuration: 1.2
+  doYPosTransition: 0
+  doXPosTransition: 1
+  introOnEnable: 1
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
     m_PersistentCalls:
       m_Calls: []
 --- !u!1 &2126803317 stripped

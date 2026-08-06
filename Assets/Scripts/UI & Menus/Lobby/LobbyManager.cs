@@ -214,13 +214,24 @@ public class LobbyManager : NetworkBehaviour
         }
 
         ChangeStartButtonState(false);
-#if !UNITY_SWITCH
+
         if (!TransportSwitcher.Instance.isUsingRelay)
         {
+#if UNITY_SWITCH
+            Debug.Log(InputSystem.devices.Count);
+            for(int i = 0; i <= InputSystem.devices.Count; i++)
+            {
+                if (i == 0) continue;
+                Debug.Log(InputSystem.devices[i].name);
+                PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: i, controlScheme: null, pairWithDevice: InputSystem.devices[i]);
+            }
+#else
+            Debug.Log(InputSystem.devices.Count);
             foreach (var device in InputSystem.devices)
             {
                 PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
             }
+#endif
         }
         else if (IsServer)
         {
@@ -228,12 +239,6 @@ public class LobbyManager : NetworkBehaviour
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
             GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
         }
-#else
-        foreach (var device in InputSystem.devices)
-        {        
-            PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
-        }
-#endif
     }
 
     private void OnEnable()
@@ -279,6 +284,9 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
+#if UNITY_SWITCH
+        return;
+#endif
         switch (change)
         {
             case InputDeviceChange.Added:

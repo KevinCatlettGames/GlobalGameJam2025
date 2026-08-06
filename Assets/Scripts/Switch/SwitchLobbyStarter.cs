@@ -3,6 +3,8 @@ using UnityEngine.UI;
 
 public class SwitchLobbyStarter : MonoBehaviour
 {
+    public SwitchControllerSupport switchControllerSupport; 
+
 #if UNITY_SWITCH
     Button button;
     public GameObject localOnlineMenu;
@@ -15,7 +17,7 @@ public class SwitchLobbyStarter : MonoBehaviour
     void StartSwitchLobby()
     {
         localOnlineMenu.SetActive(false);
-        MainMenuLobbyCreator.Instance.StartSceneLocal("UI_Lobby");
+        switchControllerSupport.ToggleCanShowApplet();
     }
 #endif 
 }

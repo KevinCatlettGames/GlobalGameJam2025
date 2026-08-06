@@ -1,4 +1,6 @@
+#if !UNITY_SWITCH
 using Steamworks;
+#endif
 using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +11,7 @@ public class PlayerProfileDisplay : MonoBehaviour
     [SerializeField] private RawImage avatarDisplay;
     public Texture2D cachedAvatar;
     [SerializeField] bool showOnEnable;
-
+#if !UNITY_SWITCH
     public async void ShowSteamAvatarBySteamID(ulong steamID)
     {
         if (!TransportSwitcher.Instance.isUsingRelay || !SteamClient.IsValid) return;
@@ -47,4 +49,5 @@ public class PlayerProfileDisplay : MonoBehaviour
             Destroy(cachedAvatar);
         }
     }
+#endif
 }

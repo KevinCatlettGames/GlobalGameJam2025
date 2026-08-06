@@ -119,10 +119,12 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (IsOwner)
         {
             anyButtonListener = InputSystem.onEvent.Call(OnInputEventReceived);
+#if !UNITY_SWITCH
             if (Steamworks.SteamClient.IsValid)
             {
                 networkSteamId.Value = Steamworks.SteamClient.SteamId;
             }
+#endif
             ownerClientID.Value = NetworkManager.Singleton.LocalClientId;
 
             // FIX: Trigger joining for any client owner when spawned on relay networks
@@ -135,6 +137,9 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     private void OnInputEventReceived(InputEventPtr eventPtr)
     {
+#if UNITY_SWITCH
+        return;
+#endif
         if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
             return;
 
@@ -200,6 +205,8 @@ public class LobbyPlayerInput : NetworkBehaviour
             else
             {
                 playerIndex.Value = containerManager.uiIndex;
+                Debug.Log(playerIndex.Value);
+                //Debug.Log(playerInput.devices[0].name);
                 if (!TransportSwitcher.Instance.isUsingRelay)
                     containerManager.occupied = true;
                 else

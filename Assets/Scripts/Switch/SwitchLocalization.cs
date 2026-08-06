@@ -15,16 +15,16 @@ public class SwitchLocalization : MonoBehaviour
         switch (desiredLanguage)
         {
             case "de":
-                LocaleSelector.Instance.ChangeLocale(1);
-                break;
-            case "es":
                 LocaleSelector.Instance.ChangeLocale(2);
                 break;
+            case "es":
+                LocaleSelector.Instance.ChangeLocale(6);
+                break;
             case "fr":
-                LocaleSelector.Instance.ChangeLocale(3);
+                LocaleSelector.Instance.ChangeLocale(1);
                 break;
             case "it":
-                LocaleSelector.Instance.ChangeLocale(4);
+                LocaleSelector.Instance.ChangeLocale(3);
                 break;
             case "pt":
                 LocaleSelector.Instance.ChangeLocale(5);

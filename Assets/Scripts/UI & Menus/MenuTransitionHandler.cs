@@ -70,9 +70,8 @@ public class MenuTransitionHandler : MonoBehaviour
         if (fadeIsOn)
         {
             fadeIsOn = false; 
-
-            if (!TransportSwitcher.Instance || !TransportSwitcher.Instance.isUsingRelay)
-                StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
+            
+            StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
         }
     }
 }
