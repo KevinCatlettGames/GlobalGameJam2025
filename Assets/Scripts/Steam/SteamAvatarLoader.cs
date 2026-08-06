@@ -1,11 +1,14 @@
 using System;
 using System.Threading.Tasks;
 using UnityEngine;
+#if !UNITY_SWITCH
 using Steamworks;
 using Steamworks.Data;
+#endif 
 
 public static class SteamAvatarLoader
 {
+#if !UNITY_SWITCH
     public static async Task<Steamworks.Data.Image?> GetSteamAvatarAsync()
     {
         try
@@ -71,4 +74,5 @@ public static class SteamAvatarLoader
         avatarTexture.Apply();
         return avatarTexture;
     }
+#endif
 }

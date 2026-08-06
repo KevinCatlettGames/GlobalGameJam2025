@@ -7,6 +7,7 @@ using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 [RequireComponent(typeof(CharacterController))]
@@ -1651,7 +1652,7 @@ public class PlayerController : NetworkBehaviour
         }
         
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
         
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(25, 1);
@@ -1687,7 +1688,7 @@ public class PlayerController : NetworkBehaviour
             if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
 
             bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer) continue;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5) continue;
 
             if (bubble.HasPopped || !isSprinting) continue;
         
@@ -1695,29 +1696,6 @@ public class PlayerController : NetworkBehaviour
                 AchievementSaveSystem.instance.IncrementStat(17, 1);
         }
     }
-
-    //public void UnlockShotsHitInARowAchievement(bool hitAPlayer)
-    //{
-    //    if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID 
-    //        || !SteamIntegration.instance) return;
-
-    //    if (hitAPlayer)
-    //    {
-    //        // hit a player
-    //        shotsHitInARowAmount++;
-    //        if (shotsHitInARowAmount >= shotsHitInARowAmountNeeded)
-    //        {
-    //            SteamIntegration steamIntegration = SteamIntegration.instance;
-    //            SteamIntegration.instance.UnlockAchievement(steamIntegration.shotsHitInARowAchievementID);
-    //        }
-    //    }
-    //    else
-    //    {
-    //        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
-    //            NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
-    //        shotsHitInARowAmount = 0; 
-    //    }
-    //}
 
     #endregion
 

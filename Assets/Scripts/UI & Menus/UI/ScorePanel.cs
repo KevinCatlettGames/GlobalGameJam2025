@@ -53,7 +53,7 @@ public class ScorePanel : MonoBehaviour
         foreach (Image image in pointBubbles)
         {
             image.enabled = true;
-            image.color = playerColor;
+            //image.color = playerColor;
         }
 
         frame.color = playerColor - colorShift;
@@ -74,8 +74,8 @@ public class ScorePanel : MonoBehaviour
     {
         wins++;
 
-        winsTypewriter.ShowText(wins.ToString());
-        winsTypewriter.SkipTypewriter();
+        //winsTypewriter.ShowText(wins.ToString());
+        //winsTypewriter.SkipTypewriter();
 
         int visibleWins = GetVisibleWins(wins, pointBubbles.Length);
         UpdateBubbles(visibleWins, true);

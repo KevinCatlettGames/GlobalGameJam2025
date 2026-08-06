@@ -17,19 +17,34 @@ public class UIOscillator : MonoBehaviour
 
     private RectTransform rectTransform;
     private Vector2 initialAnchoredPos;
+    private float startTime;
 
-    void Awake()
+    void OnEnable()
     {
+        startTime = GetCurrentTime();
         rectTransform = GetComponent<RectTransform>();
         initialAnchoredPos = rectTransform.anchoredPosition;
     }
 
+    void OnDisable()
+    {
+        if (rectTransform != null)
+        {
+            rectTransform.anchoredPosition = initialAnchoredPos;
+        }
+    }
+
     void Update()
     {
-        float time = useUnscaledTime ? Time.unscaledTime : Time.time;
-        float offset = Mathf.Sin(time * frequency) * amplitude;
+        float elapsedTime = GetCurrentTime() - startTime;
+        float offset = Mathf.Sin(elapsedTime * frequency) * amplitude;
 
         rectTransform.anchoredPosition =
             initialAnchoredPos + direction.normalized * offset;
+    }
+
+    private float GetCurrentTime()
+    {
+        return useUnscaledTime ? Time.unscaledTime : Time.time;
     }
 }

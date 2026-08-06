@@ -15,12 +15,14 @@ public class SkinUnlockTextHandler : MonoBehaviour
     [SerializeField] private bool useUnlocking = false;
 
     private LocalizeStringEvent _descriptionLocalizer;
-
+    [SerializeField] private Vector2 descriptionOffsetOnNoStat = new Vector2(0, -10);
+    private Vector2 originalDescriptionPosition;
     private void Awake()
     {
         if (achievementDescriptionObject != null)
         {
             _descriptionLocalizer = achievementDescriptionObject.GetComponent<LocalizeStringEvent>();
+            originalDescriptionPosition = achievementDescriptionObject.transform.localPosition;
         }
     }
 
@@ -80,10 +82,16 @@ public class SkinUnlockTextHandler : MonoBehaviour
             achievementStatSlider.maxValue = targetValue;
             achievementStatSlider.value = currentValue;
             statText.text = $"{currentValue}/{targetValue}";
+            achievementDescriptionObject.transform.localPosition = originalDescriptionPosition;
         }
         else
         {
             statText.text = string.Empty;
+            
+            achievementDescriptionObject.transform.localPosition 
+                = new Vector2(
+                    originalDescriptionPosition.x + descriptionOffsetOnNoStat.x, 
+                    originalDescriptionPosition.y + descriptionOffsetOnNoStat.y);
         }
     }
 

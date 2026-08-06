@@ -25,7 +25,7 @@ public class MenuFallingWizzos : MonoBehaviour
 
     private void OnEnable()
     {
-        PlayInitialWizzo();
+        //PlayInitialWizzo();
         StartCoroutine(WizzoRoutine());
     }
 

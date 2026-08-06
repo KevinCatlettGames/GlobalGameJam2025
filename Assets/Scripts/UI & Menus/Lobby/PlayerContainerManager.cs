@@ -72,6 +72,7 @@ public class PlayerContainerManager : MonoBehaviour
 
     public void SetAccountInfo(bool value, string userName, ulong networkSteamID)
     {
+#if !UNITY_SWITCH
         if (!SteamClient.IsValid || !TransportSwitcher.Instance.isUsingRelay) return;
         youText.enabled = value;
         if(userName == string.Empty)
@@ -79,5 +80,6 @@ public class PlayerContainerManager : MonoBehaviour
 
         youText.text = userName;
         playerProfileDisplay.ShowSteamAvatarBySteamID(networkSteamID);
+#endif
     }
 }

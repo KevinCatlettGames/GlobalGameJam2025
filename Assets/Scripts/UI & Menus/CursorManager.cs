@@ -7,6 +7,7 @@ public class CursorManager : MonoBehaviour
     private void Awake()
     {
         Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.lockState = CursorLockMode.None;
 
         if (instance == null)
@@ -24,6 +25,7 @@ public class CursorManager : MonoBehaviour
 
     public void ShowMouse()
     {
+        Cursor.lockState = CursorLockMode.Locked;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
     }

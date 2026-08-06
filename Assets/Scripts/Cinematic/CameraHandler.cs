@@ -22,16 +22,21 @@ public class CameraHandler : NetworkBehaviour
 
     private void Start()
     {
+        Invoke(nameof(Init), 0);
+    }
+
+    private void Init()
+    {
         mainCamera.SetActive(false);
         cinematicCamera.SetActive(false);
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            if(IsServer) 
+            if (IsServer)
                 LobbyManager.instance.OnAllPlayersLoadedIn.AddListener(BeginClientRpc);
         }
         else
         {
-           Begin();
+            Begin();
         }
     }
 

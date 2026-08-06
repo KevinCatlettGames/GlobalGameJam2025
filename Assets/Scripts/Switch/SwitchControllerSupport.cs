@@ -11,7 +11,7 @@ using static UnityEngine.Rendering.RayTracingAccelerationStructure;
 public class SwitchControllerSupport : MonoBehaviour
 {
 #if UNITY_SWITCH
-    PlayerInputManager playerInputManager; 
+    PlayerInputManager playerInputManager;
 
     private NpadId[] npadIds =
     {
@@ -29,11 +29,26 @@ public class SwitchControllerSupport : MonoBehaviour
     private nn.Result result = new nn.Result();
 
     private bool initialized;
-    bool canShowApplet = false; 
+    bool canShowApplet = false;
     private HashSet<int> spawnedDeviceIds = new HashSet<int>();
 
-    void OnEnable()
+    public void ToggleCanShowApplet()
     {
+        canShowApplet = !canShowApplet;
+    }
+
+    void ResetAllAssignments()
+    {
+        for (int i = 1; i < npadIds.Length; i++)
+        {
+            NpadJoy.SetAssignmentModeDual(npadIds[i]);
+        }
+    }
+
+    void Update()
+    {
+        if (!canShowApplet) return;
+
         playerInputManager = GetComponent<PlayerInputManager>();
 
         Npad.Initialize();
@@ -53,25 +68,6 @@ public class SwitchControllerSupport : MonoBehaviour
         prevButtons = new long[npadIds.Length];
 
         ResetAllAssignments();
-        Invoke(nameof(ToggleCanShowApplet), .5f);
-    }
-
-    void ToggleCanShowApplet()
-    {
-        canShowApplet = !canShowApplet;
-    }
-
-    void ResetAllAssignments()
-    {
-        for (int i = 1; i < npadIds.Length; i++)
-        {
-            NpadJoy.SetAssignmentModeDual(npadIds[i]);
-        }
-    }
-
-    void Update()
-    {
-        if (!canShowApplet) return; 
 
         NpadButton pressed = 0;
 
@@ -90,14 +86,14 @@ public class SwitchControllerSupport : MonoBehaviour
             prevButtons[i] = (long)npadState.buttons;
         }
 
-        if (!initialized || (pressed & (NpadButton.Plus | NpadButton.Minus)) != 0)
+        if (!initialized)
         {
             ShowControllerSupport();
             initialized = true;
         }
     }
 
-    void ShowControllerSupport()
+    public void ShowControllerSupport()
     {
         ResetAllAssignments();
 
@@ -117,7 +113,16 @@ public class SwitchControllerSupport : MonoBehaviour
         {
             Debug.Log("ControllerSupport failed: " + result);
         }
-        enabled = false; 
+        else
+        {
+            Invoke(nameof(ShowLobby), 2f);
+        }
+        enabled = false;
+    }
+
+    void ShowLobby()
+    {
+        MainMenuLobbyCreator.Instance.StartSceneLocal("UI_Lobby");
     }
 #endif
 }

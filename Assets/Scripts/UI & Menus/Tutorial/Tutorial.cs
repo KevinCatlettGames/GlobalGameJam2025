@@ -86,6 +86,7 @@ public class Tutorial : MonoBehaviour
 
     private RenderTexture runtimeTexture;
     [SerializeField] private Button backButton;
+    private string currentSceneToLoad;
 
     private void Awake()
     {
@@ -509,6 +510,24 @@ public class Tutorial : MonoBehaviour
     public void LoadOfflineSceneUsingSceneManager(string sceneName)
     {
         Destroy(NetworkManager.Singleton.gameObject);
-        SceneManager.LoadScene(sceneName, LoadSceneMode.Single);
+        currentSceneToLoad = sceneName;
+        if (MenuTransitionHandler.Instance)
+        {         
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadTestScene;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+        else
+        {
+            LoadTestScene();
+        }
+
+    }
+
+    void LoadTestScene()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadTestScene;
+
+        SceneManager.LoadScene(currentSceneToLoad, LoadSceneMode.Single);
     }
 }

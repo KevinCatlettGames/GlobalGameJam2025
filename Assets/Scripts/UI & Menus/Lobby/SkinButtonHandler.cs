@@ -110,11 +110,13 @@ public class SkinButtonHandler : MonoBehaviour
             selectionTexts[slotIndex].enabled = true;
             selectionTexts[slotIndex].text = "P" + (playerIndex + 1);
 
+#if !UNITY_SWITCH
             if (TransportSwitcher.Instance.isUsingRelay && SteamClient.IsValid)
             {
                 avatarImages[slotIndex].transform.parent.gameObject.SetActive(true);
                 avatarImages[slotIndex].texture = LobbyManager.instance.playerContainers[playerIndex].GetComponent<PlayerContainerManager>().playerProfileDisplay.cachedAvatar;
             }
+#endif
         }
 
         bool hasHover = activePlayers.Count > 0;

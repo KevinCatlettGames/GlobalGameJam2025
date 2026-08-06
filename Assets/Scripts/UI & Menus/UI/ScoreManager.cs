@@ -16,6 +16,9 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private GameObject scoreScreen;
     [SerializeField] private GameObject winScreen;
 
+    [Header("Animation Settings")]
+    [SerializeField] private float reorderDuration = 0.6f;
+
     private int[] pendingWins = new int[4];
     private int[] pendingKills = new int[4];
 
@@ -25,6 +28,10 @@ public class ScoreManager : MonoBehaviour
     public bool ScoresResolved => scoresResolved;
 
     public bool showWinner = false;
+
+    // Cache layout slot anchor positions for baseline vertical heights
+    private Vector2[] standardSlotPositions;
+    private Vector2[] teamSlotPositions;
 
     public struct TeamKillEntry
     {
@@ -39,6 +46,31 @@ public class ScoreManager : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);
+
+        CacheSlotPositions();
+    }
+
+    private void CacheSlotPositions()
+    {
+        if (standardModeScorePanels != null && standardModeScorePanels.Length > 0)
+        {
+            standardSlotPositions = new Vector2[standardModeScorePanels.Length];
+            for (int i = 0; i < standardModeScorePanels.Length; i++)
+            {
+                RectTransform rt = standardModeScorePanels[i].GetComponent<RectTransform>();
+                standardSlotPositions[i] = rt.anchoredPosition;
+            }
+        }
+
+        if (teamModeScorePanels != null && teamModeScorePanels.Length > 0)
+        {
+            teamSlotPositions = new Vector2[teamModeScorePanels.Length];
+            for (int i = 0; i < teamModeScorePanels.Length; i++)
+            {
+                RectTransform rt = teamModeScorePanels[i].GetComponent<RectTransform>();
+                teamSlotPositions[i] = rt.anchoredPosition;
+            }
+        }
     }
 
     public void InitialiseScorePanel(int playerID, Sprite portrait, Color color)
@@ -61,7 +93,7 @@ public class ScoreManager : MonoBehaviour
 
         panel.SetPortrait(
             null,
-            LobbyManager.instance.TeamColors[teamID], 
+            LobbyManager.instance.TeamColors[teamID],
             0
         );
     }
@@ -117,7 +149,7 @@ public class ScoreManager : MonoBehaviour
         public int kills;
     }
 
-    private List<PlayerScoreEntry> GetSortedScores()
+    private List<PlayerScoreEntry> GetScores(bool usePreviousScores)
     {
         List<PlayerScoreEntry> list = new List<PlayerScoreEntry>();
 
@@ -125,13 +157,16 @@ public class ScoreManager : MonoBehaviour
         {
             foreach (int id in activePlayers)
             {
+                int wins = scores.WinScores[id] - (usePreviousScores ? pendingWins[id] : 0);
+                int kills = scores.KillScores[id] - (usePreviousScores ? pendingKills[id] : 0);
+
                 list.Add(new PlayerScoreEntry
                 {
                     playerID = id,
                     displayPlayerID = id,
                     teamID = -1,
-                    wins = scores.WinScores[id],
-                    kills = scores.KillScores[id]
+                    wins = wins,
+                    kills = kills
                 });
             }
         }
@@ -149,13 +184,16 @@ public class ScoreManager : MonoBehaviour
                 if (teamList.Count > 0)
                     representativePlayer = teamList[0].PlayerID;
 
+                int wins = scores.WinScores[team] - (usePreviousScores ? pendingWins[team] : 0);
+                int kills = scores.KillScores[team] - (usePreviousScores ? pendingKills[team] : 0);
+
                 list.Add(new PlayerScoreEntry
                 {
                     playerID = -1,
                     displayPlayerID = representativePlayer,
                     teamID = team,
-                    wins = scores.WinScores[team],
-                    kills = scores.KillScores[team]
+                    wins = wins,
+                    kills = kills
                 });
             }
         }
@@ -163,50 +201,43 @@ public class ScoreManager : MonoBehaviour
         list.Sort((a, b) =>
         {
             int result = b.wins.CompareTo(a.wins);
-
-            if (result != 0)
-                return result;
-
+            if (result != 0) return result;
             return b.kills.CompareTo(a.kills);
         });
 
         return list;
     }
 
-    private List<TeamScoreEntry> GetSortedTeamScores()
+    private List<TeamScoreEntry> GetTeamScores(bool usePreviousScores)
     {
         List<TeamScoreEntry> list = new List<TeamScoreEntry>();
 
         for (int team = 0; team < 2; team++)
         {
-            int totalKills = 0;
-
             List<PlayerController> teamPlayers =
                 team == 0
                 ? GameManager.Instance.TeamA
                 : GameManager.Instance.TeamB;
 
-            foreach (var player in teamPlayers)
-            {
-                totalKills += scores.KillScores[player.PlayerID];
-            }
+            // Retrieve team total kills directly from scores.KillScores[team]
+            int teamTotalKills = scores.KillScores[team];
+
+            int wins = scores.WinScores[team] - (usePreviousScores ? pendingWins[team] : 0);
+            int kills = teamTotalKills - (usePreviousScores ? pendingKills[team] : 0);
 
             list.Add(new TeamScoreEntry
             {
                 teamID = team,
                 teamPlayers = teamPlayers,
-                wins = scores.WinScores[team],
-                kills = totalKills
+                wins = wins,
+                kills = kills
             });
         }
 
         list.Sort((a, b) =>
         {
             int result = b.wins.CompareTo(a.wins);
-
-            if (result != 0)
-                return result;
-
+            if (result != 0) return result;
             return b.kills.CompareTo(a.kills);
         });
 
@@ -235,14 +266,16 @@ public class ScoreManager : MonoBehaviour
 
         if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {
-            var sorted = GetSortedScores();
+            var previousSorted = GetScores(usePreviousScores: true);
 
-            for (int i = 0; i < sorted.Count; i++)
+            for (int i = 0; i < previousSorted.Count; i++)
             {
-                var entry = sorted[i];
-
-                ScorePanel panel = standardModeScorePanels[i];
+                var entry = previousSorted[i];
+                ScorePanel panel = standardModeScorePanels[entry.playerID];
                 panel.gameObject.SetActive(true);
+
+                RectTransform rt = panel.GetComponent<RectTransform>();
+                rt.anchoredPosition = standardSlotPositions[i];
 
                 panel.SetPortrait(
                     playerHUDs[entry.playerID].Skin.HeadSprites[0],
@@ -250,18 +283,15 @@ public class ScoreManager : MonoBehaviour
                     0
                 );
 
-                int wins = entry.wins - pendingWins[entry.playerID];
-                int kills = entry.kills - pendingKills[entry.playerID];
-
-                panel.SetScores(wins, kills);
+                panel.SetScores(entry.wins, entry.kills);
             }
 
             yield return new WaitForSeconds(0.2f);
 
-            for (int i = 0; i < sorted.Count; i++)
+            for (int i = 0; i < previousSorted.Count; i++)
             {
-                var entry = sorted[i];
-                ScorePanel panel = standardModeScorePanels[i];
+                var entry = previousSorted[i];
+                ScorePanel panel = standardModeScorePanels[entry.playerID];
 
                 for (int w = 0; w < pendingWins[entry.playerID]; w++)
                 {
@@ -275,55 +305,64 @@ public class ScoreManager : MonoBehaviour
                     yield return new WaitForSeconds(0.1f);
                 }
             }
+
+            yield return new WaitForSeconds(0.3f);
+
+            var newSorted = GetScores(usePreviousScores: false);
+            yield return StartCoroutine(AnimateStandardPanelsReorder(newSorted));
         }
         else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
         {
-            var sortedTeams = GetSortedTeamScores();
+            var previousSortedTeams = GetTeamScores(usePreviousScores: true);
 
-            for (int i = 0; i < sortedTeams.Count; i++)
+            for (int i = 0; i < previousSortedTeams.Count; i++)
             {
-                var entry = sortedTeams[i];
-
-                ScorePanel panel = teamModeScorePanels[i];
+                var entry = previousSortedTeams[i];
+                ScorePanel panel = teamModeScorePanels[entry.teamID];
                 panel.gameObject.SetActive(true);
 
-                List<PlayerController> teamPlayers =
-                    entry.teamID == 0
-                    ? GameManager.Instance.TeamA
-                    : GameManager.Instance.TeamB;
+                RectTransform rt = panel.GetComponent<RectTransform>();
+                rt.anchoredPosition = teamSlotPositions[i];
 
-                for(int j = 0; j < teamPlayers.Count; j++)
+                List<PlayerController> teamPlayers = entry.teamID == 0 ? GameManager.Instance.TeamA : GameManager.Instance.TeamB;
+
+                for (int j = 0; j < teamPlayers.Count; j++)
                 {
                     Sprite sprite = teamPlayers.Count > 0 ? teamPlayers[j].CurrentSkinSO.HeadSprites[0] : null;
-
-                    panel.SetPortrait(
-                        sprite,
-                        LobbyManager.instance.TeamColors[entry.teamID],
-                        j
-                    );
+                    panel.SetPortrait(sprite, LobbyManager.instance.TeamColors[entry.teamID], j);
                 }
 
-                int wins = entry.wins - pendingWins[entry.teamID];       
-             
-                panel.SetTeamScores(wins, scores.KillScores[entry.teamID]);
+                panel.SetTeamScores(entry.wins, entry.kills);
             }
 
             yield return new WaitForSeconds(0.2f);
 
-            for (int i = 0; i < sortedTeams.Count; i++)
+            // Add pending team wins and kills visually
+            for (int i = 0; i < previousSortedTeams.Count; i++)
             {
-                var entry = sortedTeams[i];
-                ScorePanel panel = teamModeScorePanels[i];
+                var entry = previousSortedTeams[i];
+                ScorePanel panel = teamModeScorePanels[entry.teamID];
 
                 for (int w = 0; w < pendingWins[entry.teamID]; w++)
                 {
                     panel.AddWin();
                     yield return new WaitForSeconds(0.1f);
                 }
+
+                for (int k = 0; k < pendingKills[entry.teamID]; k++)
+                {
+                    panel.AddKill();
+                    yield return new WaitForSeconds(0.1f);
+                }
             }
+
+            yield return new WaitForSeconds(0.3f);
+
+            var newSortedTeams = GetTeamScores(usePreviousScores: false);
+            yield return StartCoroutine(AnimateTeamPanelsReorder(newSortedTeams));
         }
 
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(1.5f);
 
         if (!GameManager.Instance.playEndless && LobbyManager.instance)
         {
@@ -362,11 +401,83 @@ public class ScoreManager : MonoBehaviour
             pendingWins = new int[4];
             pendingKills = new int[4];
 
-            if(NetworkManager.Singleton.IsServer)
+            if (NetworkManager.Singleton.IsServer)
                 restartText.SetActive(true);
         }
 
         scoresResolved = true;
+    }
+
+    private IEnumerator AnimateStandardPanelsReorder(List<PlayerScoreEntry> newSorted)
+    {
+        float elapsed = 0f;
+        Vector2[] startPositions = new Vector2[standardModeScorePanels.Length];
+        Vector2[] targetPositions = new Vector2[standardModeScorePanels.Length];
+
+        for (int i = 0; i < newSorted.Count; i++)
+        {
+            int playerID = newSorted[i].playerID;
+            RectTransform rt = standardModeScorePanels[playerID].GetComponent<RectTransform>();
+            startPositions[playerID] = rt.anchoredPosition;
+            targetPositions[playerID] = standardSlotPositions[i];
+        }
+
+        while (elapsed < reorderDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / reorderDuration);
+
+            foreach (var entry in newSorted)
+            {
+                int pID = entry.playerID;
+                RectTransform rt = standardModeScorePanels[pID].GetComponent<RectTransform>();
+                rt.anchoredPosition = Vector2.Lerp(startPositions[pID], targetPositions[pID], t);
+            }
+
+            yield return null;
+        }
+
+        foreach (var entry in newSorted)
+        {
+            int pID = entry.playerID;
+            standardModeScorePanels[pID].GetComponent<RectTransform>().anchoredPosition = targetPositions[pID];
+        }
+    }
+
+    private IEnumerator AnimateTeamPanelsReorder(List<TeamScoreEntry> newSortedTeams)
+    {
+        float elapsed = 0f;
+        Vector2[] startPositions = new Vector2[teamModeScorePanels.Length];
+        Vector2[] targetPositions = new Vector2[teamModeScorePanels.Length];
+
+        for (int i = 0; i < newSortedTeams.Count; i++)
+        {
+            int teamID = newSortedTeams[i].teamID;
+            RectTransform rt = teamModeScorePanels[teamID].GetComponent<RectTransform>();
+            startPositions[teamID] = rt.anchoredPosition;
+            targetPositions[teamID] = teamSlotPositions[i];
+        }
+
+        while (elapsed < reorderDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / reorderDuration);
+
+            foreach (var entry in newSortedTeams)
+            {
+                int tID = entry.teamID;
+                RectTransform rt = teamModeScorePanels[tID].GetComponent<RectTransform>();
+                rt.anchoredPosition = Vector2.Lerp(startPositions[tID], targetPositions[tID], t);
+            }
+
+            yield return null;
+        }
+
+        foreach (var entry in newSortedTeams)
+        {
+            int tID = entry.teamID;
+            teamModeScorePanels[tID].GetComponent<RectTransform>().anchoredPosition = targetPositions[tID];
+        }
     }
 
     public void ResetScores()
