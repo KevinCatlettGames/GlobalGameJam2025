@@ -205,7 +205,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             else
             {
                 playerIndex.Value = containerManager.uiIndex;
-                Debug.Log(playerIndex.Value);
+                //Debug.Log(playerIndex.Value);
                 //Debug.Log(playerInput.devices[0].name);
                 if (!TransportSwitcher.Instance.isUsingRelay)
                     containerManager.occupied = true;

@@ -75,7 +75,7 @@ public class DotweenAnchorTransition : MonoBehaviour
             });
         }
 
-        Debug.Log("Did intro");
+        //Debug.Log("Did intro");
     }
 
     public void DoOutro()

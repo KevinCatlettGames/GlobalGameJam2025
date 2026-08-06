@@ -226,7 +226,7 @@ public class LobbyManager : NetworkBehaviour
                 PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: i, controlScheme: null, pairWithDevice: InputSystem.devices[i]);
             }
 #else
-            Debug.Log(InputSystem.devices.Count);
+            //Debug.Log(InputSystem.devices.Count);
             foreach (var device in InputSystem.devices)
             {
                 PlayerInput playerInput = playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
@@ -290,20 +290,20 @@ public class LobbyManager : NetworkBehaviour
         switch (change)
         {
             case InputDeviceChange.Added:
-                Debug.Log($"Device added: {device.displayName}");
+                //Debug.Log($"Device added: {device.displayName}");
                 playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
                 break;
 
             case InputDeviceChange.Removed:
-                Debug.Log($"Device removed: {device.displayName}");
+                //Debug.Log($"Device removed: {device.displayName}");
                 break;
 
             case InputDeviceChange.Reconnected:
-                Debug.Log($"Device reconnected: {device.displayName}");
+                //Debug.Log($"Device reconnected: {device.displayName}");
                 break;
 
             case InputDeviceChange.Disconnected:
-                Debug.Log($"Device disconnected: {device.displayName}");
+                //Debug.Log($"Device disconnected: {device.displayName}");
                 break;
         }
     }
