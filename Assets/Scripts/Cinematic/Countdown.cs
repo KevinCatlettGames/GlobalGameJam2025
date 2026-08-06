@@ -52,6 +52,7 @@ public class Countdown : MonoBehaviour
     private IEnumerator CountdownRoutine()
     {
         int currentCount = countdownTime;
+        yield return new WaitForSeconds(1.2f); //Delay for entry animations
 
         countdownImage.enabled = true;
 
@@ -72,10 +73,10 @@ public class Countdown : MonoBehaviour
         {
             countdownImage.sprite = goSprite;
         }
-        onCountdownComplete?.Invoke();
 
         yield return new WaitForSeconds(timeBetweenElements);
 
+        onCountdownComplete?.Invoke();
         countdownImage.enabled = false;
     }
 }

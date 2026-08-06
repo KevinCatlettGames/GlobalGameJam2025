@@ -15,7 +15,11 @@ public class BlastBubble : BasicBubble
     {
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         transform.position += direction * extraOffset;
-        playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
+
+        if (GameManager.Instance.PlayingLocal)
+            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
+        else if(IsServer)
+            playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
     }
 
     protected override void InflateOverlapChack()
@@ -40,7 +44,7 @@ public class BlastBubble : BasicBubble
                 }
 
                 if(IsServer)
-                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
+                    gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
 
                 if (!isUlt && playerCollider != null) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
                 fizzleEffect = hitEffect;

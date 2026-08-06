@@ -31,6 +31,7 @@ public class PlayerManager : NetworkBehaviour
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
 
+    private bool dropInJoin = false;
     
     private void Awake()
     {
@@ -48,7 +49,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        countdown.onCountdownComplete.AddListener(StartPlayerJoining);
+        countdown.OnCountdownStart.AddListener(StartPlayerJoining);
     }
 
     private void OnDisable()
@@ -72,6 +73,7 @@ public class PlayerManager : NetworkBehaviour
             {
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
+                dropInJoin = true;
             }
 
             playerInputManager.enabled = true;
@@ -201,7 +203,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -209,8 +211,6 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
-
-        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     public void OnPlayerJoined(PlayerInput input)
@@ -237,7 +237,7 @@ public class PlayerManager : NetworkBehaviour
             rumbler.SetController(gamePad);
         }
         
-        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin);
+        playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
         playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
@@ -245,8 +245,6 @@ public class PlayerManager : NetworkBehaviour
         ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
-
-        TargetGroupManager.Instance.AddToGroup(input.transform);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -378,7 +376,7 @@ public class PlayerManager : NetworkBehaviour
         }
         else
         {
-            Debug.Log("PlayerManager: THER IS NO LOBBY MANAGER! DEATH TO ALL");
+            Debug.Log("PlayerManager: THERE IS NO LOBBY MANAGER! DEATH TO ALL");
         }
     }
 
@@ -402,8 +400,6 @@ public class PlayerManager : NetworkBehaviour
                 {
                     localPlayer.transform.SetPositionAndRotation(targetPos, targetRot);
                 }
-
-                TargetGroupManager.Instance?.AddToGroup(localPlayer.transform);
             }
         }
         else

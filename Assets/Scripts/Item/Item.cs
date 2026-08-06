@@ -1,5 +1,6 @@
 using FMODUnity;
 using System.Collections;
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 
@@ -21,7 +22,9 @@ public class Item : NetworkBehaviour
     [SerializeField] private float itemBlinkIntervall = 0.4f;
     [SerializeField] private Material itemMaterial;
     [SerializeField] private bool disableDespawn = false;
-
+    [SerializeField] private float disableTime = .5f;
+    [SerializeField] private List<GameObject> visuals;
+    
     private Material spellMaterial;
 
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
@@ -68,14 +71,34 @@ public class Item : NetworkBehaviour
     {
         yield return new WaitForEndOfFrame();
 
-        StopAllCoroutines();
-        if(!disableDespawn)
+        if (!disableDespawn)
+        {
+            StopAllCoroutines();
             ItemSpawner.Instance.currentAmount--;
+        }
         if (pickUpEffect != null) 
             Instantiate(pickUpEffect, transform.position, Quaternion.identity);
         PlayPickupSoundServerRpc();
-        if (IsServer && !disableDespawn)
-            GetComponent<NetworkObject>().Despawn();
+        if (!disableDespawn)
+        {
+            if (IsServer)
+                GetComponent<NetworkObject>().Despawn();
+        }
+        else
+        {
+            foreach (GameObject visual in visuals)
+            {
+                visual.SetActive(false);
+            }
+            SphereCollider sphereCollider = GetComponent<SphereCollider>();
+            sphereCollider.enabled = false;
+            yield return new WaitForSeconds(disableTime);
+            foreach (GameObject visual in visuals)
+            {
+                visual.SetActive(true);
+            }
+            sphereCollider.enabled = true;
+        }
     }
 
     private void OnTriggerEnter(Collider other)

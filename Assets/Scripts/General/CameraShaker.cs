@@ -26,7 +26,6 @@ public class CameraShaker : MonoBehaviour
         }
         cam = GetComponent<CinemachineVirtualCamera>();
         shakePerlin = cam.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
-        position = transform.position;
         rotation = transform.rotation;
     }
     /// <summary>
@@ -50,7 +49,6 @@ public class CameraShaker : MonoBehaviour
             yield return null;
         }
         shakePerlin.m_AmplitudeGain = 0;
-        transform.position = position;
         transform.rotation = rotation;
     }
 }

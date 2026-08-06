@@ -42,6 +42,7 @@ public class PlayerStateHandler : MonoBehaviour
             }
 
         }
+        TargetGroupManager.Instance?.AddToGroup(transform);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -59,7 +60,7 @@ public class PlayerStateHandler : MonoBehaviour
 
         LooseLife();
 
-        TargetGroupManager.Instance.RemoveFromGroup(transform);
+        TargetGroupManager.Instance?.RemoveFromGroup(transform);
         playerController.Die();
         Invoke(nameof(DisablePlayer), 2f);
     }
@@ -89,6 +90,7 @@ public class PlayerStateHandler : MonoBehaviour
         characterController.enabled = true;
         canDie = true;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
+        TargetGroupManager.Instance?.AddToGroup(transform);
     }
     public void EnableDeath()
     {

@@ -1,6 +1,5 @@
 ﻿using FMOD.Studio;
 using FMODUnity;
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -157,6 +156,7 @@ public class PlayerController : NetworkBehaviour
     private Vector3 lastPosition;
     private float desyncThreshold = 0.05f;
     private bool wasMovingLastFrame = false;
+    private bool inputEnabled = true;
 
     #endregion
 
@@ -242,7 +242,7 @@ public class PlayerController : NetworkBehaviour
     }
     protected void Update()
     {
-        if (!initialized || isDead) return;
+        if (!inputEnabled || !initialized || isDead) return;
         if (!GameManager.Instance.PlayingLocal && !IsOwner) return;
 
         groundedPlayer = controller.isGrounded;
@@ -438,7 +438,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
         if (!isFirstSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -451,7 +451,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned|| !inputEnabled) return;
         if (!isSecondSpellReady)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
@@ -751,7 +751,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnSprint(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
 
         if (!canSprint || isSlowed)
         {
@@ -848,7 +848,7 @@ public class PlayerController : NetworkBehaviour
 
     public void OnEmote(InputAction.CallbackContext context)
     {
-        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned) return;
+        if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
 
         Vector2 value = context.ReadValue<Vector2>();
         if (GameManager.Instance.PlayingLocal)
@@ -1340,7 +1340,7 @@ public class PlayerController : NetworkBehaviour
         }
 
         shaderManager?.SetShaderState(ShaderState.inked, isSlowed);  
-        dashDisabledUI.SetActive(isSlowed);
+        dashDisabledUI?.SetActive(isSlowed);
     }
     public void StartVulnerable(float time)
     {
@@ -1444,7 +1444,7 @@ public class PlayerController : NetworkBehaviour
         isSlippery = false;
         slowCounter = 0;
         isSlowed = false;
-        dashDisabledUI.SetActive(false);
+        dashDisabledUI?.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
@@ -1467,8 +1467,6 @@ public class PlayerController : NetworkBehaviour
             ResetHudServerRpc();
         }
 
-        canvas.SetActive(true);
-
         movementInput = Vector2.zero;
         knockbackVelocity = Vector3.zero;
         controller.enabled = true;
@@ -1483,10 +1481,29 @@ public class PlayerController : NetworkBehaviour
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
+        StartCoroutine(EntranceCoroutine(0));
+    }
+
+    private IEnumerator EntranceCoroutine(float initalDelay)
+    {
+        inputEnabled = false;
+        canvas.SetActive(false);
+        float startDelay = 0.7f * (playerID + 1);
+        if (initalDelay > 0)
+        {
+            yield return new WaitForSeconds(startDelay);
+        }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
+        float animationTime = 1.06f; //Duration of entrance animation
+        yield return new WaitForSeconds(0.4f); //Time when player hits the ground
+        canvas.SetActive(true);
+        yield return new WaitForSeconds(animationTime - 0.4f);
+        if (initalDelay > 0)
+            yield return new WaitForSeconds(initalDelay - startDelay - animationTime);
+        inputEnabled = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1495,7 +1512,7 @@ public class PlayerController : NetworkBehaviour
     [ClientRpc]
     private void ResetHudClientRpc() => playerHUD.ResetHUD();
 
-    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject)
+    public void SetUpPlayer(int playerID, PlayerHUD playerHUD, ControllerRumbler controllerRumbler, SkinSO skinObject, bool dropInJoin)
     {
         currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
@@ -1557,6 +1574,7 @@ public class PlayerController : NetworkBehaviour
             mainAnimator = childAnimatorObject.GetComponent<Animator>();
             shaderManager = childAnimatorObject.GetComponentInChildren<PlayerShaderManager>();
             shaderManager?.SetStatusIndicator(statusIndicator);
+            
         }
         
         playerHUD.UpdateDamageText((int)damage);
@@ -1568,6 +1586,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
+        StartCoroutine(EntranceCoroutine(dropInJoin? 0 : 4f)); //Delay to sync with countdown
     }
 
     [ClientRpc]

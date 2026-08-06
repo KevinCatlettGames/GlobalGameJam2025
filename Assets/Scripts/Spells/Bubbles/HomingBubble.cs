@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class HomingBubble : BasicBubble
@@ -6,6 +7,9 @@ public class HomingBubble : BasicBubble
     [Header("Homing")]
     [SerializeField] private float rotationSpeed = 5f;
     [SerializeField] private float homingRadius = 5f;
+    [SerializeField] private float secondDmgDelay = .25f;
+    private PlayerController hitTarget;
+
     float timeAlive = 0;
     bool achUnlocked = false;
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
@@ -22,22 +26,6 @@ public class HomingBubble : BasicBubble
             Debug.LogWarning("HomingTargeting component not found on HomingBubble.");
         }
     }
-
-    private void Update()
-    {
-        if (achUnlocked) return;
-        if (timeAlive <= 2.4f)
-        {
-            timeAlive += Time.deltaTime;
-        }
-        else if (timeAlive >= 2.4f)
-        {
-            achUnlocked = true;
-            if (AchievementSaveSystem.instance != null)
-                AchievementSaveSystem.instance.UnlockAchievement(7);
-        } 
-    }
-
     protected override void BubbleMovement()
     {
         if (!hasInflated)
@@ -56,5 +44,27 @@ public class HomingBubble : BasicBubble
         }
 
         base.BubbleMovement();
+    }
+
+    public override void BubbleCollision(GameObject other)
+    {
+        if (other.CompareTag("Player"))
+        {
+            hitTarget = other.GetComponent<PlayerController>();
+        }
+        base.BubbleCollision(other);
+    }
+
+    [ClientRpc]
+    protected override void SpawnPopEffectClientRpc(Vector3 pos)
+    {
+        if (!IsServer && GameManager.Instance.Players[OwnerID.Value].IsOwner) return; 
+
+        if (fizzleEffect == null) return;
+        GameObject vfx = Instantiate(fizzleEffect, pos, Quaternion.identity);
+        if (hitTarget != null)
+        {
+            vfx.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(hitTarget, OwnerID.Value, damage, secondDmgDelay);
+        }
     }
 }
