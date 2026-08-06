@@ -55,15 +55,16 @@ public class Countdown : MonoBehaviour
 
         List<PlayerController> players = PlayerManager.Instance.GetPlayers();
         int playerCount = players.Count -1;
+        float animTime = .45f;
 
         while (currentCount > -1)
         {
-            yield return new WaitForSeconds(timeBetweenElements - 0.4f);
+            yield return new WaitForSeconds(timeBetweenElements - animTime);
             if (currentCount <= playerCount)
             {
                 players[currentCount].StartEntrence(currentCount * timeBetweenElements);
             }
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(animTime);
             countdownImage.enabled = true;
             countdownImage.sprite = countdownSprites[currentCount];
             currentCount--;

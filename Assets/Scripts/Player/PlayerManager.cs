@@ -50,6 +50,10 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+        if (!TransportSwitcher.Instance)
+        {
+            dropInJoin = true;
+        }
     }
 
     private void OnDisable()
@@ -73,7 +77,6 @@ public class PlayerManager : NetworkBehaviour
             {
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
-                dropInJoin = true;
             }
 
             playerInputManager.enabled = true;

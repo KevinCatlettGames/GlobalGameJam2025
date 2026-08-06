@@ -768,12 +768,14 @@ public class PlayerController : NetworkBehaviour
                 Instantiate(dashStartEffect, transform.position, transform.rotation);
                 RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             }
+            mainAnimator.SetTrigger("Dash");
         }
         else
         {
             Instantiate(dashStartEffect, transform.position, transform.rotation);
             RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             SpawnDashEffectServerRpc();
+            DashAnimServerRpc();
         }
     }
 
@@ -1758,6 +1760,19 @@ public class PlayerController : NetworkBehaviour
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DashAnimServerRpc()
+    {
+        DashAnimClientRpc();
+    }
+
+    [ClientRpc]
+    private void DashAnimClientRpc()
+    {
+        if (IsOwner) return;
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Dash");
     }
 
     [ServerRpc(RequireOwnership = false)]
