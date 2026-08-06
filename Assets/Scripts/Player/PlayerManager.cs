@@ -423,5 +423,28 @@ public class PlayerManager : NetworkBehaviour
             }
         }
     }
+
+    public List<PlayerController> GetPlayers()
+    {
+        List<PlayerController> playerControllers = new List<PlayerController>();
+        if (localPlayers.Count > 0)
+        {
+            foreach (GameObject p in localPlayers)
+            {
+                playerControllers.Add(p.GetComponent<PlayerController>());
+            }
+        }
+        else
+        {
+            foreach (NetworkObjectReference p in players)
+            {
+                if (p.TryGet(out NetworkObject networkObject))
+                {
+                    playerControllers.Add(networkObject.GetComponent<PlayerController>());
+                }
+            }
+        }
+        return playerControllers;
+    }
     #endregion
 }

@@ -2,18 +2,17 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.Events;
-using FMODUnity; 
+using FMODUnity;
+using System.Collections.Generic;
 
 public class Countdown : MonoBehaviour
 {
     [Header("Countdown Settings")]
-    public int countdownTime = 3;
     [SerializeField] private float timeBetweenElements = .5f;
 
     [Header("Sprite Countdown")]
     [SerializeField] private Image countdownImage;
     [SerializeField] private Sprite[] countdownSprites;
-    [SerializeField] private Sprite goSprite;
     //[SerializeField] private StudioEventEmitter[] countdownEmitters;
     //[SerializeField] private StudioEventEmitter goEmitter;
 
@@ -51,31 +50,25 @@ public class Countdown : MonoBehaviour
 
     private IEnumerator CountdownRoutine()
     {
-        int currentCount = countdownTime;
-        yield return new WaitForSeconds(1.2f); //Delay for entry animations
+        int currentCount = countdownSprites.Length -1;
+        yield return new WaitForSeconds(.1f);
 
-        countdownImage.enabled = true;
+        List<PlayerController> players = PlayerManager.Instance.GetPlayers();
+        int playerCount = players.Count -1;
 
-        while (currentCount > 0)
+        while (currentCount > -1)
         {
-            int spriteIndex = currentCount - 1;
-
-            if (spriteIndex >= 0 && spriteIndex < countdownSprites.Length)
+            yield return new WaitForSeconds(timeBetweenElements - 0.4f);
+            if (currentCount <= playerCount)
             {
-                countdownImage.sprite = countdownSprites[spriteIndex];
+                players[currentCount].StartEntrence(currentCount * timeBetweenElements);
             }
-
-            yield return new WaitForSeconds(timeBetweenElements);
+            yield return new WaitForSeconds(0.4f);
+            countdownImage.enabled = true;
+            countdownImage.sprite = countdownSprites[currentCount];
             currentCount--;
         }
-
-        if (goSprite != null)
-        {
-            countdownImage.sprite = goSprite;
-        }
-
         yield return new WaitForSeconds(timeBetweenElements);
-
         onCountdownComplete?.Invoke();
         countdownImage.enabled = false;
     }

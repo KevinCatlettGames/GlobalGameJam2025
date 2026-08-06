@@ -1477,22 +1477,21 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
-        //trail.Play();
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
         StartCoroutine(EntranceCoroutine(0));
     }
 
-    private IEnumerator EntranceCoroutine(float initalDelay)
+    public void StartEntrence(float remainingDelay)
+    {
+        StartCoroutine(EntranceCoroutine(remainingDelay));
+    }
+
+    private IEnumerator EntranceCoroutine(float remainingDelay)
     {
         inputEnabled = false;
         canvas.SetActive(false);
-        float startDelay = 0.7f * (playerID + 1);
-        if (initalDelay > 0)
-        {
-            yield return new WaitForSeconds(startDelay);
-        }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
@@ -1501,8 +1500,10 @@ public class PlayerController : NetworkBehaviour
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
-        if (initalDelay > 0)
-            yield return new WaitForSeconds(initalDelay - startDelay - animationTime);
+        if (remainingDelay > 0)
+        {
+            yield return new WaitForSeconds(remainingDelay - animationTime);
+        }
         inputEnabled = true;
     }
 
@@ -1586,7 +1587,15 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(dropInJoin? 0 : 4f)); //Delay to sync with countdown
+        if (dropInJoin)
+        {
+            StartCoroutine(EntranceCoroutine(0));
+        }
+        else
+        {
+            inputEnabled = false;
+            canvas.SetActive(false);
+        }
     }
 
     [ClientRpc]
