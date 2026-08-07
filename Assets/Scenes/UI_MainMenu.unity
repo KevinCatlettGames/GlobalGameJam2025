@@ -15602,7 +15602,6 @@ GameObject:
   - component: {fileID: 623553322}
   - component: {fileID: 623553323}
   - component: {fileID: 623553324}
-  - component: {fileID: 623553325}
   m_Layer: 0
   m_Name: -----MENUS-----
   m_TagString: Untagged
@@ -15713,18 +15712,6 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
---- !u!114 &623553325
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 623553318}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27a266b18822a17479c4cff3160af85b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &646593953
 GameObject:
   m_ObjectHideFlags: 0
@@ -25561,7 +25548,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a4da923cadad849987b66cbd1373ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  switchControllerSupport: {fileID: 623553325}
+  switchControllerSupport: {fileID: 0}
+  localOnlineMenu: {fileID: 1615264941}
 --- !u!114 &1587543321
 MonoBehaviour:
   m_ObjectHideFlags: 0
