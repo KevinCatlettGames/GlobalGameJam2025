@@ -1,5 +1,18 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-9060826163732992864
+MonoBehaviour:
+  m_ObjectHideFlags: 11
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  version: 10
 --- !u!21 &2100000
 Material:
   serializedVersion: 8
@@ -7,8 +20,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Silver_Bubble
-  m_Shader: {fileID: -6465566751694194690, guid: 145db075364b1af4f8960633545f35bc,
+  m_Name: MonochromeBubble
+  m_Shader: {fileID: -6465566751694194690, guid: 226be927535112444984ff6482e4d3ea,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -17,7 +30,7 @@ Material:
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3010
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -40,33 +53,20 @@ Material:
     m_Ints: []
     m_Floats:
     - _Add_Alpha: 0.3
-    - _Blend_Opacity: 3.93
+    - _Blend_Opacity: 3.9
     - _Blend_Sharpness: 0
     - _Divide_Color: 0
     - _Fresnel_Power: 0
-    - _NoiseScale1: 1.5
-    - _NoiseScale2: 1.5
-    - _NoiseScale3: 1.5
-    - _Noise_Subtraction: 0.55
+    - _NoiseScale1: 0.83
+    - _NoiseScale2: 1.21
+    - _NoiseScale3: 1
+    - _Noise_Subtraction: 0.5
     - _QueueControl: 0
-    - _QueueOffset: 10
-    - _ReflectionStrenght: 0.6
+    - _QueueOffset: 0
+    - _ReflectionStrenght: 0
     - _isDamaged: 0
     m_Colors:
-    - _Color: {r: 0.25943398, g: 0.33006993, b: 1, a: 1}
-    - _damageColor: {r: 2, g: 2, b: 2, a: 1}
+    - _Color: {r: 0.6037736, g: 0.6037736, b: 0.6037736, a: 0}
+    - _damageColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &6104252304481878982
-MonoBehaviour:
-  m_ObjectHideFlags: 11
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0353a89b1f911e48b9e16bdc9f2e058, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  version: 10
