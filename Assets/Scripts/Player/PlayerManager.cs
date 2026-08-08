@@ -13,6 +13,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private EventReference winSound;
 
     [Header("Player Setup")]
+    [SerializeField] private bool isTutorial = false;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private int[] teamIDs;
@@ -207,7 +208,8 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
-        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
+        if (!isTutorial)
+            playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -241,7 +243,8 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
-        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
+        if (!isTutorial)
+            playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 

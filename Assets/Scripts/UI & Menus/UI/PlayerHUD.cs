@@ -209,7 +209,8 @@ public class PlayerHUD : NetworkBehaviour
         float progression = 1 / shakeTime;
         int spriteIndex = spellID == 1 ? 0 : 3;
         Image spellImage = spellID == 1 ? firstSpellImage : secondSpellImage;
-        spellImage.sprite = spellSprites[spriteIndex];
+        if (spellSprites[spriteIndex]!= null)
+            spellImage.sprite = spellSprites[spriteIndex];
         while (progress < 1)
         {
             spellTransform.position = originalPosition + Vector3.right * shakeCurve.Evaluate(progress) * shakeAmplitude;
@@ -217,20 +218,13 @@ public class PlayerHUD : NetworkBehaviour
             yield return null;
         }
         spellTransform.position = originalPosition;
-        switch (spellID)
-        {
-            case 1:
-                firstSpellImage.sprite = spellSprites[1];
-                firstSpellShake = null;
-                break;
-            case 2:
-                secondSpellImage.sprite = spellSprites[2];
-                secondSpellShake = null;
-                break;
-            default:
-                Debug.LogWarning($"Spell shake ID Issue, spellID: {spellID}");
-                break;
-        }
+        if (spellSprites[spellID] != null)
+            spellImage.sprite = spellSprites[spellID];
+
+        if (spellID == 1)
+            firstSpellShake = null;
+        else
+            secondSpellShake = null;
     }
 
     public virtual void UpdateDamageText(int damage)

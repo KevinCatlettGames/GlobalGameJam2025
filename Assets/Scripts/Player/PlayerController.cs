@@ -439,7 +439,7 @@ public class PlayerController : NetworkBehaviour
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
-        if (!isFirstSpellReady)
+        if (!isFirstSpellReady || firstSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(1);
@@ -452,7 +452,7 @@ public class PlayerController : NetworkBehaviour
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned|| !inputEnabled) return;
-        if (!isSecondSpellReady)
+        if (!isSecondSpellReady || secondSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(2);
@@ -768,7 +768,7 @@ public class PlayerController : NetworkBehaviour
                 Instantiate(dashStartEffect, transform.position, transform.rotation);
                 RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             }
-            mainAnimator.SetTrigger("Dash");
+            mainAnimator.Play("Dash", 0, 0);
         }
         else
         {
