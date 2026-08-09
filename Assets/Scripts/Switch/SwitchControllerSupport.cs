@@ -5,7 +5,6 @@ using nn.hid;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.RayTracingAccelerationStructure;
 #endif 
 
 public class SwitchControllerSupport : MonoBehaviour
@@ -32,23 +31,9 @@ public class SwitchControllerSupport : MonoBehaviour
     bool canShowApplet = false;
     private HashSet<int> spawnedDeviceIds = new HashSet<int>();
 
-    public void ToggleCanShowApplet()
-    {
-        canShowApplet = !canShowApplet;
-    }
 
-    void ResetAllAssignments()
+    private void OnEnable()
     {
-        for (int i = 1; i < npadIds.Length; i++)
-        {
-            NpadJoy.SetAssignmentModeDual(npadIds[i]);
-        }
-    }
-
-    void Update()
-    {
-        if (!canShowApplet) return;
-
         playerInputManager = GetComponent<PlayerInputManager>();
 
         Npad.Initialize();
@@ -68,6 +53,24 @@ public class SwitchControllerSupport : MonoBehaviour
         prevButtons = new long[npadIds.Length];
 
         ResetAllAssignments();
+        Invoke(nameof(ToggleCanShowApplet), .5f);
+    }
+    public void ToggleCanShowApplet()
+    {
+        canShowApplet = !canShowApplet;
+    }
+
+    void ResetAllAssignments()
+    {
+        for (int i = 1; i < npadIds.Length; i++)
+        {
+            NpadJoy.SetAssignmentModeDual(npadIds[i]);
+        }
+    }
+
+    void Update()
+    {
+        if (!canShowApplet) return;
 
         NpadButton pressed = 0;
 
@@ -113,16 +116,7 @@ public class SwitchControllerSupport : MonoBehaviour
         {
             Debug.Log("ControllerSupport failed: " + result);
         }
-        else
-        {
-            Invoke(nameof(ShowLobby), 2f);
-        }
         enabled = false;
-    }
-
-    void ShowLobby()
-    {
-        MainMenuLobbyCreator.Instance.StartSceneLocal("UI_Lobby");
     }
 #endif
 }

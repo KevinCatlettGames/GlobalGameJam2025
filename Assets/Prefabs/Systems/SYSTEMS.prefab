@@ -232,16 +232,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   gameModeType: 0
-  teamIDs: 00000000000000000000000000000000
-  teamA: []
-  teamB: []
-  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
-    type: 3}
   playEndless: 1
   gameSettings: {fileID: 11400000, guid: 4bf177e19fe81124f9050226c35e2139, type: 2}
   mapEvent: {fileID: 0}
+  playerPrefab: {fileID: 8803356904054459380, guid: 395803cff81431c4ebd73f0e4d1cfd78,
+    type: 3}
   playerInputManager: {fileID: 8605951647801297494}
-  PlayingLocal: 0
   countdown: {fileID: 0}
   deathZones:
   - {fileID: 0}
@@ -253,10 +249,12 @@ MonoBehaviour:
   - {fileID: 0}
   - {fileID: 0}
   - {fileID: 0}
+  PlayingLocal: 0
+  teamIDs: 00000000000000000000000000000000
+  teamA: []
+  teamB: []
   hitReferences: []
-  multiKillTimeWindow: 3
   damageAmountForAchievement: 300
-  enableAchivements: 1
 --- !u!114 &9037970889961924712
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -524,6 +522,7 @@ Transform:
   - {fileID: 8950919163246275209}
   - {fileID: 8026881040917413251}
   - {fileID: 2025811958067257644}
+  - {fileID: 210094267591738702}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5127531587296251534
@@ -914,3 +913,47 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   defaultValue: 0.5
   resetAllPlayerPrefs: 0
+--- !u!1 &9131519189385175805
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 210094267591738702}
+  - component: {fileID: 1856920741595219300}
+  m_Layer: 0
+  m_Name: InputDeviceDetector
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &210094267591738702
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9131519189385175805}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 7349568484040912180}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1856920741595219300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9131519189385175805}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 399b7119821d8a142aa178a743538747, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

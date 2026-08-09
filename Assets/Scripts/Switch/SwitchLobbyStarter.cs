@@ -17,7 +17,7 @@ public class SwitchLobbyStarter : MonoBehaviour
     void StartSwitchLobby()
     {
         localOnlineMenu.SetActive(false);
-        switchControllerSupport.ToggleCanShowApplet();
+        MainMenuLobbyCreator.Instance.StartSceneLocal("UI_Lobby");
     }
 #endif 
 }

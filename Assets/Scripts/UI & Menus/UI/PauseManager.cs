@@ -192,7 +192,7 @@ public class PauseManager : MonoBehaviour
 
         GlobalLobby.CurrentLobby = null;
 
-        LoadMainMenu();
+        InitLoadMenu();
     }
 
     public async void ReturnToLobby()
@@ -211,11 +211,28 @@ public class PauseManager : MonoBehaviour
         SceneManager.LoadScene("UI_Lobby");
     }
 
-    void LoadMainMenu()
+    void InitLoadMenu()
     {
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadMenu;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+        else
+        {
+            LoadMenu();
+        }
+        
+    }
+
+    void LoadMenu()
+    {
+        if(MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMenu;
+
         SceneManager.LoadScene("UI_MainMenu");
     }
-    
+
     private bool IsHost()
     {
         return NetworkManager.Singleton.IsHost;

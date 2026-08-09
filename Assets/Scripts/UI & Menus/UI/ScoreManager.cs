@@ -33,6 +33,8 @@ public class ScoreManager : MonoBehaviour
     private Vector2[] standardSlotPositions;
     private Vector2[] teamSlotPositions;
 
+    [SerializeField] private GameObject winnerShine;
+
     public struct TeamKillEntry
     {
         public int playerID;
@@ -255,12 +257,11 @@ public class ScoreManager : MonoBehaviour
             yield break;
 
         restartText.SetActive(false);
-
+        winnerShine.SetActive(false);
         foreach (var panel in standardModeScorePanels)
+        {
             panel.gameObject.SetActive(false);
-
-        foreach (var panel in teamModeScorePanels)
-            panel.gameObject.SetActive(false);
+        }
 
         yield return new WaitForSeconds(0.2f);
 
@@ -310,6 +311,15 @@ public class ScoreManager : MonoBehaviour
 
             var newSorted = GetScores(usePreviousScores: false);
             yield return StartCoroutine(AnimateStandardPanelsReorder(newSorted));
+
+            // CHECK FOR NEW LEADER (STANDARD)
+            int oldLeaderID = previousSorted[0].playerID;
+            int newLeaderID = newSorted[0].playerID;
+
+            if (oldLeaderID != newLeaderID)
+            {
+                winnerShine.SetActive(true);
+            }
         }
         else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
         {
