@@ -19,21 +19,10 @@ public class DotweenAnchorTransition : MonoBehaviour
 
     private void Awake()
     {
-        if(rectTransform == null &&GetComponent<RectTransform>())
+        if (rectTransform == null)
             rectTransform = GetComponent<RectTransform>();
 
-        if (doYPosTransition)
-        {
-            doXPosTransition = false;
-            rectTransform.position = new Vector2(rectTransform.position.x, outPos);
-        }
-        else if (doXPosTransition)
-        {
-            doYPosTransition = false;
-            rectTransform.position = new Vector2(outPos, rectTransform.position.y);
-        }
-
-        
+        SetToOutPosition();
     }
 
     private void OnEnable()
@@ -44,15 +33,18 @@ public class DotweenAnchorTransition : MonoBehaviour
 
     private void OnDisable()
     {
+        rectTransform.DOComplete();
+        SetToOutPosition();
+    }
+    private void SetToOutPosition()
+    {
         if (doYPosTransition)
         {
-            rectTransform.DOComplete();
-            rectTransform.position = new Vector2(rectTransform.position.x, outPos);
+            rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, outPos);
         }
         else if (doXPosTransition)
         {
-            rectTransform.DOComplete();
-            rectTransform.position = new Vector2(outPos, rectTransform.position.y);
+            rectTransform.anchoredPosition = new Vector2(outPos, rectTransform.anchoredPosition.y);
         }
     }
 
