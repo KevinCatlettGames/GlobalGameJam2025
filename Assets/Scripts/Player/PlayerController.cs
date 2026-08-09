@@ -440,7 +440,7 @@ public class PlayerController : NetworkBehaviour
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
-        if (!isFirstSpellReady)
+        if (!isFirstSpellReady || firstSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(1);
@@ -453,7 +453,7 @@ public class PlayerController : NetworkBehaviour
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned|| !inputEnabled) return;
-        if (!isSecondSpellReady)
+        if (!isSecondSpellReady || secondSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(2);
@@ -769,12 +769,14 @@ public class PlayerController : NetworkBehaviour
                 Instantiate(dashStartEffect, transform.position, transform.rotation);
                 RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             }
+            mainAnimator.Play("Dash", 0, 0);
         }
         else
         {
             Instantiate(dashStartEffect, transform.position, transform.rotation);
             RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             SpawnDashEffectServerRpc();
+            DashAnimServerRpc();
         }
     }
 
@@ -1478,22 +1480,21 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
-        //trail.Play();
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
         StartCoroutine(EntranceCoroutine(0));
     }
 
-    private IEnumerator EntranceCoroutine(float initalDelay)
+    public void StartEntrence(float remainingDelay)
+    {
+        StartCoroutine(EntranceCoroutine(remainingDelay));
+    }
+
+    private IEnumerator EntranceCoroutine(float remainingDelay)
     {
         inputEnabled = false;
         canvas.SetActive(false);
-        float startDelay = 0.7f * (playerID + 1);
-        if (initalDelay > 0)
-        {
-            yield return new WaitForSeconds(startDelay);
-        }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
@@ -1502,8 +1503,10 @@ public class PlayerController : NetworkBehaviour
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
-        if (initalDelay > 0)
-            yield return new WaitForSeconds(initalDelay - startDelay - animationTime);
+        if (remainingDelay > 0)
+        {
+            yield return new WaitForSeconds(remainingDelay - animationTime);
+        }
         inputEnabled = true;
     }
 
@@ -1587,7 +1590,15 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(dropInJoin? 0 : 4f)); //Delay to sync with countdown
+        if (dropInJoin)
+        {
+            StartCoroutine(EntranceCoroutine(0));
+        }
+        else
+        {
+            inputEnabled = false;
+            canvas.SetActive(false);
+        }
     }
 
     [ClientRpc]
@@ -1727,6 +1738,19 @@ public class PlayerController : NetworkBehaviour
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DashAnimServerRpc()
+    {
+        DashAnimClientRpc();
+    }
+
+    [ClientRpc]
+    private void DashAnimClientRpc()
+    {
+        if (IsOwner) return;
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Dash");
     }
 
     [ServerRpc(RequireOwnership = false)]

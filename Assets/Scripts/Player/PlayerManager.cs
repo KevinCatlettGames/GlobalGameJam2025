@@ -13,6 +13,7 @@ public class PlayerManager : NetworkBehaviour
     [SerializeField] private EventReference winSound;
 
     [Header("Player Setup")]
+    [SerializeField] private bool isTutorial = false;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private Transform[] spawnPoints;
     [SerializeField] private int[] teamIDs;
@@ -50,6 +51,10 @@ public class PlayerManager : NetworkBehaviour
     private void Start()
     {
         countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+        if (!TransportSwitcher.Instance)
+        {
+            dropInJoin = true;
+        }
     }
 
     private void OnDisable()
@@ -73,7 +78,6 @@ public class PlayerManager : NetworkBehaviour
             {
                 startGameInputAction.action.performed += ActionOnPerformed;
                 startGameInputAction.action.Enable();
-                dropInJoin = true;
             }
 
             playerInputManager.enabled = true;
@@ -204,7 +208,8 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
-        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
+        if (!isTutorial)
+            playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -238,7 +243,8 @@ public class PlayerManager : NetworkBehaviour
         }
         
         playerController.SetUpPlayer(playerID, playerHUDs[playerID], rumbler, LobbyPlayerValues.Instance.playerValuesList[playerID].Skin, dropInJoin);
-        playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
+        if (!isTutorial)
+            playerController.SetSpells(syncedFirstSpellIndex.Value, syncedSecondSpellIndex.Value);
 
         characterController.enabled = true;
 
@@ -422,6 +428,29 @@ public class PlayerManager : NetworkBehaviour
                 TargetGroupManager.Instance?.AddToGroup(playerGameObject.transform);
             }
         }
+    }
+
+    public List<PlayerController> GetPlayers()
+    {
+        List<PlayerController> playerControllers = new List<PlayerController>();
+        if (localPlayers.Count > 0)
+        {
+            foreach (GameObject p in localPlayers)
+            {
+                playerControllers.Add(p.GetComponent<PlayerController>());
+            }
+        }
+        else
+        {
+            foreach (NetworkObjectReference p in players)
+            {
+                if (p.TryGet(out NetworkObject networkObject))
+                {
+                    playerControllers.Add(networkObject.GetComponent<PlayerController>());
+                }
+            }
+        }
+        return playerControllers;
     }
     #endregion
 }
