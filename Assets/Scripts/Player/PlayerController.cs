@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -19,9 +20,13 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference tickDamageEvent;
     [SerializeField] private EventReference vulnerableDamageEvent;
+    [SerializeField] private EventReference startEvent;
+    [SerializeField] private EventReference deathEvent;
     [SerializeField] string knockBackEventIntensityParam;
     [SerializeField] int knockBackEventMaxIntensity = 100; 
     [SerializeField] private EventReference dashEvent;
+    [SerializeField] private int voiceProfile;
+    private string voiceProfileParam = "VoiceProfile";
 
     #endregion
 
@@ -504,14 +509,24 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
-            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(spell.SpellVoiceEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+            fmodEvent.start();
+            fmodEvent.release();
         }
 
         if (!GameManager.Instance.PlayingLocal)
         {
             GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
             if (spell != null)
-                RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+            {
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(spell.SpellVoiceEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+                fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+                fmodEvent.start();
+                fmodEvent.release();
+            }
             SlapAnimServerRpc(isFirstSpell);
         }
     }
@@ -1179,6 +1194,11 @@ public class PlayerController : NetworkBehaviour
         controller.enabled = false;
         damagedEffect.UpdateParticleSystem(-1);
         trail.Stop();
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(deathEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+        fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+        fmodEvent.start();
+        fmodEvent.release();
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -1499,6 +1519,11 @@ public class PlayerController : NetworkBehaviour
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(startEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+        fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+        fmodEvent.start();
+        fmodEvent.release();
         float animationTime = 1.06f; //Duration of entrance animation
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
@@ -1521,6 +1546,7 @@ public class PlayerController : NetworkBehaviour
         currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
         this.playerID = playerID;
+        voiceProfile = (int)skinObject.VoiceProfile;
 
         childAnimatorObject = Instantiate(skinObject.SkinPrefab, meshParent);
         
