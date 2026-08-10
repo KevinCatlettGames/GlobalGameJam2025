@@ -649,6 +649,20 @@ MonoBehaviour:
       Data3: -803130736
       Data4: -220800939
     Path: event:/sfx/player/player_yellow_debuff
+  startEvent:
+    Guid:
+      Data1: -1265705645
+      Data2: 1192276762
+      Data3: 978903957
+      Data4: 2076522920
+    Path: event:/sfx/player/player_spawn
+  deathEvent:
+    Guid:
+      Data1: -915204064
+      Data2: 1317422336
+      Data3: 380189099
+      Data4: 1753072664
+    Path: event:/voice/general/death
   knockBackEventIntensityParam: SFXIntensity
   knockBackEventMaxIntensity: 100
   dashEvent:
@@ -658,6 +672,7 @@ MonoBehaviour:
       Data3: 1423309241
       Data4: -810672274
     Path: event:/sfx/player/player_dash
+  voiceProfile: 0
   childAnimatorObject: {fileID: 0}
   coloredElements:
   - {fileID: 6199237468719491946}
@@ -709,7 +724,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   shotsHitInARowAmountNeeded: 10
-  resetPosition: {x: 10, y: 2, z: 0}
+  resetPositions: []
   minResetDistance: 1
   skin: {fileID: 11400000, guid: 80abd7710d123f34f8d0494f00d56020, type: 2}
   dummyPlayerHUD: {fileID: 3941336212067704126}
