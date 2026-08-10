@@ -1,21 +1,31 @@
 using UnityEngine;
 using DG.Tweening;
-using UnityEngine.Events; 
+using UnityEngine.Events;
 
 public class DotweenAnchorTransition : MonoBehaviour
 {
-    [SerializeField] RectTransform rectTransform;
-    [SerializeField] float outPos = 0;
-    [SerializeField] float inPos = 0;
-    [SerializeField] float transitionDuration;
-    [SerializeField] bool doYPosTransition = true;
-    [SerializeField] bool doXPosTransition;
-    [SerializeField] bool introOnEnable = false;
-    public UnityEvent OnInTransitionComplete;
-    public UnityEvent OnInTransitionStarted;
+    [Header("Components")]
+    [SerializeField] private RectTransform rectTransform;
 
-    public UnityEvent OnOutTransitionComplete;
+    [Header("Positions")]
+    [SerializeField] private float outPos = 0f;
+    [SerializeField] private float inPos = 0f;
+    [SerializeField] private float transitionDuration = 0.3f;
+
+    [Header("Transition Axis")]
+    [SerializeField] private bool doYPosTransition = true;
+    [SerializeField] private bool doXPosTransition;
+
+    [Header("Settings")]
+    [SerializeField] private bool introOnEnable = false;
+    [SerializeField] private Ease easeIn = Ease.OutCubic;
+    [SerializeField] private Ease easeOut = Ease.InCubic;
+
+    [Header("Events")]
+    public UnityEvent OnInTransitionStarted;
+    public UnityEvent OnInTransitionComplete;
     public UnityEvent OnOutTransitionStarted;
+    public UnityEvent OnOutTransitionComplete;
 
     private void Awake()
     {
@@ -27,67 +37,58 @@ public class DotweenAnchorTransition : MonoBehaviour
 
     private void OnEnable()
     {
-        if(introOnEnable)
+        if (introOnEnable)
             DoIntro();
     }
 
     private void OnDisable()
     {
-        rectTransform.DOComplete();
+        // Stop any active tweens on this transform to avoid memory leaks or ghost callbacks
+        rectTransform.DOKill();
         SetToOutPosition();
     }
+
     private void SetToOutPosition()
     {
         if (doYPosTransition)
-        {
             rectTransform.anchoredPosition = new Vector2(rectTransform.anchoredPosition.x, outPos);
-        }
         else if (doXPosTransition)
-        {
             rectTransform.anchoredPosition = new Vector2(outPos, rectTransform.anchoredPosition.y);
-        }
     }
 
     public void DoIntro()
     {
-        if (doYPosTransition)
-        {
-            OnInTransitionStarted?.Invoke();
-            rectTransform.DOAnchorPosY(inPos, transitionDuration).OnComplete(() =>
-            {
-                OnInTransitionComplete?.Invoke();
-            });
-        }
-        else if (doXPosTransition)
-        {
-            OnInTransitionStarted?.Invoke();
-            rectTransform.DOAnchorPosX(inPos, transitionDuration).OnComplete(() =>
-            {
-                OnInTransitionComplete?.Invoke();
-            });
-        }
+        // Kill existing tween so fast-toggling doesn't glitch position
+        rectTransform.DOKill();
+        OnInTransitionStarted?.Invoke();
 
-        //Debug.Log("Did intro");
+        Tween tween = GetTween(inPos);
+
+        tween?.SetEase(easeIn)
+               .SetUpdate(true) // Unscaled time (works when paused)
+               .OnComplete(() => OnInTransitionComplete?.Invoke());
     }
 
     public void DoOutro()
     {
-        if (doYPosTransition)
-        {
-            OnOutTransitionStarted?.Invoke();
-            rectTransform.DOAnchorPosY(outPos, transitionDuration).OnComplete(() =>
-            {
-                OnOutTransitionComplete?.Invoke();
-            });
-        }
+        rectTransform.DOKill();
+        OnOutTransitionStarted?.Invoke();
 
-        else if (doXPosTransition)
-        {
-            OnOutTransitionStarted?.Invoke();
-            rectTransform.DOAnchorPosX(outPos, transitionDuration).OnComplete(() =>
-            {
-                OnOutTransitionComplete?.Invoke();
-            });
-        }
+        Tween tween = GetTween(outPos);
+
+        tween?.SetEase(easeOut)
+               .SetUpdate(true)
+               .OnComplete(() => OnOutTransitionComplete?.Invoke());
+    }
+
+    // Helper method to keep intro/outro logic DRY
+    private Tween GetTween(float targetPos)
+    {
+        if (doYPosTransition)
+            return rectTransform.DOAnchorPosY(targetPos, transitionDuration);
+        if (doXPosTransition)
+            return rectTransform.DOAnchorPosX(targetPos, transitionDuration);
+
+        return null;
     }
 }
