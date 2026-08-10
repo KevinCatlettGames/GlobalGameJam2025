@@ -444,7 +444,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID
             || players[winnerID].Damage > 0
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(16);
     }
@@ -453,7 +453,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID
             || players[winnerID].Damage < damageAmountForAchievement
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(12);
     }
@@ -462,7 +462,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID
             || hitReferences[playerID].spellType != BasicBubble.SpellType.SmallerGiant
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(0, 1);
@@ -472,7 +472,7 @@ public class GameManager : NetworkBehaviour
     private void IncrementDoubleNunchuckKillAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         HitReference hit = hitReferences[killerID];
 
@@ -516,7 +516,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID
             || hitReferences[playerID].spellType != BasicBubble.SpellType.Exploding && hitReferences[playerID].spellType != BasicBubble.SpellType.Grenade
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         if (playerID != hitReferences[playerID].playerHitID) return;
         if (!hitReferences[playerID].wasHitByExplosion) return;
@@ -527,7 +527,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockMultiKillAchievements(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
 
@@ -549,7 +549,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockHitRapidShotsWithoutGettingHitAchievement(int index)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)index
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         HitReference hit = hitReferences[index];
 
@@ -577,14 +577,14 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
             || !AchievementSaveSystem.instance
-            || !hitReferences[killerID].wasReflected || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !hitReferences[killerID].wasReflected || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(3, 1);
     }
 
     private void IncrementSlowedPlayersKilledAchievement(int killerID)
     {
-        if (SceneManager.GetActiveScene().buildIndex == 5 || !AchievementSaveSystem.instance || !players[hitReferences[killerID].playerHitID].WasSlowedWhenLastHit) return;
+        if (SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6 | !AchievementSaveSystem.instance || !players[hitReferences[killerID].playerHitID].WasSlowedWhenLastHit) return;
 
         AchievementSaveSystem.instance.IncrementStat(9, 1);
     }
@@ -609,7 +609,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockDetonationAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(5, 1);
     }
@@ -635,7 +635,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockBotAchievement(int killerID, BasicBubble.SpellType usedSpell)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex != 5 || hitReferences[killerID].playerHitID != 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6 || hitReferences[killerID].playerHitID != 5) return;
 
         if (!playerWeaponKills.ContainsKey(killerID))
         {
@@ -663,7 +663,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockCyborgAchievement(int index, BasicBubble.SpellType currentWeapon)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)index
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         if (currentWeapon == BasicBubble.SpellType.Null || hitReferences[index].playerHitID == index) return;
 

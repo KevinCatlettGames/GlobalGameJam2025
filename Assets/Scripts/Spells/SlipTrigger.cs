@@ -1,6 +1,7 @@
 using System.Collections.Generic;
-using UnityEngine;
 using Unity.Netcode; 
+using UnityEngine;
+using UnityEngine.SceneManagement; 
 
 public class SlipTrigger : MonoBehaviour
 {
@@ -50,7 +51,7 @@ public class SlipTrigger : MonoBehaviour
     private void CheckMakeBubbleSlipperyAchievement(BasicBubble spedUpBubble)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)spedUpBubble.OwnerID.Value
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(4,1);

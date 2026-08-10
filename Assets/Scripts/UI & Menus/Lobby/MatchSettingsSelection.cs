@@ -112,34 +112,34 @@ public class MatchSettingsSelection : NetworkBehaviour
             LobbyManager.instance.selectedLoadoutType ==
             LoadoutSelection.LoadOutType.SharedCustom;
 
-        bool scoreAtMax =
-            Mathf.Approximately(
-                scoreToWinSlider.value,
-                scoreToWinSlider.maxValue
-            );
+        //bool scoreAtMax =
+        //    Mathf.Approximately(
+        //        scoreToWinSlider.value,
+        //        scoreToWinSlider.maxValue
+        //    );
 
         Navigation endlessNav = endlessToggle.navigation;
         endlessNav.mode = Navigation.Mode.Explicit;
 
         endlessNav.selectOnRight =
-            isCustom ? leftSpellButton : loadoutButton;
+            scoreToWinSlider; ;
 
         endlessToggle.navigation = endlessNav;
 
         Navigation scoreNav = scoreToWinSlider.navigation;
         scoreNav.mode = Navigation.Mode.Explicit;
 
-        scoreNav.selectOnRight =
-            isCustom && scoreAtMax
-                ? rightSpellButton
-                : null;
+        //scoreNav.selectOnRight =
+        //    isCustom && scoreAtMax
+        //        ? rightSpellButton
+        //        : null;
 
-        scoreNav.selectOnRight =
-          !isCustom && scoreAtMax
-              ? loadoutButton
-              : null;
+        //scoreNav.selectOnRight =
+        //  !isCustom && scoreAtMax
+        //      ? loadoutButton
+        //      : null;
 
-        scoreToWinSlider.navigation = scoreNav;
+        //scoreToWinSlider.navigation = scoreNav;
     }
 
     private void SetButtonNavigation(Tab tab)
@@ -160,7 +160,7 @@ public class MatchSettingsSelection : NetworkBehaviour
                 generalNav.selectOnDown = gameModeButton;
                 spellNav.selectOnDown = loadoutButton;
                 mapsNav.selectOnDown = loadoutButton;
-                backNav.selectOnUp = scoreToWinSlider;
+                backNav.selectOnUp = endlessToggle;
                 EventSystem.current.SetSelectedGameObject(generalButton.gameObject);
                 break;
 

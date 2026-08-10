@@ -1699,7 +1699,7 @@ public class PlayerController : NetworkBehaviour
             if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
 
             bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5) continue;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
 
             if (bubble.HasPopped || !isSprinting) continue;
         

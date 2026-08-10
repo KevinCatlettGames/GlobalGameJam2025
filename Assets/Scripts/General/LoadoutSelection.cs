@@ -21,8 +21,7 @@ public class LoadoutSelection : MonoBehaviour
 
     [Header("State")]
     [SerializeField]
-    private LoadOutType selectedLoadoutType =
-        LoadOutType.SharedRandom;
+    private LoadOutType selectedLoadoutType = LoadOutType.SharedRandom;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI loadoutText;
@@ -44,6 +43,10 @@ public class LoadoutSelection : MonoBehaviour
     public Button gameModeButton;
     public Toggle endlessToggle;
     public Slider roundsToWinSlider;
+
+    [Header("Endless / Score Parents")]
+    [SerializeField] private GameObject endlessToggleParent;
+    [SerializeField] private GameObject roundsToWinSliderParent;
 
     [Header("Input")]
     [SerializeField] private InputActionProperty loadoutSwitchInputAction;
@@ -83,46 +86,11 @@ public class LoadoutSelection : MonoBehaviour
         loadoutSwitchInputAction.action.Disable();
     }
 
-    //private void Update()
-    //{
-    //    Vector2 stick =
-    //        loadoutSwitchInputAction.action.ReadValue<Vector2>();
-
-    //    int direction = 0;
-
-    //    if (stick.x < -stickThreshold)
-    //        direction = -1;
-    //    else if (stick.x > stickThreshold)
-    //        direction = 1;
-
-    //    if (direction != 0)
-    //    {
-    //        GameObject currentSelected =
-    //            EventSystem.current.currentSelectedGameObject;
-
-    //        if (!stickInUse)
-    //        {
-    //            pageHoldTimer = 0f;
-    //            HandleSelectionInput(currentSelected, direction);
-    //            stickInUse = true;
-    //        }
-    //        else
-    //        {
-    //            pageHoldTimer += Time.deltaTime;
-
-    //            if (pageHoldTimer >= pageInitialDelay)
-    //            {
-    //                HandleSelectionInput(currentSelected, direction);
-    //                pageHoldTimer = pageInitialDelay - pageRepeatRate;
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    //        stickInUse = false;
-    //        pageHoldTimer = 0f;
-    //    }
-    //}
+    private void Update()
+    {
+        // Continuously evaluate visibility based on currently selected UI element
+        UpdateVisibilityState();
+    }
 
     private void HandleSelectionInput(GameObject currentSelected, int direction)
     {
@@ -137,6 +105,7 @@ public class LoadoutSelection : MonoBehaviour
 
         buttonClickEmitter?.Play();
     }
+
     public void OnLoadoutButtonClick()
     {
         ChangeLoadOutType(true, true);
@@ -178,6 +147,7 @@ public class LoadoutSelection : MonoBehaviour
         RefreshNavigation();
         buttonClickEmitter?.Play();
     }
+
     public void ChangeLeftSpell(bool increment, bool allowNegativeLoop = false)
     {
         int count = lobbyManager.Spells.Length;
@@ -216,12 +186,11 @@ public class LoadoutSelection : MonoBehaviour
 
     private void ApplyAllUI()
     {
-
-        switch(selectedLoadoutType)
+        switch (selectedLoadoutType)
         {
             case LoadOutType.SharedCustom:
-                loadoutTextStringEvent.StringReference = sharedCustomLocalizedStringProperty.LocalizedString;               
-                    break;
+                loadoutTextStringEvent.StringReference = sharedCustomLocalizedStringProperty.LocalizedString;
+                break;
             case LoadOutType.SharedRandom:
                 loadoutTextStringEvent.StringReference = sharedRandomLocalizedStringProperty.LocalizedString;
                 break;
@@ -242,7 +211,6 @@ public class LoadoutSelection : MonoBehaviour
         }
 
         bool isCustom = selectedLoadoutType == LoadOutType.SharedCustom;
-        customLoadoutSelection.SetActive(isCustom);
 
         if (isCustom)
         {
@@ -254,13 +222,59 @@ public class LoadoutSelection : MonoBehaviour
 
             UpdateSpellBubbles();
         }
+
+        UpdateVisibilityState();
+    }
+
+    private void UpdateVisibilityState()
+    {
+        bool isCustom = selectedLoadoutType == LoadOutType.SharedCustom;
+
+        if (!isCustom)
+        {
+            // If loadout is not SharedCustom, always hide custom spell UI and show Endless/Score controls
+            SetCustomSpellVisibility(false);
+            SetEndlessAndRoundsVisibility(true);
+            return;
+        }
+
+        // When loadout IS SharedCustom:
+        GameObject selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+
+        bool isSpellOrLoadoutSelected = selected == loadoutButton.gameObject ||
+                                        selected == leftSpellButton.gameObject ||
+                                        selected == rightSpellButton.gameObject;
+
+        // If loadout, left spell, or right spell button is currently highlighted/focused:
+        // Show the Custom Spells UI, Hide Endless / Score options
+        SetCustomSpellVisibility(isSpellOrLoadoutSelected);
+        SetEndlessAndRoundsVisibility(!isSpellOrLoadoutSelected);
+    }
+
+    private void SetCustomSpellVisibility(bool visible)
+    {
+        if (customLoadoutSelection != null && customLoadoutSelection.activeSelf != visible)
+        {
+            customLoadoutSelection.SetActive(visible);
+        }
+    }
+
+    private void SetEndlessAndRoundsVisibility(bool visible)
+    {
+        // Toggles root objects if assignable, otherwise toggles the components direct GameObjects
+        GameObject endlessObj = endlessToggleParent != null ? endlessToggleParent : (endlessToggle != null ? endlessToggle.gameObject : null);
+        GameObject roundsObj = roundsToWinSliderParent != null ? roundsToWinSliderParent : (roundsToWinSlider != null ? roundsToWinSlider.gameObject : null);
+
+        if (endlessObj != null && endlessObj.activeSelf != visible)
+            endlessObj.SetActive(visible);
+
+        if (roundsObj != null && roundsObj.activeSelf != visible)
+            roundsObj.SetActive(visible);
     }
 
     private void RefreshNavigation()
     {
         SetLoadoutButtonNav();
-        SetLeftSpellButtonNav();
-        SetRightSpellButtonNav();
         MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
@@ -270,34 +284,14 @@ public class LoadoutSelection : MonoBehaviour
 
         if (selectedLoadoutType == LoadOutType.SharedCustom)
         {
-            nav.selectOnDown = leftSpellButton;
+            nav.selectOnDown = rightSpellButton;
         }
         else
         {
             nav.selectOnLeft = gameModeButton;
-            nav.selectOnDown = null;
+            nav.selectOnDown = roundsToWinSlider;
         }
         loadoutButton.navigation = nav;
-    }
-
-    private void SetLeftSpellButtonNav()
-    {
-        Navigation nav = leftSpellButton.navigation;
-        nav.mode = Navigation.Mode.Explicit;
-
-        nav.selectOnLeft = endlessToggle;
-
-        leftSpellButton.navigation = nav;
-    }
-
-    private void SetRightSpellButtonNav()
-    {
-        Navigation nav = rightSpellButton.navigation;
-        nav.mode = Navigation.Mode.Explicit;
-
-        nav.selectOnLeft = roundsToWinSlider;
-
-        rightSpellButton.navigation = nav;
     }
 
     private void UpdateSpellBubbles()
