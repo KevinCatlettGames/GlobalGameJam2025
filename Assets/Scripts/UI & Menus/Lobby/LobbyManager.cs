@@ -156,9 +156,6 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Texts displayed on start button.")]
     [SerializeField] private TextMeshProUGUI[] startButtonTexts;
 
-    [Tooltip("Text displaying current game mode.")]
-    [SerializeField] private TextMeshProUGUI gameModeTypeText;
-
     [Tooltip("Button color when enabled.")]
     [SerializeField] private Color startButtonColorWhenEnabled;
 
@@ -199,9 +196,6 @@ public class LobbyManager : NetworkBehaviour
         selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
         selectedLeftSpellIndex = 0;
         selectedRightSpellIndex = 0;
-
-        gameModeTypeText.text =
-            gameModes[0].GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (PlayerLobbyState player in players)
             playerContainers[player.PlayerIndex].SetActive(true);
@@ -664,8 +658,6 @@ public class LobbyManager : NetworkBehaviour
         }
 
         selectedGameMode = gameModeType;
-        gameModeTypeText.text =
-            selectedSO.GameModeLocalizationProperty.LocalizedString.GetLocalizedString();
 
         foreach (GameObject teamSelection in teamSelections)
         {
