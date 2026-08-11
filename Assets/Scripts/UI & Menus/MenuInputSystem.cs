@@ -1,10 +1,9 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.LowLevel;
-using UnityEngine.UI; 
 
 public class MenuInputSystem : MonoBehaviour
 {
@@ -18,6 +17,16 @@ public class MenuInputSystem : MonoBehaviour
 
     #region Fields
     public GameDevice activeGameDevice;
+
+    [Header("Deadzone Settings")]
+    [SerializeField, Range(0.01f, 0.9f)]
+    private float stickDeadzone = 0.25f;
+
+    [SerializeField, Range(0.01f, 0.9f)]
+    private float triggerDeadzone = 0.1f;
+
+    [SerializeField]
+    private float mouseMoveThreshold = 1.0f;
     #endregion
 
     #region Events
@@ -57,16 +66,76 @@ public class MenuInputSystem : MonoBehaviour
         if (device == null)
             return;
 
-        // Gamepad detected
-        if (device is Gamepad)
+        if (device is Gamepad gamepad)
         {
-            ChangeActiveGameDevice(GameDevice.Gamepad);
+            if (HasGamepadInputExceededDeadzone(eventPtr, gamepad))
+            {
+                ChangeActiveGameDevice(GameDevice.Gamepad);
+            }
         }
-        // Keyboard or Mouse detected
-        else if (device is Keyboard || device is Mouse)
+        else if (device is Keyboard)
         {
             ChangeActiveGameDevice(GameDevice.KeyboardMouse);
         }
+        else if (device is Mouse mouse)
+        {
+            if (HasMouseInputExceededThreshold(eventPtr, mouse))
+            {
+                ChangeActiveGameDevice(GameDevice.KeyboardMouse);
+            }
+        }
+    }
+
+    private bool HasGamepadInputExceededDeadzone(InputEventPtr eventPtr, Gamepad gamepad)
+    {
+        foreach (var control in eventPtr.EnumerateChangedControls(gamepad))
+        {
+            if (control is Vector2Control vectorControl)
+            {
+                Vector2 value = vectorControl.ReadValueFromEvent(eventPtr);
+                if (value.magnitude >= stickDeadzone)
+                    return true;
+            }
+            else if (control is AxisControl axisControl)
+            {
+                float value = axisControl.ReadValueFromEvent(eventPtr);
+                if (Mathf.Abs(value) >= triggerDeadzone)
+                    return true;
+            }
+            else if (control is ButtonControl buttonControl)
+            {
+                if (buttonControl.ReadValueFromEvent(eventPtr) >= buttonControl.pressPoint)
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private bool HasMouseInputExceededThreshold(InputEventPtr eventPtr, Mouse mouse)
+    {
+        if (mouse.delta.ReadValue().sqrMagnitude >= (mouseMoveThreshold * mouseMoveThreshold))
+        {
+            return true;
+        }
+
+        foreach (var control in eventPtr.EnumerateChangedControls(mouse))
+        {
+            if (control == mouse.position || control == mouse.delta)
+                continue;
+
+            if (control is ButtonControl button && button.ReadValueFromEvent(eventPtr) >= button.pressPoint)
+            {
+                return true;
+            }
+            else if (control is Vector2Control scroll && scroll == mouse.scroll)
+            {
+                if (scroll.ReadValueFromEvent(eventPtr).sqrMagnitude > 0.01f)
+                    return true;
+            }
+        }
+
+        return false;
     }
 
     #endregion
@@ -78,11 +147,6 @@ public class MenuInputSystem : MonoBehaviour
         if (activeGameDevice == newDevice)
             return;
 
-        //if (newDevice == GameDevice.Gamepad)
-        //{
-        //    EventSystem.current.SetSelectedGameObject(FindFirstObjectByType<Button>().gameObject);
-        //}
-
         activeGameDevice = newDevice;
         OnGameDeviceChanged?.Invoke(activeGameDevice);
 
@@ -93,12 +157,10 @@ public class MenuInputSystem : MonoBehaviour
 
     #region Mouse Control
 
-    public void SetMouseVisibility(bool value)
+    public void SetMouseVisibility(bool isKeyboardMouse)
     {
-        Cursor.visible = value && activeGameDevice != GameDevice.Gamepad;
-        Cursor.lockState = (value && activeGameDevice != GameDevice.Gamepad)
-            ? CursorLockMode.None
-            : CursorLockMode.Locked;
+        Cursor.visible = isKeyboardMouse;
+        Cursor.lockState = isKeyboardMouse ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     #endregion

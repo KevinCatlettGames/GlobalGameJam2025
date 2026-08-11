@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -896,6 +895,12 @@ public class LobbyManager : NetworkBehaviour
     public void TogglePlayTutorial(bool toggle)
     {
         playTutorial = toggle;
+    }
+
+    public void SwitchPlayTutorialState()
+    {
+        playTutorial = !playTutorial;
+        playTutorialToggle.isOn = !playTutorialToggle.isOn;
     }
 
     [ServerRpc(RequireOwnership = false)]
