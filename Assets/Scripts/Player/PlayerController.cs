@@ -1585,7 +1585,7 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+            if (LobbyManager.instance && GameManager.Instance.GameMode == GameManager.GameModeType.Team)
             {
                 if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
                 {

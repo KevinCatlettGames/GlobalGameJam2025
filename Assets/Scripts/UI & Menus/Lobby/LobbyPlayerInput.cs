@@ -504,13 +504,17 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnToggleMatchSettings(InputAction.CallbackContext context)
     {
+        if (!context.performed) return;
+
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
         PlaySFX(false, 3);
-        lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
+
+        bool currentState = lobbyManager._MatchSettingsSelection.activeSelf;
+        lobbyManager._MatchSettingsSelection.SetActive(!currentState);
     }
 
 #if !UNITY_SWITCH

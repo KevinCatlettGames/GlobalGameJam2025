@@ -61,15 +61,21 @@ public class MatchSettingsSelection : NetworkBehaviour
 
     private void OnEnable()
     {
-        mainLobbyUI.SetActive(false);
+        if (mainLobbyUI != null)
+            mainLobbyUI.SetActive(false);
+
+        EnableTabToggling();
         SetTab(Tab.General);
     }
 
     private void OnDisable()
     {
-        mainLobbyUI.SetActive(true);
+        if (mainLobbyUI != null)
+            mainLobbyUI.SetActive(true);
+
         DisableTabToggling();
     }
+
     public void SetTab(Tab tab)
     {
         if (!SteamIntegration.instance.IsFullVersion && tab == Tab.Maps)
@@ -86,9 +92,6 @@ public class MatchSettingsSelection : NetworkBehaviour
         }
         else
             currentTab = tab;
-
-        if (!tabTogglingEnabled)
-            EnableTabToggling();
 
         generalTabFrame.SetActive(tab == Tab.General);
         spellsTabFrame.SetActive(tab == Tab.Spells);
@@ -112,12 +115,6 @@ public class MatchSettingsSelection : NetworkBehaviour
             LobbyManager.instance.selectedLoadoutType ==
             LoadoutSelection.LoadOutType.SharedCustom;
 
-        //bool scoreAtMax =
-        //    Mathf.Approximately(
-        //        scoreToWinSlider.value,
-        //        scoreToWinSlider.maxValue
-        //    );
-
         Navigation endlessNav = endlessToggle.navigation;
         endlessNav.mode = Navigation.Mode.Explicit;
 
@@ -128,18 +125,6 @@ public class MatchSettingsSelection : NetworkBehaviour
 
         Navigation scoreNav = scoreToWinSlider.navigation;
         scoreNav.mode = Navigation.Mode.Explicit;
-
-        //scoreNav.selectOnRight =
-        //    isCustom && scoreAtMax
-        //        ? rightSpellButton
-        //        : null;
-
-        //scoreNav.selectOnRight =
-        //  !isCustom && scoreAtMax
-        //      ? loadoutButton
-        //      : null;
-
-        //scoreToWinSlider.navigation = scoreNav;
     }
 
     private void SetButtonNavigation(Tab tab)
@@ -202,6 +187,9 @@ public class MatchSettingsSelection : NetworkBehaviour
         leftTabSwitchAction.action.Enable();
         rightTabSwitchAction.action.Enable();
 
+        leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
+        rightTabSwitchAction.action.performed -= OnRightTabSwitch;
+
         leftTabSwitchAction.action.performed += OnLeftTabSwitch;
         rightTabSwitchAction.action.performed += OnRightTabSwitch;
     }
@@ -210,22 +198,19 @@ public class MatchSettingsSelection : NetworkBehaviour
     {
         tabTogglingEnabled = false;
 
-        leftTabSwitchAction.action.Disable();
-        rightTabSwitchAction.action.Disable();
-
         leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
         rightTabSwitchAction.action.performed -= OnRightTabSwitch;
     }
 
     private void OnLeftTabSwitch(InputAction.CallbackContext ctx)
     {
-        if (ctx.canceled) return;
+        if (!tabTogglingEnabled || !ctx.performed) return;
         ChangeTab(false);
     }
 
     private void OnRightTabSwitch(InputAction.CallbackContext ctx)
     {
-        if (ctx.canceled) return;
+        if (!tabTogglingEnabled || !ctx.performed) return;
         ChangeTab(true);
     }
 

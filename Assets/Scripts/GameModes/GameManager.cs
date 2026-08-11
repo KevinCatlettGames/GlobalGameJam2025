@@ -111,7 +111,9 @@ public class GameManager : NetworkBehaviour
     {
         if (LobbyManager.instance)
         {
-            gameModeType = LobbyManager.instance.SelectedGameMode;
+            if(SceneManager.GetActiveScene().buildIndex != 6)
+                gameModeType = LobbyManager.instance.SelectedGameMode;
+
             playEndless = LobbyManager.instance.playEndless;
         }
 
