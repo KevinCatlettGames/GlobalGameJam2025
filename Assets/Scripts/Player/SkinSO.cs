@@ -5,7 +5,7 @@ using UnityEngine.Serialization;
 public enum VoiceProfile
 {
     Lukas,
-    Quin,
+    Quinn,
     Nils,
     Sean,
     Kevin,
