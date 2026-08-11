@@ -12,10 +12,17 @@ public class ScaleToCorrectSize : MonoBehaviour
 
     private Vector3 targetScale;
     private Coroutine scaleRoutine;
+    public bool scaleOnEnable = false; 
 
     private void Awake()
     {
         targetScale = transform.localScale;
+    }
+
+    private void OnEnable()
+    {
+        if (scaleOnEnable)
+            Play();
     }
 
     public void Play()

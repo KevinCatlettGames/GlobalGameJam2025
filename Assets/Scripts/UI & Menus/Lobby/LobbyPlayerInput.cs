@@ -25,7 +25,6 @@ public class LobbyPlayerInput : NetworkBehaviour
         NetworkVariableReadPermission.Everyone,
         NetworkVariableWritePermission.Owner
     );
-    [SerializeField] InputActionAsset switchInputActionAsset;
     private System.IDisposable anyButtonListener;
 
     public readonly NetworkVariable<ulong> networkSteamId = new NetworkVariable<ulong>(
@@ -50,10 +49,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     {
         playerInput = GetComponent<PlayerInput>();
 
-#if UNITY_SWITCH && !UNITY_EDITOR
-        playerInput.actions = switchInputActionAsset;
-#endif
-
         lobbyManager = LobbyManager.instance;
         if (!lobbyManager.allLobbyPlayerInputs.Contains(this))
         {
@@ -70,11 +65,6 @@ public class LobbyPlayerInput : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             playerInput.DeactivateInput();
-
-        // REMOVED: The 'IsServer && IsOwner' check that blocked non-host clients from auto-joining
-#if UNITY_SWITCH
-    StartCoroutine(WaitAndJoinOnlinePlayer());
-#endif
     }
 
     public void HandleJoinAfterValuesAreShared()
@@ -200,7 +190,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         {
             PlayerContainerManager containerManager = go.GetComponent<PlayerContainerManager>();
 
-            if (containerManager.occupied)
+            if (containerManager.gameObject.activeSelf)
                 continue;
             else
             {
@@ -231,10 +221,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         else
             lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
 
-        if (playerInput.devices.Count > 0)
-        {
-            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0]);
-        }
+        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0]);
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
@@ -517,13 +504,17 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnToggleMatchSettings(InputAction.CallbackContext context)
     {
+        if (!context.performed) return;
+
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
         PlaySFX(false, 3);
-        lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
+
+        bool currentState = lobbyManager._MatchSettingsSelection.activeSelf;
+        lobbyManager._MatchSettingsSelection.SetActive(!currentState);
     }
 
 #if !UNITY_SWITCH

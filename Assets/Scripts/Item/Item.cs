@@ -40,6 +40,7 @@ public class Item : NetworkBehaviour
         if (spellID != -1)
             SetupSpellClientRpc(spellID);
     }
+
     public int EquipSpell()
     {
         StartCoroutine(DelayedDestroy());

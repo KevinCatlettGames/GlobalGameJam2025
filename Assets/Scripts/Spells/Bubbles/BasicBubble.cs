@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class BasicBubble : NetworkBehaviour
 {
@@ -476,7 +477,7 @@ public class BasicBubble : NetworkBehaviour
         if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
         //Debug.Log("Incrementing missed shot ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(21, 1);

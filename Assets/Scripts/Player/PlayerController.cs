@@ -19,9 +19,13 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private EventReference knockBackEvent;
     [SerializeField] private EventReference tickDamageEvent;
     [SerializeField] private EventReference vulnerableDamageEvent;
+    [SerializeField] private EventReference startEvent;
+    [SerializeField] private EventReference deathEvent;
     [SerializeField] string knockBackEventIntensityParam;
     [SerializeField] int knockBackEventMaxIntensity = 100; 
     [SerializeField] private EventReference dashEvent;
+    [SerializeField] private int voiceProfile;
+    private string voiceProfileParam = "VoiceProfile";
 
     #endregion
 
@@ -208,6 +212,13 @@ public class PlayerController : NetworkBehaviour
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
+        Invoke(nameof(ManualEntrance), .25f);
+    }
+
+    void ManualEntrance()
+    {
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance || TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            StartEntrence(0);
     }
 
     [ClientRpc]
@@ -223,6 +234,7 @@ public class PlayerController : NetworkBehaviour
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
+        Invoke(nameof(ManualEntrance), .25f);
     }
 
     private void EnableInput()
@@ -440,7 +452,7 @@ public class PlayerController : NetworkBehaviour
     public void OnFirstSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned || !inputEnabled) return;
-        if (!isFirstSpellReady)
+        if (!isFirstSpellReady || firstSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(1);
@@ -453,7 +465,7 @@ public class PlayerController : NetworkBehaviour
     public void OnSecondSpell(InputAction.CallbackContext context)
     {
         if (GameManager.IsGamePaused || !context.performed || isDead || isStunned|| !inputEnabled) return;
-        if (!isSecondSpellReady)
+        if (!isSecondSpellReady || secondSpell == null)
         {
             controllerRumbler?.Rumble(.15f, 1f, 5f);
             playerHUD.AnimateSpellIcon(2);
@@ -504,14 +516,24 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             mainAnimator.SetTrigger("SlapTrigger");
-            RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(spell.SpellVoiceEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+            fmodEvent.start();
+            fmodEvent.release();
         }
 
         if (!GameManager.Instance.PlayingLocal)
         {
             GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("SlapTrigger");
             if (spell != null)
-                RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+            {
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(spell.SpellVoiceEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+                fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+                fmodEvent.start();
+                fmodEvent.release();
+            }
             SlapAnimServerRpc(isFirstSpell);
         }
     }
@@ -769,12 +791,14 @@ public class PlayerController : NetworkBehaviour
                 Instantiate(dashStartEffect, transform.position, transform.rotation);
                 RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             }
+            mainAnimator.Play("Dash", 0, 0);
         }
         else
         {
             Instantiate(dashStartEffect, transform.position, transform.rotation);
             RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
             SpawnDashEffectServerRpc();
+            DashAnimServerRpc();
         }
     }
 
@@ -1177,6 +1201,11 @@ public class PlayerController : NetworkBehaviour
         controller.enabled = false;
         damagedEffect.UpdateParticleSystem(-1);
         trail.Stop();
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(deathEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+        fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+        fmodEvent.start();
+        fmodEvent.release();
 
         if (GameManager.Instance.PlayingLocal)
         {
@@ -1478,32 +1507,38 @@ public class PlayerController : NetworkBehaviour
         shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
-        //trail.Play();
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
         StartCoroutine(EntranceCoroutine(0));
     }
 
-    private IEnumerator EntranceCoroutine(float initalDelay)
+    public void StartEntrence(float remainingDelay)
+    {
+        StartCoroutine(EntranceCoroutine(remainingDelay));
+    }
+
+    private IEnumerator EntranceCoroutine(float remainingDelay)
     {
         inputEnabled = false;
         canvas.SetActive(false);
-        float startDelay = 0.7f * (playerID + 1);
-        if (initalDelay > 0)
-        {
-            yield return new WaitForSeconds(startDelay);
-        }
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
             PlayAnimServerRpc("Entrance", 0, 0);
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(startEvent);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+        fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+        fmodEvent.start();
+        fmodEvent.release();
         float animationTime = 1.06f; //Duration of entrance animation
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
-        if (initalDelay > 0)
-            yield return new WaitForSeconds(initalDelay - startDelay - animationTime);
+        if (remainingDelay > 0)
+        {
+            yield return new WaitForSeconds(remainingDelay - animationTime);
+        }
         inputEnabled = true;
     }
 
@@ -1518,6 +1553,7 @@ public class PlayerController : NetworkBehaviour
         currentSkinSO = skinObject;
         this.playerHUD = playerHUD;
         this.playerID = playerID;
+        voiceProfile = (int)skinObject.VoiceProfile;
 
         childAnimatorObject = Instantiate(skinObject.SkinPrefab, meshParent);
         
@@ -1549,7 +1585,7 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+            if (LobbyManager.instance && GameManager.Instance.GameMode == GameManager.GameModeType.Team)
             {
                 if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
                 {
@@ -1587,7 +1623,15 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        StartCoroutine(EntranceCoroutine(dropInJoin? 0 : 4f)); //Delay to sync with countdown
+        if (dropInJoin)
+        {
+            StartCoroutine(EntranceCoroutine(0));
+        }
+        else
+        {
+            inputEnabled = false;
+            canvas.SetActive(false);
+        }
     }
 
     [ClientRpc]
@@ -1688,7 +1732,7 @@ public class PlayerController : NetworkBehaviour
             if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
 
             bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5) continue;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
 
             if (bubble.HasPopped || !isSprinting) continue;
         
@@ -1727,6 +1771,19 @@ public class PlayerController : NetworkBehaviour
         SO_Spell spell = isFirstSpell ? firstSpell : secondSpell;
         if (spell != null)
             RuntimeManager.PlayOneShotAttached(spell.SpellVoiceEvent, gameObject);
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void DashAnimServerRpc()
+    {
+        DashAnimClientRpc();
+    }
+
+    [ClientRpc]
+    private void DashAnimClientRpc()
+    {
+        if (IsOwner) return;
+        GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Dash");
     }
 
     [ServerRpc(RequireOwnership = false)]

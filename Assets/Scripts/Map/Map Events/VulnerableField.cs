@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class VulnerableField : MonoBehaviour
 {
@@ -34,6 +35,8 @@ public class VulnerableField : MonoBehaviour
 
     private void IncrementProcEffectAchievement()
     {
+        if (SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
         if (AchievementSaveSystem.instance)
         {
             AchievementSaveSystem.instance.IncrementStat(20, 1);

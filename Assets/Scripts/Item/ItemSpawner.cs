@@ -30,7 +30,7 @@ public class ItemSpawner : MonoBehaviour
         if (Instance == null)
             Instance = this;
         else
-            Destroy(gameObject);
+            Destroy(gameObject);     
     }
 
     public void InitialSpawn()

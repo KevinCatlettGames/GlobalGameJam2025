@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using FMODUnity;
 
 
 public enum PlayerState
@@ -14,8 +12,6 @@ public enum PlayerState
 
 public class PlayerStateHandler : MonoBehaviour
 {
-    [SerializeField] private EventReference deathEvent;
-    [SerializeField] private EventReference startEvent;
     [SerializeField] private float respawnTime = 3f;
     [SerializeField] private Transform setRespawnPosition;
     private SO_GameSettings gameSettings;
@@ -28,7 +24,6 @@ public class PlayerStateHandler : MonoBehaviour
 
     private void Start()
     {
-        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         playerController = GetComponent<PlayerController>();
         characterController = GetComponent<CharacterController>();
         gameSettings = GameManager.Instance.GetGameSettings();
@@ -86,7 +81,6 @@ public class PlayerStateHandler : MonoBehaviour
             transform.position = setRespawnPosition.position;
             transform.rotation = setRespawnPosition.rotation;
         }
-        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         characterController.enabled = true;
         canDie = true;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);

@@ -1,6 +1,7 @@
 using System.Collections;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RevolverBubble : BasicBubble
 {
@@ -109,7 +110,7 @@ public class RevolverBubble : BasicBubble
        if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         //Debug.Log("Increment all shots hit revolver ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
