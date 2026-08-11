@@ -9,15 +9,23 @@ public class EndTutorialZone : MonoBehaviour
     [SerializeField] private float increse = .5f;
     [SerializeField] private float decrese = .25f;
     [SerializeField] Slider slider;
+    [SerializeField] TutorialMapNetworkInitializer tutorialMapNetworkInitializer;
     private float progress = 0f;
+    private bool exitComplete = false;
+
     private void Update()
     {
+        if (exitComplete) return; 
+
         if (playerControllers.Count > 0)
         {
             if (progress >= 1)
             {
-                Debug.Log("EXIT TUTORIAL");
-                // Exit tutorial
+                tutorialMapNetworkInitializer.DespawnTutorialObjects();
+                if (MapRotationSystem.Instance)
+                    MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+                exitComplete = true;
+                //Debug.Log("EXIT TUTORIAL");
             }
             else
             {

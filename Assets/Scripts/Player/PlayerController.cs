@@ -213,6 +213,13 @@ public class PlayerController : NetworkBehaviour
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
+        Invoke(nameof(ManualEntrance), .25f);
+    }
+
+    void ManualEntrance()
+    {
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance)
+            StartEntrence(0);
     }
 
     [ClientRpc]
