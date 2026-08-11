@@ -4,7 +4,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
-using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -218,7 +217,7 @@ public class PlayerController : NetworkBehaviour
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance)
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance || TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             StartEntrence(0);
     }
 
@@ -235,6 +234,7 @@ public class PlayerController : NetworkBehaviour
         PlayerManager.Instance.OnPlayerJoined(GetComponent<PlayerInput>());
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
+        Invoke(nameof(ManualEntrance), .25f);
     }
 
     private void EnableInput()
