@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ExplodingBubble : BasicBubble
 {
@@ -125,7 +126,7 @@ public class ExplodingBubble : BasicBubble
     private void UnlockDetonationMultiKillAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
 
         // Replace YOUR_ACHIEVEMENT_ID with the actual ID integer
         AchievementSaveSystem.instance.IncrementStat(5, 1);

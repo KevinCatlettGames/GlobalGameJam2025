@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GrenadeBubble : BasicBubble
 {
@@ -177,14 +178,16 @@ public class GrenadeBubble : BasicBubble
 
     private void IncrementPerfectGrenadeHitAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !AchievementSaveSystem.instance) return;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value 
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(8);
     }
 
     private void UnlockHitTwoGrenadesMidairAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value || !AchievementSaveSystem.instance) return;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value 
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(18);
     }
