@@ -45,7 +45,7 @@ public class ScaleToCorrectSize : MonoBehaviour
 
         while (timer < duration)
         {
-            timer += Time.deltaTime;
+            timer += Time.unscaledDeltaTime;
 
             float t = Mathf.Clamp01(timer / duration);
 
