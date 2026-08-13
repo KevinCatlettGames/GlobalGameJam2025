@@ -1,4 +1,5 @@
 using EditorAttributes;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,8 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private const string ACHIEV_SAVE_PREFIX = "Ach_";
     private const string STAT_SAVE_PREFIX = "AchStat_";
+
+    public Action<int> OnAchievementUnlocked; 
 
     private void Awake()
     {
@@ -125,7 +128,7 @@ public class AchievementSaveSystem : MonoBehaviour
             SteamIntegration.instance.UnlockAchievement(index);
         }
 #endif
-
+        OnAchievementUnlocked?.Invoke(index);
         //Debug.Log($"Achievement Unlocked: {ach.AchievementName}");
     }
 
