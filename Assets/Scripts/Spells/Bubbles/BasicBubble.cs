@@ -54,7 +54,7 @@ public class BasicBubble : NetworkBehaviour
     [SerializeField] protected bool popOnBubbleHit = true;
 
     [Header("Effects")]
-    [SerializeField] protected GameObject fizzleEffect;
+    [SerializeField] public GameObject fizzleEffect;
     [SerializeField] protected GameObject hitEffect;
     [SerializeField] protected EventReference soundEvent;
     private float soapSpeedAmp = 2f;
@@ -63,8 +63,7 @@ public class BasicBubble : NetworkBehaviour
     private float reflectDmgIncrease = 1.2f;
 
     protected Vector3 lastPosition;
-    protected float desyncThreshold = 0.05f;
-
+    protected float desyncThreshold = 0.75f;
     protected bool canMiss = true;
     protected bool isUlt = false;
     protected bool hasHitPlayer = false;
@@ -99,7 +98,6 @@ public class BasicBubble : NetworkBehaviour
         sphereCollider = GetComponent<SphereCollider>();
         if (sphereCollider != null)
         {
-            // Disable trigger interactions on fake to prevent premature local physics overrides
             if (isLocalFake)
             {
                 sphereCollider.isTrigger = false;
@@ -140,6 +138,9 @@ public class BasicBubble : NetworkBehaviour
 
         if (!IsServer && !isLocalFake)
         {
+            // Immediate check in case values synced before OnNetworkSpawn
+            CheckAndHideVisibility(OwnerID.Value);
+
             if (AssignedSpellID.Value != 0)
             {
                 TryLinkLocalFake(AssignedSpellID.Value);
@@ -174,6 +175,9 @@ public class BasicBubble : NetworkBehaviour
             {
                 fakeCopy = bubble;
 
+                // Immediately hide server bubble visuals upon linking with local predicted fake
+                HideVisualsAndDisablePhysics();
+
                 Collider myCollider = GetComponent<Collider>();
                 Collider fakeCollider = bubble.GetComponent<Collider>();
                 if (myCollider != null && fakeCollider != null)
@@ -194,31 +198,13 @@ public class BasicBubble : NetworkBehaviour
     {
         if (IsServer || isLocalFake) return;
 
-        if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
-        if (GameManager.Instance.Players[currentCasterId] == null) return;
-
-        if (GameManager.Instance.Players[currentCasterId].IsOwner || fakeWithServerCaster)
+        // If this server bubble belongs to the local player, suppress its visuals immediately
+        if (currentCasterId >= 0 && currentCasterId < GameManager.Instance.Players.Length)
         {
-            foreach (var renderer in GetComponentsInChildren<Renderer>(true))
-                renderer.enabled = false;
-
-            foreach (ParticleSystem ps in GetComponentsInChildren<ParticleSystem>(true))
+            if (GameManager.Instance.Players[currentCasterId] != null &&
+               (GameManager.Instance.Players[currentCasterId].IsOwner || fakeWithServerCaster))
             {
-                ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-                ps.gameObject.SetActive(false);
-            }
-
-            foreach (TrailRenderer trail in GetComponentsInChildren<TrailRenderer>(true))
-            {
-                trail.Clear();
-                trail.enabled = false;
-            }
-
-            Collider bubbleCol = GetComponent<Collider>();
-            Collider playerCol = GameManager.Instance.Players[OwnerID.Value].GetComponent<Collider>();
-            if (bubbleCol != null && playerCol != null)
-            {
-                Physics.IgnoreCollision(bubbleCol, playerCol);
+                HideVisualsAndDisablePhysics();
             }
         }
     }
@@ -234,13 +220,9 @@ public class BasicBubble : NetworkBehaviour
                     break;
 
                 case FakeBubbleState.AwaitingServerConfirmation:
-                    // GLIDE FORWARD at 20% speed while awaiting server approval
-                    // This converts a jarring "lag freeze" into a smooth impact glide/squish
                     transform.position += direction * (speed * 0.2f) * Time.fixedDeltaTime;
-
                     pendingTimer += Time.fixedDeltaTime;
 
-                    // Safety Timeout: Resume normal speed if server drops packet or takes too long
                     if (pendingTimer >= MAX_WAIT_TIME)
                     {
                         currentState = FakeBubbleState.Moving;
@@ -275,10 +257,7 @@ public class BasicBubble : NetworkBehaviour
     {
         impactPoint = transform.position;
 
-        // Check ONLY the exact distance the bubble moves in 1 physics frame (plus a tiny safety buffer)
         float lookAheadDistance = (speed * Time.fixedDeltaTime) + 0.05f;
-
-        // Radius uses half size so it doesn't trigger on surfaces further away
         float checkRadius = (sphereCollider != null) ? (sphereCollider.radius * transform.localScale.x * 0.5f) : (currentSize * 0.5f);
 
         if (Physics.SphereCast(transform.position, checkRadius, direction, out RaycastHit hit, lookAheadDistance))
@@ -295,7 +274,7 @@ public class BasicBubble : NetworkBehaviour
     [ServerRpc(RequireOwnership = false)]
     protected void NotifyServerImpactServerRpc(Vector3 clientImpactPoint)
     {
-        // Server verification hook for predicted client hit/impact
+        // Server verification hook for predicted client impact
     }
 
     protected virtual IEnumerator Inflate()
@@ -487,10 +466,18 @@ public class BasicBubble : NetworkBehaviour
 
     public void OnServerConfirmReflect(Vector3 newDirection, Vector3 correctPosition)
     {
-        transform.position = Vector3.Lerp(transform.position, correctPosition, 0.5f);
         direction = newDirection;
         transform.rotation = Quaternion.LookRotation(newDirection);
         currentState = FakeBubbleState.Moving;
+
+        float distance = Vector3.Distance(transform.position, correctPosition);
+        if (distance > desyncThreshold)
+        {
+            if (correctionCoroutine != null)
+                StopCoroutine(correctionCoroutine);
+
+            correctionCoroutine = StartCoroutine(SmoothCorrection(correctPosition));
+        }
     }
 
     protected virtual void Reflect(Vector3 normal)
@@ -525,47 +512,27 @@ public class BasicBubble : NetworkBehaviour
 
             fakeCopy.OnServerConfirmReflect(newDir, serverPos);
 
-            // Clear trail renderers to prevent cross-screen stretching
             foreach (var trail in fakeCopy.GetComponentsInChildren<TrailRenderer>())
             {
                 trail.Clear();
             }
 
-            // Spawn reflection visual FX at the bounce location
             if (fakeCopy.fizzleEffect != null)
             {
                 Instantiate(fakeCopy.fizzleEffect, serverPos, Quaternion.identity);
             }
 
-            // Reset range limit timer
             if (fakeCopy.rangeCoroutine != null)
                 fakeCopy.StopCoroutine(fakeCopy.rangeCoroutine);
 
             fakeCopy.rangeCoroutine = fakeCopy.StartCoroutine(fakeCopy.BubbleRangeLimit());
-
-            // Position Correction smoothing check
-            float distanceToServerBounce = Vector3.Distance(fakeCopy.transform.position, serverPos);
-            float threshold = 0.15f;
-
-            if (distanceToServerBounce > threshold)
-            {
-                if (fakeCopy.correctionCoroutine != null)
-                    fakeCopy.StopCoroutine(fakeCopy.correctionCoroutine);
-
-                fakeCopy.correctionCoroutine = fakeCopy.StartCoroutine(fakeCopy.SmoothCorrection(serverPos, newDir));
-            }
-            else
-            {
-                fakeCopy.transform.position = serverPos;
-            }
         }
     }
 
-    private IEnumerator SmoothCorrection(Vector3 targetPos, Vector3 targetDir)
+    private IEnumerator SmoothCorrection(Vector3 targetPos)
     {
-        float duration = 0.06f; // Adjustment duration window (~3-4 frames)
+        float duration = 0.08f;
         float elapsed = 0f;
-
         Vector3 startPos = transform.position;
 
         while (elapsed < duration)
@@ -604,10 +571,20 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            fakeCopy.transform.position = serverPos;
+            // Update predicted bubble parameters without snapping position
             fakeCopy.speed = newSpeed;
             fakeCopy.isSoaped = soapedState;
             fakeCopy.soapSecSpeedIncrease = secSpeedIncrease;
+
+            // Only smooth correct if desync is severe
+            float dist = Vector3.Distance(fakeCopy.transform.position, serverPos);
+            if (dist > fakeCopy.desyncThreshold)
+            {
+                if (fakeCopy.correctionCoroutine != null)
+                    fakeCopy.StopCoroutine(fakeCopy.correctionCoroutine);
+
+                fakeCopy.correctionCoroutine = fakeCopy.StartCoroutine(fakeCopy.SmoothCorrection(serverPos));
+            }
         }
     }
 
@@ -623,8 +600,17 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            fakeCopy.transform.position = serverPos;
+            // Update speed directly on local fake without hard snapping position
             fakeCopy.speed = newSpeed;
+
+            float dist = Vector3.Distance(fakeCopy.transform.position, serverPos);
+            if (dist > fakeCopy.desyncThreshold)
+            {
+                if (fakeCopy.correctionCoroutine != null)
+                    fakeCopy.StopCoroutine(fakeCopy.correctionCoroutine);
+
+                fakeCopy.correctionCoroutine = fakeCopy.StartCoroutine(fakeCopy.SmoothCorrection(serverPos));
+            }
         }
     }
 
@@ -642,7 +628,13 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            fakeCopy.transform.position = serverPopPos;
+            // Smoothly adapt pop position if within reasonable threshold
+            float dist = Vector3.Distance(fakeCopy.transform.position, serverPopPos);
+            if (dist > fakeCopy.desyncThreshold)
+            {
+                fakeCopy.transform.position = serverPopPos;
+            }
+
             if (hitPlayer)
             {
                 fakeCopy.fizzleEffect = fakeCopy.hitEffect;
