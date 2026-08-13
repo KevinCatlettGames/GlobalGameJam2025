@@ -33,7 +33,7 @@ public class PlayerManager : NetworkBehaviour
     public Countdown countdown;
 
     private bool dropInJoin = false;
-    
+
     private void Awake()
     {
         if (Instance == null)

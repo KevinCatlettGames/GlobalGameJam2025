@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -34,6 +33,9 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Scene name used when random loading is disabled.")]
     [SerializeField] private string plateLevel = "Lvl_Teller";
+
+    [Tooltip("Scene name used when random loading is disabled.")]
+    [SerializeField] private string tutorialLevel = "Lvl_Tutorial";
 
     [Tooltip("Reference to score tracking ScriptableObject.")]
     [SerializeField] private SO_Scores scores;
@@ -76,6 +78,8 @@ public class LobbyManager : NetworkBehaviour
 
     [Tooltip("Number of rounds already played.")]
     public int playedRounds;
+
+    public bool playTutorial = true; 
 
     [Tooltip("UI panel for match settings.")]
     [SerializeField] public GameObject matchSettingsSelection;
@@ -162,6 +166,8 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private Color[] teamColors;
     public Color[] TeamColors { get { return teamColors; } }
 
+    [SerializeField] Toggle playTutorialToggle;
+
     #endregion
 
     #region Audio
@@ -221,6 +227,19 @@ public class LobbyManager : NetworkBehaviour
             GameObject player = Instantiate(lobbyPlayer);
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
             GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
+        }
+
+        bool playedTutorial = false;
+        playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
+        if (playedTutorial)
+        {
+            playTutorial = false;
+            playTutorialToggle.isOn = false;
+        }
+        else
+        {
+            playTutorial = true;
+            playTutorialToggle.isOn = true;
         }
     }
 
@@ -565,6 +584,20 @@ public class LobbyManager : NetworkBehaviour
         if(TransportSwitcher.Instance.isUsingRelay)
             await Task.Delay(1000);
 
+        if(LobbyManager.instance.playTutorial && TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+        {
+            if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0)
+            {
+                MenuTransitionHandler.Instance.OnFadeComplete += LoadTutorial;
+                MenuTransitionHandler.Instance.TriggerFade();
+            }
+            else
+            {
+                LoadTutorial();
+            }            
+            return;
+        }
+
         if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
         {
 #if !UNITY_SWITCH
@@ -593,6 +626,16 @@ public class LobbyManager : NetworkBehaviour
 #endif
             NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
         }
+    }
+
+    void LoadTutorial()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadTutorial;
+        //Debug.Log("Loading tutorial");
+        PlayerPrefs.SetInt("PlayedTutorial", 1);
+        SaveManager.Save();
+        SceneManager.LoadScene(tutorialLevel, LoadSceneMode.Single);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -847,6 +890,17 @@ public class LobbyManager : NetworkBehaviour
     public void ToggleEndless(bool toggle)
     {
        ToggleEndlessServerRpc(toggle);
+    }
+
+    public void TogglePlayTutorial(bool toggle)
+    {
+        playTutorial = toggle;
+    }
+
+    public void SwitchPlayTutorialState()
+    {
+        playTutorial = !playTutorial;
+        playTutorialToggle.isOn = !playTutorialToggle.isOn;
     }
 
     [ServerRpc(RequireOwnership = false)]

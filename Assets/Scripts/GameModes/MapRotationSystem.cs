@@ -61,7 +61,7 @@ public class MapRotationSystem : MonoBehaviour
         mapSetting = chosenMap;
         maxRounds = chosenMap.MapRounds;
 
-        if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0)
+        if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0 || MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 6)
         {
             MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
             MenuTransitionHandler.Instance.TriggerFade();
