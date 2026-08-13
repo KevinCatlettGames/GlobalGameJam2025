@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class SlashBubble : BasicBubble
 {
-    [Header("SpecialStats")]
+    [Header("Special Stats")]
     [SerializeField] private GameObject slasherL;
     [SerializeField] private GameObject slasherR;
     [SerializeField] private Transform spinner;
@@ -38,6 +38,8 @@ public class SlashBubble : BasicBubble
 
     protected override void BubbleMovement()
     {
+        if (!IsServer && !isLocalFake) return;
+
         if (playerCollider != null)
         {
             transform.position = playerCollider.transform.position;
@@ -51,12 +53,13 @@ public class SlashBubble : BasicBubble
 
         float rotation = 0f;
         float angle = 0f;
+
         while (Mathf.Abs(rotation) < range)
         {
-            angle = speed * Time.deltaTime;
+            angle = speed * Time.fixedDeltaTime;
             transform.Rotate(Vector3.up * angle);
             rotation += angle;
-            yield return null;
+            yield return new WaitForFixedUpdate();
         }
 
         Pop();
@@ -75,6 +78,7 @@ public class SlashBubble : BasicBubble
             {
                 OwnerID.Value = reflector.OwnerID;
             }
+
             Reflect(Vector3.zero);
             return;
         }
@@ -83,7 +87,7 @@ public class SlashBubble : BasicBubble
         {
             if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble clientBubble))
             {
-                if (clientBubble.OwnerID != OwnerID)
+                if (clientBubble.OwnerID.Value != OwnerID.Value)
                 {
                     clientBubble.BubbleCollision(gameObject);
                 }
@@ -93,7 +97,7 @@ public class SlashBubble : BasicBubble
 
         if (other.CompareTag("Bubble") && other.TryGetComponent<BasicBubble>(out BasicBubble serverBubble))
         {
-            if (serverBubble.OwnerID != OwnerID)
+            if (serverBubble.OwnerID.Value != OwnerID.Value)
             {
                 serverBubble.BubbleCollision(gameObject);
             }
@@ -105,7 +109,7 @@ public class SlashBubble : BasicBubble
     protected override void Reflect(Vector3 normal)
     {
         if (isReflected) return;
-        isReflected = !isReflected;
+        isReflected = true;
         speed *= -1f;
 
         if (rangeCoroutine != null)

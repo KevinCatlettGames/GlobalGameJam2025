@@ -16,7 +16,7 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// The UI button whose interactable state will be modified.
     /// </summary>
     public Button button;
-
+    public Toggle toggle;
     /// <summary>
     /// Unity Start method. Initializes the transportSwitcher reference and subscribes
     /// to transport switch events.
@@ -28,6 +28,7 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
         transportSwitcher.onSwitchToRelayTransport.AddListener(MakeInteractable);
         transportSwitcher.onSwitchToUnityTransport.AddListener(MakeNonInteractable);
 #endif
+
     }
 
     /// <summary>
@@ -51,8 +52,13 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void MakeInteractable()
     {
-        if(isActiveAndEnabled)
-            button.interactable = true; 
+        if (isActiveAndEnabled)
+        {
+            if(button)
+                button.interactable = true;
+            if(toggle)
+                toggle.interactable = true;
+        }
     }
 
     /// <summary>
@@ -60,7 +66,12 @@ public class SetButtonInteractableDependingOnTransport : MonoBehaviour
     /// </summary>
     private void MakeNonInteractable()
     {
-        if(isActiveAndEnabled)
-            button.interactable = false; 
+        if (isActiveAndEnabled)
+        {
+            if (button)
+                button.interactable = false;
+            if (toggle)
+                toggle.interactable = false;
+        }
     }
 }

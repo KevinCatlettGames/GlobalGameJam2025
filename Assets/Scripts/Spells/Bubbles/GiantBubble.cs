@@ -50,12 +50,12 @@ public class GiantBubble : BasicBubble
             if (!blink && currentSize > size * .9f)
             {
                 blink = true;
-                if(IsServer || isLocalFake)
+                if (IsServer || isLocalFake)
                 {
                     StartCoroutine(Blink());
                 }
                 if (IsServer)
-                {                  
+                {
                     StartBlinkClientRpc();
                 }
             }
@@ -72,8 +72,8 @@ public class GiantBubble : BasicBubble
             sphereCollider.excludeLayers -= LayerMask.GetMask("Player");
         }
 
-        stationaryParticleSystem.Stop();
-        bigParticleSystem.Play();
+        if (stationaryParticleSystem != null) stationaryParticleSystem.Stop();
+        if (bigParticleSystem != null) bigParticleSystem.Play();
         hasInflated = true;
 
         if (IsServer)
@@ -102,47 +102,26 @@ public class GiantBubble : BasicBubble
 
     public override void HandleTrigger(Collider other)
     {
-        if (!isLocalFake) return;
-        if (!hasInflated) return;
-        if (hasPopped) return;
-        if(!isSmall && other.CompareTag("Bubble"))
+        if (!isLocalFake || !hasInflated || hasPopped) return;
+
+        // If touching another bubble when not yet small, shrink locally
+        if (!isSmall && other.CompareTag("Bubble"))
         {
-            isSmall = true;
-            damage = dmgMini;
-            knockback *= knbMod;
-            speed *= speedMod;
-            hitEffect = smallHitEffect;
-            spellType = SpellType.SmallerGiant;
-            if (bigTrail != null) bigTrail.emitting = false;
-            if (smallTrail != null) smallTrail.emitting = true;
-            size *= sizMod;
-            transform.localScale = Vector3.one * size;
-            bigParticleSystem.Stop();
-            smallParticleSystem.Play();
+            ApplyShrinkState();
             return;
         }
+
         base.HandleTrigger(other);
     }
 
     public override void BubbleCollision(GameObject other)
     {
-        if (isLocalFake) return;
-        if (hasPopped) return;
+        if (isLocalFake || hasPopped) return;
 
-        if (!isSmall && other.CompareTag("Bubble"))
+        // On Server or networked instance: handles collision with bubbles (shrinking) or players (angle-based knockback)
+        if (!isSmall && other != null && other.CompareTag("Bubble"))
         {
-            isSmall = true;
-            damage = dmgMini;
-            knockback *= knbMod;
-            speed *= speedMod;
-            hitEffect = smallHitEffect;
-            spellType = SpellType.SmallerGiant;
-            if (bigTrail != null) bigTrail.emitting = false;
-            if (smallTrail != null) smallTrail.emitting = true;
-            size *= sizMod;
-            transform.localScale = Vector3.one * size;
-            bigParticleSystem.Stop();
-            smallParticleSystem.Play();
+            ApplyShrinkState();
 
             if (IsServer)
                 SetCollisionStateClientRpc();
@@ -150,7 +129,7 @@ public class GiantBubble : BasicBubble
             return;
         }
 
-        if (!isSmall && other.CompareTag("Player"))
+        if (!isSmall && other != null && other.CompareTag("Player"))
         {
             Vector3 v = other.transform.position - transform.position;
             float angle = Vector3.Angle(v, transform.forward);
@@ -168,36 +147,59 @@ public class GiantBubble : BasicBubble
         base.BubbleCollision(other);
     }
 
-    [ClientRpc]
-    void SetVFXAfterInflationClientRpc()
+    private void ApplyShrinkState()
     {
-        if (IsServer) return;
-        stationaryParticleSystem.Stop();
-        bigParticleSystem.Play();
-    }
+        if (isSmall) return;
 
-    [ClientRpc]
-    void StartBlinkClientRpc()
-    {
-        if (IsServer) return;
-        StartCoroutine(Blink());
-    }
-
-    [ClientRpc]
-    void SetCollisionStateClientRpc()
-    {
-        if (IsServer) return;
         isSmall = true;
         damage = dmgMini;
         knockback *= knbMod;
         speed *= speedMod;
         hitEffect = smallHitEffect;
         spellType = SpellType.SmallerGiant;
+
         if (bigTrail != null) bigTrail.emitting = false;
         if (smallTrail != null) smallTrail.emitting = true;
+
         size *= sizMod;
+        currentSize = size;
         transform.localScale = Vector3.one * size;
-        bigParticleSystem.Stop();
-        smallParticleSystem.Play();
+
+        if (bigParticleSystem != null) bigParticleSystem.Stop();
+        if (smallParticleSystem != null) smallParticleSystem.Play();
+    }
+
+    protected override bool DetectsImpact(out Vector3 impactPoint)
+    {
+        // Don't predict collisions during the inflation phase
+        if (!hasInflated)
+        {
+            impactPoint = transform.position;
+            return false;
+        }
+
+        return base.DetectsImpact(out impactPoint);
+    }
+
+    [ClientRpc]
+    private void SetVFXAfterInflationClientRpc()
+    {
+        if (IsServer || isLocalFake) return;
+        if (stationaryParticleSystem != null) stationaryParticleSystem.Stop();
+        if (bigParticleSystem != null) bigParticleSystem.Play();
+    }
+
+    [ClientRpc]
+    private void StartBlinkClientRpc()
+    {
+        if (IsServer || isLocalFake) return;
+        StartCoroutine(Blink());
+    }
+
+    [ClientRpc]
+    private void SetCollisionStateClientRpc()
+    {
+        if (IsServer || isLocalFake) return;
+        ApplyShrinkState();
     }
 }

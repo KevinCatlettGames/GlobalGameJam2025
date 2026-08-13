@@ -13,9 +13,13 @@ public class SplitBubble : BasicBubble
         if (hasPopped) return;
 
         if (!hasHitPlayer)
-            offsetDistance = .75f;
+            offsetDistance = 0.75f;
 
-        SpawnChildPair();
+        // Ensure child bubbles are spawned only on server or local fake prediction instances
+        if (IsServer || isLocalFake)
+        {
+            SpawnChildPair();
+        }
 
         base.Pop();
     }
@@ -32,13 +36,13 @@ public class SplitBubble : BasicBubble
         if (bubbleA != null)
         {
             var hA = bubbleA.GetComponent<SplitAchievementHandler>();
-            if (hA) hA.tracker = sharedTracker;
+            if (hA != null) hA.tracker = sharedTracker;
         }
 
         if (bubbleB != null)
         {
             var hB = bubbleB.GetComponent<SplitAchievementHandler>();
-            if (hB) hB.tracker = sharedTracker;
+            if (hB != null) hB.tracker = sharedTracker;
         }
     }
 
@@ -53,16 +57,24 @@ public class SplitBubble : BasicBubble
         if (IsServer)
         {
             NetworkObject netObj = bubble.GetComponent<NetworkObject>();
-            if (netObj != null) netObj.Spawn();
+            if (netObj != null)
+            {
+                netObj.Spawn();
+            }
         }
         else if (isLocalFake)
         {
-            if (bubble.TryGetComponent<NetworkObject>(out var netObj))
+            NetworkObject netObj = bubble.GetComponent<NetworkObject>();
+            if (netObj != null)
+            {
                 Destroy(netObj);
+            }
         }
 
         if (bubbleScript != null)
+        {
             bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
+        }
 
         return bubble;
     }
