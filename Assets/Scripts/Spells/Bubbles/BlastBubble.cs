@@ -16,67 +16,63 @@ public class BlastBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         transform.position += direction * extraOffset;
 
-        if (GameManager.Instance.PlayingLocal)
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
-        else if (IsServer)
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
+if (playerCollider != null && playerCollider.TryGetComponent<PlayerController>(out var shooterController))
+        {
+            if (GameManager.Instance.PlayingLocal)
+            {
+                shooterController.ApplyImpulseLocal(direction * -1, shooterKnb);
+            }
+            else
+            {
+                if(IsServer)
+                    shooterController.ApplyImpulseClientRpc(direction * -1, shooterKnb);
+            }
+        }
     }
 
     protected override void InflateOverlapChack()
     {
-        // Only the Server evaluates actual player hits and damage
-        if (IsServer)
+        Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Bubble"));
+
+        foreach (Collider col in overlaps)
         {
-            Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Bubble"));
+            if (ignoredColliders.Contains(col)) continue;
 
-            foreach (Collider col in overlaps)
+            if (col.CompareTag("Player"))
             {
-                if (ignoredColliders.Contains(col)) continue;
+                var player = col.GetComponent<PlayerController>();
+                GameManager gameManager = GameManager.Instance;
 
-                if (col.CompareTag("Player"))
+                if (gameManager.PlayingLocal)
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                else
                 {
-                    var player = col.GetComponent<PlayerController>();
-                    GameManager gameManager = GameManager.Instance;
-
-                    if (gameManager.PlayingLocal)
-                        player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
-                    else
+                    if(IsServer)
                         player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                }
 
+                if(IsServer)
                     gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
 
-                    if (!isUlt && playerCollider != null)
-                        playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
-
-                    fizzleEffect = hitEffect;
-                }
-                else if (col.CompareTag("Bubble"))
-                {
-                    col.GetComponent<BasicBubble>()?.BubbleCollision(gameObject);
-                }
+                if (!isUlt && playerCollider != null) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                fizzleEffect = hitEffect;
             }
-
-            Pop();
+            else if (col.CompareTag("Bubble"))
+            {
+                col.GetComponent<BasicBubble>()?.BubbleCollision(gameObject);
+            }
         }
+
+        Pop();
     }
 
-    // BlastBubble handles its own impact through blast radius in InflateOverlapChack, 
-    // so standard collision triggers are ignored.
     public override void BubbleCollision(GameObject other)
     {
         return;
     }
 
-    // Override local impact detection because BlastBubble does not pop on wall/player collision standard impacts
-    protected override bool DetectsImpact(out Vector3 impactPoint)
-    {
-        impactPoint = transform.position;
-        return false;
-    }
-
     protected override void Pop()
     {
-        // Spawn ground splat puddle visual/network object before completing base pop
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
             if (IsServer)
@@ -86,14 +82,8 @@ public class BlastBubble : BasicBubble
                 puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
                 puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID.Value);
             }
-            else if (isLocalFake)
-            {
-                GameObject puddle = Instantiate(fakeSplat, hitInfo.point, transform.rotation);
-                puddle.GetComponent<Puddle>().isLocalFake = true;
-            }
         }
 
-        // Standard base pop handles ClientRpc synchronization, state cleanup, and destruction
         base.Pop();
     }
 }

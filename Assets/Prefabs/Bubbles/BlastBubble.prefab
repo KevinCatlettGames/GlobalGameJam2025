@@ -154,7 +154,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 14
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 5
   damage: 13
   knockback: 4
@@ -175,15 +180,11 @@ MonoBehaviour:
       Data4: -847071278
     Path: event:/sfx/spells/snot_spell
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 1216
   splat: {fileID: 5835028745261568127, guid: 9d631cdc4b29c504ebf72cc972256ed8, type: 3}
+  fakeSplat: {fileID: 0}
   groundedLayerMask:
     serializedVersion: 2
     m_Bits: 512

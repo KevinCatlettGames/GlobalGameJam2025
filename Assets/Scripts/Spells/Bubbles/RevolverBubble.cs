@@ -17,18 +17,18 @@ public class RevolverBubble : BasicBubble
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerSpawn)
     {
-        base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerSpawn);
+        OwnerID.Value = ID;
+        direction = dir;
 
         if (playerCollider != null)
             offset = transform.position - playerCollider.transform.position;
+        this.playerCollider = playerCollider;
 
         StartCoroutine(EmptyBarrel());
     }
 
     protected override void BubbleMovement()
     {
-        if (!IsServer && !isLocalFake) return;
-
         if (playerCollider != null)
         {
             transform.position = playerCollider.transform.position + offset;
@@ -37,100 +37,63 @@ public class RevolverBubble : BasicBubble
 
     private IEnumerator EmptyBarrel()
     {
-        float rotation = -(maxAmmo - 1) * 0.5f;
+        Vector3 pos;
+        float rotation = -(maxAmmo - 1);
+        rotation *= .5f;
 
         for (int i = 0; i < maxAmmo; i++)
         {
             Vector3 dir = Quaternion.AngleAxis(spread * rotation, Vector3.up) * direction;
-            Vector3 pos = transform.position + direction;
-
+            pos = transform.position + direction;
             GameObject bubbleObj = Instantiate(bubblePrefab, pos, Quaternion.LookRotation(dir));
 
-            RevolverBulletBubble bulletScript = bubbleObj.GetComponent<RevolverBulletBubble>();
+            var bulletScript = bubbleObj.GetComponent<RevolverBulletBubble>();
             if (bulletScript != null)
             {
                 bulletScript.RevolverBubble = this;
             }
 
-            BasicBubble bubbleBaseScript = bubbleObj.GetComponent<BasicBubble>();
+            BasicBubble bubbleScript = bubbleObj.GetComponent<BasicBubble>();
 
             if (IsServer)
             {
                 NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
                 if (netObj != null)
-                {
                     netObj.Spawn();
-                }
             }
             else if (isLocalFake)
             {
-                // Strip NetworkObject component on local predicted instances
-                NetworkObject netObj = bubbleObj.GetComponent<NetworkObject>();
-                if (netObj != null)
-                {
-                    Destroy(netObj);
-                }
+                Destroy(bubbleObj.GetComponent<NetworkObject>());
 
-                if (bubbleBaseScript != null)
+                if (bubbleScript != null)
                 {
-                    bubbleBaseScript.isLocalFake = true;
+                    bubbleScript.isLocalFake = true;
                 }
             }
 
-            if (bubbleBaseScript != null)
+            if (bubbleScript != null)
             {
-                int nextSpellID = AssignedSpellID.Value >= 0 ? AssignedSpellID.Value + 1 : -1;
-                bubbleBaseScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, nextSpellID, fakeWithServerCaster);
+                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
             }
 
             yield return new WaitForSeconds(delayBetweenShots);
             rotation++;
         }
 
-        yield return new WaitForSeconds(0.1f);
-
-        if (IsServer)
-        {
-            DisableRevolverMeshClientRpc();
-        }
-
-        if (isLocalFake)
-        {
-            foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
-            {
-                renderer.enabled = false;
-            }
-        }
-
+        yield return new WaitForSeconds(.1f);
+        if (IsServer) DisableRevolverMeshClientRpc();
+        if(isLocalFake)
+            foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+                meshRenderer.enabled = false;
         yield return new WaitForSeconds(3f);
-
-        // Despawn networked object on server or destroy local fake on client
-        if (IsServer)
-        {
-            if (NetworkObject != null && NetworkObject.IsSpawned)
-            {
-                NetworkObject.Despawn(true);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
-        }
-        else if (isLocalFake)
-        {
-            Destroy(gameObject);
-        }
+        Destroy(gameObject);
     }
 
     [ClientRpc]
-    private void DisableRevolverMeshClientRpc()
+    void DisableRevolverMeshClientRpc()
     {
-        if (IsServer || isLocalFake) return;
-
-        if (revolverMesh != null)
-        {
+        if(revolverMesh)
             revolverMesh.enabled = false;
-        }
     }
 
     public void AddToHitCount()
@@ -139,18 +102,17 @@ public class RevolverBubble : BasicBubble
 
         hitCount++;
         if (hitCount >= maxAmmo)
-        {
             CheckAllShotsHitAchievement();
-        }
     }
 
     private void CheckAllShotsHitAchievement()
     {
-        if (!IsServer && !isLocalFake) return;
+       if (!IsServer && !isLocalFake) return;
 
-        if ((TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value)
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
+        //Debug.Log("Increment all shots hit revolver ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(19, 1);
         achSaveSystem.IncrementStat(6, 1);

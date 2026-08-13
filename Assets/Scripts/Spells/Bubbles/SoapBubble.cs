@@ -10,19 +10,15 @@ public class SoapBubble : BasicBubble
     [SerializeField] private GameObject soapSplatObject;
     [SerializeField] private GameObject fakeSoapSplatObject;
     [SerializeField] private LayerMask groundedLayerMask;
-
     private const float raycastDistance = 5f;
-    private float timer = 0f;
 
-    protected override void BubbleMovement()
+    private float timer = 0;
+    protected void Update()
     {
         if (!IsServer && !isLocalFake) return;
-
-        base.BubbleMovement();
-
         if (soapPuddleObject == null) return;
 
-        timer += Time.fixedDeltaTime;
+        timer += Time.deltaTime;
         if (timer >= soapDropInterval)
         {
             DropSoapPuddle(false);
@@ -32,7 +28,7 @@ public class SoapBubble : BasicBubble
 
     private void DropSoapPuddle(bool hitPlayer)
     {
-        if (!IsServer && !isLocalFake) return;
+        if(!IsServer && !isLocalFake) return;
 
         if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
@@ -40,29 +36,10 @@ public class SoapBubble : BasicBubble
             {
                 GameObject prefabToSpawn = hitPlayer ? soapSplatObject : soapPuddleObject;
                 if (prefabToSpawn == null) return;
-
                 GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<DamageField>()?.SetID(OwnerID.Value);
+                puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
 
-                Puddle puddleScript = puddle.GetComponent<Puddle>();
-                if (puddleScript != null)
-                {
-                    puddleScript.InitialisePuddle(playerCollider);
-                }
-            }
-            else if (isLocalFake)
-            {
-                GameObject prefabToSpawn = hitPlayer ? fakeSoapSplatObject : fakeSoapPuddleObject;
-                if (prefabToSpawn == null) return;
-
-                GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
-
-                Puddle puddleScript = puddle.GetComponent<Puddle>();
-                if (puddleScript != null)
-                {
-                    puddleScript.isLocalFake = true;
-                }
             }
         }
     }
@@ -70,24 +47,18 @@ public class SoapBubble : BasicBubble
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return;
 
-        if (other.CompareTag("Player"))
-        {
+        if (IsServer && other.CompareTag("Player"))
             DropSoapPuddle(true);
-        }
 
-        if (isLocalFake)
-        {
-            Pop();
-            return;
-        }
+        if (isLocalFake && other.CompareTag("Player"))
+            DropSoapPuddle(true);
 
         base.BubbleCollision(other);
     }
 
     public override void SetSlippy()
     {
-        // Intentionally left empty for SoapBubble
+        return;
     }
 }

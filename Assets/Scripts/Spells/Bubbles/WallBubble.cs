@@ -6,7 +6,6 @@ public class WallBubble : BasicBubble
     [Header("Special Stats")]
     [SerializeField] private float speedBoost = 1.5f;
     [SerializeField] private Material dmgedOutline;
-
     private int hitPoints = 0;
     private bool stop = false;
 
@@ -19,46 +18,19 @@ public class WallBubble : BasicBubble
         {
             reflector.OwnerID = ID;
         }
+        else
+        {
+            //Debug.LogWarning("Reflector component missing on WallBubble.");
+        }
 
         canMiss = false;
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(damage));
     }
 
-    public override void HandleTrigger(Collider other)
-    {
-        if (hasPopped || other == null) return;
-
-        if (other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        if (other.CompareTag("Bubble") && popOnBubbleHit)
-        {
-            // Ignore collisions between wall segments
-            if (other.TryGetComponent<WallBubble>(out _))
-            {
-                return;
-            }
-
-            hitPoints--;
-            ApplyDamagedMaterial();
-
-            if (hitPoints <= 0)
-            {
-                Pop();
-            }
-        }
-        else if (other.CompareTag("Wall"))
-        {
-            stop = true;
-        }
-    }
-
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
 
         if (other.CompareTag("Player"))
         {
@@ -67,18 +39,25 @@ public class WallBubble : BasicBubble
 
         if (other.CompareTag("Bubble") && popOnBubbleHit)
         {
-            // Ignore collisions between wall segments
-            if (other.TryGetComponent<WallBubble>(out _))
+            hitPoints--;
+
+            if (!isLocalFake)
             {
-                return;
+                MeshRenderer renderer = GetComponent<MeshRenderer>();
+                if (renderer != null && dmgedOutline != null)
+                {
+                    Material[] materials = renderer.materials;
+                    if (materials.Length > 1)
+                    {
+                        materials[1] = dmgedOutline;
+                        renderer.materials = materials;
+                    }
+                }
             }
 
-            hitPoints--;
-            ApplyDamagedMaterial();
-
-            if (IsServer && TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             {
-                ChangeMaterialClientRpc();
+                ChangeMaterialServerRpc();
             }
 
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
@@ -103,20 +82,18 @@ public class WallBubble : BasicBubble
         if (!IsServer && !isLocalFake) return;
 
         if (!stop)
-        {
             base.BubbleMovement();
-        }
     }
 
-    public void ApplyDamagedMaterial()
+    public void ChangeMaterial()
     {
-        if (dmgedOutline == null) return;
+        MeshRenderer renderer = GetComponent<MeshRenderer>();
 
-        MeshRenderer[] renderers = GetComponentsInChildren<MeshRenderer>();
-        foreach (MeshRenderer renderer in renderers)
+        if (isLocalFake)
+            renderer = GetComponentInChildren<MeshRenderer>();
+
+        if (renderer != null && dmgedOutline != null)
         {
-            if (renderer == null) continue;
-
             Material[] materials = renderer.materials;
             if (materials.Length > 1)
             {
@@ -126,10 +103,16 @@ public class WallBubble : BasicBubble
         }
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void ChangeMaterialServerRpc()
+    {
+        ChangeMaterialClientRpc();
+    }
+
     [ClientRpc]
     private void ChangeMaterialClientRpc()
     {
-        ApplyDamagedMaterial();
+        ChangeMaterial();
 
         if (!IsServer || isLocalFake)
         {
@@ -138,7 +121,7 @@ public class WallBubble : BasicBubble
             {
                 if (bubble.isLocalFake && bubble.AssignedSpellID.Value == this.AssignedSpellID.Value)
                 {
-                    bubble.ApplyDamagedMaterial();
+                    bubble.ChangeMaterial();
                     break;
                 }
             }

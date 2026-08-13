@@ -27,7 +27,6 @@ public class SnipeBubble : BasicBubble
 
         base.BubbleMovement();
 
-        // Dynamically scale damage based on movement distance
         if (currentDamage < maxDamage)
         {
             currentDamage += speed * Time.fixedDeltaTime * damageScaling;
@@ -40,7 +39,6 @@ public class SnipeBubble : BasicBubble
         if (hasPopped || other == null) return;
         if (!IsServer && !isLocalFake) return;
 
-        // Snipe vs Snipe collision handling
         if (other.CompareTag("Bubble"))
         {
             BasicBubble otherBubble = other.GetComponent<BasicBubble>();
@@ -50,17 +48,8 @@ public class SnipeBubble : BasicBubble
                 return;
             }
         }
-
-        // Local predicted fake collision handling
-        if (isLocalFake)
-        {
-            damage = currentDamage;
-            Pop();
-            return;
-        }
-
-        // Authoritative server hit evaluation
-        if (IsServer && other.CompareTag("Player"))
+     
+        if (other.CompareTag("Player"))
         {
             if (currentDamage >= maxDamage)
             {
@@ -74,9 +63,9 @@ public class SnipeBubble : BasicBubble
 
     private void CheckMaxSniperDamageAchievement()
     {
-        if (!IsServer) return;
+        if (!IsServer && !isLocalFake) return;
 
-        if ((TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value)
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;

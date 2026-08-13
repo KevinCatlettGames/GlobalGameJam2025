@@ -13,13 +13,9 @@ public class SplitBubble : BasicBubble
         if (hasPopped) return;
 
         if (!hasHitPlayer)
-            offsetDistance = 0.75f;
+            offsetDistance = .75f;
 
-        // Ensure child bubbles are spawned only on server or local fake prediction instances
-        if (IsServer || isLocalFake)
-        {
-            SpawnChildPair();
-        }
+        SpawnChildPair();
 
         base.Pop();
     }
@@ -30,23 +26,21 @@ public class SplitBubble : BasicBubble
 
         SplitTracker sharedTracker = new SplitTracker();
 
-        GameObject bubbleA = SpawnSingleChild(offsetAngle);
-        GameObject bubbleB = SpawnSingleChild(-offsetAngle);
+        GameObject bubbleA = SpawnSingleChild(offsetAngle, subIdOffset: 1);
+        GameObject bubbleB = SpawnSingleChild(-offsetAngle, subIdOffset: 2);
 
-        if (bubbleA != null)
+        if (bubbleA != null && bubbleA.TryGetComponent<SplitAchievementHandler>(out var hA))
         {
-            var hA = bubbleA.GetComponent<SplitAchievementHandler>();
-            if (hA != null) hA.tracker = sharedTracker;
+            hA.tracker = sharedTracker;
         }
 
-        if (bubbleB != null)
+        if (bubbleB != null && bubbleB.TryGetComponent<SplitAchievementHandler>(out var hB))
         {
-            var hB = bubbleB.GetComponent<SplitAchievementHandler>();
-            if (hB != null) hB.tracker = sharedTracker;
+            hB.tracker = sharedTracker;
         }
     }
 
-    private GameObject SpawnSingleChild(float angle)
+    private GameObject SpawnSingleChild(float angle, int subIdOffset)
     {
         Vector3 splitDirection = Quaternion.AngleAxis(angle, Vector3.up) * direction;
         Vector3 spawnPosition = transform.position + (splitDirection * offsetDistance);
@@ -57,23 +51,18 @@ public class SplitBubble : BasicBubble
         if (IsServer)
         {
             NetworkObject netObj = bubble.GetComponent<NetworkObject>();
-            if (netObj != null)
-            {
-                netObj.Spawn();
-            }
+            if (netObj != null) netObj.Spawn();
         }
         else if (isLocalFake)
         {
-            NetworkObject netObj = bubble.GetComponent<NetworkObject>();
-            if (netObj != null)
-            {
+            if (bubble.TryGetComponent<NetworkObject>(out var netObj))
                 Destroy(netObj);
-            }
         }
 
         if (bubbleScript != null)
         {
-            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
+            int uniqueChildID = (AssignedSpellID.Value * 10) + subIdOffset;
+            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, uniqueChildID, fakeWithServerCaster);
         }
 
         return bubble;

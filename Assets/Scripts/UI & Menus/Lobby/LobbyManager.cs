@@ -650,6 +650,7 @@ public class LobbyManager : NetworkBehaviour
         PlayStartSFXClientRpc();
         uiParent.SetActive(false);
         GetComponent<PlayerInputManager>().enabled = false;
+
         if (!IsServer && MenuTransitionHandler.Instance)
             MenuTransitionHandler.Instance.TriggerFade();
     }

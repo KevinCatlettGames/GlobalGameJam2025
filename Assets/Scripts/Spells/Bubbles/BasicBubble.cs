@@ -71,11 +71,13 @@ public class BasicBubble : NetworkBehaviour
     public bool isLocalFake = false;
 
     [Header("Client-Side Prediction State")]
+    [SerializeField] protected LayerMask impactLayerMask = ~0;
     private FakeBubbleState currentState = FakeBubbleState.Moving;
     private Vector3 savedVelocity;
     private float pendingTimer = 0f;
-    private const float MAX_WAIT_TIME = 0.15f; // 150ms timeout safety net
+    private const float MAX_WAIT_TIME = 0.15f;
     private Coroutine correctionCoroutine;
+    private bool pendingHitWasEnvironment = false;
 
     private void Start()
     {
@@ -138,7 +140,6 @@ public class BasicBubble : NetworkBehaviour
 
         if (!IsServer && !isLocalFake)
         {
-            // Immediate check in case values synced before OnNetworkSpawn
             CheckAndHideVisibility(OwnerID.Value);
 
             if (AssignedSpellID.Value != 0)
@@ -175,7 +176,6 @@ public class BasicBubble : NetworkBehaviour
             {
                 fakeCopy = bubble;
 
-                // Immediately hide server bubble visuals upon linking with local predicted fake
                 HideVisualsAndDisablePhysics();
 
                 Collider myCollider = GetComponent<Collider>();
@@ -198,7 +198,6 @@ public class BasicBubble : NetworkBehaviour
     {
         if (IsServer || isLocalFake) return;
 
-        // If this server bubble belongs to the local player, suppress its visuals immediately
         if (currentCasterId >= 0 && currentCasterId < GameManager.Instance.Players.Length)
         {
             if (GameManager.Instance.Players[currentCasterId] != null &&
@@ -220,7 +219,9 @@ public class BasicBubble : NetworkBehaviour
                     break;
 
                 case FakeBubbleState.AwaitingServerConfirmation:
-                    transform.position += direction * (speed * 0.2f) * Time.fixedDeltaTime;
+                    float pendingSpeedFactor = pendingHitWasEnvironment ? 0f : 0.15f;
+                    transform.position += direction * (speed * pendingSpeedFactor) * Time.fixedDeltaTime;
+
                     pendingTimer += Time.fixedDeltaTime;
 
                     if (pendingTimer >= MAX_WAIT_TIME)
@@ -243,38 +244,35 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!isLocalFake || currentState != FakeBubbleState.Moving) return;
 
-        if (DetectsImpact(out Vector3 impactPoint))
+        if (DetectsImpact(out Vector3 impactPoint, out bool isEnvironment))
         {
             savedVelocity = direction * speed;
             currentState = FakeBubbleState.AwaitingServerConfirmation;
+            pendingHitWasEnvironment = isEnvironment;
             pendingTimer = 0f;
-
-            NotifyServerImpactServerRpc(impactPoint);
         }
     }
 
-    protected virtual bool DetectsImpact(out Vector3 impactPoint)
+    protected virtual bool DetectsImpact(out Vector3 impactPoint, out bool isEnvironment)
     {
         impactPoint = transform.position;
+        isEnvironment = false;
 
         float lookAheadDistance = (speed * Time.fixedDeltaTime) + 0.05f;
         float checkRadius = (sphereCollider != null) ? (sphereCollider.radius * transform.localScale.x * 0.5f) : (currentSize * 0.5f);
 
-        if (Physics.SphereCast(transform.position, checkRadius, direction, out RaycastHit hit, lookAheadDistance))
+        if (Physics.SphereCast(transform.position, checkRadius, direction, out RaycastHit hit, lookAheadDistance, impactLayerMask, QueryTriggerInteraction.Ignore))
         {
             if (ignoredColliders.Contains(hit.collider) || hit.collider.transform.root == transform.root)
                 return false;
 
             impactPoint = hit.point;
+
+            isEnvironment = !hit.collider.CompareTag("Player") && !hit.collider.CompareTag("Bubble");
+
             return true;
         }
         return false;
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    protected void NotifyServerImpactServerRpc(Vector3 clientImpactPoint)
-    {
-        // Server verification hook for predicted client impact
     }
 
     protected virtual IEnumerator Inflate()
@@ -335,43 +333,6 @@ public class BasicBubble : NetworkBehaviour
 
             Pop();
         }
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (hasPopped || isLocalFake || !IsServer) return;
-        if (other.transform.root == transform.root) return;
-        HandleTrigger(other);
-    }
-
-    public virtual void HandleTrigger(Collider other)
-    {
-        if (other.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
-        {
-            OwnerID.Value = reflector.OwnerID;
-
-            Collider myCollider = GetComponent<Collider>();
-            Vector3 reflectNormal = Vector3.up;
-
-            bool hasOverlap = Physics.ComputePenetration(
-                myCollider, transform.position, transform.rotation,
-                other, other.transform.position, other.transform.rotation,
-                out Vector3 dir, out float distance
-            );
-
-            if (hasOverlap)
-                reflectNormal = dir;
-            else
-                reflectNormal = (transform.position - other.transform.position).normalized;
-
-            Reflect(reflectNormal);
-            return;
-        }
-
-        if (other.CompareTag("Bubble") && other.GetComponent<NetworkObject>().IsSpawned || other.CompareTag("Puddle"))
-            return;
-
-        BubbleCollision(other.gameObject);
     }
 
     private void OnCollisionEnter(Collision collision)
@@ -571,14 +532,14 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            // Update predicted bubble parameters without snapping position
             fakeCopy.speed = newSpeed;
             fakeCopy.isSoaped = soapedState;
             fakeCopy.soapSecSpeedIncrease = secSpeedIncrease;
 
-            // Only smooth correct if desync is severe
-            float dist = Vector3.Distance(fakeCopy.transform.position, serverPos);
-            if (dist > fakeCopy.desyncThreshold)
+            Vector3 displacement = serverPos - fakeCopy.transform.position;
+            float forwardOffset = Vector3.Dot(displacement, fakeCopy.direction);
+
+            if (displacement.magnitude > fakeCopy.desyncThreshold && forwardOffset > 0)
             {
                 if (fakeCopy.correctionCoroutine != null)
                     fakeCopy.StopCoroutine(fakeCopy.correctionCoroutine);
@@ -600,11 +561,12 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            // Update speed directly on local fake without hard snapping position
             fakeCopy.speed = newSpeed;
 
-            float dist = Vector3.Distance(fakeCopy.transform.position, serverPos);
-            if (dist > fakeCopy.desyncThreshold)
+            Vector3 displacement = serverPos - fakeCopy.transform.position;
+            float forwardOffset = Vector3.Dot(displacement, fakeCopy.direction);
+
+            if (displacement.magnitude > fakeCopy.desyncThreshold && forwardOffset > 0)
             {
                 if (fakeCopy.correctionCoroutine != null)
                     fakeCopy.StopCoroutine(fakeCopy.correctionCoroutine);
@@ -628,7 +590,6 @@ public class BasicBubble : NetworkBehaviour
     {
         if (!IsServer && fakeCopy != null)
         {
-            // Smoothly adapt pop position if within reasonable threshold
             float dist = Vector3.Distance(fakeCopy.transform.position, serverPopPos);
             if (dist > fakeCopy.desyncThreshold)
             {
@@ -645,13 +606,38 @@ public class BasicBubble : NetworkBehaviour
 
     public void HideVisualsAndDisablePhysics()
     {
-        foreach (var renderer in GetComponentsInChildren<Renderer>())
+        StartCoroutine(HideVisualsRoutine());
+    }
+
+    private IEnumerator HideVisualsRoutine()
+    {
+        yield return new WaitForEndOfFrame();
+
+        foreach (var renderer in GetComponentsInChildren<Renderer>(true))
         {
             renderer.enabled = false;
         }
-        foreach (var col in GetComponentsInChildren<Collider>())
+
+        foreach (var col in GetComponentsInChildren<Collider>(true))
         {
             col.enabled = false;
+        }
+
+        foreach (var par in GetComponentsInChildren<ParticleSystem>(true))
+        {
+            par.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            par.gameObject.SetActive(false);
+        }
+
+        foreach (var tra in GetComponentsInChildren<TrailRenderer>(true))
+        {
+            tra.Clear();
+            tra.enabled = false;
+        }
+
+        foreach (var light in GetComponentsInChildren<Light>(true))
+        {
+            light.enabled = false;
         }
     }
 

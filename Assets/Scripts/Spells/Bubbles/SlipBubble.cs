@@ -20,40 +20,44 @@ public class SlipBubble : BasicBubble
             if (slimeTrailObject != null)
             {
                 GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
-
-                NetworkObject netObj = trail.GetComponent<NetworkObject>();
-                if (netObj != null)
-                {
-                    Destroy(netObj);
-                }
-
+                Destroy(trail.GetComponent<NetworkObject>());
                 slimeTrail = trail.GetComponent<SlimeTrail>();
                 slimeTrail?.InitialiseTrail(speed);
             }
         }
         else if (IsServer)
         {
-            if (slimeTrailObject != null)
-            {
-                GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
-                slimeTrail = trail.GetComponent<SlimeTrail>();
-                slimeTrail?.InitialiseTrail(speed);
+            GameObject trail = Instantiate(slimeTrailObject, trailPos, Quaternion.LookRotation(transform.forward));
+            slimeTrail = trail.GetComponent<SlimeTrail>();
+            slimeTrail?.InitialiseTrail(speed);
 
-                trail.GetComponent<NetworkObject>()?.Spawn();
-            }
+            trail.GetComponent<NetworkObject>()?.Spawn();
         }
     }
 
-    protected override void BubbleMovement()
+    protected override void Pop()
     {
-        base.BubbleMovement();
+        slimeTrail?.StopTrail();
 
+        if (slimeTrail != null && !isLocalFake)
+        {
+            NetworkObject trailNetObj = slimeTrail.gameObject.GetComponent<NetworkObject>();
+            if (trailNetObj != null && trailNetObj.IsSpawned)
+            {
+                trailNetObj.Despawn(true);
+            }
+        }
+
+        base.Pop();
+    }
+
+    private void Update()
+    {
         if (!IsServer && !isLocalFake) return;
 
-        // Stop trail emission if bubble drifts off grounded geometry
-        if (slimeTrail != null && !slimeTrail.isStopped)
+        if (slimeTrail != null && !Physics.Raycast(transform.position, Vector3.down, 5f, groundedLayerMask))
         {
-            if (!Physics.Raycast(transform.position, Vector3.down, 5f, groundedLayerMask))
+            if (!slimeTrail.isStopped)
             {
                 slimeTrail.StopTrail();
             }
@@ -65,7 +69,6 @@ public class SlipBubble : BasicBubble
         if (hasPopped || other == null) return;
         if (!IsServer && !isLocalFake) return;
 
-        // Local fake collision branch
         if (isLocalFake)
         {
             if (other.CompareTag("Player"))
@@ -80,7 +83,6 @@ public class SlipBubble : BasicBubble
             return;
         }
 
-        // Server authoritative collision branch
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -89,51 +91,24 @@ public class SlipBubble : BasicBubble
                 if (GameManager.Instance.PlayingLocal)
                 {
                     player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                    CreateSlimePuddleLocal(transform.position);
                 }
                 else
                 {
                     player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                    CreateSlimePuddleServerRpc(transform.position);
                 }
-
-                CreateSlimePuddleServer(transform.position);
             }
 
             Pop();
         }
     }
 
-    protected override void Pop()
+    [ServerRpc(RequireOwnership = false)]
+    private void CreateSlimePuddleServerRpc(Vector3 position)
     {
-        if (hasPopped) return;
-
-        if (slimeTrail != null)
-        {
-            slimeTrail.StopTrail();
-
-            if (IsServer)
-            {
-                NetworkObject trailNetObj = slimeTrail.gameObject.GetComponent<NetworkObject>();
-                if (trailNetObj != null && trailNetObj.IsSpawned)
-                {
-                    trailNetObj.Despawn(true);
-                }
-            }
-            else if (isLocalFake)
-            {
-                Destroy(slimeTrail.gameObject);
-            }
-        }
-
-        base.Pop();
-    }
-
-    private void CreateSlimePuddleServer(Vector3 position)
-    {
-        if (!IsServer || slimePuddleObject == null) return;
-
         Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
         GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
-
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
         puddleTrail?.StopTrail();
 
@@ -142,23 +117,14 @@ public class SlipBubble : BasicBubble
 
     private void CreateSlimePuddleLocal(Vector3 position)
     {
-        if (slimePuddleObject == null) return;
-
         Vector3 puddlePos = new Vector3(position.x, 0.06f, position.z);
         GameObject puddle = Instantiate(slimePuddleObject, puddlePos, Quaternion.LookRotation(transform.forward));
-
-        NetworkObject netObj = puddle.GetComponent<NetworkObject>();
-        if (netObj != null)
-        {
-            Destroy(netObj);
-        }
-
         SlimeTrail puddleTrail = puddle.GetComponent<SlimeTrail>();
         puddleTrail?.StopTrail();
     }
 
     public override void SetSlippy()
     {
-        // Intentionally left empty for SlipBubble
+        // Left deliberately empty
     }
 }
