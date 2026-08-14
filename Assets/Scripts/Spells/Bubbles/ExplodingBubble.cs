@@ -43,9 +43,6 @@ public class ExplodingBubble : BasicBubble
         }
 
         fizzleEffect = hitEffect;
-        if (IsOwner)
-            ChangeToExplosionServerRpc();
-
         Pop();
     }
 
@@ -149,17 +146,5 @@ public class ExplodingBubble : BasicBubble
     public void ChangeToEarlyFizzle()
     {
         fizzleEffect = earlyFizzleEffect;
-    }
-
-    [ServerRpc]
-    private void ChangeToExplosionServerRpc()
-    {
-        ChangeToExplosionClientRpc();
-    }
-
-    [ClientRpc]
-    private void ChangeToExplosionClientRpc()
-    {
-        fizzleEffect = hitEffect;
     }
 }

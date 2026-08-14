@@ -64,13 +64,13 @@ public class CameraHandler : NetworkBehaviour
 
         if (cinematicCamera == null || !playCinematicAtStart)
         {
-            if (MenuTransitionHandler.Instance)
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
                 StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
         else
         {
-            if (MenuTransitionHandler.Instance)
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
                 StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
             mainCamera.SetActive(false);
             cinematicCamera.SetActive(true);

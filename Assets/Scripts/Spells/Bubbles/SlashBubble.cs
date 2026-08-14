@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using FMODUnity;
-using Unity.Netcode;
 using UnityEngine;
 
 public class SlashBubble : BasicBubble

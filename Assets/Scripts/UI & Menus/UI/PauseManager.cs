@@ -111,6 +111,7 @@ public class PauseManager : MonoBehaviour
 
     public void RestartGame()
     {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer) return;
         GameManager.IsGamePaused = false;
         scores.ResetKills();
         scores.ResetWins();
@@ -118,7 +119,15 @@ public class PauseManager : MonoBehaviour
         if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
-            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            if (MenuTransitionHandler.Instance)
+            {
+                MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
+                MenuTransitionHandler.Instance.TriggerFade();
+            }
+            else
+            {
+                LoadMap();
+            }
         }
         else
             RestartGameServerRpc();
@@ -128,6 +137,32 @@ public class PauseManager : MonoBehaviour
     private void RestartGameServerRpc()
     {
         Time.timeScale = 1f;
+
+        if (MenuTransitionHandler.Instance)
+        {
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsServer)
+                TriggerTransitionClientRpc();
+
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+        else
+        {
+            LoadMap();
+        }
+    }
+
+    [ClientRpc]
+    private void TriggerTransitionClientRpc()
+    {
+        MenuTransitionHandler.Instance.TriggerFade();
+    }
+
+    private void LoadMap()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMap;
+
         NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 

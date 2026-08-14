@@ -4,7 +4,7 @@ using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Linq; 
 
-public class MapRotationSystem : MonoBehaviour
+public class MapRotationSystem : NetworkBehaviour
 {
     [SerializeField] private MapSettingsSO mapSetting;
     [SerializeField] private int maxRounds = 3;
@@ -61,8 +61,11 @@ public class MapRotationSystem : MonoBehaviour
         mapSetting = chosenMap;
         maxRounds = chosenMap.MapRounds;
 
-        if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0 || MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 6)
+        if (MenuTransitionHandler.Instance)
         {
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsServer)
+                TriggerTransitionClientRpc();
+
             MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
             MenuTransitionHandler.Instance.TriggerFade();
         }
@@ -83,5 +86,12 @@ public class MapRotationSystem : MonoBehaviour
                    chosenMap.SceneName,
                    LoadSceneMode.Single
                );
+    }
+
+    [ClientRpc]
+    private void TriggerTransitionClientRpc()
+    {
+        if(SceneManager.GetActiveScene().buildIndex != 0)
+            MenuTransitionHandler.Instance.TriggerFade();
     }
 }

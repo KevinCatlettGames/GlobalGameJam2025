@@ -1434,22 +1434,20 @@ public class PlayerController : NetworkBehaviour
             return;
 
         if (GameManager.Instance.PlayingLocal)
+        {
             StartCoroutine(StunCoroutine(duration));
-        else
-            StunServerRpc(duration);
-
-    }
-
-    [ServerRpc]
-    private void StunServerRpc(float duration)
-    {
-        StunClientRpc(duration);
+        }
+        else if (IsServer)
+        {
+            StunClientRpc(duration);
+        }
     }
 
     [ClientRpc]
     private void StunClientRpc(float duration)
     {
-        NetcodeStunCoroutine(duration);
+        if (!IsOwner) return;
+        StartCoroutine(NetcodeStunCoroutine(duration));
     }
 
     private IEnumerator StunCoroutine(float duration)

@@ -16,7 +16,7 @@ public class BlastBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         transform.position += direction * extraOffset;
 
-if (playerCollider != null && playerCollider.TryGetComponent<PlayerController>(out var shooterController))
+        if (playerCollider != null && playerCollider.TryGetComponent<PlayerController>(out var shooterController))
         {
             if (GameManager.Instance.PlayingLocal)
             {

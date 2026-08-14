@@ -73,10 +73,7 @@ public class RevolverBubble : BasicBubble
 
             if (bubbleScript != null)
             {
-                // EXACT SAME LOGIC AS SPLIT BUBBLE:
-                // Multiply base ID by 10 (or 100) and add the shot index offset (i + 1)
                 int uniqueBulletID = (AssignedSpellID.Value * 10) + (i + 1);
-
                 bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, uniqueBulletID, fakeWithServerCaster);
             }
 
@@ -117,7 +114,6 @@ public class RevolverBubble : BasicBubble
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
-        //Debug.Log("Increment all shots hit revolver ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(19, 1);
         achSaveSystem.IncrementStat(6, 1);
