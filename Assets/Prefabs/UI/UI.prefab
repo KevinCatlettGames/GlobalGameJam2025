@@ -16,6 +16,7 @@ GameObject:
   - component: {fileID: 4088061668864457222}
   - component: {fileID: 6771715318757359328}
   - component: {fileID: 1841921233399865473}
+  - component: {fileID: 8264902960216413016}
   m_Layer: 5
   m_Name: RestartButton
   m_TagString: Untagged
@@ -277,6 +278,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &8264902960216413016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 92840463777844740}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &114158706205830867
 GameObject:
   m_ObjectHideFlags: 0
@@ -3969,6 +4009,7 @@ GameObject:
   - component: {fileID: 5510786354843043087}
   - component: {fileID: 5296055024723453785}
   - component: {fileID: 956435846879693983}
+  - component: {fileID: 7126660437782874951}
   m_Layer: 5
   m_Name: ControlsButton
   m_TagString: Untagged
@@ -4254,6 +4295,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7126660437782874951
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4630448561350783662}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &4701788265536427817
 GameObject:
   m_ObjectHideFlags: 0
@@ -4559,6 +4639,7 @@ GameObject:
   - component: {fileID: 795677210222817132}
   - component: {fileID: 509287368214404925}
   - component: {fileID: 2630424134293833451}
+  - component: {fileID: 2588321764635561255}
   m_Layer: 5
   m_Name: MainMenuButton
   m_TagString: Untagged
@@ -4820,6 +4901,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2588321764635561255
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5091111887235873565}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &5149517240115153604
 GameObject:
   m_ObjectHideFlags: 0
@@ -6626,7 +6746,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &3974515565564897555
 RectTransform:
   m_ObjectHideFlags: 0
@@ -7541,6 +7661,7 @@ GameObject:
   - component: {fileID: 6489922834664570364}
   - component: {fileID: 1180769965564530212}
   - component: {fileID: 7748006651956997495}
+  - component: {fileID: 1774860989369902319}
   m_Layer: 5
   m_Name: ContinueButton
   m_TagString: Untagged
@@ -7814,6 +7935,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1774860989369902319
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7250104834914007593}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &7335350199707215223
 GameObject:
   m_ObjectHideFlags: 0
@@ -8259,6 +8419,7 @@ GameObject:
   - component: {fileID: 4084711706012248316}
   - component: {fileID: 8868662928418253175}
   - component: {fileID: 4011624230828496327}
+  - component: {fileID: 2312672602374126170}
   m_Layer: 5
   m_Name: Text
   m_TagString: Untagged
@@ -8432,7 +8593,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7535111213881597877}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
   m_Name: 
@@ -8458,6 +8619,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2312672602374126170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7535111213881597877}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.15
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &7865458225259457007
 GameObject:
   m_ObjectHideFlags: 0
@@ -9697,6 +9897,7 @@ GameObject:
   - component: {fileID: 2670546445925254035}
   - component: {fileID: 3009098655181464046}
   - component: {fileID: 3482079597865775633}
+  - component: {fileID: 3503103305738296445}
   m_Layer: 5
   m_Name: SettingsButton
   m_TagString: Untagged
@@ -9958,6 +10159,45 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &3503103305738296445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8695619150569811014}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5004adbc47f53fe448dbc3d709006e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  duration: 0.25
+  startScaleMultiplier: 0
+  scaleCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  scaleOnEnable: 1
 --- !u!1 &8702139804975396422
 GameObject:
   m_ObjectHideFlags: 0
