@@ -1108,6 +1108,13 @@ public class PlayerController : NetworkBehaviour
             controllerRumbler?.Rumble(duration, force, dmg);
         }
     }
+    private void WallKillCredit(int ID)
+    {
+        if (knockbackVelocity.sqrMagnitude <= 1f && ID != PlayerID)
+        {
+            killCreditID = ID;
+        }
+    }
 
     [ServerRpc(RequireOwnership = false)]
     public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
@@ -1292,6 +1299,13 @@ public class PlayerController : NetworkBehaviour
                 ReflectKnockback(hit.normal);
             }
             StartCoroutine(BoneFishCoroutine());
+        }
+        if (hit.gameObject.CompareTag("Bubble"))
+        {
+            if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
+            {
+                WallKillCredit(wallBubble.OwnerID.Value);
+            }
         }
     }
     private IEnumerator BoneFishCoroutine()

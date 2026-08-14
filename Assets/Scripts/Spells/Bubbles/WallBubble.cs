@@ -70,8 +70,6 @@ public class WallBubble : BasicBubble
             stop = true;
         }
     }
-
-
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;
