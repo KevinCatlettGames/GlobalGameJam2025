@@ -73,7 +73,11 @@ public class RevolverBubble : BasicBubble
 
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
+                // EXACT SAME LOGIC AS SPLIT BUBBLE:
+                // Multiply base ID by 10 (or 100) and add the shot index offset (i + 1)
+                int uniqueBulletID = (AssignedSpellID.Value * 10) + (i + 1);
+
+                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, uniqueBulletID, fakeWithServerCaster);
             }
 
             yield return new WaitForSeconds(delayBetweenShots);
@@ -82,9 +86,10 @@ public class RevolverBubble : BasicBubble
 
         yield return new WaitForSeconds(.1f);
         if (IsServer) DisableRevolverMeshClientRpc();
-        if(isLocalFake)
-            foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+        if (isLocalFake)
+            foreach (MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
                 meshRenderer.enabled = false;
+
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }

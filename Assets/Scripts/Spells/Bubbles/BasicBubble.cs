@@ -287,7 +287,7 @@ public class BasicBubble : NetworkBehaviour
             yield return null;
         }
 
-        if (IsServer)
+        if (IsServer || isLocalFake)
         {
             InflateOverlapChack();
         }
@@ -298,6 +298,7 @@ public class BasicBubble : NetworkBehaviour
 
     protected virtual void InflateOverlapChack()
     {
+        if (!IsServer) return;
         Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player"));
         foreach (Collider col in overlaps)
         {

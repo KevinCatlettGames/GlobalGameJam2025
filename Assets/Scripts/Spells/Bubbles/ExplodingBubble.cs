@@ -161,12 +161,5 @@ public class ExplodingBubble : BasicBubble
     private void ChangeToExplosionClientRpc()
     {
         fizzleEffect = hitEffect;
-        if(fakeCopy)
-            fakeCopy.GetComponent<ExplodingBubble>().ChangeToExplosion();
-    }
-
-    public void ChangeToExplosion()
-    {
-        fizzleEffect = hitEffect;
     }
 }
