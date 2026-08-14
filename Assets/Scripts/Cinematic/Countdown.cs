@@ -28,6 +28,8 @@ public class Countdown : MonoBehaviour
 
         if (countdownImage != null)
             countdownImage.enabled = false;
+
+        GameManager.Instance.OnGameStarted += StartShortCountdown;
     }
 
     public void StartCountdown()
@@ -46,6 +48,18 @@ public class Countdown : MonoBehaviour
         {
             onCountdownComplete?.Invoke();
         }
+    }
+    public void StartShortCountdown()
+    {
+        StartCoroutine(ShortCountdown());
+    }
+    private IEnumerator ShortCountdown()
+    {
+        yield return new WaitForSeconds(timeBetweenElements / 2);
+        countdownImage.enabled = true;
+        countdownImage.sprite = countdownSprites[0];
+        yield return new WaitForSeconds(timeBetweenElements);
+        countdownImage.enabled = false;
     }
 
     private IEnumerator CountdownRoutine()
@@ -72,5 +86,10 @@ public class Countdown : MonoBehaviour
         yield return new WaitForSeconds(timeBetweenElements);
         onCountdownComplete?.Invoke();
         countdownImage.enabled = false;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnGameStarted -= StartShortCountdown;
     }
 }
