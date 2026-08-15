@@ -65,18 +65,18 @@ public class WinScreenManager : MonoBehaviour
                 .playerValuesList[playerID]
                 .Skin.Color;
 
-            RectTransform rectTransform =
-                winPanels[i].GetComponent<RectTransform>();
+            //RectTransform rectTransform =
+            //    winPanels[i].GetComponent<RectTransform>();
 
-            float xPosition =
-                (i - (winnerCount - 1) / 2f)
-                * panelSpacing;
+            //float xPosition =
+            //    (i - (winnerCount - 1) / 2f)
+            //    * panelSpacing;
 
-            rectTransform.anchoredPosition =
-                new Vector2(
-                    xPosition,
-                    rectTransform.anchoredPosition.y
-                );
+            //rectTransform.anchoredPosition =
+            //    new Vector2(
+            //        xPosition,
+            //        rectTransform.anchoredPosition.y
+            //    );
 
             playerImages[i].sprite =
                 LobbyPlayerValues.Instance
