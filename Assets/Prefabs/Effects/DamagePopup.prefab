@@ -393,6 +393,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damageTypewriter: {fileID: 3851610663670960972}
   damageText: {fileID: 8078732587384173390}
+  critImage: {fileID: 7568303227677432038}
   gradientEvaluateFactor: 0.02
   damageTextColorGradient:
     serializedVersion: 2
@@ -455,7 +456,7 @@ GameObject:
   - component: {fileID: 7425301218979583234}
   - component: {fileID: 7568303227677432038}
   m_Layer: 5
-  m_Name: Sprite
+  m_Name: CritSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -478,7 +479,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 100, y: 100}
+  m_SizeDelta: {x: 75, y: 75}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7425301218979583234
 CanvasRenderer:
@@ -508,7 +509,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: becdf44177787e14495697473e335ddf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 766072a13465e0141a998a9123b515e9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1

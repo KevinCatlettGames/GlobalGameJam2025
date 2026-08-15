@@ -116,12 +116,14 @@ public class GrenadeBubble : BasicBubble
                             {
                                 explosionDamage *= primaryTargetMod;
                                 explosionKnockback *= primaryTargetMod;
+                                isCrit = true;
                             }
                             if (gameManager.PlayingLocal)
-                                player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage);
+                                player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
                             else
-                                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage);
-
+                                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
+                            if (player.gameObject == primaryTarget)
+                                isCrit = false;
                             gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
                             player.StartVulnerable(vulnerableDuration);
 

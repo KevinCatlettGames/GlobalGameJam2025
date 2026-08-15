@@ -110,9 +110,9 @@ public class SoapDroplet : NetworkBehaviour
                         if (player != null)
                         {
                             if (GameManager.Instance.PlayingLocal)
-                                player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size);
+                                player.ApplyKnockbackLocal(-1, direction, knockback * size, damage * size, false);
                             else
-                                player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size);
+                                player.ApplyKnockbackServerRpc(-1, direction, knockback * size, damage * size, false);
                         }
                     }
                     else

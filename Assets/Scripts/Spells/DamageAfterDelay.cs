@@ -7,9 +7,9 @@ public class DamageAfterDelay : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         if (GameManager.Instance.PlayingLocal)
-            player.ApplyKnockbackLocal(OwnerID, Vector3.zero, 0, damage);
+            player.ApplyKnockbackLocal(OwnerID, Vector3.zero, 0, damage, false);
         else
-            player.ApplyKnockbackServerRpc(OwnerID, Vector3.zero, 0, damage);
+            player.ApplyKnockbackServerRpc(OwnerID, Vector3.zero, 0, damage, false);
     }
 
     public void StartDamageAfterDelay(PlayerController player, int OwnerID, float damage, float delay)

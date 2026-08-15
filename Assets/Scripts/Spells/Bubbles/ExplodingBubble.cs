@@ -81,17 +81,17 @@ public class ExplodingBubble : BasicBubble
                             knockback *= primaryKnockbackIncrease;
 
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
 
                         if (playerCollider != null)
                         {
                             var controller = playerCollider.GetComponent<PlayerController>();
                             if (controller != null) controller.GainUltCharge(damage, true);
-                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
-                            if (controller != null)
                             {
+                                controller.GainUltCharge(damage, true);
+                                GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
                                 GameManager.Instance.RegisterExplosionHit(
                                     OwnerID.Value,
                                     player.PlayerID,

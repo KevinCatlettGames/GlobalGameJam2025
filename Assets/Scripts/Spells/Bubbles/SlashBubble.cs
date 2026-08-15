@@ -126,12 +126,14 @@ public class SlashBubble : BasicBubble
             damage = secondHitDamage;
             knockback = secondHitKnockback;
             isSecondHit = true;
+            isCrit = true;
         }
         base.BubbleCollision(other);
         if (isSecondHit)
         {
             damage = originalDamage;
             knockback = originalKnockback;
+            isCrit = false;
         }
     }
 

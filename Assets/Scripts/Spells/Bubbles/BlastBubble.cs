@@ -36,11 +36,11 @@ public class BlastBubble : BasicBubble
                 GameManager gameManager = GameManager.Instance;
 
                 if (gameManager.PlayingLocal)
-                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
                 else
                 {
                     if(IsServer)
-                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
                 }
 
                 if(IsServer)

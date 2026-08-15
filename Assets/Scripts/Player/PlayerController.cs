@@ -1036,7 +1036,7 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += direction * force; 
     }
 
-    public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
         if (isDead) return;
 
@@ -1052,6 +1052,7 @@ public class PlayerController : NetworkBehaviour
             fmodEvent.start();
             fmodEvent.release();
 
+            isCrit = true;
             StopVulnerable();
         }
 
@@ -1077,7 +1078,7 @@ public class PlayerController : NetworkBehaviour
 
         if (dmg > 0)
         {
-            damageGenerator?.SpawnDamagePopup((int)dmg);
+            damageGenerator?.SpawnDamagePopup((int)dmg, isCrit);
             playerHUD.UpdateDamageText((int)damage);
             damageParticleSystem.Play();
             damagedEffect.UpdateParticleSystem(damage);
@@ -1117,13 +1118,13 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
-        ApplyKnockbackClientRpc(ID, direction, force, dmg);
+        ApplyKnockbackClientRpc(ID, direction, force, dmg, isCrit);
     }
 
     [ClientRpc]
-    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
         if (isDead && !IsOwner) return;
 
@@ -1139,6 +1140,7 @@ public class PlayerController : NetworkBehaviour
             fmodEvent.start();
             fmodEvent.release();
 
+            isCrit = true;
             StopVulnerable();
         }
 
@@ -1165,7 +1167,7 @@ public class PlayerController : NetworkBehaviour
         if (dmg > 0)
         {
             // Spawns exactly once per client network broadcast
-            damageGenerator?.SpawnDamagePopup((int)dmg);
+            damageGenerator?.SpawnDamagePopup((int)dmg, isCrit);
             playerHUD.UpdateDamageText((int)damage);
             damagedEffect.UpdateParticleSystem(damage);
             damageParticleSystem.Play();
@@ -1287,11 +1289,11 @@ public class PlayerController : NetworkBehaviour
                 Vector3 v = transform.position - hit.point;
                 if (GameManager.Instance.PlayingLocal)
                 {
-                    ApplyKnockbackLocal(-1, v, 1, dmg);
+                    ApplyKnockbackLocal(-1, v, 1, dmg, false);
                 }
                 else
                 {
-                    ApplyKnockbackServerRpc(-1, v, 1, dmg);
+                    ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
                 }
             }
             else
