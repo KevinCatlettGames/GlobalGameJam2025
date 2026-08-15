@@ -129,7 +129,6 @@ public class GameManager : NetworkBehaviour
         for (int i = 0; i < maxPlayers; i++)
             playerStates[i] = PlayerState.missing;
 
-        Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)

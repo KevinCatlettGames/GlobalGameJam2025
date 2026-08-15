@@ -84,9 +84,6 @@ public class PauseManager : MonoBehaviour
 
             if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
         else
         {
@@ -95,9 +92,6 @@ public class PauseManager : MonoBehaviour
 
             if (GameManager.Instance.PlayingLocal)
                 Time.timeScale = 1f;
-
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
 
             if (!isPauseMenuOpen && currentSubMenu != null)
             {
@@ -190,10 +184,7 @@ public class PauseManager : MonoBehaviour
     }
 
     public async void ReturnToMainMenu()
-    {
-        Cursor.visible = true;
-        Time.timeScale = 1f; 
-        
+    {     
         try
         {
             if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
@@ -232,7 +223,6 @@ public class PauseManager : MonoBehaviour
 
     public async void ReturnToLobby()
     {
-        Cursor.visible = true;
         Time.timeScale = 1f; 
         
         if(LobbyManager.instance)

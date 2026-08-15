@@ -37,7 +37,6 @@ public class MenuTransitionHandler : MonoBehaviour
 
     private IEnumerator PlayFadeOutSmoothly()
     {
-        Cursor.visible = false;
         yield return null;
         yield return new WaitForEndOfFrame();
 
