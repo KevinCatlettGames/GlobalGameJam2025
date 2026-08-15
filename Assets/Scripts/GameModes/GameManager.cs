@@ -11,6 +11,8 @@ public class GameManager : NetworkBehaviour
 
     public static GameManager Instance;
     public static bool IsGamePaused = false;
+    private bool isResetting = false;
+    public bool IsResetting { get { return isResetting; } set { isResetting = value; } }
 
     #region Serialized & Public Fields
 
@@ -132,7 +134,7 @@ public class GameManager : NetworkBehaviour
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
+            countdown.OnCountdownStart.AddListener(StartGameAfterDelay);
         }
         else
         {
@@ -156,7 +158,7 @@ public class GameManager : NetworkBehaviour
     {
         if (LobbyManager.instance && countdown)
         {
-            countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);
+            countdown.OnCountdownStart.RemoveListener(StartGameAfterDelay);
         }
     }
 
@@ -224,6 +226,7 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
+        IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         ResetRapidShotStreaks();
     }
@@ -241,6 +244,7 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
+        IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         Invoke(nameof(EnableDeathzonesServerRpc), .5f);
     }

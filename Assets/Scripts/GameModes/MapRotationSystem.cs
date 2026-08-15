@@ -73,6 +73,8 @@ public class MapRotationSystem : NetworkBehaviour
         {
             LoadMap();
         }
+        if(GameManager.Instance)
+            GameManager.Instance.IsResetting = true;
 
         return true;
     }

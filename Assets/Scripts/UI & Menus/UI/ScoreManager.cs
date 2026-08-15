@@ -310,6 +310,12 @@ public class ScoreManager : MonoBehaviour
             yield return new WaitForSeconds(0.3f);
 
             var newSorted = GetScores(usePreviousScores: false);
+
+            foreach (var entry in newSorted)
+            {
+                standardModeScorePanels[entry.playerID].SetScores(entry.wins, entry.kills);
+            }
+
             yield return StartCoroutine(AnimateStandardPanelsReorder(newSorted));
 
             // CHECK FOR NEW LEADER (STANDARD)

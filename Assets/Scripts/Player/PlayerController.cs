@@ -217,7 +217,7 @@ public class PlayerController : NetworkBehaviour
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance || TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance)
             StartEntrence(0);
     }
 
@@ -430,7 +430,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!context.canceled) return;
  
-        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance)
+        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance && !GameManager.Instance.IsResetting)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
             {
@@ -1544,7 +1544,7 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
-            PlayAnimServerRpc("Entrance", 0, 0);
+            GetComponent<NetworkAnimatorProxy>().SetAnimPlay("Entrance", 0, 0);
         EventInstance fmodEvent = RuntimeManager.CreateInstance(startEvent);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
         fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
@@ -1558,6 +1558,9 @@ public class PlayerController : NetworkBehaviour
         {
             yield return new WaitForSeconds(remainingDelay - animationTime);
         }
+        if (!trail.isPlaying)
+            trail.Play();
+
         inputEnabled = true;
     }
 
