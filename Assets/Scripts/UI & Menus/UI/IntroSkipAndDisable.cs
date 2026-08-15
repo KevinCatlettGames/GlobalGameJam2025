@@ -28,7 +28,6 @@ public class IntroSkipAndDisable : MonoBehaviour
         }
 
         instance = this;
-        Cursor.visible = false;
 
         videoPlayer = GetComponent<VideoPlayer>();
 
@@ -80,7 +79,6 @@ public class IntroSkipAndDisable : MonoBehaviour
 
     void StopAndCleanUp()
     {
-        Cursor.visible = true;
         transform.SetParent(null);  
         DontDestroyOnLoad(this.gameObject);
         RuntimeManager.PlayOneShot(bubbleEmitter.EventReference);

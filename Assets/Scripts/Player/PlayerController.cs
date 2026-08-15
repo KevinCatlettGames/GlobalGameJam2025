@@ -217,7 +217,7 @@ public class PlayerController : NetworkBehaviour
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance || TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance)
             StartEntrence(0);
     }
 
@@ -430,7 +430,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!context.canceled) return;
  
-        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance)
+        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance && !GameManager.Instance.IsResetting)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
             {
@@ -1021,9 +1021,16 @@ public class PlayerController : NetworkBehaviour
 
     #region Damage
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void ApplyImpulseServerRpc(Vector3 direction, float force)
     {
+        ApplyImpulseClientRpc(direction, force);    
+    }
+
+    [ClientRpc]
+    public void ApplyImpulseClientRpc(Vector3 direction, float force)
+    {
+        if (!IsOwner) return;
         direction.y = 0;
         direction.Normalize();
         knockbackVelocity += direction * force;
@@ -1429,22 +1436,20 @@ public class PlayerController : NetworkBehaviour
             return;
 
         if (GameManager.Instance.PlayingLocal)
+        {
             StartCoroutine(StunCoroutine(duration));
-        else
-            StunServerRpc(duration);
-
-    }
-
-    [ServerRpc]
-    private void StunServerRpc(float duration)
-    {
-        StunClientRpc(duration);
+        }
+        else if (IsServer)
+        {
+            StunClientRpc(duration);
+        }
     }
 
     [ClientRpc]
     private void StunClientRpc(float duration)
     {
-        NetcodeStunCoroutine(duration);
+        if (!IsOwner) return;
+        StartCoroutine(NetcodeStunCoroutine(duration));
     }
 
     private IEnumerator StunCoroutine(float duration)
@@ -1541,7 +1546,7 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
-            PlayAnimServerRpc("Entrance", 0, 0);
+            GetComponent<NetworkAnimatorProxy>().SetAnimPlay("Entrance", 0, 0);
         EventInstance fmodEvent = RuntimeManager.CreateInstance(startEvent);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
         fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
@@ -1555,6 +1560,9 @@ public class PlayerController : NetworkBehaviour
         {
             yield return new WaitForSeconds(remainingDelay - animationTime);
         }
+        if (!trail.isPlaying)
+            trail.Play();
+
         inputEnabled = true;
     }
 

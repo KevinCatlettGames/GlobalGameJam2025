@@ -4,6 +4,8 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.Controls;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 public class MenuInputSystem : MonoBehaviour
 {
@@ -16,7 +18,9 @@ public class MenuInputSystem : MonoBehaviour
     #endregion
 
     #region Fields
-    public GameDevice activeGameDevice;
+    public GameDevice activeGameDevice = GameDevice.Gamepad; // Set default state to Gamepad
+
+    [SerializeField] bool onlyWhenPaused = false;
 
     [Header("Deadzone Settings")]
     [SerializeField, Range(0.01f, 0.9f)]
@@ -27,6 +31,8 @@ public class MenuInputSystem : MonoBehaviour
 
     [SerializeField]
     private float mouseMoveThreshold = 1.0f;
+
+    private bool isInitialized = false;
     #endregion
 
     #region Events
@@ -47,6 +53,21 @@ public class MenuInputSystem : MonoBehaviour
         transform.parent = null;
     }
 
+    private void Start()
+    {
+        activeGameDevice = GameDevice.Gamepad;
+        SetMouseVisibility(false);
+        OnGameDeviceChanged?.Invoke(activeGameDevice);
+
+        StartCoroutine(EnableInputDetectionRoutine());
+    }
+
+    private IEnumerator EnableInputDetectionRoutine()
+    {
+        yield return null;
+        isInitialized = true;
+    }
+
     private void OnEnable()
     {
         InputSystem.onEvent += OnInputEvent;
@@ -55,6 +76,7 @@ public class MenuInputSystem : MonoBehaviour
     private void OnDisable()
     {
         InputSystem.onEvent -= OnInputEvent;
+        isInitialized = false;
     }
 
     #endregion
@@ -63,6 +85,10 @@ public class MenuInputSystem : MonoBehaviour
 
     private void OnInputEvent(InputEventPtr eventPtr, InputDevice device)
     {
+        if (!isInitialized) return;
+
+        if (onlyWhenPaused && Time.timeScale > 0) return;
+
         if (device == null)
             return;
 
@@ -71,11 +97,25 @@ public class MenuInputSystem : MonoBehaviour
             if (HasGamepadInputExceededDeadzone(eventPtr, gamepad))
             {
                 ChangeActiveGameDevice(GameDevice.Gamepad);
+                if (EventSystem.current == null) return;
+
+                if (EventSystem.current.currentSelectedGameObject == null)
+                {
+                    Button firstButton = FindFirstObjectByType<Button>();
+
+                    if (firstButton != null)
+                    {
+                        EventSystem.current.SetSelectedGameObject(firstButton.gameObject);
+                    }
+                }
             }
         }
-        else if (device is Keyboard)
+        else if (device is Keyboard keyboard)
         {
-            ChangeActiveGameDevice(GameDevice.KeyboardMouse);
+            if (HasKeyboardInputBeenPressed(eventPtr, keyboard))
+            {
+                ChangeActiveGameDevice(GameDevice.KeyboardMouse);
+            }
         }
         else if (device is Mouse mouse)
         {
@@ -84,6 +124,18 @@ public class MenuInputSystem : MonoBehaviour
                 ChangeActiveGameDevice(GameDevice.KeyboardMouse);
             }
         }
+    }
+
+    private bool HasKeyboardInputBeenPressed(InputEventPtr eventPtr, Keyboard keyboard)
+    {
+        foreach (var control in eventPtr.EnumerateChangedControls(keyboard))
+        {
+            if (control is KeyControl keyControl && keyControl.ReadValueFromEvent(eventPtr) >= keyControl.pressPoint)
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private bool HasGamepadInputExceededDeadzone(InputEventPtr eventPtr, Gamepad gamepad)
@@ -114,7 +166,9 @@ public class MenuInputSystem : MonoBehaviour
 
     private bool HasMouseInputExceededThreshold(InputEventPtr eventPtr, Mouse mouse)
     {
-        if (mouse.delta.ReadValue().sqrMagnitude >= (mouseMoveThreshold * mouseMoveThreshold))
+        Vector2 deltaFromEvent = mouse.delta.ReadValueFromEvent(eventPtr);
+
+        if (deltaFromEvent.sqrMagnitude >= (mouseMoveThreshold * mouseMoveThreshold))
         {
             return true;
         }

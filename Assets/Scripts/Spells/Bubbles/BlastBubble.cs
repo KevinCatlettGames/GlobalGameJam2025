@@ -16,10 +16,18 @@ public class BlastBubble : BasicBubble
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
         transform.position += direction * extraOffset;
 
-        if (GameManager.Instance.PlayingLocal)
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseLocal(direction * -1, shooterKnb);
-        else if(IsServer)
-            playerCollider.GetComponent<PlayerController>().ApplyImpulseServerRpc(direction * -1, shooterKnb);
+        if (playerCollider != null && playerCollider.TryGetComponent<PlayerController>(out var shooterController))
+        {
+            if (GameManager.Instance.PlayingLocal)
+            {
+                shooterController.ApplyImpulseLocal(direction * -1, shooterKnb);
+            }
+            else
+            {
+                if(IsServer)
+                    shooterController.ApplyImpulseClientRpc(direction * -1, shooterKnb);
+            }
+        }
     }
 
     protected override void InflateOverlapChack()
@@ -73,11 +81,6 @@ public class BlastBubble : BasicBubble
                 puddle.GetComponent<NetworkObject>()?.Spawn();
                 puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
                 puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID.Value);
-            }
-            else if(isLocalFake)
-            {
-                GameObject puddle = Instantiate(fakeSplat, hitInfo.point, transform.rotation);
-                puddle.GetComponent<Puddle>().isLocalFake = true;
             }
         }
 

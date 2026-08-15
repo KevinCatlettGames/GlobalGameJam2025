@@ -1,4 +1,3 @@
-using System.Collections;
 using UnityEngine;
 using Unity.Netcode;
 
@@ -40,14 +39,6 @@ public class SoapBubble : BasicBubble
                 GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
                 puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
-
-            }
-            else if(isLocalFake)
-            {
-                GameObject prefabToSpawn = hitPlayer ? fakeSoapSplatObject : fakeSoapPuddleObject;
-                if (prefabToSpawn == null) return;
-                GameObject puddle = Instantiate(prefabToSpawn, hitInfo.point, transform.rotation);
-                puddle.GetComponent<Puddle>().isLocalFake = true;
 
             }
         }

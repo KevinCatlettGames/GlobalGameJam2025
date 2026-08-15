@@ -11,7 +11,7 @@ public class GrenadeBubble : BasicBubble
     [SerializeField] private float vulnerableDuration = 4f;
     [SerializeField] private AnimationCurve arc;
     [SerializeField] private GameObject splat;
-    [SerializeField] private GameObject fakeSplat; 
+    [SerializeField] private GameObject fakeSplat;
 
     [SerializeField] private LayerMask groundedLayerMask;
     private float progress = 0f;
@@ -28,14 +28,15 @@ public class GrenadeBubble : BasicBubble
     {
         if (!IsServer && !isLocalFake) return;
 
-        progress += speed * Time.fixedDeltaTime;
-
-        float evaluationPoint = range > 0f ? (progress / range) : 0f;
-        transform.position = new Vector3(transform.position.x, arc.Evaluate(evaluationPoint), transform.position.z);
-
         base.BubbleMovement();
 
-        if (transform.position.y <= 0.1f)
+        progress += speed * Time.fixedDeltaTime;
+        float evaluationPoint = range > 0f ? (progress / range) : 0f;
+
+        float calculatedY = arc.Evaluate(evaluationPoint);
+        transform.position = new Vector3(transform.position.x, calculatedY, transform.position.z);
+
+        if (transform.position.y <= 0.1f && progress > 0.05f)
         {
             transform.position = new Vector3(transform.position.x, 0.1f, transform.position.z);
             Pop();
@@ -49,7 +50,7 @@ public class GrenadeBubble : BasicBubble
 
         if (isLocalFake)
         {
-            fizzleEffect = hitEffect;         
+            fizzleEffect = hitEffect;
             Pop();
             return;
         }
@@ -66,7 +67,7 @@ public class GrenadeBubble : BasicBubble
             IncrementPerfectGrenadeHitAchievement();
         }
 
-        if(other != null && other.CompareTag("Bubble") && other.GetComponent<GrenadeBubble>() && other.GetComponent<GrenadeBubble>().OwnerID.Value != OwnerID.Value)
+        if (other != null && other.CompareTag("Bubble") && other.GetComponent<GrenadeBubble>() && other.GetComponent<GrenadeBubble>().OwnerID.Value != OwnerID.Value)
         {
             UnlockHitTwoGrenadesMidairAchievement();
         }
@@ -74,6 +75,7 @@ public class GrenadeBubble : BasicBubble
         fizzleEffect = hitEffect;
         if (IsServer)
             ChangeHitEffectClientRpc();
+
         Pop();
     }
 
@@ -88,27 +90,34 @@ public class GrenadeBubble : BasicBubble
     {
         if (hasExploded) return;
         hasExploded = true;
+
         fizzleEffect = hitEffect;
         if (IsServer)
             ChangeHitEffectClientRpc();
 
+        if (!IsServer) return;
+
         Collider[] explosionOverlaps = Physics.OverlapSphere(transform.position, explosionRadius, LayerMask.GetMask("Bubble", "Player"));
         Vector3 origin;
         Vector3 direction;
+
         foreach (Collider col in explosionOverlaps)
         {
             if (!col || col.gameObject == gameObject) continue;
             origin = transform.position;
             direction = col.transform.position - transform.position;
+
             if (!Physics.Raycast(origin, direction, direction.magnitude, LayerMask.GetMask("Wall")))
             {
                 if (col.CompareTag("Player"))
                 {
-                    if (IsServer)
+                    GameManager gameManager = GameManager.Instance;
+                    PlayerController player = col.GetComponent<PlayerController>();
+                    if (player != null)
                     {
-                        GameManager gameManager = GameManager.Instance;
-                        PlayerController player = col.GetComponent<PlayerController>();
-                        if (player != null)
+                        float explosionDamage = damage;
+                        float explosionKnockback = knockback;
+                        if (player.gameObject == primaryTarget)
                         {
                             float explosionDamage = damage;
                             float explosionKnockback = knockback;
@@ -127,13 +136,14 @@ public class GrenadeBubble : BasicBubble
                             gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
                             player.StartVulnerable(vulnerableDuration);
 
-                            if (playerCollider != null)
-                            {
-                                var controller = playerCollider.GetComponent<PlayerController>();
-                                if (controller != null) controller.GainUltCharge(explosionDamage, true);
-                                if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
+                        gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
+                        player.StartVulnerable(vulnerableDuration);
 
-                            }
+                        if (playerCollider != null)
+                        {
+                            var controller = playerCollider.GetComponent<PlayerController>();
+                            if (controller != null) controller.GainUltCharge(explosionDamage, true);
+                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
                         }
                     }
                 }
@@ -150,17 +160,12 @@ public class GrenadeBubble : BasicBubble
 
         if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
         {
-            if (IsServer)
+            if (splat != null)
             {
                 GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
                 puddle.GetComponent<NetworkObject>()?.Spawn();
                 puddle.GetComponent<DamageField>()?.SetID(OwnerID.Value);
-                puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
-            }
-            else if(isLocalFake)
-            {
-                GameObject puddle = Instantiate(fakeSplat, hitInfo.point, transform.rotation);
-                puddle.GetComponent<Puddle>().isLocalFake = true;
+                puddle.GetComponent<Puddle>()?.InitialisePuddle(playerCollider);
             }
         }
     }
@@ -172,7 +177,7 @@ public class GrenadeBubble : BasicBubble
     }
 
     [ClientRpc]
-    void ChangeHitEffectClientRpc()
+    private void ChangeHitEffectClientRpc()
     {
         if (IsServer) return;
         fizzleEffect = hitEffect;
@@ -180,7 +185,9 @@ public class GrenadeBubble : BasicBubble
 
     private void IncrementPerfectGrenadeHitAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value 
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value) return;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(8);
@@ -188,7 +195,9 @@ public class GrenadeBubble : BasicBubble
 
     private void UnlockHitTwoGrenadesMidairAchievement()
     {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value 
+        if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value) return;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(18);

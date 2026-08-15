@@ -27,49 +27,6 @@ public class WallBubble : BasicBubble
         hitPoints = Mathf.Max(1, Mathf.RoundToInt(damage));
     }
 
-    public override void HandleTrigger(Collider other)
-    {
-        if (hasPopped || other == null) return;
-
-        if (other.CompareTag("Player"))
-        {
-            return;
-        }
-
-        if (other.CompareTag("Bubble") && popOnBubbleHit)
-        {
-            // FIX: Check if the bubble we hit is actually another WallBubble!
-            // WallBubbles shouldn't destroy or damage each other when spawned together.
-            if (other.TryGetComponent<WallBubble>(out var hitWall))
-            {
-                return; // Ignore collision between walls
-            }
-
-            hitPoints--;
-
-            foreach (MeshRenderer renderer in GetComponentsInChildren<MeshRenderer>())
-            {
-                if (renderer != null && dmgedOutline != null)
-                {
-                    Material[] materials = renderer.materials;
-                    if (materials.Length > 1)
-                    {
-                        materials[1] = dmgedOutline;
-                        renderer.materials = materials;
-                    }
-                }
-            }
-
-            if (hitPoints <= 0)
-            {
-                Pop();
-            }
-        }
-        else if (other.CompareTag("Wall"))
-        {
-            stop = true;
-        }
-    }
     public override void BubbleCollision(GameObject other)
     {
         if (hasPopped || other == null) return;

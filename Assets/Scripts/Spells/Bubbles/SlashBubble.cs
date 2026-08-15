@@ -1,7 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using FMODUnity;
-using Unity.Netcode;
 using UnityEngine;
 
 public class SlashBubble : BasicBubble
@@ -64,7 +62,8 @@ public class SlashBubble : BasicBubble
             yield return null;
         }
 
-        Pop();
+        if(IsServer)
+            Pop();
     }
 
     public void SlasherHit(Vector3 slasherDir, GameObject other)

@@ -4942,7 +4942,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 6
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 1
   damage: 1
   knockback: 1
@@ -4961,14 +4966,9 @@ MonoBehaviour:
       Data4: -719275316
     Path: event:/sfx/spells/revolver_spell
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 1216
   maxAmmo: 6
   delayBetweenShots: 0.05
   spread: 12
