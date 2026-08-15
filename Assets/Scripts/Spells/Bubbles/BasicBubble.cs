@@ -364,22 +364,17 @@ public class BasicBubble : NetworkBehaviour
         {
             var player = other.GetComponent<PlayerController>();
             GameManager gameManager = GameManager.Instance;
+
             if (gameManager.PlayingLocal)
-                player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
             else
             {
-                var player = other.GetComponent<PlayerController>();
-                GameManager gameManager = GameManager.Instance;
-                if (gameManager.PlayingLocal)
-                    player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
-                else
-                {
-                    if (IsOwner && !isLocalFake)
-                        player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
-                }
-                gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
-                if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+                if (IsOwner && !isLocalFake)
+                    player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
             }
+            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
+            if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
+            
             gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false, AssignedSpellID.Value);
             if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
 

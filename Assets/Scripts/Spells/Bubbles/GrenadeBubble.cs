@@ -119,22 +119,19 @@ public class GrenadeBubble : BasicBubble
                         float explosionKnockback = knockback;
                         if (player.gameObject == primaryTarget)
                         {
-                            float explosionDamage = damage;
-                            float explosionKnockback = knockback;
-                            if (player.gameObject == primaryTarget)
-                            {
-                                explosionDamage *= primaryTargetMod;
-                                explosionKnockback *= primaryTargetMod;
-                                isCrit = true;
-                            }
-                            if (gameManager.PlayingLocal)
-                                player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
-                            else
-                                player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
-                            if (player.gameObject == primaryTarget)
-                                isCrit = false;
-                            gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
-                            player.StartVulnerable(vulnerableDuration);
+
+                            explosionDamage *= primaryTargetMod;
+                            explosionKnockback *= primaryTargetMod;
+                            isCrit = true;
+                        }
+                        if (gameManager.PlayingLocal)
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
+                        else
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, explosionKnockback, explosionDamage, isCrit);
+                        if (player.gameObject == primaryTarget)
+                            isCrit = false;
+                        gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
+                        player.StartVulnerable(vulnerableDuration);
 
                         gameManager.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, isSoaped, isReflected, false);
                         player.StartVulnerable(vulnerableDuration);
@@ -158,17 +155,17 @@ public class GrenadeBubble : BasicBubble
             }
         }
 
-        if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
-        {
-            if (splat != null)
+            if (Physics.Raycast(new Vector3(transform.position.x, 2f, transform.position.z), Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
             {
-                GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
-                puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<DamageField>()?.SetID(OwnerID.Value);
-                puddle.GetComponent<Puddle>()?.InitialisePuddle(playerCollider);
+                if (splat != null)
+                {
+                    GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
+                    puddle.GetComponent<NetworkObject>()?.Spawn();
+                    puddle.GetComponent<DamageField>()?.SetID(OwnerID.Value);
+                    puddle.GetComponent<Puddle>()?.InitialisePuddle(playerCollider);
+                }
             }
         }
-    }
 
     protected override void Reflect(Vector3 normal)
     {
