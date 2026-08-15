@@ -15,7 +15,6 @@ public class DamagePopup : MonoBehaviour
 
     public void InitialiseDamagePopup(int damage, bool isCrit)
     {
-        Debug.Log("IcCrit " + isCrit);
         float colorValue = (float)damage * gradientEvaluateFactor;
         damageText.color = damageTextColorGradient.Evaluate(colorValue);
         damageTypewriter.ShowText(damage.ToString());
