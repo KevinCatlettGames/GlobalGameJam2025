@@ -32,7 +32,6 @@ public class DamagePopup : MonoBehaviour
         Vector2 r = Random.insideUnitCircle;
         Vector3 offset = new Vector3(r.x, yOffset, r.y) * damageRandomOffset;
         transform.position += offset;
-
     }
 
     public void Dissapear()
