@@ -134,7 +134,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    private struct PlayerScoreEntry
+    public struct PlayerScoreEntry
     {
         public int playerID;
         public int displayPlayerID;
@@ -143,7 +143,7 @@ public class ScoreManager : MonoBehaviour
         public int kills;
     }
 
-    private struct TeamScoreEntry
+    public struct TeamScoreEntry
     {
         public int teamID;
         public List<PlayerController> teamPlayers;
@@ -151,7 +151,7 @@ public class ScoreManager : MonoBehaviour
         public int kills;
     }
 
-    private List<PlayerScoreEntry> GetScores(bool usePreviousScores)
+    public List<PlayerScoreEntry> GetScores(bool usePreviousScores)
     {
         List<PlayerScoreEntry> list = new List<PlayerScoreEntry>();
 
@@ -210,7 +210,7 @@ public class ScoreManager : MonoBehaviour
         return list;
     }
 
-    private List<TeamScoreEntry> GetTeamScores(bool usePreviousScores)
+    public List<TeamScoreEntry> GetTeamScores(bool usePreviousScores)
     {
         List<TeamScoreEntry> list = new List<TeamScoreEntry>();
 

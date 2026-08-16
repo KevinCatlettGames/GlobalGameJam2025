@@ -18,6 +18,8 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private Image teamImage;
     [SerializeField] private TextMeshProUGUI teamKillText;
     [SerializeField] private Image[] playerImages;
+    [SerializeField] private Image[] nonWinnerImages;
+    [SerializeField] private Image[] nonWinnerBadgeImages;
     [SerializeField] private StudioEventEmitter emitter;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private Button restartButton;
@@ -98,6 +100,22 @@ public class WinScreenManager : MonoBehaviour
                 teamKillText.enabled = true;
                 teamKillText.text = scores.KillScores[playerID].ToString();
             }
+
+        }
+
+        List<ScoreManager.PlayerScoreEntry> playerScoreEntries = ScoreManager.Instance.GetScores(false);
+        int imageIndex = 0;
+        for (int i = 0; i < playerScoreEntries.Count; i++)
+        {
+            if (winnerPlayerIDs.Contains(playerScoreEntries[i].playerID))
+                continue;
+
+            SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
+            nonWinnerImages[imageIndex].enabled = true;
+            nonWinnerImages[imageIndex].sprite = skin.HeadSprites[0];
+            nonWinnerBadgeImages[imageIndex].enabled = true;
+            nonWinnerBadgeImages[imageIndex].color = skin.Color;
+            imageIndex++;
         }
 
         emitter.Play();
@@ -168,4 +186,5 @@ public class WinScreenManager : MonoBehaviour
 
         return winners;
     }
+
 }
