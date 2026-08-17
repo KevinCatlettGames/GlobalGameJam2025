@@ -87,6 +87,9 @@ public class MenuInputSystem : MonoBehaviour
     {
         if (!isInitialized) return;
 
+        if (!eventPtr.IsA<StateEvent>() && !eventPtr.IsA<DeltaStateEvent>())
+            return;
+
         if (onlyWhenPaused && Time.timeScale > 0) return;
 
         if (device == null)

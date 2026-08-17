@@ -217,7 +217,7 @@ public class PlayerController : NetworkBehaviour
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance)
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6)
             StartEntrence(0);
     }
 

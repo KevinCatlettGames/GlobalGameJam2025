@@ -105,6 +105,8 @@ public class PauseManager : MonoBehaviour
 
     public void RestartGame()
     {
+        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer) return;
         GameManager.IsGamePaused = false;
         scores.ResetKills();
@@ -154,6 +156,8 @@ public class PauseManager : MonoBehaviour
 
     private void LoadMap()
     {
+        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+
         if (MenuTransitionHandler.Instance)
             MenuTransitionHandler.Instance.OnFadeComplete -= LoadMap;
 
@@ -184,7 +188,9 @@ public class PauseManager : MonoBehaviour
     }
 
     public async void ReturnToMainMenu()
-    {     
+    {
+        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+
         try
         {
             if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
