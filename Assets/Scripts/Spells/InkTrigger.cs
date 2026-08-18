@@ -30,7 +30,6 @@ public class InkTrigger : NetworkBehaviour
             if (bubble && bubble.OwnerID.Value != ownerID.Value)
             {
                 bubble.ChangeSpeed(bubbleSlowFactor);
-                Debug.Log("Slow bubble");
             }
         }
     }

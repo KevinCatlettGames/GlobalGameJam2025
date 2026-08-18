@@ -1,6 +1,5 @@
 using System.Collections;
-using FMODUnity;
-using Unity.Netcode;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class SlashBubble : BasicBubble
@@ -9,6 +8,10 @@ public class SlashBubble : BasicBubble
     [SerializeField] private GameObject slasherL;
     [SerializeField] private GameObject slasherR;
     [SerializeField] private Transform spinner;
+    [SerializeField] private float secondHitDamage;
+    [SerializeField] private float secondHitKnockback;
+
+    private List<PlayerController> hitPlayers = new List<PlayerController>();
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
@@ -59,7 +62,8 @@ public class SlashBubble : BasicBubble
             yield return null;
         }
 
-        Pop();
+        if(IsServer)
+            Pop();
     }
 
     public void SlasherHit(Vector3 slasherDir, GameObject other)
@@ -100,6 +104,36 @@ public class SlashBubble : BasicBubble
         }
 
         BubbleCollision(other);
+
+        if (other.CompareTag("Player"))
+        {
+            PlayerController p = other.GetComponent<PlayerController>();
+            if (!hitPlayers.Contains(p))
+            {
+                hitPlayers.Add(p);
+            }
+        }
+    }
+
+    public override void BubbleCollision(GameObject other)
+    {
+        float originalDamage = damage;
+        float originalKnockback = knockback;
+        bool isSecondHit = false;
+        if (other.CompareTag("Player") && hitPlayers.Contains(other.GetComponent<PlayerController>()))
+        {
+            damage = secondHitDamage;
+            knockback = secondHitKnockback;
+            isSecondHit = true;
+            isCrit = true;
+        }
+        base.BubbleCollision(other);
+        if (isSecondHit)
+        {
+            damage = originalDamage;
+            knockback = originalKnockback;
+            isCrit = false;
+        }
     }
 
     protected override void Reflect(Vector3 normal)

@@ -27,7 +27,6 @@ public class CameraHandler : NetworkBehaviour
 
     private void Init()
     {
-        mainCamera.SetActive(false);
         cinematicCamera.SetActive(false);
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
@@ -42,18 +41,15 @@ public class CameraHandler : NetworkBehaviour
 
     void Begin()
     { 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer)
-        {
-            LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(Begin);
-        }
-
         if (cinematicCamera == null || !playCinematicAtStart)
         {
             mainCamera.SetActive(true);
+            cinematicCamera.SetActive(false);
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
         else
         {
+            mainCamera.SetActive(false);
             cinematicCamera.SetActive(true);
         }
     }
@@ -68,10 +64,15 @@ public class CameraHandler : NetworkBehaviour
 
         if (cinematicCamera == null || !playCinematicAtStart)
         {
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
+                StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
         else
         {
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
+                StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
+            mainCamera.SetActive(false);
             cinematicCamera.SetActive(true);
         }
     }
@@ -85,6 +86,7 @@ public class CameraHandler : NetworkBehaviour
 
     void StartWithoutCinematic()
     {
+        mainCamera.SetActive(true);
         PlayerManager.Instance.StartPlayerJoining();
         onCinematicEnd?.Invoke();
     }

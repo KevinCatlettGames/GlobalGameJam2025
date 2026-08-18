@@ -231,19 +231,26 @@ public class PlayerHUD : NetworkBehaviour
     {
         if (damageText != null)
         {
-            if(damageTypewriter.enabled)
+            if (!damageText.gameObject.activeInHierarchy)
+                damageText.gameObject.SetActive(true);
+
+            if (damageTypewriter != null && damageTypewriter.isActiveAndEnabled)
                 damageTypewriter.ShowText(damage.ToString());
             else
                 damageText.text = damage.ToString();
 
             float colorValue = damage * gradientEvaluateFactor;
             damageText.color = damageTextColorGradient.Evaluate(colorValue);
-            damageTypewriter.enabled = true;
+
+            if (damageTypewriter != null)
+                damageTypewriter.enabled = true;
         }
+
         if (damage >= highDamageThreshold && currentPortraitIndex != 2 && !isDummy)
         {
             SetPortrait(1);
-            highDamageIndicator.SetBool("hasHighDamage", true);
+            if (highDamageIndicator != null)
+                highDamageIndicator.SetBool("hasHighDamage", true);
         }
     }
 

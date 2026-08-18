@@ -37,7 +37,6 @@ public class MenuTransitionHandler : MonoBehaviour
 
     private IEnumerator PlayFadeOutSmoothly()
     {
-        Cursor.visible = false;
         yield return null;
         yield return new WaitForEndOfFrame();
 
@@ -45,14 +44,18 @@ public class MenuTransitionHandler : MonoBehaviour
 
         if (!fadeIsOn)
             fadeIsOn = true;
+
+        CancelInvoke(nameof(SafetyFadeTrigger));
+        Invoke(nameof(SafetyFadeTrigger), 15f);
     }
 
-    private IEnumerator PlayFadeAfterSceneChangeSmoothly()
+    public IEnumerator PlayFadeAfterSceneChangeSmoothly()
     {
         yield return null;
         yield return new WaitForEndOfFrame();
 
         transitionAnimator.SetTrigger("Fade");
+        fadeIsOn = false;
     }
 
     public void InvokeOnFadeComplete()
@@ -67,10 +70,21 @@ public class MenuTransitionHandler : MonoBehaviour
 
     private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay) return; 
+
         if (fadeIsOn)
         {
             fadeIsOn = false; 
             
+            StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
+        }
+    }
+
+    private void SafetyFadeTrigger()
+    {
+        if (fadeIsOn)
+        {
+            fadeIsOn = false;
             StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
         }
     }

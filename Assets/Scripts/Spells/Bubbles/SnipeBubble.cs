@@ -6,6 +6,7 @@ public class SnipeBubble : BasicBubble
 {
     [SerializeField] private float minDamage = 10f;
     [SerializeField] private float damageRampUpDistance = 25f;
+    [SerializeField] private float critThreshold = 60f;
 
     private float damageScaling = 0f;
     private float maxDamage = 0f;
@@ -58,6 +59,9 @@ public class SnipeBubble : BasicBubble
         }
 
         damage = currentDamage;
+        if (damage >= critThreshold)
+            isCrit = true;
+            
         base.BubbleCollision(other);
     }
 

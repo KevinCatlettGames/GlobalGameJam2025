@@ -217,7 +217,7 @@ public class PlayerController : NetworkBehaviour
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance || TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6)
             StartEntrence(0);
     }
 
@@ -430,7 +430,7 @@ public class PlayerController : NetworkBehaviour
     {
         if (!context.canceled) return;
  
-        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance)
+        if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance && !GameManager.Instance.IsResetting)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
             {
@@ -1021,9 +1021,16 @@ public class PlayerController : NetworkBehaviour
 
     #region Damage
 
-    [ServerRpc]
+    [ServerRpc(RequireOwnership = false)]
     public void ApplyImpulseServerRpc(Vector3 direction, float force)
     {
+        ApplyImpulseClientRpc(direction, force);    
+    }
+
+    [ClientRpc]
+    public void ApplyImpulseClientRpc(Vector3 direction, float force)
+    {
+        if (!IsOwner) return;
         direction.y = 0;
         direction.Normalize();
         knockbackVelocity += direction * force;
@@ -1036,7 +1043,7 @@ public class PlayerController : NetworkBehaviour
         knockbackVelocity += direction * force; 
     }
 
-    public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackLocal(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
         if (isDead) return;
 
@@ -1052,6 +1059,7 @@ public class PlayerController : NetworkBehaviour
             fmodEvent.start();
             fmodEvent.release();
 
+            isCrit = true;
             StopVulnerable();
         }
 
@@ -1077,7 +1085,7 @@ public class PlayerController : NetworkBehaviour
 
         if (dmg > 0)
         {
-            damageGenerator?.SpawnDamagePopup((int)dmg);
+            damageGenerator?.SpawnDamagePopup((int)dmg, isCrit);
             playerHUD.UpdateDamageText((int)damage);
             damageParticleSystem.Play();
             damagedEffect.UpdateParticleSystem(damage);
@@ -1108,15 +1116,22 @@ public class PlayerController : NetworkBehaviour
             controllerRumbler?.Rumble(duration, force, dmg);
         }
     }
+    private void WallKillCredit(int ID)
+    {
+        if (knockbackVelocity.sqrMagnitude <= 1f && ID != PlayerID)
+        {
+            killCreditID = ID;
+        }
+    }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackServerRpc(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
-        ApplyKnockbackClientRpc(ID, direction, force, dmg);
+        ApplyKnockbackClientRpc(ID, direction, force, dmg, isCrit);
     }
 
     [ClientRpc]
-    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg)
+    public void ApplyKnockbackClientRpc(int ID, Vector3 direction, float force, float dmg, bool isCrit)
     {
         if (isDead && !IsOwner) return;
 
@@ -1132,6 +1147,7 @@ public class PlayerController : NetworkBehaviour
             fmodEvent.start();
             fmodEvent.release();
 
+            isCrit = true;
             StopVulnerable();
         }
 
@@ -1158,7 +1174,7 @@ public class PlayerController : NetworkBehaviour
         if (dmg > 0)
         {
             // Spawns exactly once per client network broadcast
-            damageGenerator?.SpawnDamagePopup((int)dmg);
+            damageGenerator?.SpawnDamagePopup((int)dmg, isCrit);
             playerHUD.UpdateDamageText((int)damage);
             damagedEffect.UpdateParticleSystem(damage);
             damageParticleSystem.Play();
@@ -1280,11 +1296,11 @@ public class PlayerController : NetworkBehaviour
                 Vector3 v = transform.position - hit.point;
                 if (GameManager.Instance.PlayingLocal)
                 {
-                    ApplyKnockbackLocal(-1, v, 1, dmg);
+                    ApplyKnockbackLocal(-1, v, 1, dmg, false);
                 }
                 else
                 {
-                    ApplyKnockbackServerRpc(-1, v, 1, dmg);
+                    ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
                 }
             }
             else
@@ -1292,6 +1308,13 @@ public class PlayerController : NetworkBehaviour
                 ReflectKnockback(hit.normal);
             }
             StartCoroutine(BoneFishCoroutine());
+        }
+        if (hit.gameObject.CompareTag("Bubble"))
+        {
+            if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
+            {
+                WallKillCredit(wallBubble.OwnerID.Value);
+            }
         }
     }
     private IEnumerator BoneFishCoroutine()
@@ -1413,22 +1436,20 @@ public class PlayerController : NetworkBehaviour
             return;
 
         if (GameManager.Instance.PlayingLocal)
+        {
             StartCoroutine(StunCoroutine(duration));
-        else
-            StunServerRpc(duration);
-
-    }
-
-    [ServerRpc]
-    private void StunServerRpc(float duration)
-    {
-        StunClientRpc(duration);
+        }
+        else if (IsServer)
+        {
+            StunClientRpc(duration);
+        }
     }
 
     [ClientRpc]
     private void StunClientRpc(float duration)
     {
-        NetcodeStunCoroutine(duration);
+        if (!IsOwner) return;
+        StartCoroutine(NetcodeStunCoroutine(duration));
     }
 
     private IEnumerator StunCoroutine(float duration)
@@ -1525,7 +1546,7 @@ public class PlayerController : NetworkBehaviour
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
         else
-            PlayAnimServerRpc("Entrance", 0, 0);
+            GetComponent<NetworkAnimatorProxy>().SetAnimPlay("Entrance", 0, 0);
         EventInstance fmodEvent = RuntimeManager.CreateInstance(startEvent);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
         fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
@@ -1539,6 +1560,9 @@ public class PlayerController : NetworkBehaviour
         {
             yield return new WaitForSeconds(remainingDelay - animationTime);
         }
+        if (!trail.isPlaying)
+            trail.Play();
+
         inputEnabled = true;
     }
 

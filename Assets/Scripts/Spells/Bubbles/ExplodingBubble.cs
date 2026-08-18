@@ -30,7 +30,6 @@ public class ExplodingBubble : BasicBubble
             var otherBubble = other.GetComponent<BasicBubble>();
             if (otherBubble != null)
             {
-                // Detonated by player's own bubble
                 if (otherBubble.OwnerID.Value == OwnerID.Value)
                 {
                     wasDetonatedByBubble = true;
@@ -44,9 +43,6 @@ public class ExplodingBubble : BasicBubble
         }
 
         fizzleEffect = hitEffect;
-        if (IsOwner)
-            ChangeToExplosionServerRpc();
-
         Pop();
     }
 
@@ -81,17 +77,17 @@ public class ExplodingBubble : BasicBubble
                             knockback *= primaryKnockbackIncrease;
 
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
 
                         if (playerCollider != null)
                         {
                             var controller = playerCollider.GetComponent<PlayerController>();
                             if (controller != null) controller.GainUltCharge(damage, true);
-                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
-                            if (controller != null)
                             {
+                                controller.GainUltCharge(damage, true);
+                                GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
                                 GameManager.Instance.RegisterExplosionHit(
                                     OwnerID.Value,
                                     player.PlayerID,
@@ -128,47 +124,27 @@ public class ExplodingBubble : BasicBubble
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
 
-        // Replace YOUR_ACHIEVEMENT_ID with the actual ID integer
         AchievementSaveSystem.instance.IncrementStat(5, 1);
-        //Debug.Log($"Achievement Unlocked: 2 KOs from detonating own explosive with another bubble!");
     }
 
     protected override void Pop()
     {
         if (hasPopped) return;
 
-        if (isReadyToExpode) Explode();
+        if (isReadyToExpode)
+        {
+            Explode();
+            fizzleEffect = hitEffect;
+        }
         else
         {
             fizzleEffect = earlyFizzleEffect;
-            if (IsOwner)
-                ChangeToEarlyFizzleServerRpc();
-
         }
         base.Pop();
     }
 
-    [ServerRpc]
-    private void ChangeToEarlyFizzleServerRpc()
-    {
-        ChangeToEarlyFizzleClientRpc();
-    }
-
-    [ClientRpc]
-    private void ChangeToEarlyFizzleClientRpc()
+    public void ChangeToEarlyFizzle()
     {
         fizzleEffect = earlyFizzleEffect;
-    }
-
-    [ServerRpc]
-    private void ChangeToExplosionServerRpc()
-    {
-        ChangeToExplosionClientRpc();
-    }
-
-    [ClientRpc]
-    private void ChangeToExplosionClientRpc()
-    {
-        fizzleEffect = hitEffect;
     }
 }

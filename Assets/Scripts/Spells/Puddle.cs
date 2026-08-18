@@ -1,6 +1,5 @@
 using System.Collections;
 using Unity.Netcode;
-using Unity.Services.Matchmaker.Models;
 using UnityEngine;
 
 public class Puddle : NetworkBehaviour
@@ -22,44 +21,11 @@ public class Puddle : NetworkBehaviour
         animator = GetComponent<Animator>();
     }
 
-    public override void OnNetworkSpawn()
-    {
-        base.OnNetworkSpawn();
-        playerID.OnValueChanged += OnPlayerIdAssigned;
-        CheckAndHideVisibility(playerID.Value);
-    }
-
-    public override void OnNetworkDespawn()
-    {
-        playerID.OnValueChanged -= OnPlayerIdAssigned;
-    }
-
     public void InitialisePuddle(Collider playerCollider)
     {
         if (!IsServer) return;
 
         playerID.Value = playerCollider.GetComponent<PlayerController>().PlayerID;
-    }
-
-    private void OnPlayerIdAssigned(int previousValue, int newValue)
-    {
-        CheckAndHideVisibility(newValue);
-    }
-
-    private void CheckAndHideVisibility(int currentCasterId)
-    {
-        if (IsServer || isLocalFake) return;
-
-        if (currentCasterId < 0 || currentCasterId >= GameManager.Instance.Players.Length) return;
-        if (GameManager.Instance.Players[currentCasterId] == null) return;
-
-        if (GameManager.Instance.Players[currentCasterId].IsOwner)
-        {
-            if (spriteRenderer)
-                spriteRenderer.enabled = false;
-            if (particleSystem)
-                particleSystem.gameObject.SetActive(false);
-        }
     }
 
     private void DestroyOnRestart()

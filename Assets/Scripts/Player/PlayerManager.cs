@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Netcode;
 using FMODUnity;
+using System.Collections;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -178,6 +179,7 @@ public class PlayerManager : NetworkBehaviour
         }
         ItemSpawner.Instance.InitialSpawn();
         playerInputManager.enabled = false;
+        StartPlayereEntrance();
     }
 
     #region Player Joining and Initialization
@@ -451,6 +453,24 @@ public class PlayerManager : NetworkBehaviour
             }
         }
         return playerControllers;
+    }
+
+    public void StartPlayereEntrance()
+    {
+        StartCoroutine(PlayerEntrance(GetPlayers()));
+    }
+
+    private IEnumerator PlayerEntrance(List<PlayerController> playerControllers)
+    {
+        float remainingTime = .6f * 3f; // Time between Countdown Elements * Countdown Count
+        float timeBetweenEntrance = remainingTime / playerControllers.Count;
+        foreach (PlayerController player in playerControllers)
+        {
+            yield return new WaitForSeconds(timeBetweenEntrance * .5f);
+            player.StartEntrence(remainingTime);
+            yield return new WaitForSeconds(timeBetweenEntrance * .5f);
+            remainingTime -= timeBetweenEntrance;
+        }
     }
     #endregion
 }

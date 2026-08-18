@@ -138,6 +138,7 @@ GameObject:
   - component: {fileID: 15920390}
   - component: {fileID: 15920392}
   - component: {fileID: 15920391}
+  - component: {fileID: 15920393}
   m_Layer: 5
   m_Name: Button (2)
   m_TagString: Untagged
@@ -202,6 +203,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 15920389}
   m_CullTransparentMesh: 1
+--- !u!114 &15920393
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 15920389}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 3e6a3e8188c7920429865655cf7d710e, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 33cc5f83f9a6bfc45a81d847d4a2c950, type: 3}
 --- !u!114 &42364796 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 3053583477458921616, guid: 88dc1d66c30f3504e9f67d62de862b50,
@@ -1485,6 +1503,7 @@ GameObject:
   - component: {fileID: 718094295}
   - component: {fileID: 718094297}
   - component: {fileID: 718094296}
+  - component: {fileID: 718094298}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1549,6 +1568,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 718094294}
   m_CullTransparentMesh: 1
+--- !u!114 &718094298
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 718094294}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: c516a1bbe12dc1646a48d0cf495b892d, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 0fd402a6cc1e2e74f855c1ef70976e8d, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: a8cfe7c27f5796a4892fdaef2bebbbf1, type: 3}
 --- !u!4 &778726253 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: d3e572d68fbab8f4394a26a5c92a9899,
@@ -1566,6 +1606,7 @@ GameObject:
   - component: {fileID: 798240178}
   - component: {fileID: 798240180}
   - component: {fileID: 798240179}
+  - component: {fileID: 798240181}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -1589,7 +1630,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -2, y: 3}
+  m_AnchoredPosition: {x: -2, y: 3.5}
   m_SizeDelta: {x: 5, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &798240179
@@ -1630,6 +1671,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 798240177}
   m_CullTransparentMesh: 1
+--- !u!114 &798240181
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 798240177}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 994c17ac99b257145b7d8864b01ae7d8, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: a07e2932194c556428bb36c9b1790ffe, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 92b5e0aafef93e94dbed86afc249101b, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: 62fb4348123db8e49ad438fc30cd67bb, type: 3}
 --- !u!1 &849115851 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 4767400413853537203, guid: c9fc99ac27c06024e959e68ff11664aa,
@@ -1669,6 +1731,7 @@ GameObject:
   - component: {fileID: 941192563}
   - component: {fileID: 941192565}
   - component: {fileID: 941192564}
+  - component: {fileID: 941192566}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -1692,7 +1755,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 50, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 2, y: 3}
+  m_AnchoredPosition: {x: 2, y: 3.5}
   m_SizeDelta: {x: 5, y: 5}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &941192564
@@ -1733,6 +1796,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 941192562}
   m_CullTransparentMesh: 1
+--- !u!114 &941192566
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 941192562}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: e9add457d65dd9c4484d23a031ff2047, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 66e468a1cb2db5c47893fed2c7a8d88b, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 0040191b52d8e324eafa2a9aa119e36b, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: fb954697bc59f4844a30a49137fa93c6, type: 3}
 --- !u!114 &1015452931 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6079635359326899931, guid: 88dc1d66c30f3504e9f67d62de862b50,
@@ -2396,6 +2480,7 @@ GameObject:
   - component: {fileID: 1298506115}
   - component: {fileID: 1298506117}
   - component: {fileID: 1298506116}
+  - component: {fileID: 1298506118}
   m_Layer: 5
   m_Name: Button (3)
   m_TagString: Untagged
@@ -2460,6 +2545,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1298506114}
   m_CullTransparentMesh: 1
+--- !u!114 &1298506118
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1298506114}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 1ce84f06bee00e04397af6fa27d27ea7, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 70d05107fce10a544935872c319bf6a2, type: 3}
 --- !u!1 &1298778559
 GameObject:
   m_ObjectHideFlags: 0
@@ -2969,6 +3071,7 @@ GameObject:
   - component: {fileID: 1449251830}
   - component: {fileID: 1449251832}
   - component: {fileID: 1449251831}
+  - component: {fileID: 1449251833}
   m_Layer: 5
   m_Name: Button (1)
   m_TagString: Untagged
@@ -3033,6 +3136,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1449251829}
   m_CullTransparentMesh: 1
+--- !u!114 &1449251833
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1449251829}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: e0289a2731e00ec4e9d0da4329f1cdf0, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 623778ff5783c2c409e2e3c4c49208cf, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &1465508555
 GameObject:
   m_ObjectHideFlags: 0
@@ -3131,6 +3255,7 @@ GameObject:
   - component: {fileID: 1477486148}
   - component: {fileID: 1477486150}
   - component: {fileID: 1477486149}
+  - component: {fileID: 1477486151}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -3195,6 +3320,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1477486147}
   m_CullTransparentMesh: 1
+--- !u!114 &1477486151
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1477486147}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 4160a200934d228439bec45bb89cd97a, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 894e12710b82300418147c26eb3856aa, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 97365a66bd32f1a41ba29f40174bca95, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: f2809593df0604f4ea38482fb2f68fd0, type: 3}
 --- !u!1001 &1488268504
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -4334,7 +4480,7 @@ PrefabInstance:
     - target: {fileID: 222869327311288855, guid: aeb72b94993b9552f9d92212578f64a6,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -8
+      value: -17.25
       objectReference: {fileID: 0}
     - target: {fileID: 222869327311288855, guid: aeb72b94993b9552f9d92212578f64a6,
         type: 3}
@@ -4827,6 +4973,7 @@ GameObject:
   - component: {fileID: 1999809998}
   - component: {fileID: 1999810000}
   - component: {fileID: 1999809999}
+  - component: {fileID: 1999810001}
   m_Layer: 5
   m_Name: Stick
   m_TagString: Untagged
@@ -4891,6 +5038,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1999809997}
   m_CullTransparentMesh: 1
+--- !u!114 &1999810001
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1999809997}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 1fc889e38f042f049a6946e2bd6c368b, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: c0eea71906d9e1f45818bd4d99ec66ed, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: c0eea71906d9e1f45818bd4d99ec66ed, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: c0eea71906d9e1f45818bd4d99ec66ed, type: 3}
 --- !u!4 &2013655791 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6470791199918092169, guid: 88dc1d66c30f3504e9f67d62de862b50,
@@ -18283,6 +18451,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5877045871863752980, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6096867511664182512, guid: ef310da78073cd04982db8f49e852300,
         type: 3}

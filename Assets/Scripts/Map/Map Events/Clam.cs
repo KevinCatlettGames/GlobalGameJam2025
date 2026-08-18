@@ -91,10 +91,10 @@ public class Clam : MonoBehaviour
                 if (player != null && NetworkManager.Singleton.IsServer)
                 {
                     if (GameManager.Instance.PlayingLocal)
-                        player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+                        player.ApplyKnockbackLocal(-1, direction, knockback, damage, false);
 
                     else
-                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
+                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage, false);
 
                     player.Stun(stunDuration);
                 }         
