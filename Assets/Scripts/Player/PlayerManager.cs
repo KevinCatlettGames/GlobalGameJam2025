@@ -177,9 +177,9 @@ public class PlayerManager : NetworkBehaviour
                     RerollSpells();
             }
         }
-        ItemSpawner.Instance.InitialSpawn();
+        ItemSpawner.Instance.InitialSpawn(localPlayers.Count);
         playerInputManager.enabled = false;
-        StartPlayereEntrance();
+        StartPlayerEntrance();
     }
 
     #region Player Joining and Initialization
@@ -455,7 +455,7 @@ public class PlayerManager : NetworkBehaviour
         return playerControllers;
     }
 
-    public void StartPlayereEntrance()
+    public void StartPlayerEntrance()
     {
         StartCoroutine(PlayerEntrance(GetPlayers()));
     }

@@ -1,6 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Drawing;
 using Unity.Netcode;
 using UnityEngine;
 using Random = UnityEngine.Random;
@@ -11,8 +9,9 @@ public class ItemSpawner : MonoBehaviour
 
     [SerializeField] GameObject itemPrefab;
     [SerializeField] Transform[] startSpawnPoints;
-    [SerializeField] float minSpawnInterval = 1;
-    [SerializeField] float maxSpawnInterval = 7;
+    [SerializeField] float spawnInterval = 5;
+    [SerializeField] float startDelay = 5;
+    [SerializeField] float missingItemIncrease = .25f;
     [SerializeField] float spawnRadius = 15;
     [SerializeField] private float side = 0f;
     [SerializeField] SO_Spell[] spawnableItems;
@@ -20,8 +19,10 @@ public class ItemSpawner : MonoBehaviour
     public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
     private List<int> legalSpells;
     
-    public int maxAmount = 2;
+    public int maxAmount = 6;
     public int currentAmount;
+    private float spawnTimer = 0;
+    private bool isSpawning = false;
 
     private List<GameObject> spawnedItems = new List<GameObject>();
 
@@ -33,11 +34,18 @@ public class ItemSpawner : MonoBehaviour
             Destroy(gameObject);     
     }
 
-    public void InitialSpawn()
+    public void InitialSpawn(int currentPlayers)
     {
+        if (currentPlayers > 0)
+        {
+            maxAmount = currentPlayers + 3;
+        }
+
         if (NetworkManager.Singleton.IsServer && spawningEnabled)
         {
             GameManager.Instance.OnGameStarted += ResetSpawner;
+            GameManager.Instance.OnGameEnded += StopSpawning;
+
             legalSpells = new List<int>();
             for (int i = 0; i < GetSpellCount(); i++)
             {
@@ -48,7 +56,7 @@ public class ItemSpawner : MonoBehaviour
                         legalSpells.Add(i);
                     }
                 }
-                else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+                else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
                 {
                     if (SpawnableItems[i].CanUse && SpawnableItems[i].AvailableInDemo)
                     {
@@ -60,20 +68,37 @@ public class ItemSpawner : MonoBehaviour
             foreach (Transform t in startSpawnPoints)
                 SpawnItem(t.position);
 
-            Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+            Invoke(nameof(StartSpawning), startDelay);
         }
     }
-
-    private void SpawnLoop()
+    private void Update()
+    {
+        if (isSpawning && spawningEnabled && currentAmount < maxAmount)
+        {
+            if (spawnTimer <= 0)
+            {
+                SpawnItem(Vector3.zero);
+                spawnTimer = spawnInterval;
+            }
+            else
+            {
+                float f = -(currentAmount - maxAmount);
+                spawnTimer -= Time.deltaTime * (1 + missingItemIncrease * f);
+            }
+        }
+    }
+    private void StartSpawning()
     {
         if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
-
-        if (currentAmount < maxAmount)
-            SpawnItem(Vector3.zero);
-
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        isSpawning = true;
+        spawnTimer = spawnInterval;
     }
-
+    private void StopSpawning()
+    {
+        if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
+        isSpawning = false;
+        spawnTimer = spawnInterval;
+    }
     private void SpawnItem(Vector3 location)
     {
         if(!spawningEnabled) return;
@@ -143,7 +168,7 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
-        Invoke(nameof(SpawnLoop), Random.Range(minSpawnInterval, maxSpawnInterval));
+        Invoke(nameof(StartSpawning), startDelay);
     }
 
     public SO_Spell GetSpellByIndex(int index)
