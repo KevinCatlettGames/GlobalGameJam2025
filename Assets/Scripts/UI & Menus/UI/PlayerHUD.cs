@@ -249,8 +249,8 @@ public class PlayerHUD : NetworkBehaviour
         if (damage >= highDamageThreshold && currentPortraitIndex != 2 && !isDummy)
         {
             SetPortrait(1);
-            if (highDamageIndicator != null)
-                highDamageIndicator.SetBool("hasHighDamage", true);
+            //if (highDamageIndicator != null)
+            //    highDamageIndicator.SetBool("hasHighDamage", true);
         }
     }
 
@@ -259,7 +259,7 @@ public class PlayerHUD : NetworkBehaviour
         if (isDummy) return;
         SetPortrait(2);
         UICover.SetActive(true);
-        highDamageIndicator.SetBool("hasHighDamage", false);
+        //highDamageIndicator.SetBool("hasHighDamage", false);
         if (maxLifes != -1 && maxLifes > 1)
         {
             lifes--;
@@ -290,7 +290,7 @@ public class PlayerHUD : NetworkBehaviour
         SetPortrait(0);
         ChargeUlt(false);
         SetUltSlider(0);
-        highDamageIndicator.SetBool("hasHighDamage", false);
+        //highDamageIndicator.SetBool("hasHighDamage", false);
     }
 
     private void SetPortrait(int portaritIndex)

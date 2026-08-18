@@ -36,11 +36,6 @@ public class ItemSpawner : MonoBehaviour
 
     public void InitialSpawn(int currentPlayers)
     {
-        if (currentPlayers > 0)
-        {
-            maxAmount = currentPlayers + 3;
-        }
-
         if (NetworkManager.Singleton.IsServer && spawningEnabled)
         {
             GameManager.Instance.OnGameStarted += ResetSpawner;

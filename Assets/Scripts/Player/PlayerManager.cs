@@ -215,7 +215,7 @@ public class PlayerManager : NetworkBehaviour
 
         characterController.enabled = true;
 
-        ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        //ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
     }
@@ -250,7 +250,7 @@ public class PlayerManager : NetworkBehaviour
 
         characterController.enabled = true;
 
-        ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        //ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
     }
