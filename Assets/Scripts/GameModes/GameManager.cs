@@ -187,7 +187,15 @@ public class GameManager : NetworkBehaviour
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
-        ItemSpawner.Instance.InitialSpawn();
+        int count = 0;
+        foreach (PlayerController player in players)
+        {
+            if (player != null)
+                count++;
+                
+        }
+        Debug.Log("Count" + count);
+        ItemSpawner.Instance.InitialSpawn(count);
     }
 
     private void CallPlayerManagerInitialize()

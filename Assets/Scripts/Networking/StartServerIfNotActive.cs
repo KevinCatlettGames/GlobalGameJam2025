@@ -18,6 +18,6 @@ public class StartServerIfNotActive : MonoBehaviour
             playerInputManager = PlayerManager.Instance.GetComponent<PlayerInputManager>();
         playerInputManager.enabled = true;
         NetworkManager.Singleton.StartHost();
-        ItemSpawner.Instance.InitialSpawn();
+        ItemSpawner.Instance.InitialSpawn(-1);
     }
 }
