@@ -33,6 +33,7 @@ public class MenuInputSystem : MonoBehaviour
     private float mouseMoveThreshold = 1.0f;
 
     private bool isInitialized = false;
+    private bool wasPausedLastFrame = false;
     #endregion
 
     #region Events
@@ -60,6 +61,18 @@ public class MenuInputSystem : MonoBehaviour
         OnGameDeviceChanged?.Invoke(activeGameDevice);
 
         StartCoroutine(EnableInputDetectionRoutine());
+    }
+
+    private void Update()
+    {
+        bool isPaused = Time.timeScale == 0;
+
+        // Force cursor state sync when state changes from paused to unpaused
+        if (wasPausedLastFrame != isPaused)
+        {
+            SetMouseVisibility(activeGameDevice == GameDevice.KeyboardMouse);
+            wasPausedLastFrame = isPaused;
+        }
     }
 
     private IEnumerator EnableInputDetectionRoutine()
@@ -216,8 +229,11 @@ public class MenuInputSystem : MonoBehaviour
 
     public void SetMouseVisibility(bool isKeyboardMouse)
     {
-        Cursor.visible = isKeyboardMouse;
-        Cursor.lockState = isKeyboardMouse ? CursorLockMode.None : CursorLockMode.Locked;
+        // Hide cursor if unpaused and onlyWhenPaused is enabled
+        bool shouldShowCursor = isKeyboardMouse && !(onlyWhenPaused && Time.timeScale > 0);
+
+        Cursor.visible = shouldShowCursor;
+        Cursor.lockState = shouldShowCursor ? CursorLockMode.None : CursorLockMode.Locked;
     }
 
     #endregion
