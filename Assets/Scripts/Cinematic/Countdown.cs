@@ -65,6 +65,7 @@ public class Countdown : MonoBehaviour
         animation.Play();
         yield return new WaitForSeconds(timeBetweenElements);
         countdownImage.enabled = false;
+        PlayerManager.Instance.EnablePlayerInput();
     }
 
     private IEnumerator CountdownRoutine()
@@ -101,6 +102,7 @@ public class Countdown : MonoBehaviour
         animation.Play();
         yield return new WaitForSeconds(timeBetweenElements);
         onCountdownComplete?.Invoke();
+        PlayerManager.Instance.EnablePlayerInput();
         countdownImage.enabled = false;
     }
 

@@ -19,6 +19,7 @@ public class ItemSpawner : MonoBehaviour
     public SO_Spell[]  SpawnableItems { get { return spawnableItems; } }
     private List<int> legalSpells;
     
+    private int greatestMax = 0;
     public int maxAmount = 6;
     public int currentAmount;
     private float spawnTimer = 0;
@@ -32,9 +33,11 @@ public class ItemSpawner : MonoBehaviour
             Instance = this;
         else
             Destroy(gameObject);     
+
+        greatestMax = maxAmount;
     }
 
-    public void InitialSpawn(int currentPlayers)
+    public void InitialSpawn()
     {
         if (NetworkManager.Singleton.IsServer && spawningEnabled)
         {
@@ -78,7 +81,7 @@ public class ItemSpawner : MonoBehaviour
             else
             {
                 float f = -(currentAmount - maxAmount);
-                spawnTimer -= Time.deltaTime * (1 + missingItemIncrease * f);
+                spawnTimer -= Time.deltaTime * (.75f + missingItemIncrease * f);
             }
         }
     }
@@ -142,7 +145,10 @@ public class ItemSpawner : MonoBehaviour
         if (!NetworkManager.Singleton.IsServer) return;
 
         if (increase)
+        {
             maxAmount++;
+            greatestMax = Mathf.Max(maxAmount, greatestMax);
+        }
         else
             maxAmount--;
     }
@@ -163,6 +169,7 @@ public class ItemSpawner : MonoBehaviour
         foreach (Transform t in startSpawnPoints)
             SpawnItem(t.position);
 
+        maxAmount = greatestMax;
         Invoke(nameof(StartSpawning), startDelay);
     }
 

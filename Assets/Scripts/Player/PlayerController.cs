@@ -218,7 +218,7 @@ public class PlayerController : NetworkBehaviour
     void ManualEntrance()
     {
         if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6)
-            StartEntrence(0);
+            StartEntrence(true);
     }
 
     [ClientRpc]
@@ -1531,17 +1531,68 @@ public class PlayerController : NetworkBehaviour
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
-        StartCoroutine(EntranceCoroutine(0));
+        StartCoroutine(EntranceCoroutine(false));
     }
 
-    public void StartEntrence(float remainingDelay)
+    public void ResetPlayerController(bool isRespawn)
     {
-        StartCoroutine(EntranceCoroutine(remainingDelay));
+        damage = 0;
+        damagedEffect.UpdateParticleSystem(-1);
+        killCreditID = -1;
+        currentUltCharge = 0;
+        playerHUD.SetUltSlider(0);
+        isUltCharged = false;
+        slipperyCounter = 0;
+        isSlippery = false;
+        slowCounter = 0;
+        isSlowed = false;
+        dashDisabledUI?.SetActive(false);
+        isVulnerable = false;
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        canBeBoneFished = true;
+        isStunned = false;
+
+        shaderManager?.ResetShader();
+
+        if (GameManager.Instance.PlayingLocal)
+        {
+            mainAnimator.SetBool("IsDead", false);
+            mainAnimator.SetBool("Victory", false);
+            mainAnimator.SetBool("HitStun", false);
+            playerHUD.ResetHUD();
+        }
+        else
+        {
+            DeadAnimServerRpc(false);
+            VictoryAnimServerRpc(false);
+            ResetHudServerRpc();
+        }
+
+        movementInput = Vector2.zero;
+        knockbackVelocity = Vector3.zero;
+        controller.enabled = true;
+
+        pickedUpSpellsAmount = 0;
+        usedSpell.Clear();
+        isFirstGroundDetection = true;
+        shotsHitInARowAmount = 0;
+
+        playerStateHandler.ResetPlayer();
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        isDead = false;
+        StartCoroutine(EntranceCoroutine(isRespawn));
     }
 
-    private IEnumerator EntranceCoroutine(float remainingDelay)
+    public void StartEntrence(bool selfRelease)
     {
-        inputEnabled = false;
+        StartCoroutine(EntranceCoroutine(selfRelease));
+    }
+
+    private IEnumerator EntranceCoroutine(bool selfRelease)
+    {
+        ToggleInput(false);
         canvas.SetActive(false);
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
@@ -1556,14 +1607,15 @@ public class PlayerController : NetworkBehaviour
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
-        if (remainingDelay > 0)
-        {
-            yield return new WaitForSeconds(remainingDelay - animationTime);
-        }
         if (!trail.isPlaying)
             trail.Play();
+        if (selfRelease)
+            ToggleInput(true);
+    }
 
-        inputEnabled = true;
+    public void ToggleInput(bool input)
+    {
+        inputEnabled = input;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1649,7 +1701,7 @@ public class PlayerController : NetworkBehaviour
         playerStateHandler.EnableDeath();
         if (dropInJoin)
         {
-            StartCoroutine(EntranceCoroutine(0));
+            StartCoroutine(EntranceCoroutine(true));
         }
         else
         {

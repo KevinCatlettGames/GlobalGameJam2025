@@ -187,15 +187,7 @@ public class GameManager : NetworkBehaviour
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
-        int count = 0;
-        foreach (PlayerController player in players)
-        {
-            if (player != null)
-                count++;
-                
-        }
-        Debug.Log("Count" + count);
-        ItemSpawner.Instance.InitialSpawn(count);
+        ItemSpawner.Instance.InitialSpawn();
     }
 
     private void CallPlayerManagerInitialize()
@@ -377,6 +369,11 @@ public class GameManager : NetworkBehaviour
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
         }
+        Debug.Log(playerStates[playerID]);
+        if (playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
+        }
         CheckForRoundEndServerRpc();
     }
 
@@ -416,6 +413,10 @@ public class GameManager : NetworkBehaviour
             {
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
+        }
+        if (playerID >= 0 && playerID < playerStates.Length && playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
         }
         CheckForRoundEndLocal();
     }

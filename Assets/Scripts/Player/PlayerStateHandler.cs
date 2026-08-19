@@ -128,7 +128,7 @@ public class PlayerStateHandler : MonoBehaviour
     }
     private void Respawn()
     {
-        playerController.ResetPlayerController();
+        playerController.ResetPlayerController(true);
     }
     private void ResetLifes()
     {
