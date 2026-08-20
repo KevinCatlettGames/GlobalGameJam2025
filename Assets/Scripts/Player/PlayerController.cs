@@ -1293,7 +1293,7 @@ public class PlayerController : NetworkBehaviour
         {
             case "Player":
                 PlayerController player = hit.gameObject.GetComponent<PlayerController>();
-                float bouceStrength = 25f;
+                float bouceStrength = 20f;
                 Vector3 direction = hit.transform.position - transform.position;
                 if (GameManager.Instance.PlayingLocal)
                     player.ApplyImpulseLocal(direction, bouceStrength);
