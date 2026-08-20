@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using DG.Tweening.Core.Easing;
+using FMOD.Studio;
 using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
@@ -1287,34 +1288,53 @@ public class PlayerController : NetworkBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (canBeBoneFished && hit.gameObject.CompareTag("BoneFish"))
+        string tag = hit.gameObject.tag;
+        switch (tag)
         {
-            canBeBoneFished = false;
-            float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
-            if (knockbackVelocity.magnitude < 3f)
-            {
-                Vector3 v = transform.position - hit.point;
+            case "Player":
+                PlayerController player = hit.gameObject.GetComponent<PlayerController>();
+                float bouceStrength = 25f;
+                Vector3 direction = hit.transform.position - transform.position;
                 if (GameManager.Instance.PlayingLocal)
-                {
-                    ApplyKnockbackLocal(-1, v, 1, dmg, false);
-                }
+                    player.ApplyImpulseLocal(direction, bouceStrength);
                 else
                 {
-                    ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
+                    player.ApplyImpulseServerRpc(direction, bouceStrength);
                 }
-            }
-            else
-            {
-                ReflectKnockback(hit.normal);
-            }
-            StartCoroutine(BoneFishCoroutine());
-        }
-        if (hit.gameObject.CompareTag("Bubble"))
-        {
-            if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
-            {
-                WallKillCredit(wallBubble.OwnerID.Value);
-            }
+                ApplyImpulseLocal(-direction, bouceStrength);
+                break;
+            case "BoneFish":
+                if (canBeBoneFished)
+                {
+                    canBeBoneFished = false;
+                    float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
+                    if (knockbackVelocity.magnitude < 3f)
+                    {
+                        Vector3 v = transform.position - hit.point;
+                        if (GameManager.Instance.PlayingLocal)
+                        {
+                            ApplyKnockbackLocal(-1, v, 1, dmg, false);
+                        }
+                        else
+                        {
+                            ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
+                        }
+                    }
+                    else
+                    {
+                        ReflectKnockback(hit.normal);
+                    }
+                    StartCoroutine(BoneFishCoroutine());
+                }
+                break;
+            case "Bubble":
+                if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
+                {
+                    WallKillCredit(wallBubble.OwnerID.Value);
+                }
+                break;
+            default:
+                return;
         }
     }
     private IEnumerator BoneFishCoroutine()
