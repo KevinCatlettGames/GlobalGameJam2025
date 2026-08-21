@@ -214,13 +214,13 @@ public class PlayerController : NetworkBehaviour
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
-        Invoke(nameof(ManualEntrance), .25f);
+        Invoke(nameof(ManualEntrance), 2f);
     }
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6)
-            StartEntrence(true);
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6 || SceneManager.GetActiveScene().buildIndex == 6)
+            ToggleInput(true);
     }
 
     [ClientRpc]

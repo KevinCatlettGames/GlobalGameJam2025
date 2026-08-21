@@ -11,9 +11,17 @@ public class TutorialIndicator : MonoBehaviour
 
     private void Start()
     {
-        int tutorialActive = PlayerPrefs.GetInt("PlayedTutorial");
-        image.sprite = tutorialActive == 0 ? activeSprite : inactiveSprite;
-        image.color = tutorialActive == 0 ? activeColor : inactiveColor;
+        if (LobbyManager.instance.AlwaysActivateTutorialOnInit)
+        {
+            image.sprite = activeSprite;
+            image.color = activeColor;
+        }
+        else
+        {
+            int tutorialActive = PlayerPrefs.GetInt("PlayedTutorial");
+            image.sprite = tutorialActive == 0 ? activeSprite : inactiveSprite;
+            image.color = tutorialActive == 0 ? activeColor : inactiveColor;
+        }
     }
 
     public void EvaluateState()
