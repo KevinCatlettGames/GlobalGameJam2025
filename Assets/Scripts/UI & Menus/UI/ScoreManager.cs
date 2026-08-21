@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -11,6 +12,7 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] public ScorePanel[] teamModeScorePanels;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
+    [SerializeField] private EventReference scorePanelSwitch;
 
     [SerializeField] private GameObject restartText;
     [SerializeField] private GameObject scoreScreen;
@@ -438,6 +440,7 @@ public class ScoreManager : MonoBehaviour
             targetPositions[playerID] = standardSlotPositions[i];
         }
 
+        RuntimeManager.PlayOneShot(scorePanelSwitch);
         while (elapsed < reorderDuration)
         {
             elapsed += Time.deltaTime;
