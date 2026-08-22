@@ -177,7 +177,7 @@ public class PlayerManager : NetworkBehaviour
                     RerollSpells();
             }
         }
-        ItemSpawner.Instance.InitialSpawn(localPlayers.Count);
+        ItemSpawner.Instance.InitialSpawn();
         playerInputManager.enabled = false;
         StartPlayerEntrance();
     }
@@ -215,7 +215,7 @@ public class PlayerManager : NetworkBehaviour
 
         characterController.enabled = true;
 
-        //ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateLocal(playerID, PlayerState.alive);
     }
@@ -250,7 +250,7 @@ public class PlayerManager : NetworkBehaviour
 
         characterController.enabled = true;
 
-        //ItemSpawner.Instance.ChangeMaxItemAmount(true);
+        ItemSpawner.Instance.ChangeMaxItemAmount(true);
         GameManager.Instance.AddPlayer(playerID, playerController, playerHUDs[playerID], LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex);
         GameManager.Instance.ChangePlayerStateServerRpc(playerID, PlayerState.alive);
     }
@@ -467,9 +467,17 @@ public class PlayerManager : NetworkBehaviour
         foreach (PlayerController player in playerControllers)
         {
             yield return new WaitForSeconds(timeBetweenEntrance * .5f);
-            player.StartEntrence(remainingTime);
+            player.StartEntrence(false);
             yield return new WaitForSeconds(timeBetweenEntrance * .5f);
-            remainingTime -= timeBetweenEntrance;
+        }
+    }
+
+    public void EnablePlayerInput()
+    {
+        List<PlayerController> players = GetPlayers();
+        foreach (PlayerController player in players)
+        {
+            player.ToggleInput(true);
         }
     }
     #endregion

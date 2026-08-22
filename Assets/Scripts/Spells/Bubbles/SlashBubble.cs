@@ -71,7 +71,7 @@ public class SlashBubble : BasicBubble
         if (other == null) return;
         if (!IsServer && !isLocalFake) return;
 
-        direction = slasherDir;
+        direction = isReflected ? -slasherDir : slasherDir;
 
         if (other.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
         {
@@ -139,7 +139,7 @@ public class SlashBubble : BasicBubble
     protected override void Reflect(Vector3 normal)
     {
         if (isReflected) return;
-        isReflected = !isReflected;
+        isReflected = true;
         speed *= -1f;
 
         if (rangeCoroutine != null)

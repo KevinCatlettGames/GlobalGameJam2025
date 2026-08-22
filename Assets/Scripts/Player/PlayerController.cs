@@ -1,4 +1,5 @@
-﻿using FMOD.Studio;
+﻿using DG.Tweening.Core.Easing;
+using FMOD.Studio;
 using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
@@ -135,6 +136,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
+    [SerializeField] private float bounceStrength = 20f;
     private float currentPlayerSpeed = 1;
 
     protected CharacterController controller;
@@ -212,13 +214,13 @@ public class PlayerController : NetworkBehaviour
         controller = GetComponent<CharacterController>();
         GameManager.Instance.OnGameStarted += ResetPlayerController;
         initialized = true;
-        Invoke(nameof(ManualEntrance), .25f);
+        Invoke(nameof(ManualEntrance), 2f);
     }
 
     void ManualEntrance()
     {
-        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6)
-            StartEntrence(0);
+        if (CameraHandler.Instance && !CameraHandler.Instance.playCinematicAtStart && LobbyManager.instance && SceneManager.GetActiveScene().buildIndex != 6 || SceneManager.GetActiveScene().buildIndex == 6)
+            ToggleInput(true);
     }
 
     [ClientRpc]
@@ -1287,34 +1289,54 @@ public class PlayerController : NetworkBehaviour
 
     private void OnControllerColliderHit(ControllerColliderHit hit)
     {
-        if (canBeBoneFished && hit.gameObject.CompareTag("BoneFish"))
+        string tag = hit.gameObject.tag;
+        switch (tag)
         {
-            canBeBoneFished = false;
-            float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
-            if (knockbackVelocity.magnitude < 3f)
-            {
-                Vector3 v = transform.position - hit.point;
+            case "Player":
+                PlayerController player = hit.gameObject.GetComponent<PlayerController>();
+                if (bounceStrength == 0)
+                    return;
+                Vector3 direction = hit.transform.position - transform.position;
                 if (GameManager.Instance.PlayingLocal)
-                {
-                    ApplyKnockbackLocal(-1, v, 1, dmg, false);
-                }
+                    player.ApplyImpulseLocal(direction, bounceStrength);
                 else
                 {
-                    ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
+                    player.ApplyImpulseServerRpc(direction, bounceStrength);
                 }
-            }
-            else
-            {
-                ReflectKnockback(hit.normal);
-            }
-            StartCoroutine(BoneFishCoroutine());
-        }
-        if (hit.gameObject.CompareTag("Bubble"))
-        {
-            if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
-            {
-                WallKillCredit(wallBubble.OwnerID.Value);
-            }
+                ApplyImpulseLocal(-direction, bounceStrength);
+                break;
+            case "BoneFish":
+                if (canBeBoneFished)
+                {
+                    canBeBoneFished = false;
+                    float dmg = hit.gameObject.GetComponent<BoneFish>().BoneHit();
+                    if (knockbackVelocity.magnitude < 3f)
+                    {
+                        Vector3 v = transform.position - hit.point;
+                        if (GameManager.Instance.PlayingLocal)
+                        {
+                            ApplyKnockbackLocal(-1, v, 1, dmg, false);
+                        }
+                        else
+                        {
+                            ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
+                        }
+                    }
+                    else
+                    {
+                        ReflectKnockback(hit.normal);
+                    }
+                    StartCoroutine(BoneFishCoroutine());
+                }
+                break;
+            case "Bubble":
+                if (hit.gameObject.TryGetComponent<WallBubble>(out WallBubble wallBubble))
+                {
+                    WallKillCredit(wallBubble.OwnerID.Value);
+                }
+                break;
+            default:
+                return;
         }
     }
     private IEnumerator BoneFishCoroutine()
@@ -1531,17 +1553,68 @@ public class PlayerController : NetworkBehaviour
         if (trail != null)
             trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         isDead = false;
-        StartCoroutine(EntranceCoroutine(0));
+        StartCoroutine(EntranceCoroutine(false));
     }
 
-    public void StartEntrence(float remainingDelay)
+    public void ResetPlayerController(bool isRespawn)
     {
-        StartCoroutine(EntranceCoroutine(remainingDelay));
+        damage = 0;
+        damagedEffect.UpdateParticleSystem(-1);
+        killCreditID = -1;
+        currentUltCharge = 0;
+        playerHUD.SetUltSlider(0);
+        isUltCharged = false;
+        slipperyCounter = 0;
+        isSlippery = false;
+        slowCounter = 0;
+        isSlowed = false;
+        dashDisabledUI?.SetActive(false);
+        isVulnerable = false;
+        if (vulnerableRoutine != null)
+            StopCoroutine(vulnerableRoutine);
+        canBeBoneFished = true;
+        isStunned = false;
+
+        shaderManager?.ResetShader();
+
+        if (GameManager.Instance.PlayingLocal)
+        {
+            mainAnimator.SetBool("IsDead", false);
+            mainAnimator.SetBool("Victory", false);
+            mainAnimator.SetBool("HitStun", false);
+            playerHUD.ResetHUD();
+        }
+        else
+        {
+            DeadAnimServerRpc(false);
+            VictoryAnimServerRpc(false);
+            ResetHudServerRpc();
+        }
+
+        movementInput = Vector2.zero;
+        knockbackVelocity = Vector3.zero;
+        controller.enabled = true;
+
+        pickedUpSpellsAmount = 0;
+        usedSpell.Clear();
+        isFirstGroundDetection = true;
+        shotsHitInARowAmount = 0;
+
+        playerStateHandler.ResetPlayer();
+        if (trail != null)
+            trail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        isDead = false;
+        StartCoroutine(EntranceCoroutine(isRespawn));
     }
 
-    private IEnumerator EntranceCoroutine(float remainingDelay)
+    public void StartEntrence(bool selfRelease)
     {
-        inputEnabled = false;
+        StartCoroutine(EntranceCoroutine(selfRelease));
+    }
+
+    private IEnumerator EntranceCoroutine(bool selfRelease)
+    {
+        ToggleInput(false);
         canvas.SetActive(false);
         if (GameManager.Instance.PlayingLocal)
             mainAnimator.Play("Entrance", 0, 0);
@@ -1556,14 +1629,15 @@ public class PlayerController : NetworkBehaviour
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
-        if (remainingDelay > 0)
-        {
-            yield return new WaitForSeconds(remainingDelay - animationTime);
-        }
         if (!trail.isPlaying)
             trail.Play();
+        if (selfRelease)
+            ToggleInput(true);
+    }
 
-        inputEnabled = true;
+    public void ToggleInput(bool input)
+    {
+        inputEnabled = input;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1649,7 +1723,7 @@ public class PlayerController : NetworkBehaviour
         playerStateHandler.EnableDeath();
         if (dropInJoin)
         {
-            StartCoroutine(EntranceCoroutine(0));
+            StartCoroutine(EntranceCoroutine(true));
         }
         else
         {
