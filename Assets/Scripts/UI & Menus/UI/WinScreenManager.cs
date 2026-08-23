@@ -15,6 +15,7 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private Outline[] outlines;
     [SerializeField] private Image[] killImages;
     [SerializeField] private TextMeshProUGUI[] killCounts;
+    [SerializeField] private TextMeshProUGUI winCount;
     [SerializeField] private Image teamImage;
     [SerializeField] private TextMeshProUGUI teamKillText;
     [SerializeField] private Image[] playerImages;
@@ -88,6 +89,10 @@ public class WinScreenManager : MonoBehaviour
             {
                 killCounts[i].text =
                     scores.KillScores[playerID]
+                    .ToString();
+
+                winCount.text = 
+                    scores.WinScores[playerID] 
                     .ToString();
             }
             else

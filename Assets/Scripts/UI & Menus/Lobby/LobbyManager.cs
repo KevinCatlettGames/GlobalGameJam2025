@@ -49,6 +49,9 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
+    [SerializeField] private bool alwaysActivateTutorialOnInit = false; 
+    public bool AlwaysActivateTutorialOnInit { get { return alwaysActivateTutorialOnInit; } }
+
     public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
     public int selectedLeftSpellIndex = 0;
     public int selectedRightSpellIndex = 0;
@@ -229,17 +232,25 @@ public class LobbyManager : NetworkBehaviour
             GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
         }
 
-        bool playedTutorial = false;
-        playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
-        if (playedTutorial)
-        {
-            playTutorial = false;
-            playTutorialToggle.isOn = false;
-        }
-        else
+        if (alwaysActivateTutorialOnInit)
         {
             playTutorial = true;
             playTutorialToggle.isOn = true;
+        }
+        else
+        {
+            bool playedTutorial = false;
+            playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
+            if (playedTutorial)
+            {
+                playTutorial = false;
+                playTutorialToggle.isOn = false;
+            }
+            else
+            {
+                playTutorial = true;
+                playTutorialToggle.isOn = true;
+            }
         }
     }
 
@@ -628,6 +639,26 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
+    public void LoadDemo()
+    {
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadPlateMap;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+    }
+
+    public void LoadPlateMap()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadPlateMap;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                   plateLevel,
+                   LoadSceneMode.Single
+               );
+    }
+
     void LoadTutorial()
     {
         if (MenuTransitionHandler.Instance)
@@ -635,7 +666,10 @@ public class LobbyManager : NetworkBehaviour
         //Debug.Log("Loading tutorial");
         PlayerPrefs.SetInt("PlayedTutorial", 1);
         SaveManager.Save();
-        SceneManager.LoadScene(tutorialLevel, LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                   tutorialLevel,
+                   LoadSceneMode.Single
+               );
     }
 
     [ServerRpc(RequireOwnership = false)]

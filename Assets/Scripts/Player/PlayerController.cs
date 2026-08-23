@@ -136,6 +136,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float gravityValue = -9.81f;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
+    [SerializeField] private float bounceStrength = 20f;
     private float currentPlayerSpeed = 1;
 
     protected CharacterController controller;
@@ -1293,15 +1294,16 @@ public class PlayerController : NetworkBehaviour
         {
             case "Player":
                 PlayerController player = hit.gameObject.GetComponent<PlayerController>();
-                float bouceStrength = 20f;
+                if (bounceStrength == 0)
+                    return;
                 Vector3 direction = hit.transform.position - transform.position;
                 if (GameManager.Instance.PlayingLocal)
-                    player.ApplyImpulseLocal(direction, bouceStrength);
+                    player.ApplyImpulseLocal(direction, bounceStrength);
                 else
                 {
-                    player.ApplyImpulseServerRpc(direction, bouceStrength);
+                    player.ApplyImpulseServerRpc(direction, bounceStrength);
                 }
-                ApplyImpulseLocal(-direction, bouceStrength);
+                ApplyImpulseLocal(-direction, bounceStrength);
                 break;
             case "BoneFish":
                 if (canBeBoneFished)
