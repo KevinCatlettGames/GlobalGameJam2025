@@ -73,17 +73,20 @@ public class Countdown : MonoBehaviour
         bool soundStarted = false;
         int currentCount = countdownSprites.Length -1;
         yield return new WaitForSeconds(.1f);
-        //List<PlayerController> players = PlayerManager.Instance.GetPlayers();
-        //int playerCount = players.Count -1;
+        List<PlayerController> players = PlayerManager.Instance.GetPlayers();
+        int playerCount = players.Count -1;
         float animTime = .45f;
 
         while (currentCount > -1)
         {
             yield return new WaitForSeconds(timeBetweenElements - animTime);
-            //if (currentCount <= playerCount)
-            //{
-            //    players[currentCount].StartEntrence(currentCount * timeBetweenElements);
-            //}
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (currentCount <= playerCount)
+                {
+                    players[currentCount].StartEntrence(false);
+                }
+            }
             yield return new WaitForSeconds(animTime);
             if (!soundStarted)
             {
