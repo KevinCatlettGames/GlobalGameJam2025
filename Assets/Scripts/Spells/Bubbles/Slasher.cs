@@ -74,7 +74,7 @@ public class Slasher : MonoBehaviour
             if (other.CompareTag("Bubble"))
             {
                 SpawnPopEffect();
-                if (slasherParent != null) slasherParent.SetActive(false);
+                if (slasherParent != null && !other.TryGetComponent<WallBubble>(out WallBubble x)) slasherParent.SetActive(false);
                 return;
             }
         }

@@ -179,7 +179,7 @@ public class PlayerManager : NetworkBehaviour
         }
         ItemSpawner.Instance.InitialSpawn();
         playerInputManager.enabled = false;
-        StartPlayereEntrance();
+        StartPlayerEntrance();
     }
 
     #region Player Joining and Initialization
@@ -455,7 +455,7 @@ public class PlayerManager : NetworkBehaviour
         return playerControllers;
     }
 
-    public void StartPlayereEntrance()
+    public void StartPlayerEntrance()
     {
         StartCoroutine(PlayerEntrance(GetPlayers()));
     }
@@ -467,9 +467,17 @@ public class PlayerManager : NetworkBehaviour
         foreach (PlayerController player in playerControllers)
         {
             yield return new WaitForSeconds(timeBetweenEntrance * .5f);
-            player.StartEntrence(remainingTime);
+            player.StartEntrence(false);
             yield return new WaitForSeconds(timeBetweenEntrance * .5f);
-            remainingTime -= timeBetweenEntrance;
+        }
+    }
+
+    public void EnablePlayerInput()
+    {
+        List<PlayerController> players = GetPlayers();
+        foreach (PlayerController player in players)
+        {
+            player.ToggleInput(true);
         }
     }
     #endregion

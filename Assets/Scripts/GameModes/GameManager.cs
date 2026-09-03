@@ -369,6 +369,11 @@ public class GameManager : NetworkBehaviour
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
         }
+        Debug.Log(playerStates[playerID]);
+        if (playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
+        }
         CheckForRoundEndServerRpc();
     }
 
@@ -408,6 +413,10 @@ public class GameManager : NetworkBehaviour
             {
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
+        }
+        if (playerID >= 0 && playerID < playerStates.Length && playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
         }
         CheckForRoundEndLocal();
     }

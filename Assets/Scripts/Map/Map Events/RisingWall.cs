@@ -13,17 +13,12 @@ public class RisingWall : MonoBehaviour
     [SerializeField] private ParticleSystem sinkParticle;
     [SerializeField] private EventReference riseEvent;
     [SerializeField] private EventReference sinkEvent;
-    [SerializeField] private StudioEventEmitter idleEvent;
     private bool isActive = false;
     public bool IsActive { get { return isActive; } }
     void Start()
     {
         animator = GetComponent<Animator>();
         gameObject.SetActive(false);
-    }
-    void OnDestroy()
-    {
-        idleEvent?.Stop();
     }
 
     public virtual void Rise()
@@ -50,7 +45,6 @@ public class RisingWall : MonoBehaviour
         RuntimeManager.PlayOneShotAttached(riseEvent, gameObject);
         riseParticle?.Play();
         idleParticle?.Play();
-        idleEvent?.Play();
         bubblingParticle?.Stop();
     }
     private IEnumerator SinkCoroutine(bool instant)
@@ -67,18 +61,9 @@ public class RisingWall : MonoBehaviour
         animator.SetTrigger("Sink");
         RuntimeManager.PlayOneShotAttached(sinkEvent, gameObject);
         idleParticle?.Stop();
-        idleEvent?.Stop();
         sinkParticle?.Play();
         yield return new WaitForSeconds(2f);
         animator.speed = 1;
         gameObject.SetActive(false);
-    }
-
-    private void OnDisable()
-    {
-        if (idleEvent != null && idleEvent.IsPlaying())
-        {
-            idleEvent.Stop();
-        }
     }
 }

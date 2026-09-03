@@ -65,6 +65,7 @@ public class Countdown : MonoBehaviour
         animation.Play();
         yield return new WaitForSeconds(timeBetweenElements);
         countdownImage.enabled = false;
+        PlayerManager.Instance.EnablePlayerInput();
     }
 
     private IEnumerator CountdownRoutine()
@@ -72,17 +73,20 @@ public class Countdown : MonoBehaviour
         bool soundStarted = false;
         int currentCount = countdownSprites.Length -1;
         yield return new WaitForSeconds(.1f);
-        //List<PlayerController> players = PlayerManager.Instance.GetPlayers();
-        //int playerCount = players.Count -1;
+        List<PlayerController> players = PlayerManager.Instance.GetPlayers();
+        int playerCount = players.Count -1;
         float animTime = .45f;
 
         while (currentCount > -1)
         {
             yield return new WaitForSeconds(timeBetweenElements - animTime);
-            //if (currentCount <= playerCount)
-            //{
-            //    players[currentCount].StartEntrence(currentCount * timeBetweenElements);
-            //}
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            {
+                if (currentCount <= playerCount)
+                {
+                    players[currentCount].StartEntrence(false);
+                }
+            }
             yield return new WaitForSeconds(animTime);
             if (!soundStarted)
             {
@@ -101,6 +105,7 @@ public class Countdown : MonoBehaviour
         animation.Play();
         yield return new WaitForSeconds(timeBetweenElements);
         onCountdownComplete?.Invoke();
+        PlayerManager.Instance.EnablePlayerInput();
         countdownImage.enabled = false;
     }
 

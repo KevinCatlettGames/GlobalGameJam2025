@@ -15,6 +15,7 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private Outline[] outlines;
     [SerializeField] private Image[] killImages;
     [SerializeField] private TextMeshProUGUI[] killCounts;
+    [SerializeField] private TextMeshProUGUI winCount;
     [SerializeField] private Image teamImage;
     [SerializeField] private TextMeshProUGUI teamKillText;
     [SerializeField] private Image[] playerImages;
@@ -59,7 +60,6 @@ public class WinScreenManager : MonoBehaviour
         for (int i = 0; i < winnerCount; i++)
         {
             int playerID = winnerPlayerIDs[i];
-
             winPanels[i].SetActive(true);
 
             outlines[i].effectColor =
@@ -90,6 +90,10 @@ public class WinScreenManager : MonoBehaviour
                 killCounts[i].text =
                     scores.KillScores[playerID]
                     .ToString();
+
+                winCount.text = 
+                    scores.WinScores[playerID] 
+                    .ToString();
             }
             else
             {
@@ -105,12 +109,9 @@ public class WinScreenManager : MonoBehaviour
 
         List<ScoreManager.PlayerScoreEntry> playerScoreEntries = ScoreManager.Instance.GetScores(false);
         int imageIndex = 0;
-        for (int i = 0; i < playerScoreEntries.Count; i++)
+        for (int i = winnerCount; i < playerScoreEntries.Count; i++)
         {
-            if (winnerPlayerIDs.Contains(playerScoreEntries[i].playerID))
-                continue;
-
-            SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[i].Skin;
+            SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[playerScoreEntries[i].playerID].Skin;
             nonWinnerImages[imageIndex].enabled = true;
             nonWinnerImages[imageIndex].sprite = skin.HeadSprites[0];
             nonWinnerBadgeImages[imageIndex].enabled = true;
