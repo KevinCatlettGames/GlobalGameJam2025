@@ -1,7 +1,10 @@
+using System.Collections;
+using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
+using FMODUnity;
 
 public class SkinUnlockedUI : MonoBehaviour
 {
@@ -13,12 +16,18 @@ public class SkinUnlockedUI : MonoBehaviour
 
     [SerializeField] private SkinSO[] possibleSkins;
     [SerializeField] private float duration = 5f;
+    [SerializeField] private float bufferTime = 0.5f; // Pause between queued notifications
 
     [SerializeField] private GameObject unlockPanelParent;
     [SerializeField] private Image skinImage;
     [SerializeField] private LocalizeStringEvent skinNameLocalizer;
     [SerializeField] private LocalizeStringEvent descriptionLocalizer;
-    [SerializeField] private Outline outline; 
+    [SerializeField] private TextMeshProUGUI thresholdText;
+    [SerializeField] private Image backgroundImage;
+    [SerializeField] private StudioEventEmitter emitter;
+
+    private Queue<(SO_Achievement ach, SkinSO skin)> unlockQueue = new Queue<(SO_Achievement, SkinSO)>();
+    private Coroutine processQueueCoroutine;
 
     private void OnEnable()
     {
@@ -33,13 +42,17 @@ public class SkinUnlockedUI : MonoBehaviour
     {
         if (aSaveS)
             aSaveS.OnAchievementUnlocked -= EvaluateSkinUnlock;
+
+        if (processQueueCoroutine != null)
+            StopCoroutine(processQueueCoroutine);
+
+        unlockQueue.Clear();
     }
 
     private void EvaluateSkinUnlock(int achievementIndex)
     {
         if (!showWindow) return;
 
-        //Debug.Log("In evaluate achievement " + achievementIndex);
         SO_Achievement newlyUnlockedAchievement = null;
         foreach (SO_Achievement ach in aSaveS.AchievementList)
         {
@@ -50,7 +63,7 @@ public class SkinUnlockedUI : MonoBehaviour
             }
         }
         if (!newlyUnlockedAchievement) return;
-        //Debug.Log("achievement found");
+
         SkinSO newlyUnlockedSkin = null;
         foreach (SkinSO skin in possibleSkins)
         {
@@ -61,27 +74,54 @@ public class SkinUnlockedUI : MonoBehaviour
             }
         }
         if (!newlyUnlockedSkin) return;
-        //Debug.Log("Skin found");
-        ShowSkinUnlock(newlyUnlockedAchievement, newlyUnlockedSkin);
+
+        unlockQueue.Enqueue((newlyUnlockedAchievement, newlyUnlockedSkin));
+
+        if (processQueueCoroutine == null)
+        {
+            processQueueCoroutine = StartCoroutine(ProcessUnlockQueue());
+        }
     }
 
-    private void ShowSkinUnlock(SO_Achievement ach, SkinSO skin)
+    private IEnumerator ProcessUnlockQueue()
+    {
+        while (unlockQueue.Count > 0)
+        {
+            var (ach, skin) = unlockQueue.Dequeue();
+
+            DisplaySkinUnlock(ach, skin);
+
+            yield return new WaitForSeconds(duration);
+
+            unlockPanelParent.SetActive(false);
+
+            if (unlockQueue.Count > 0 && bufferTime > 0f)
+            {
+                yield return new WaitForSeconds(bufferTime);
+            }
+        }
+
+        processQueueCoroutine = null;
+    }
+
+    private void DisplaySkinUnlock(SO_Achievement ach, SkinSO skin)
     {
         unlockPanelParent.SetActive(false);
         unlockPanelParent.SetActive(true);
-
+        //emitter.Play();
         if (skinImage) skinImage.sprite = skin.SplashArt;
-        if (outline) outline.effectColor = skin.Color;
+        if (backgroundImage) backgroundImage.color = skin.Color;
 
         if (skinNameLocalizer) skinNameLocalizer.StringReference = ach.AchievementNameLocalization;
         if (descriptionLocalizer) descriptionLocalizer.StringReference = ach.AchievementDescriptionLocalization;
 
-        Invoke(nameof(HideSkinUnlock), duration);
-    }
-
-    private void HideSkinUnlock()
-    {
-        //Debug.Log("Hiding skin unlock");
-        unlockPanelParent.SetActive(false); 
+        if (ach.StatThreshold > 0)
+        {
+            thresholdText.text = $"{ach.StatThreshold}x";
+        }
+        else
+        {
+            thresholdText.text = string.Empty;
+        }
     }
 }
