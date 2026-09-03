@@ -46,9 +46,10 @@ public class EndTutorialZone : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerController p = other.GetComponent<PlayerController>();
-            if (!playerControllers.Contains(p) || p.PlayerID != 5)
+            if (!playerControllers.Contains(p) && p.PlayerID != 5)
             {
                 playerControllers.Add(p);
+                Debug.Log(p.PlayerID);
             }
         }
     }

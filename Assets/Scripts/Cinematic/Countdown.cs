@@ -63,7 +63,7 @@ public class Countdown : MonoBehaviour
         countdownImage.enabled = true;
         countdownImage.sprite = countdownSprites[0];
         animation.Play();
-        yield return new WaitForSeconds(timeBetweenElements);
+        yield return new WaitForSeconds(timeBetweenElements * 2);
         countdownImage.enabled = false;
         PlayerManager.Instance.EnablePlayerInput();
     }
