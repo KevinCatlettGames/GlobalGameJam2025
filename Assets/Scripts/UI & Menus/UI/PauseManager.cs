@@ -8,20 +8,27 @@ using Unity.Services.Authentication;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using System.Threading.Tasks;
+using System.Collections;
 
 public class PauseManager : MonoBehaviour
 {
     public static PauseManager Instance;
-    [SerializeField] private EventReference togglePauseSound; 
+
+    [Header("Audio & UI References")]
+    [SerializeField] private EventReference togglePauseSound;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
     [SerializeField] private SO_Scores scores;
-    
+
+    [Header("Input Settings")]
+    [SerializeField] private float backInputCooldown = 0.2f; // Cooldown duration in seconds
+
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
-    private bool isPauseMenuOpen = true;
+    private bool isPauseMenuOpen = false;
     private bool isCurrentlyPaused = false;
+    private float allowBackInputTime; // Tracks unscaled time threshold for back input
 
     private InputSystemUIInputModule inputModuleUI;
     private InputAction pauseAction;
@@ -29,40 +36,39 @@ public class PauseManager : MonoBehaviour
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
             Instance = this;
     }
 
     private void Start()
     {
         eventSystem = EventSystem.current;
-        inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
-        pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
-        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
-
-        if (pauseAction != null)
+        if (eventSystem != null)
         {
-            pauseAction.performed += OnPauseInput;
-            pauseAction.Enable();
-        }
-        if (backAction != null)
-        {
-            backAction.performed += OnBackInput;
-            backAction.Enable();
-        }
+            inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
+            if (inputModuleUI != null && inputModuleUI.actionsAsset != null)
+            {
+                pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
+                backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
 
+                if (pauseAction != null)
+                {
+                    pauseAction.performed += OnPauseInput;
+                    pauseAction.Enable();
+                }
+                if (backAction != null)
+                {
+                    backAction.performed += OnBackInput;
+                    backAction.Enable();
+                }
+            }
+        }
     }
 
     private void OnEnable()
     {
         if (NetworkManager.Singleton != null)
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
-    }
-    
-    private void OnClientDisconnect(ulong clientId)
-    {
-        //Debug.Log("Player disconnected — returning to main menu...");
-        ReturnToMainMenu();
     }
 
     private void OnDisable()
@@ -71,47 +77,132 @@ public class PauseManager : MonoBehaviour
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
     }
 
+    private void OnDestroy()
+    {
+        if (pauseAction != null)
+            pauseAction.performed -= OnPauseInput;
+
+        if (backAction != null)
+            backAction.performed -= OnBackInput;
+    }
+
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
-        pauseMenu.SetActive(!isCurrentlyPaused);
 
-        if (!isCurrentlyPaused)
+        isCurrentlyPaused = !isCurrentlyPaused;
+        GameManager.IsGamePaused = isCurrentlyPaused;
+        pauseMenu.SetActive(isCurrentlyPaused);
+
+        if (isCurrentlyPaused)
         {
-            isCurrentlyPaused = true;
-            GameManager.IsGamePaused = true;
-            SetSelected();
+            // Set cooldown to prevent back action from triggering in the same frame
+            allowBackInputTime = Time.unscaledTime + backInputCooldown;
 
-            if (GameManager.Instance.PlayingLocal)
+            isPauseMenuOpen = true;
+            StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+
+            if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
         }
         else
         {
-            isCurrentlyPaused = false;
-            GameManager.IsGamePaused = false;
-
-            if (GameManager.Instance.PlayingLocal)
+            if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
                 Time.timeScale = 1f;
 
-            if (!isPauseMenuOpen && currentSubMenu != null)
+            if (currentSubMenu != null)
             {
                 currentSubMenu.SetActive(false);
                 pauseMenuButtons.SetActive(true);
-                isPauseMenuOpen = true;
                 currentSubMenu = null;
             }
+            isPauseMenuOpen = false;
         }
+    }
+
+    public void OnPauseInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed) return;
+        TogglePause();
+    }
+
+    public void OnBackInput(InputAction.CallbackContext context)
+    {
+        // Block back input if not performed, not paused, or still within cooldown
+        if (!context.performed || !isCurrentlyPaused || Time.unscaledTime < allowBackInputTime)
+            return;
+
+        if (!isPauseMenuOpen && currentSubMenu != null)
+        {
+            currentSubMenu.SetActive(false);
+            pauseMenuButtons.SetActive(true);
+            isPauseMenuOpen = true;
+            currentSubMenu = null;
+            StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+
+            // Refresh cooldown when navigating back out of a submenu
+            allowBackInputTime = Time.unscaledTime + backInputCooldown;
+        }
+        else
+        {
+            TogglePause();
+        }
+    }
+
+    private IEnumerator SetSelectedNextFrame(GameObject target)
+    {
+        yield return null;
+        if (eventSystem != null && target != null)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(target);
+        }
+    }
+
+    public void SetSelected()
+    {
+        StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+    }
+
+    public void SetSelectedButton(GameObject gameObject)
+    {
+        StartCoroutine(SetSelectedNextFrame(gameObject));
+    }
+
+    public void ToggleSubMenu(GameObject subMenu)
+    {
+        if (isPauseMenuOpen)
+        {
+            subMenu.SetActive(true);
+            pauseMenuButtons.SetActive(false);
+            isPauseMenuOpen = false;
+            currentSubMenu = subMenu;
+        }
+        else
+        {
+            subMenu.SetActive(false);
+            pauseMenuButtons.SetActive(true);
+            isPauseMenuOpen = true;
+            currentSubMenu = null;
+        }
+    }
+
+    // --- Multiplayer / Scene Management ---
+
+    private void OnClientDisconnect(ulong clientId)
+    {
+        ReturnToMainMenu();
     }
 
     public void RestartGame()
     {
         if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
-
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer) return;
+
         GameManager.IsGamePaused = false;
         scores.ResetKills();
         scores.ResetWins();
-        
+
         if (GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
@@ -126,7 +217,9 @@ public class PauseManager : MonoBehaviour
             }
         }
         else
+        {
             RestartGameServerRpc();
+        }
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -169,24 +262,6 @@ public class PauseManager : MonoBehaviour
         Application.Quit();
     }
 
-    public void ToggleSubMenu(GameObject subMenu)
-    {
-        if (isPauseMenuOpen)
-        {
-            subMenu.SetActive(true);
-            pauseMenuButtons.SetActive(false);
-            isPauseMenuOpen = false;
-            currentSubMenu = subMenu;
-        }
-        else
-        {
-            subMenu.SetActive(false);
-            pauseMenuButtons.SetActive(true);
-            isPauseMenuOpen = true;
-            currentSubMenu = null;
-        }
-    }
-
     public async void ReturnToMainMenu()
     {
         if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
@@ -218,8 +293,8 @@ public class PauseManager : MonoBehaviour
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
-        
-        if(NetworkManager.Singleton)
+
+        if (NetworkManager.Singleton)
             Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
@@ -229,20 +304,20 @@ public class PauseManager : MonoBehaviour
 
     public async void ReturnToLobby()
     {
-        Time.timeScale = 1f; 
-        
-        if(LobbyManager.instance)
+        Time.timeScale = 1f;
+
+        if (LobbyManager.instance)
             Destroy(LobbyManager.instance.gameObject);
 
         LoadLobby();
     }
 
-    void LoadLobby()
+    private void LoadLobby()
     {
         SceneManager.LoadScene("UI_Lobby");
     }
 
-    void InitLoadMenu()
+    private void InitLoadMenu()
     {
         if (MenuTransitionHandler.Instance)
         {
@@ -253,12 +328,11 @@ public class PauseManager : MonoBehaviour
         {
             LoadMenu();
         }
-        
     }
 
-    void LoadMenu()
+    private void LoadMenu()
     {
-        if(MenuTransitionHandler.Instance)
+        if (MenuTransitionHandler.Instance)
             MenuTransitionHandler.Instance.OnFadeComplete -= LoadMenu;
 
         SceneManager.LoadScene("UI_MainMenu");
@@ -267,47 +341,5 @@ public class PauseManager : MonoBehaviour
     private bool IsHost()
     {
         return NetworkManager.Singleton.IsHost;
-    }
-    
-    public void SetSelected()
-    {
-        eventSystem.SetSelectedGameObject(selectedGameObject);
-    }
-    public void SetSelectedButton(GameObject gameObject)
-    {
-        eventSystem.SetSelectedGameObject(gameObject);
-    }
-    public void OnPauseInput(InputAction.CallbackContext context)
-    {
-         TogglePause();       
-    }
-
-    public void OnBackInput(InputAction.CallbackContext context)
-    {
-        if (!isCurrentlyPaused) return;
-        
-        if (!isPauseMenuOpen && currentSubMenu != null)
-        {
-            currentSubMenu.SetActive(false);
-            pauseMenuButtons.SetActive(true);
-            isPauseMenuOpen = true;
-            currentSubMenu = null;
-            SetSelected();
-        }
-        else
-        {
-            TogglePause();
-        }
-    }
-    private void OnDestroy()
-    {
-        if (pauseAction != null)
-        {
-            pauseAction.performed -= OnPauseInput;
-        }
-        if (backAction != null)
-        {
-            backAction.performed -= OnBackInput;
-        }
     }
 }

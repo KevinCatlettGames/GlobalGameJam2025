@@ -158,6 +158,7 @@ public class PlayerController : NetworkBehaviour
     private PlayerHUD playerHUD;
     private ControllerRumbler controllerRumbler = null;
     protected bool isUsingGamepad = false;
+    public bool IsUsingGamepad { get { return isUsingGamepad; } set { isUsingGamepad = value; } }
     private float mouseInputDeadzoneRadius = 0.4f;
     private float mouseInputVectorLimit = 5f;
     private Vector3 lastPosition;

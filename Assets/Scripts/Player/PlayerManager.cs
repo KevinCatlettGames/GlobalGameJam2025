@@ -1,10 +1,11 @@
+using FMODUnity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
-using FMODUnity;
-using System.Collections;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -56,13 +57,48 @@ public class PlayerManager : NetworkBehaviour
         {
             dropInJoin = true;
         }
+        InputSystem.onDeviceChange += OnDeviceChange;
     }
 
     private void OnDisable()
     {
         startGameInputAction.action.performed -= ActionOnPerformed;
         startGameInputAction.action.Disable();
+
+        InputSystem.onDeviceChange -= OnDeviceChange;
+        startGameInputAction.action.performed -= ActionOnPerformed;
+        startGameInputAction.action.Disable();
     }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (change == InputDeviceChange.Reconnected && device is Gamepad gamepad)
+        {
+            foreach (var player in GetPlayers())
+            {
+                var input = player.GetComponent<PlayerInput>();
+
+                if (input != null && (input.devices.Count == 0 || !input.devices[0].added))
+                {
+                    input.user.UnpairDevices();
+                    input.SwitchCurrentControlScheme("Gamepad", gamepad);
+
+                    if (player.TryGetComponent<PlayerController>(out var controller))
+                    {
+                        controller.IsUsingGamepad = true;
+                    }
+
+                    if (!player.TryGetComponent<ControllerRumbler>(out var rumbler))
+                    {
+                        rumbler = player.gameObject.AddComponent<ControllerRumbler>();
+                    }
+                    rumbler.SetController(gamepad);
+                    break;
+                }
+            }
+        }
+    }
+
 
     public void StartPlayerJoining()
     {
@@ -108,28 +144,29 @@ public class PlayerManager : NetworkBehaviour
                 if (playerDevice == null) continue;
 
                 InputDevice device = playerDevice.Device;
+                bool isDeviceAvailable = device != null && device.added;
 
                 if (device is Keyboard)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, 
+                        playerDevice.PlayerIndex,
                         -1,
-                        "Keyboard", 
-                        playerDevice.Device 
+                        "Keyboard",
+                        isDeviceAvailable ? device : null
                     );
                 }
-                else if (device is Gamepad)
+                else if (device is Gamepad || !isDeviceAvailable)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, 
+                        playerDevice.PlayerIndex,
                         -1,
                         null,
-                        playerDevice.Device 
+                        isDeviceAvailable ? device : null
                     );
 
-                    if (newPlayer != null)
+                    if (newPlayer != null && isDeviceAvailable)
                     {
-                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        newPlayer.SwitchCurrentControlScheme(device);
                     }
                 }
             }
@@ -148,28 +185,28 @@ public class PlayerManager : NetworkBehaviour
                 if (playerDevice == null) continue;
 
                 InputDevice device = playerDevice.Device;
-
+                bool isDeviceAvailable = device != null && device.added;
                 if (device is Keyboard)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
                         playerDevice.PlayerIndex,
                         -1,
                         "Keyboard",
-                        playerDevice.Device
+                        isDeviceAvailable ? device : null
                     );
                 }
-                else if (device is Gamepad)
+                else if (device is Gamepad || !isDeviceAvailable)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
                         playerDevice.PlayerIndex,
                         -1,
                         null,
-                        playerDevice.Device
+                        isDeviceAvailable ? device : null
                     );
 
-                    if (newPlayer != null)
+                    if (newPlayer != null && isDeviceAvailable)
                     {
-                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        newPlayer.SwitchCurrentControlScheme(device);
                     }
                 }
 

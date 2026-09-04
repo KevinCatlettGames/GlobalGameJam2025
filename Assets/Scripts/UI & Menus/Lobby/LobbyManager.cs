@@ -1,6 +1,7 @@
 using FMODUnity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
@@ -297,25 +298,82 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
+        if (SceneManager.GetActiveScene().buildIndex != 0) return;
         if (!canAddNewDevices) return;
+
         switch (change)
         {
             case InputDeviceChange.Added:
-                //Debug.Log($"Device added: {device.displayName}");
-                playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
-                break;
+                if (TryReconnectDeviceToOrphanedPlayer(device))
+                {
+                    return;
+                }
 
-            case InputDeviceChange.Removed:
-                //Debug.Log($"Device removed: {device.displayName}");
-                break;
-
-            case InputDeviceChange.Reconnected:
-                //Debug.Log($"Device reconnected: {device.displayName}");
+                if (!IsDeviceAlreadyPaired(device))
+                {
+                    playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+                }
                 break;
 
             case InputDeviceChange.Disconnected:
-                //Debug.Log($"Device disconnected: {device.displayName}");
+                HandleDeviceDisconnected(device);
                 break;
+        }
+    }
+
+    private bool TryReconnectDeviceToOrphanedPlayer(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            if (player.devices.Count == 0 || IsPlayerDisconnected(player))
+            {
+                if (player.user.valid)
+                {
+                    player.user.UnpairDevices();
+                }
+
+                player.SwitchCurrentControlScheme(device);
+
+                Debug.Log($"Reconnected device {device.name} to existing Player {player.playerIndex}");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsPlayerDisconnected(PlayerInput player)
+    {
+        foreach (var d in player.devices)
+        {
+            if (d.added) return false;
+        }
+        return true;
+    }
+
+    private bool IsDeviceAlreadyPaired(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            foreach (var pairedDevice in player.devices)
+            {
+                if (pairedDevice == device) return true;
+            }
+        }
+        return false;
+    }
+
+    private void HandleDeviceDisconnected(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            if (player.devices.Contains(device))
+            {
+                if (player.user.valid)
+                    player.user.UnpairDevices();
+
+                Debug.Log($"Player {player.playerIndex} controller lost power/disconnected.");
+                return;
+            }
         }
     }
 
