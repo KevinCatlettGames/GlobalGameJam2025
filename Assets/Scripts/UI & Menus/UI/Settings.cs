@@ -6,6 +6,7 @@ using UnityEngine.UI;
 using UnityEngine.InputSystem;
 using FMODUnity;
 using UnityEngine.Events;
+using UnityEditor.Experimental.GraphView;
 
 public class Settings : MonoBehaviour
 {
@@ -289,6 +290,11 @@ public class Settings : MonoBehaviour
 #endif 
 
         currentTab = tab;
+
+        if (currentTab == Tab.Video)
+            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(videoButton.gameObject);
+        else if(currentTab == Tab.Audio)
+            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(audioButton.gameObject);
 
         if (!tabTogglingEnabled)
             EnableTabToggling();
