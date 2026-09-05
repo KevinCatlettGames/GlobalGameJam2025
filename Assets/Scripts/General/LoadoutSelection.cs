@@ -14,8 +14,8 @@ public class LoadoutSelection : MonoBehaviour
 
     public enum LoadOutType
     {
-        SharedRandom,
         IndividualRandom,
+        SharedRandom,
         SharedCustom
     }
 

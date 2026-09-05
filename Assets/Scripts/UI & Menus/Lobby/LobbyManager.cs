@@ -53,7 +53,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private bool alwaysActivateTutorialOnInit = false; 
     public bool AlwaysActivateTutorialOnInit { get { return alwaysActivateTutorialOnInit; } }
 
-    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
     public int selectedLeftSpellIndex = 0;
     public int selectedRightSpellIndex = 0;
 
@@ -203,7 +203,7 @@ public class LobbyManager : NetworkBehaviour
     {
         scores.ResetKills();
         scores.ResetWins();
-        selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+        selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
         selectedLeftSpellIndex = 0;
         selectedRightSpellIndex = 0;
 
