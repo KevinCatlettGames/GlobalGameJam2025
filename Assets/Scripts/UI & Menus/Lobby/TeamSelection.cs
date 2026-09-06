@@ -2,8 +2,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using EditorAttributes;
 using TMPro;
-using Unity.VisualScripting;
 using Unity.Netcode;
+using System;
 
 public class TeamSelection : NetworkBehaviour
 {
@@ -22,6 +22,7 @@ public class TeamSelection : NetworkBehaviour
 
     private int maxTeamSize = 2;
     private bool initialSet = false;
+    public Action OnTeamUpdated; 
 
     private void OnEnable()
     {
@@ -30,18 +31,24 @@ public class TeamSelection : NetworkBehaviour
 
     private void OnDisable()
     {
+        TeamModeDisplay.Instance.UnSubscribeToEvent(this);
+
         if (LobbyManager.instance != null &&
             LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Standard)
         {
             lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex = -1;
         }
 
-        LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
+        if(LobbyManager.instance)
+            LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
+
         playerContainerSkinChange.UpdateBlur();
     }
 
     private void Init()
     {
+        TeamModeDisplay.Instance.SubscribeToTeamSwitchEvent(this);
+
         if (!initialSet)
         {
             initialSet = true;
@@ -125,6 +132,8 @@ public class TeamSelection : NetworkBehaviour
             teamText.text = "T2";
         }
         playerContainerSkinChange.UpdateBlur();
+
+        OnTeamUpdated?.Invoke();
     }
 
     private void UpdateTeamIndex(int playerID, bool state)
