@@ -101,7 +101,7 @@ public class GameModeSelection : NetworkBehaviour
 
     public void UpdateGameMode(bool increment, bool allowPositiveLoop = false)
     {
-        int currentIndex = (int)lobbyManager.SelectedGameMode;
+        int currentIndex = (int)LobbyManager.instance.SelectedGameMode;
 
         int enumLength =
             Enum.GetValues(typeof(GameManager.GameModeType)).Length;
@@ -122,7 +122,7 @@ public class GameModeSelection : NetworkBehaviour
             currentIndex = (currentIndex - 1 + enumLength) % enumLength;
         }
 
-        lobbyManager.SelectedGameMode =
+        LobbyManager.instance.SelectedGameMode =
             (GameManager.GameModeType)currentIndex;
 
         UpdateBubbles(currentIndex);
@@ -130,7 +130,7 @@ public class GameModeSelection : NetworkBehaviour
         UpdateGameModeSelectionUI();
 
         if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-            lobbyManager.ChangeSelectedGameModeServerRpc();
+            LobbyManager.instance.ChangeSelectedGameModeServerRpc();
 
         RefreshNavigation(currentIndex, enumLength);
 
@@ -147,7 +147,7 @@ public class GameModeSelection : NetworkBehaviour
         gameModeButton.navigation = nav;
     }
 
-    private void UpdateBubbles(int currentIndex)
+    public void UpdateBubbles(int currentIndex)
     {
         for (int i = 0; i < gameModeBubbleImages.Length; i++)
         {
@@ -161,8 +161,10 @@ public class GameModeSelection : NetworkBehaviour
         }
     }
 
-    private void UpdateGameModeSelectionUI()
+    public void UpdateGameModeSelectionUI()
     {
+        lobbyManager = LobbyManager.instance; 
+
         GameModeSO selected = lobbyManager.GameModes[0];
 
         foreach (GameModeSO mode in lobbyManager.GameModes)

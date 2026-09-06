@@ -21,7 +21,7 @@ public class LoadoutSelection : MonoBehaviour
 
     [Header("State")]
     [SerializeField]
-    private LoadOutType selectedLoadoutType = LoadOutType.SharedRandom;
+    private LoadOutType selectedLoadoutType = LoadOutType.IndividualRandom;
 
     [Header("UI")]
     [SerializeField] private TextMeshProUGUI loadoutText;
@@ -141,7 +141,7 @@ public class LoadoutSelection : MonoBehaviour
         }
 
         selectedLoadoutType = (LoadOutType)index;
-        lobbyManager.selectedLoadoutType = selectedLoadoutType;
+        LobbyManager.instance.selectedLoadoutType = selectedLoadoutType;
 
         ApplyAllUI();
         RefreshNavigation();
@@ -215,10 +215,10 @@ public class LoadoutSelection : MonoBehaviour
         if (isCustom)
         {
             leftSpellImage.sprite =
-                lobbyManager.Spells[lobbyManager.selectedLeftSpellIndex].SpellIcon;
+                LobbyManager.instance.Spells[LobbyManager.instance.selectedLeftSpellIndex].SpellIcon;
 
             rightSpellImage.sprite =
-                lobbyManager.Spells[lobbyManager.selectedRightSpellIndex].SpellIcon;
+                LobbyManager.instance.Spells[LobbyManager.instance.selectedRightSpellIndex].SpellIcon;
 
             UpdateSpellBubbles();
         }
@@ -296,6 +296,8 @@ public class LoadoutSelection : MonoBehaviour
 
     private void UpdateSpellBubbles()
     {
+        lobbyManager = LobbyManager.instance; 
+
         for (int i = 0; i < leftSpellBubbles.Length; i++)
         {
             bool active = i == lobbyManager.selectedLeftSpellIndex;
@@ -317,5 +319,13 @@ public class LoadoutSelection : MonoBehaviour
             rightSpellBubbles[i].color =
                 active ? activePageDotColor : inactivePageDotColor;
         }
+    }
+
+    public void ResetLoadoutType()
+    {
+        selectedLoadoutType = LoadOutType.IndividualRandom;
+        UpdateSpellBubbles();
+        ApplyAllUI();
+        RefreshNavigation();
     }
 }

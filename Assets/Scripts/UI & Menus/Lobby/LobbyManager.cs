@@ -93,6 +93,14 @@ public class LobbyManager : NetworkBehaviour
 
     public UnityEvent OnLeavingLobby;
 
+    private const GameManager.GameModeType GameModeConst = GameManager.GameModeType.Standard;
+    private const LoadoutSelection.LoadOutType LoadOutTypeConst = LoadoutSelection.LoadOutType.IndividualRandom;
+    private const int LeftSpellIndexConst = 0;
+    private const int RightSpellIndexConst = 0;
+    private const int WinsNeededConst = 5;
+    private const bool PlayTutorialConst = false;
+    private const bool PlayEndlessConst = false;
+
     #endregion
 
     #region Player Settings
@@ -1037,5 +1045,24 @@ public class LobbyManager : NetworkBehaviour
 
         this.playEndless = playEndless;
         this.winsNeeded = winsNeeded;
+    }
+
+    public void ResetToDefaultSettings()
+    {
+        selectedGameMode = GameModeConst;
+        selectedLoadoutType = LoadOutTypeConst;
+        selectedLeftSpellIndex = LeftSpellIndexConst;
+        selectedRightSpellIndex = RightSpellIndexConst;
+        winsNeeded = WinsNeededConst;
+        playTutorial = PlayTutorialConst;
+        playEndless = PlayEndlessConst;
+        foreach (SO_Spell spell in Spells)
+            spell.CanUse = true;
+        foreach(MapSettingsSO mapSettings in MapSettings)
+        {
+            mapSettings.PlayMap = true;
+            mapSettings.PlayWithMapEvent = true;
+            mapSettings.MapRounds = 3;
+        }
     }
 }
