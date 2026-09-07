@@ -53,7 +53,7 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private bool alwaysActivateTutorialOnInit = false; 
     public bool AlwaysActivateTutorialOnInit { get { return alwaysActivateTutorialOnInit; } }
 
-    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
     public int selectedLeftSpellIndex = 0;
     public int selectedRightSpellIndex = 0;
 
@@ -92,6 +92,14 @@ public class LobbyManager : NetworkBehaviour
     public LobbyPlayerInput lobbyInput;
 
     public UnityEvent OnLeavingLobby;
+
+    private const GameManager.GameModeType GameModeConst = GameManager.GameModeType.Standard;
+    private const LoadoutSelection.LoadOutType LoadOutTypeConst = LoadoutSelection.LoadOutType.IndividualRandom;
+    private const int LeftSpellIndexConst = 0;
+    private const int RightSpellIndexConst = 0;
+    private const int WinsNeededConst = 5;
+    private const bool PlayTutorialConst = false;
+    private const bool PlayEndlessConst = false;
 
     #endregion
 
@@ -203,7 +211,7 @@ public class LobbyManager : NetworkBehaviour
     {
         scores.ResetKills();
         scores.ResetWins();
-        selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+        selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
         selectedLeftSpellIndex = 0;
         selectedRightSpellIndex = 0;
 
@@ -1037,5 +1045,24 @@ public class LobbyManager : NetworkBehaviour
 
         this.playEndless = playEndless;
         this.winsNeeded = winsNeeded;
+    }
+
+    public void ResetToDefaultSettings()
+    {
+        selectedGameMode = GameModeConst;
+        selectedLoadoutType = LoadOutTypeConst;
+        selectedLeftSpellIndex = LeftSpellIndexConst;
+        selectedRightSpellIndex = RightSpellIndexConst;
+        winsNeeded = WinsNeededConst;
+        playTutorial = PlayTutorialConst;
+        playEndless = PlayEndlessConst;
+        foreach (SO_Spell spell in Spells)
+            spell.CanUse = true;
+        foreach(MapSettingsSO mapSettings in MapSettings)
+        {
+            mapSettings.PlayMap = true;
+            mapSettings.PlayWithMapEvent = true;
+            mapSettings.MapRounds = 3;
+        }
     }
 }

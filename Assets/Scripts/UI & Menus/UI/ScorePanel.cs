@@ -17,6 +17,7 @@ public class ScorePanel : MonoBehaviour
     [SerializeField] private Image killsIcon;
     [SerializeField] private Image[] portraits;
     [SerializeField] private Image[] pointBubbles;
+    [SerializeField] private Image[] fakePointBubbles;
     [SerializeField] private Image frame;
     [SerializeField] private Color colorShift;
 
@@ -37,6 +38,18 @@ public class ScorePanel : MonoBehaviour
 
         killsIcon.enabled = false;   
         killsText.enabled = false;
+
+
+        if(LobbyManager.instance && !LobbyManager.instance.playEndless)
+        {
+            foreach(Image image in fakePointBubbles)
+                image.enabled = false;
+            for (int i = 0; i < LobbyManager.instance.winsNeeded; i++)
+            {
+                if(fakePointBubbles.Length > i)
+                    fakePointBubbles[i].enabled = true;
+            }
+        }
     }
 
     private void OnDisable()
