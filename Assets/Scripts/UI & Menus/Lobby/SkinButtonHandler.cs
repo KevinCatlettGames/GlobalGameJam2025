@@ -17,7 +17,6 @@ public class SkinButtonHandler : MonoBehaviour
 
     public SkinSO skinSo;
     public Image skinImage;
-    public Image shineImage;
 
     public Color standardImageColor = Color.gray;
     public Color disabledColor = Color.red;
@@ -54,12 +53,17 @@ public class SkinButtonHandler : MonoBehaviour
         foreach (TextMeshProUGUI text in selectionTexts)
             text.enabled = false;
 
-        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo 
+        if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo
             || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
+        {
+            skinImage.color = Color.black;
             GetComponent<Image>().color = disabledColor;
+        }
         else
+        {
+            skinImage.color = Color.white; 
             GetComponent<Image>().color = standardImageColor;
-
+        }
         didFirstInit = true;
     }
 
@@ -140,18 +144,28 @@ public class SkinButtonHandler : MonoBehaviour
         if (isSelectedNow)
         {
             if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
+            {
+                skinImage.color = Color.black;
                 GetComponent<Image>().color = disabledColor;
+            }
             else
+            {
+                skinImage.color = Color.white;
                 GetComponent<Image>().color = skinSo.Color;
-            shineImage.enabled = true;
+            }
         }
         else
         {
             if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
+            {
+                skinImage.color = Color.black; 
                 GetComponent<Image>().color = disabledColor;
+            }
             else
+            {
+                skinImage.color = Color.white;
                 GetComponent<Image>().color = standardImageColor;
-            shineImage.enabled = false;
+            }
         }
     }
 
@@ -159,6 +173,7 @@ public class SkinButtonHandler : MonoBehaviour
     {
         gameObject.GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
         transform.localScale = originalScale;
+        skinImage.color = Color.white;
         GetComponent<Image>().color = standardImageColor;
 
         foreach (Image image in selectionimages)
@@ -169,8 +184,6 @@ public class SkinButtonHandler : MonoBehaviour
 
         foreach (TextMeshProUGUI text in selectionTexts)
             text.enabled = false;
-
-        shineImage.enabled = false;
 
         activePlayers.Clear();
         hoveredAmount = 0;

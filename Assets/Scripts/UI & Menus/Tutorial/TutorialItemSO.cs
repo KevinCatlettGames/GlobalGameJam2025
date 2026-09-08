@@ -127,4 +127,18 @@ public class TutorialItemSO : ScriptableObject
         get => incorporateMainElementBackground;
         set => incorporateMainElementBackground = value;
     }
+
+    [SerializeField] private bool useFullscreenImage = false;
+    public bool UseFullscreenImage
+    {
+        get => useFullscreenImage;
+        set => useFullscreenImage = value;
+    }
+
+    [SerializeField] private bool isInputImage = false;
+    public bool IsInputImage
+    {
+        get => isInputImage;
+        set => isInputImage = value;
+    }
 }

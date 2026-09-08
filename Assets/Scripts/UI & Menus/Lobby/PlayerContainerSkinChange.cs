@@ -291,13 +291,31 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (currentlyOnLocked)
         {
-            avatar.color = Color.gray;
+            if (!SteamIntegration.instance.IsFullVersion && !skinToUse.AvailableInDemo
+            || AchievementSaveSystem.instance && skinToUse.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinToUse.UnlockAchievement.AchievementID))
+            {
+                avatar.color = Color.black;
+            }
+            else
+            {
+                avatar.color = Color.gray;
+            }
+
             if (currentSkinSelection)
                 currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
         else
         {
-            avatar.color = Color.white;
+            if (!SteamIntegration.instance.IsFullVersion && !skinToUse.AvailableInDemo
+            || AchievementSaveSystem.instance && skinToUse.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinToUse.UnlockAchievement.AchievementID))
+            {
+                avatar.color = Color.black;
+            }
+            else
+            {
+                avatar.color = Color.white;
+            }
+
             if (currentSkinSelection)
                 currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }

@@ -36,10 +36,12 @@ public class Tutorial : MonoBehaviour
     [SerializeField] private Image videoOutline;
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
+    [SerializeField] private Image itemFullscreenImage;
     [SerializeField] private Image itemHeaderImage;
     [SerializeField] private TextMeshProUGUI itemHeaderText;
     [SerializeField] private TextMeshProUGUI itemShortDescriptionText;
     [SerializeField] private TextMeshProUGUI itemLongDescriptionText;
+    [SerializeField] private GameObject itemDescriptionBox;
     [SerializeField] private Button itemButton;
     [SerializeField] private Image[] itemStatsImages;
     [SerializeField] private Image[] knockBackStatsImages;
@@ -135,9 +137,11 @@ public class Tutorial : MonoBehaviour
         itemRawImage.enabled = false;
         videoOutline.enabled = false;
         itemSpriteImage.enabled = false;
+        itemFullscreenImage.enabled = false;
         itemHeaderText.enabled = false;
         itemHeaderImage.enabled = false;
         itemShortDescriptionText.enabled = false;
+        itemDescriptionBox.SetActive(false);
         itemLongDescriptionText.enabled = false;
 
         // Completely flush the player when turning off UI
@@ -316,8 +320,31 @@ public class Tutorial : MonoBehaviour
         }
 
         bool hasMainImage = item.ItemMainImage != null;
-        itemMainImage.enabled = hasMainImage;
-        itemMainImage.sprite = hasMainImage ? item.ItemMainImage : null;
+        if (item.UseFullscreenImage)
+        {
+            itemDescriptionBox.SetActive(false);
+            itemMainImage.enabled = false;
+            itemLongDescriptionText.enabled = false;
+            itemShortDescriptionText.enabled = false;
+            
+            itemFullscreenImage.enabled = hasMainImage;
+
+            if (!item.IsInputImage)
+            {
+                itemFullscreenImage.GetComponent<DynamicInputIcon>().enabled = false;
+                itemFullscreenImage.sprite = hasMainImage ? item.ItemMainImage : null;
+            }
+            else
+                itemFullscreenImage.GetComponent<DynamicInputIcon>().enabled = true;
+        }
+        else
+        {
+            itemFullscreenImage.GetComponent<DynamicInputIcon>().enabled = false;
+            itemFullscreenImage.enabled = false;
+            itemFullscreenImage.sprite = null;
+            itemMainImage.enabled = hasMainImage;
+            itemMainImage.sprite = hasMainImage ? item.ItemMainImage : null;
+        }
 
         bool hasSprite = item.ItemSprite != null;
         itemSpriteImage.enabled = hasSprite;
@@ -340,16 +367,18 @@ public class Tutorial : MonoBehaviour
 
         bool hasDescription = !string.IsNullOrWhiteSpace(item.ItemDescription);
 
-        if (hasDescription)
+        if (hasDescription && !item.UseFullscreenImage)
         {
             if (currentTab == Tab.Weapons)
             {
+                itemDescriptionBox.SetActive(true);
                 itemShortDescriptionText.enabled = true;
                 itemLongDescriptionText.enabled = false;
                 itemShortDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;
             }
             else
             {
+                itemDescriptionBox.SetActive(true);
                 itemLongDescriptionText.enabled = true;
                 itemShortDescriptionText.enabled = false;
                 itemLongDescriptionText.GetComponent<LocalizeStringEvent>().StringReference = item.ItemDescriptionLocalizedString;

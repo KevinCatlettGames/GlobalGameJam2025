@@ -38,13 +38,16 @@ public class DynamicInputIcon : MonoBehaviour
 
     private void UpdateIcon(DeviceType newDeviceType)
     {
+        bool set = false;
         foreach (var binding in spriteBindings)
         {
             if (binding.deviceType == newDeviceType && binding.sprite != null)
             {
+                set = true;
                 targetImage.sprite = binding.sprite;
-                return;
             }
         }
+        if(!set)
+            targetImage.sprite = spriteBindings[0].sprite;
     }
 }
