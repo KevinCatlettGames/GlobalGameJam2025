@@ -57,6 +57,8 @@ public class WinScreenManager : MonoBehaviour
 
         int winnerCount = winnerPlayerIDs.Count;
 
+        float xPositionStart = winPanels[0].GetComponent<RectTransform>().anchoredPosition.x;
+
         for (int i = 0; i < winnerCount; i++)
         {
             int playerID = winnerPlayerIDs[i];
@@ -67,18 +69,18 @@ public class WinScreenManager : MonoBehaviour
                 .playerValuesList[playerID]
                 .Skin.Color;
 
-            //RectTransform rectTransform =
-            //    winPanels[i].GetComponent<RectTransform>();
+            RectTransform rectTransform =
+                winPanels[i].GetComponent<RectTransform>();
 
-            //float xPosition =
-            //    (i - (winnerCount - 1) / 2f)
-            //    * panelSpacing;
-
-            //rectTransform.anchoredPosition =
-            //    new Vector2(
-            //        xPosition,
-            //        rectTransform.anchoredPosition.y
-            //    );
+            float xPosition =
+                (i - (winnerCount - 1) / 2f)
+                * panelSpacing;
+            xPosition += xPositionStart;
+            rectTransform.anchoredPosition =
+                new Vector2(
+                    xPosition,
+                    rectTransform.anchoredPosition.y
+                );
 
             playerImages[i].sprite =
                 LobbyPlayerValues.Instance
