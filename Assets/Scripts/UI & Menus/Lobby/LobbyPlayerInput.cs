@@ -268,7 +268,8 @@ public class LobbyPlayerInput : NetworkBehaviour
         {
             if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == playerIndex.Value && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
             {
-                PlaySFX(true, 3);
+                LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
+                PlaySFX(false, 3);
                 return;
             }
         }
@@ -289,6 +290,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                 || AchievementSaveSystem.instance && LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement.AchievementID))
             {
                 PlaySFX(false, 3);
+                LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
                 return;
             }
 
