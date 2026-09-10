@@ -433,7 +433,8 @@ public class PlayerController : NetworkBehaviour
     public void OnGameContinue(InputAction.CallbackContext context)
     {
         if (!context.canceled) return;
- 
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !IsServer) return;
+
         if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance && !GameManager.Instance.IsResetting)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))

@@ -128,6 +128,7 @@ GameObject:
   - component: {fileID: 7944270208033461241}
   - component: {fileID: 399716310757840005}
   - component: {fileID: 8310562822458247849}
+  - component: {fileID: 6311392268940555867}
   m_Layer: 5
   m_Name: GraySkin
   m_TagString: Untagged
@@ -215,6 +216,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 9162666644922491795}
   bottomSkinSelection: {fileID: 9162666644922491795}
   skinButtonHandlerIndex: 5
+  skinAchievementIndex: 19
   selectionimages:
   - {fileID: 416429126624688448}
   - {fileID: 6467468301525868459}
@@ -236,6 +238,44 @@ MonoBehaviour:
   - {fileID: 3179517574489787288}
   - {fileID: 2104416067030955254}
   - {fileID: 6112895810840393394}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &7944270208033461241
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -299,6 +339,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6311392268940555867
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 87922726277852240}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &113567914125121028
 GameObject:
   m_ObjectHideFlags: 0
@@ -4859,6 +4930,7 @@ GameObject:
   - component: {fileID: 6997484450910582408}
   - component: {fileID: 3218072342998828307}
   - component: {fileID: 6310695434945143054}
+  - component: {fileID: 7435569744613890521}
   m_Layer: 5
   m_Name: GoldSkin
   m_TagString: Untagged
@@ -4946,6 +5018,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 5480937834500310924}
   bottomSkinSelection: {fileID: 5480937834500310924}
   skinButtonHandlerIndex: 11
+  skinAchievementIndex: 27
   selectionimages:
   - {fileID: 3206732646582280287}
   - {fileID: 2217941516650126723}
@@ -4967,6 +5040,44 @@ MonoBehaviour:
   - {fileID: 1144107297258003135}
   - {fileID: 6617874982307850460}
   - {fileID: 5758569373269765372}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &6997484450910582408
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5030,6 +5141,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7435569744613890521
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 985355772104060484}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1013717714194737723
 GameObject:
   m_ObjectHideFlags: 0
@@ -5045,6 +5187,7 @@ GameObject:
   - component: {fileID: 4595451690346265783}
   - component: {fileID: 1090762888933765430}
   - component: {fileID: 1519418969763849638}
+  - component: {fileID: 5307553620459744960}
   m_Layer: 5
   m_Name: SilverSkin
   m_TagString: Untagged
@@ -5131,6 +5274,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 4967251280525003443}
   bottomSkinSelection: {fileID: 4967251280525003443}
   skinButtonHandlerIndex: 12
+  skinAchievementIndex: 23
   selectionimages:
   - {fileID: 8891733362553395681}
   - {fileID: 4380289398297479800}
@@ -5152,6 +5296,44 @@ MonoBehaviour:
   - {fileID: 3082449051987710856}
   - {fileID: 2621281491371033975}
   - {fileID: 2320755192127033921}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &4595451690346265783
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5215,6 +5397,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &5307553620459744960
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1013717714194737723}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1027512509222612079
 GameObject:
   m_ObjectHideFlags: 0
@@ -6389,7 +6602,19 @@ MonoBehaviour:
   background: {fileID: 9186087054363878586}
   statText: {fileID: 6041408548454665747}
   useUnlocking: 1
+  fullversionRequiredLocalizer:
+    m_TableReference:
+      m_TableCollectionName: GUID:08e69019ba5fd334e94830d087f74d33
+    m_TableEntryReference:
+      m_KeyId: 109882836084187136
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   descriptionOffsetOnNoStat: {x: 0, y: -8}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &1229942651059280735
 GameObject:
   m_ObjectHideFlags: 0
@@ -7725,6 +7950,7 @@ GameObject:
   - component: {fileID: 4122844854918755838}
   - component: {fileID: 3613359802736851126}
   - component: {fileID: 6136183413696897041}
+  - component: {fileID: 7298955476029841545}
   m_Layer: 5
   m_Name: RainbowSkin
   m_TagString: Untagged
@@ -7812,6 +8038,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 2818952776058173128}
   bottomSkinSelection: {fileID: 2818952776058173128}
   skinButtonHandlerIndex: 6
+  skinAchievementIndex: 28
   selectionimages:
   - {fileID: 2869644550911453965}
   - {fileID: 6985303196959733266}
@@ -7833,6 +8060,44 @@ MonoBehaviour:
   - {fileID: 661225130412925045}
   - {fileID: 7868441254336582970}
   - {fileID: 9050074230286787356}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &4122844854918755838
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7896,6 +8161,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &7298955476029841545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1443677580309196798}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &1563296256361811739
 GameObject:
   m_ObjectHideFlags: 0
@@ -13198,6 +13494,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 7549132307484055276}
   bottomSkinSelection: {fileID: 7549132307484055276}
   skinButtonHandlerIndex: 3
+  skinAchievementIndex: -1
   selectionimages:
   - {fileID: 6901293564125016587}
   - {fileID: 8930629290569347874}
@@ -13219,6 +13516,35 @@ MonoBehaviour:
   - {fileID: 4102166975234274452}
   - {fileID: 6473134089599678290}
   - {fileID: 6520173793899972223}
+  targetTransform: {fileID: 0}
+  fadeDuration: 1.2
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &1392732136822295341
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -13381,6 +13707,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 6470399291989192890}
+  - component: {fileID: 1432299070437491998}
   m_Layer: 5
   m_Name: SkinSelection
   m_TagString: Untagged
@@ -13421,6 +13748,29 @@ RectTransform:
   m_AnchoredPosition: {x: -48.8, y: -128}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1432299070437491998
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2651273492428918811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13a5320f76ee23844820887e827c995b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  skinButtonHandlers:
+  - {fileID: 5480937834500310924}
+  - {fileID: 4967251280525003443}
+  - {fileID: 323024049296025629}
+  - {fileID: 8351800118074647536}
+  - {fileID: 6793083773003016904}
+  - {fileID: 907210832666613043}
+  - {fileID: 7549132307484055276}
+  - {fileID: 2877991444121944720}
+  - {fileID: 9162666644922491795}
+  - {fileID: 2818952776058173128}
 --- !u!1 &2657561141852859418
 GameObject:
   m_ObjectHideFlags: 0
@@ -15744,7 +16094,19 @@ MonoBehaviour:
   background: {fileID: 7756519396240021324}
   statText: {fileID: 8550501632389942249}
   useUnlocking: 1
+  fullversionRequiredLocalizer:
+    m_TableReference:
+      m_TableCollectionName: GUID:08e69019ba5fd334e94830d087f74d33
+    m_TableEntryReference:
+      m_KeyId: 109882836084187136
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   descriptionOffsetOnNoStat: {x: 0, y: -8}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &3357425931388205531
 GameObject:
   m_ObjectHideFlags: 0
@@ -16747,6 +17109,7 @@ GameObject:
   - component: {fileID: 7166520368847733897}
   - component: {fileID: 597415536780581817}
   - component: {fileID: 3282432158645619682}
+  - component: {fileID: 709069017854861748}
   m_Layer: 5
   m_Name: LightblueSkin
   m_TagString: Untagged
@@ -16834,6 +17197,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 2877991444121944720}
   bottomSkinSelection: {fileID: 2877991444121944720}
   skinButtonHandlerIndex: 4
+  skinAchievementIndex: 22
   selectionimages:
   - {fileID: 127318732019434904}
   - {fileID: 4472985176142339873}
@@ -16855,6 +17219,44 @@ MonoBehaviour:
   - {fileID: 9058223989335022691}
   - {fileID: 6004773813490072762}
   - {fileID: 6438484634073510228}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &7166520368847733897
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -16918,6 +17320,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &709069017854861748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3757805278206847706}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &3777618848095442222
 GameObject:
   m_ObjectHideFlags: 0
@@ -21400,6 +21833,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 8351800118074647536}
   bottomSkinSelection: {fileID: 8351800118074647536}
   skinButtonHandlerIndex: 0
+  skinAchievementIndex: -1
   selectionimages:
   - {fileID: 7753779746385680560}
   - {fileID: 9007780860863375788}
@@ -21421,6 +21855,35 @@ MonoBehaviour:
   - {fileID: 104110548775680222}
   - {fileID: 4622052392244606779}
   - {fileID: 7142217479010328963}
+  targetTransform: {fileID: 0}
+  fadeDuration: 1.2
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &5589370169299191933
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -22400,7 +22863,19 @@ MonoBehaviour:
   background: {fileID: 7295688226977790098}
   statText: {fileID: 3077049652952334242}
   useUnlocking: 1
+  fullversionRequiredLocalizer:
+    m_TableReference:
+      m_TableCollectionName: GUID:08e69019ba5fd334e94830d087f74d33
+    m_TableEntryReference:
+      m_KeyId: 109882836084187136
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   descriptionOffsetOnNoStat: {x: 0, y: -8}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &5109042670609465223
 GameObject:
   m_ObjectHideFlags: 0
@@ -24779,6 +25254,7 @@ GameObject:
   - component: {fileID: 7022106839410175703}
   - component: {fileID: 4360721977521070374}
   - component: {fileID: 1797889614662653107}
+  - component: {fileID: 4582307170661203332}
   m_Layer: 5
   m_Name: BlackSkin
   m_TagString: Untagged
@@ -24866,6 +25342,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 1173935743762039420}
   bottomSkinSelection: {fileID: 1173935743762039420}
   skinButtonHandlerIndex: 8
+  skinAchievementIndex: 25
   selectionimages:
   - {fileID: 4090685612381516678}
   - {fileID: 6374439185961990631}
@@ -24887,6 +25364,44 @@ MonoBehaviour:
   - {fileID: 5080000571576041375}
   - {fileID: 9190749276570169196}
   - {fileID: 1889273068278978620}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &7022106839410175703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -24950,6 +25465,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &4582307170661203332
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5482671331132835666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &5487951059786004043
 GameObject:
   m_ObjectHideFlags: 0
@@ -27834,6 +28380,7 @@ GameObject:
   - component: {fileID: 6220353664619211384}
   - component: {fileID: 7900001375773775142}
   - component: {fileID: 7908239040516392393}
+  - component: {fileID: 6413201885129675739}
   m_Layer: 5
   m_Name: WhiteSkin
   m_TagString: Untagged
@@ -27921,6 +28468,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 418398588893888619}
   bottomSkinSelection: {fileID: 418398588893888619}
   skinButtonHandlerIndex: 10
+  skinAchievementIndex: 20
   selectionimages:
   - {fileID: 8853406635023840420}
   - {fileID: 4637470897314407841}
@@ -27942,6 +28490,44 @@ MonoBehaviour:
   - {fileID: 7212554268053537106}
   - {fileID: 5015624712512346218}
   - {fileID: 5372099752560550448}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &6220353664619211384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28005,6 +28591,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &6413201885129675739
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6196135540641710568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &6230405583093245037
 GameObject:
   m_ObjectHideFlags: 0
@@ -28821,6 +29438,7 @@ GameObject:
   - component: {fileID: 4524249850188542727}
   - component: {fileID: 7421751358960034442}
   - component: {fileID: 321271389612380316}
+  - component: {fileID: 388945047939567967}
   m_Layer: 5
   m_Name: OrangeSkin
   m_TagString: Untagged
@@ -28908,6 +29526,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 2127365214805650178}
   bottomSkinSelection: {fileID: 2127365214805650178}
   skinButtonHandlerIndex: 9
+  skinAchievementIndex: 21
   selectionimages:
   - {fileID: 1192040451607620741}
   - {fileID: 4253655348395610690}
@@ -28929,6 +29548,44 @@ MonoBehaviour:
   - {fileID: 7092137944345204826}
   - {fileID: 2725257860588704381}
   - {fileID: 3016250776602683301}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &4524249850188542727
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -28992,6 +29649,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &388945047939567967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6318179314424667257}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &6351059839931108714
 GameObject:
   m_ObjectHideFlags: 0
@@ -33193,6 +33881,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 907210832666613043}
   bottomSkinSelection: {fileID: 907210832666613043}
   skinButtonHandlerIndex: 2
+  skinAchievementIndex: -1
   selectionimages:
   - {fileID: 7248627865008604524}
   - {fileID: 631997039250083971}
@@ -33214,6 +33903,35 @@ MonoBehaviour:
   - {fileID: 3929703194550374886}
   - {fileID: 1364294287399205495}
   - {fileID: 4771647940962652983}
+  targetTransform: {fileID: 0}
+  fadeDuration: 1.2
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &1918904050952019864
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -33516,6 +34234,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 6793083773003016904}
   bottomSkinSelection: {fileID: 6793083773003016904}
   skinButtonHandlerIndex: 1
+  skinAchievementIndex: -1
   selectionimages:
   - {fileID: 6665367213388792122}
   - {fileID: 2315661121479413023}
@@ -33537,6 +34256,35 @@ MonoBehaviour:
   - {fileID: 3807994819835436003}
   - {fileID: 658545690176062356}
   - {fileID: 9020734985622055229}
+  targetTransform: {fileID: 0}
+  fadeDuration: 1.2
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &8418787276452176145
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34289,6 +35037,7 @@ GameObject:
   - component: {fileID: 3696271168612925041}
   - component: {fileID: 7659998139579026238}
   - component: {fileID: 4818991885300607765}
+  - component: {fileID: 1425854622626536092}
   m_Layer: 5
   m_Name: DarkgreenSkin
   m_TagString: Untagged
@@ -34376,6 +35125,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 323024049296025629}
   bottomSkinSelection: {fileID: 323024049296025629}
   skinButtonHandlerIndex: 13
+  skinAchievementIndex: 26
   selectionimages:
   - {fileID: 6097935508657967140}
   - {fileID: 3151164301481691499}
@@ -34397,6 +35147,44 @@ MonoBehaviour:
   - {fileID: 8223947755228151637}
   - {fileID: 5336114162328528268}
   - {fileID: 2120438710123982945}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &3696271168612925041
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -34460,6 +35248,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &1425854622626536092
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7241445554553774790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &7245967230566573976
 GameObject:
   m_ObjectHideFlags: 0
@@ -38998,7 +39817,19 @@ MonoBehaviour:
   background: {fileID: 1369037308177641144}
   statText: {fileID: 1339258338892814959}
   useUnlocking: 1
+  fullversionRequiredLocalizer:
+    m_TableReference:
+      m_TableCollectionName: GUID:08e69019ba5fd334e94830d087f74d33
+    m_TableEntryReference:
+      m_KeyId: 109882836084187136
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+    m_LocalVariables: []
   descriptionOffsetOnNoStat: {x: 0, y: -8}
+  references:
+    version: 2
+    RefIds: []
 --- !u!1 &8453440338794244623
 GameObject:
   m_ObjectHideFlags: 0
@@ -39779,6 +40610,7 @@ GameObject:
   - component: {fileID: 5343979142536693557}
   - component: {fileID: 8807284305343968023}
   - component: {fileID: 1253371096147487384}
+  - component: {fileID: 2260110921184280758}
   m_Layer: 5
   m_Name: BrownSkin
   m_TagString: Untagged
@@ -39866,6 +40698,7 @@ MonoBehaviour:
   topSkinSelection: {fileID: 6157429728834435102}
   bottomSkinSelection: {fileID: 6157429728834435102}
   skinButtonHandlerIndex: 7
+  skinAchievementIndex: 24
   selectionimages:
   - {fileID: 7787525880639588219}
   - {fileID: 4300795686731304299}
@@ -39887,6 +40720,44 @@ MonoBehaviour:
   - {fileID: 7730800389236914163}
   - {fileID: 6481036344383927701}
   - {fileID: 9128714457358118387}
+  targetTransform: {fileID: 0}
+  fadeDuration: 0.5
+  colorEase:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 0.8043207
+      value: 0.39577055
+      inSlope: 1.4990854
+      outSlope: 1.4990854
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.33333334
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  startScaleMultiplier: 0.5
+  peakScaleMultiplier: 1.2
+  startRotation: -15
 --- !u!114 &5343979142536693557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39950,6 +40821,37 @@ MonoBehaviour:
   OnOutTransitionComplete:
     m_PersistentCalls:
       m_Calls: []
+--- !u!114 &2260110921184280758
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8615835549538116760}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CollisionTag: 
+  EventReference:
+    Guid:
+      Data1: 400578149
+      Data2: 1285749738
+      Data3: -942078535
+      Data4: -1015510420
+    Path: event:/ui/ui_score_killcount_sweetener
+  Event: 
+  EventPlayTrigger: 0
+  EventStopTrigger: 0
+  AllowFadeout: 1
+  TriggerOnce: 0
+  Preload: 0
+  NonRigidbodyVelocity: 0
+  Params: []
+  OverrideAttenuation: 0
+  OverrideMinDistance: 1
+  OverrideMaxDistance: 20
 --- !u!1 &8648422665955773180
 GameObject:
   m_ObjectHideFlags: 0
