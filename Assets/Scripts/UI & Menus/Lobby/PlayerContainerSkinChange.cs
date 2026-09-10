@@ -1,5 +1,4 @@
 using FMODUnity;
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -29,11 +28,6 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
 
-        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
-        }
-
         blurImage.color = initialBlurColor;
     }
 
@@ -45,6 +39,23 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     private void OnEnable()
     {
         Init();
+
+        if(IsServer)
+            Invoke(nameof(DoShare), 2f);
+    }
+
+    void DoShare()
+    {
+        if(IsServer)
+            ShareValuesToClientServerRpc();
+    }
+
+
+    [ServerRpc]
+    void ShareValuesToClientServerRpc()
+    {
+        ShareValuesClientRpc(currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
+        Invoke(nameof(DoShare), 10f);
     }
 
     void Init()
@@ -66,41 +77,18 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     }
 
 
-    private void Start()
-    {
-        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-        }
-    }
-
-    void OnClientConnectedCallback(ulong clientID)
-    {
-        if (clientID == NetworkManager.Singleton.LocalClientId) return;
-        if (!IsSpawned || !IsServer) return;
-        StartCoroutine(WaitAndShareValues(clientID));
-    }
-
-    IEnumerator WaitAndShareValues(ulong clientID)
-    {
-        yield return new WaitForSeconds(1f);
-        ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
-    }
-
-
-
     [ClientRpc]
-    void ShareValuesClientRpc(ulong clientID, int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
+    void ShareValuesClientRpc(int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
     {
-        if (NetworkManager.Singleton.LocalClientId != clientID) return;
+        if (IsServer) return;
         init = true;
         wasInit = true;
         this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
         this.currentColorIndex = currentColorIndex;
         this.currentlyOnLocked = currentlyOnLocked;
-        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
-        avatar.GetComponent<ScaleToCorrectSize>().Play();
+        this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        //avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateSkin();
         UpdateBlur();
         foreach(LobbyPlayerInput lobbyPlayerInput in LobbyManager.instance.allLobbyPlayerInputs)
