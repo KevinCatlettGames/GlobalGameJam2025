@@ -1,4 +1,5 @@
 using FMODUnity;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -30,6 +31,8 @@ public class Item : NetworkBehaviour
     [SerializeField] private ParticleSystemRenderer wrapParticleRenderer;
     [SerializeField] private ParticleSystemRenderer sparkleParticleSystem;
     [SerializeField] private ParticleSystemRenderer waveEffect;
+
+    public Action OnCollected;
 
     public override void OnNetworkSpawn()
     {
@@ -76,6 +79,10 @@ public class Item : NetworkBehaviour
         {
             StopAllCoroutines();
             ItemSpawner.Instance.currentAmount--;
+        }
+        else
+        {
+            OnCollected?.Invoke();
         }
         if (pickUpEffect != null) 
             Instantiate(pickUpEffect, transform.position, Quaternion.identity);

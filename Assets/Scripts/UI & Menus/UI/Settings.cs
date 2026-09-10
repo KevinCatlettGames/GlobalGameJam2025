@@ -290,6 +290,11 @@ public class Settings : MonoBehaviour
 
         currentTab = tab;
 
+        if (currentTab == Tab.Video)
+            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(videoButton.gameObject);
+        else if(currentTab == Tab.Audio)
+            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(audioButton.gameObject);
+
         if (!tabTogglingEnabled)
             EnableTabToggling();
 

@@ -39,6 +39,7 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private GameObject canvas;
     [SerializeField] private Transform meshParent;
     [SerializeField] private PlayerStatusIndicator statusIndicator;
+    [SerializeField] private PlayerIndicator playerIndicator;
 
     [Header("Effects")] 
     [SerializeField] private GameObject dashStartEffect;
@@ -158,6 +159,7 @@ public class PlayerController : NetworkBehaviour
     private PlayerHUD playerHUD;
     private ControllerRumbler controllerRumbler = null;
     protected bool isUsingGamepad = false;
+    public bool IsUsingGamepad { get { return isUsingGamepad; } set { isUsingGamepad = value; } }
     private float mouseInputDeadzoneRadius = 0.4f;
     private float mouseInputVectorLimit = 5f;
     private Vector3 lastPosition;
@@ -431,7 +433,8 @@ public class PlayerController : NetworkBehaviour
     public void OnGameContinue(InputAction.CallbackContext context)
     {
         if (!context.canceled) return;
- 
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !IsServer) return;
+
         if (ScoreManager.Instance.ScoresResolved && GameManager.Instance.IsReadyToRestart && !WinScreenManager.Instance && !GameManager.Instance.IsResetting)
         {
             if (!MapRotationSystem.Instance.CheckForMapSwitch(GameManager.Instance.FinishedRoundCount))
@@ -1628,6 +1631,7 @@ public class PlayerController : NetworkBehaviour
         float animationTime = 1.06f; //Duration of entrance animation
         yield return new WaitForSeconds(0.4f); //Time when player hits the ground
         canvas.SetActive(true);
+        playerIndicator?.ToggleIndicator(true);
         yield return new WaitForSeconds(animationTime - 0.4f);
         if (!trail.isPlaying)
             trail.Play();
@@ -1638,6 +1642,8 @@ public class PlayerController : NetworkBehaviour
     public void ToggleInput(bool input)
     {
         inputEnabled = input;
+        if (input)
+            playerIndicator?.ToggleIndicator(false);
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -1721,6 +1727,7 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
+        playerIndicator?.InitialiseIndicator(skinObject.Color, playerID);
         if (dropInJoin)
         {
             StartCoroutine(EntranceCoroutine(true));

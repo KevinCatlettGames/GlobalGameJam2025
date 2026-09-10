@@ -27,7 +27,6 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private float shakeAmplitude = 2f;
     [SerializeField] private RectTransform firstSpellTransform;
     [SerializeField] private RectTransform secondSpellTransform;
-    [SerializeField] private Animator highDamageIndicator;
     [SerializeField] private float highDamageThreshold = 100f;
     private Coroutine firstSpellShake;
     private Coroutine secondSpellShake;
@@ -42,6 +41,7 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private Image portrait;
     [SerializeField] private Color deathColor;
     [SerializeField] private SkinSO skin;
+    [SerializeField] private TextMeshProUGUI playerIndicatorText;
     public SkinSO Skin { get { return skin; } }
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
@@ -109,20 +109,23 @@ public class PlayerHUD : NetworkBehaviour
             {
                 foreach (var uiElement in coloredUI)
                     uiElement.color = LobbyManager.instance.TeamColors[0];
+                playerIndicatorText.color = LobbyManager.instance.TeamColors[0];
             }
             else if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 2)
             {
                 foreach (var uiElement in coloredUI)
                     uiElement.color = LobbyManager.instance.TeamColors[1];
+                playerIndicatorText.color = LobbyManager.instance.TeamColors[1];
             }
         }
         else
         {
             foreach (var uiElement in coloredUI)
                 uiElement.color = skin.Color;
+            playerIndicatorText.color = skin.Color;
         }
-
         portraitSprites = skin.HeadSprites;
+        playerIndicatorText.text = "P" + (playerID + 1);
         SetPortrait(0);
     }
     public void InitialisePlayerHUD(SkinSO skin)
@@ -132,6 +135,7 @@ public class PlayerHUD : NetworkBehaviour
         {
             uiElement.color = skin.Color;
         }
+        playerIndicatorText.color = skin.Color;
         portraitSprites = skin.HeadSprites;
         SetPortrait(0);
     }
@@ -249,8 +253,6 @@ public class PlayerHUD : NetworkBehaviour
         if (damage >= highDamageThreshold && currentPortraitIndex != 2 && !isDummy)
         {
             SetPortrait(1);
-            //if (highDamageIndicator != null)
-            //    highDamageIndicator.SetBool("hasHighDamage", true);
         }
     }
 
@@ -259,7 +261,6 @@ public class PlayerHUD : NetworkBehaviour
         if (isDummy) return;
         SetPortrait(2);
         UICover.SetActive(true);
-        //highDamageIndicator.SetBool("hasHighDamage", false);
         if (maxLifes != -1 && maxLifes > 1)
         {
             lifes--;
@@ -290,7 +291,6 @@ public class PlayerHUD : NetworkBehaviour
         SetPortrait(0);
         ChargeUlt(false);
         SetUltSlider(0);
-        //highDamageIndicator.SetBool("hasHighDamage", false);
     }
 
     private void SetPortrait(int portaritIndex)

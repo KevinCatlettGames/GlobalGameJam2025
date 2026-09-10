@@ -1,4 +1,5 @@
 using EditorAttributes;
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,6 +12,10 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private const string ACHIEV_SAVE_PREFIX = "Ach_";
     private const string STAT_SAVE_PREFIX = "AchStat_";
+
+    public Action<int> OnAchievementUnlocked;
+
+    public List<int> pendingLobbyUnlocks = new List<int>();
 
     private void Awake()
     {
@@ -47,7 +52,6 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private void HandleSteamStatsReady()
     {
-        //Debug.Log("Syncing local stats and achievements with Steam...");
         SyncAchievementsFromPlatform();
     }
 
@@ -103,7 +107,6 @@ public class AchievementSaveSystem : MonoBehaviour
         if (steamUpdated)
         {
             Steamworks.SteamUserStats.StoreStats();
-            //Debug.Log("Offline progress successfully pushed to Steam!");
         }
 #endif
     }
@@ -114,10 +117,17 @@ public class AchievementSaveSystem : MonoBehaviour
     {
         if (index < 0 || index >= achievementList.Count) return;
 
+        if (IsAchievementUnlocked(index)) return;
+
         SO_Achievement ach = achievementList[index];
 
         SetLocalAchievementState(ach.AchievementName, true);
         PlayerPrefs.Save();
+
+        if (!pendingLobbyUnlocks.Contains(index))
+        {
+            pendingLobbyUnlocks.Add(index);
+        }
 
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
@@ -125,8 +135,7 @@ public class AchievementSaveSystem : MonoBehaviour
             SteamIntegration.instance.UnlockAchievement(index);
         }
 #endif
-
-        //Debug.Log($"Achievement Unlocked: {ach.AchievementName}");
+        OnAchievementUnlocked?.Invoke(index);
     }
 
     [Button]
@@ -135,7 +144,6 @@ public class AchievementSaveSystem : MonoBehaviour
         if (index < 0 || index >= achievementList.Count) return false;
 
         string key = ACHIEV_SAVE_PREFIX + achievementList[index].AchievementName;
-        //Debug.Log("Achievement is: " + PlayerPrefs.GetInt(key));
         return PlayerPrefs.GetInt(key, 0) == 1;
     }
 
@@ -153,6 +161,7 @@ public class AchievementSaveSystem : MonoBehaviour
         SO_Achievement ach = achievementList[index];
 
         SetLocalAchievementState(ach.AchievementName, false);
+        pendingLobbyUnlocks.Remove(index);
         PlayerPrefs.Save();
 
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
@@ -161,8 +170,19 @@ public class AchievementSaveSystem : MonoBehaviour
             SteamIntegration.instance.ClearAchievement(index);
         }
 #endif
+    }
 
-        //Debug.Log($"Achievement Cleared: {ach.AchievementName}");
+    #endregion
+
+    #region Pending Session Unlocks (For Lobby Animations)
+
+    public bool HasPendingUnlocks() => pendingLobbyUnlocks.Count > 0;
+
+    public List<int> ConsumePendingUnlocks()
+    {
+        List<int> unlocksToReturn = new List<int>(pendingLobbyUnlocks);
+        pendingLobbyUnlocks.Clear();
+        return unlocksToReturn;
     }
 
     #endregion
@@ -223,6 +243,7 @@ public class AchievementSaveSystem : MonoBehaviour
     [Button]
     public void ClearAllAchievements()
     {
+        pendingLobbyUnlocks.Clear();
         for (int i = 0; i < achievementList.Count; i++)
         {
             SO_Achievement ach = achievementList[i];
@@ -241,14 +262,13 @@ public class AchievementSaveSystem : MonoBehaviour
 #endif
         }
         PlayerPrefs.Save();
-        //Debug.Log("All achievements and stats cleared.");
     }
     #endregion
 
 #if UNITY_EDITOR
     public void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Keypad0))
+        if (Input.GetKeyDown(KeyCode.Keypad0))
             UnlockAllAchievements();
         if (Input.GetKeyDown(KeyCode.Keypad1))
             ClearAllAchievements();

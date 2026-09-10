@@ -45,17 +45,18 @@ public class Clam : MonoBehaviour
         //Effects
         //Sound
         IsAvailble = false;
+        clamItem.gameObject.SetActive(false);
         int r = Random.Range(0, materials.Length);
         meshRenderer.material = materials[r];
-        clamItem.gameObject.SetActive(true);
 
+        animator.Play("Rise");
+        yield return new WaitForSeconds(activeDelay);
+        clamItem.gameObject.SetActive(true);
+        riseParticleSystem?.Play();
         if(NetworkManager.Singleton.IsServer)
             clamItem.SetupSpellClientRpc(ItemSpawner.Instance.GetRandomLegalSpellID());
-
-        riseParticleSystem?.Play();
-        animator.Play("Rise");
         pearlAnimator.Play("Rise");
-        yield return new WaitForSeconds(activeDelay);
+
         isActive = true;
     }
 

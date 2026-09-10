@@ -626,6 +626,7 @@ public class BasicBubble : NetworkBehaviour
 
         foreach (var col in GetComponentsInChildren<Collider>(true))
         {
+            if (GetComponent<WallBubble>() && !isLocalFake) break;
             col.enabled = false;
         }
 
