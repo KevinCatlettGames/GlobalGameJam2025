@@ -1,4 +1,6 @@
-﻿using Steamworks;
+﻿using FMODUnity;
+using Steamworks;
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -12,6 +14,7 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinButtonHandler bottomSkinSelection;
 
     public int skinButtonHandlerIndex = -1;
+    public int skinAchievementIndex = -1;
     public Image[] selectionimages;
     public TextMeshProUGUI[] selectionTexts;
 
@@ -34,15 +37,42 @@ public class SkinButtonHandler : MonoBehaviour
 
     PlayerContainerManager currentPlayerContainerManager;
 
+    Coroutine fadeCoroutine;
+
+    [Header("Target Components")]
+    [SerializeField] private RectTransform targetTransform;
+
+    [Header("Animation Settings")]
+    [SerializeField] private float fadeDuration = 1.2f;
+    [SerializeField] private AnimationCurve colorEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
+
+    [Header("Impact Juice (Relative Scale Multipliers)")]
+    [SerializeField] private float startScaleMultiplier = 0.5f;
+    [SerializeField] private float peakScaleMultiplier = 1.2f;
+    [SerializeField] private float startRotation = -15f;
+
+    // Cached initial scale to preserve aspect ratio & UI layout
+    private Vector3 baseLocalScale;
+
     private void Awake()
     {
         originalScale = transform.localScale;
         isHovering = new bool[selectionimages.Length];
+
+        if (targetTransform == null && skinImage != null)
+        {
+            targetTransform = skinImage.rectTransform;
+        }
+
+        if (targetTransform != null)
+        {
+            baseLocalScale = targetTransform.localScale;
+        }
     }
 
     private void OnEnable()
     {
-        if (didFirstInit) return; 
+        if (didFirstInit) return;
 
         foreach (Image image in selectionimages)
         {
@@ -61,7 +91,7 @@ public class SkinButtonHandler : MonoBehaviour
         }
         else
         {
-            skinImage.color = Color.white; 
+            skinImage.color = Color.white;
             GetComponent<Image>().color = standardImageColor;
         }
         didFirstInit = true;
@@ -85,7 +115,7 @@ public class SkinButtonHandler : MonoBehaviour
                 activePlayers.Add(playerIndex);
         }
         else
-        {      
+        {
             activePlayers.Remove(playerIndex);
         }
 
@@ -158,7 +188,7 @@ public class SkinButtonHandler : MonoBehaviour
         {
             if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
             {
-                skinImage.color = Color.black; 
+                skinImage.color = Color.black;
                 GetComponent<Image>().color = disabledColor;
             }
             else
@@ -190,5 +220,85 @@ public class SkinButtonHandler : MonoBehaviour
 
         for (int i = 0; i < isHovering.Length; i++)
             isHovering[i] = false;
+    }
+
+    public void PerformUnlockAnimation()
+    {
+        if (fadeCoroutine != null)
+        {
+            StopCoroutine(fadeCoroutine);
+        }
+
+        if (targetTransform == null && skinImage != null)
+        {
+            targetTransform = skinImage.rectTransform;
+            baseLocalScale = targetTransform.localScale;
+        }
+
+        fadeCoroutine = StartCoroutine(AnimateUnlockSequence());
+    }
+
+    private IEnumerator AnimateUnlockSequence()
+    {
+        GetComponent<StudioEventEmitter>().Play();
+        Vector3 startScale = baseLocalScale * startScaleMultiplier;
+        Vector3 peakScale = baseLocalScale * peakScaleMultiplier;
+
+        skinImage.color = Color.black;
+        Image buttonBg = GetComponent<Image>();
+        if (buttonBg != null)
+        {
+            buttonBg.color = disabledColor;
+        }
+
+        targetTransform.localScale = startScale;
+        targetTransform.localRotation = Quaternion.Euler(0, 0, startRotation);
+
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeDuration)
+        {
+            elapsedTime += Time.deltaTime;
+            float rawProgress = Mathf.Clamp01(elapsedTime / fadeDuration);
+
+            float easedProgress = colorEase.Evaluate(rawProgress);
+
+            skinImage.color = Color.Lerp(Color.black, Color.white, easedProgress);
+            if (buttonBg != null)
+            {
+                buttonBg.color = Color.Lerp(disabledColor, standardImageColor, easedProgress);
+            }
+
+            if (rawProgress < 0.7f)
+            {
+                float popProgress = rawProgress / 0.7f;
+                targetTransform.localScale = Vector3.Lerp(startScale, peakScale, Mathf.Sin(popProgress * Mathf.PI * 0.5f));
+            }
+            else
+            {
+                float settleProgress = (rawProgress - 0.7f) / 0.3f;
+                targetTransform.localScale = Vector3.Lerp(peakScale, baseLocalScale, settleProgress);
+            }
+
+            targetTransform.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(startRotation, 0f, easedProgress));
+
+            yield return null;
+        }
+
+        skinImage.color = Color.white;
+        if (buttonBg != null)
+        {
+            buttonBg.color = standardImageColor;
+        }
+        targetTransform.localScale = baseLocalScale;
+        targetTransform.localRotation = Quaternion.identity;
+
+        fadeCoroutine = null;
+    }
+
+    public void ActDisabled()
+    {
+        skinImage.color = Color.black;
+        GetComponent<Image>().color = disabledColor;
     }
 }
