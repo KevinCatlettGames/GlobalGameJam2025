@@ -48,11 +48,15 @@ public class SnipeBubble : BasicBubble
                 Pop();
                 return;
             }
+            else
+            {
+                //Penetration Achivement
+            }
         }
      
         if (other.CompareTag("Player"))
         {
-            if (currentDamage >= maxDamage)
+            if (currentDamage >= critThreshold)
             {
                 CheckMaxSniperDamageAchievement();
             }
