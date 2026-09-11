@@ -7,7 +7,7 @@ public class UnlockPendingSkinsManager : MonoBehaviour
 {
     [SerializeField] SkinButtonHandler[] skinButtonHandlers; 
     AchievementSaveSystem achievementSaveSystem;
-
+    [SerializeField] float durationUntilNext = 1f;
     private void Awake()
     {
         achievementSaveSystem = AchievementSaveSystem.instance;
@@ -51,7 +51,7 @@ public class UnlockPendingSkinsManager : MonoBehaviour
             foreach (SkinButtonHandler skinButtonHandler in skinsToUnlock)
             {
                 skinButtonHandler.PerformUnlockAnimation();
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(durationUntilNext);
             }
         }
     }

@@ -40,19 +40,39 @@ public class SkinButtonHandler : MonoBehaviour
     Coroutine fadeCoroutine;
 
     [Header("Target Components")]
+    [Tooltip("The RectTransform that gets animated during the unlock pop (defaults to skinImage if left empty).")]
     [SerializeField] private RectTransform targetTransform;
 
+    [Tooltip("Optional GameObject for a 'New Unlock' star/badge sprite that turns on during the reveal phase.")]
+    [SerializeField] private GameObject unlockStarBadge;
+
     [Header("Animation Settings")]
-    [SerializeField] private float fadeDuration = 1.2f;
+    [Tooltip("Duration of the scale-up phase while remaining silhouetted (Black).")]
+    [SerializeField] private float scaleUpDuration = 0.35f;
+
+    [Tooltip("Duration to hold at peak scale while revealed (White) before scaling back down.")]
+    [SerializeField] private float revealHoldDuration = 0.5f;
+
+    [Tooltip("Duration of the scale-down settle phase back to base size.")]
+    [SerializeField] private float scaleDownDuration = 0.25f;
+
+    [Tooltip("Easing curve controlling background color transition and rotation snap/smoothing over time.")]
     [SerializeField] private AnimationCurve colorEase = AnimationCurve.EaseInOut(0, 0, 1, 1);
 
     [Header("Impact Juice (Relative Scale Multipliers)")]
+    [Tooltip("Starting scale multiplier relative to base scale when the animation starts (e.g., 0.5 = 50% size).")]
     [SerializeField] private float startScaleMultiplier = 0.5f;
-    [SerializeField] private float peakScaleMultiplier = 1.2f;
+
+    [Tooltip("Maximum scale multiplier reached during the pop phase (e.g., 1.25 = 125% size).")]
+    [SerializeField] private float peakScaleMultiplier = 1.25f;
+
+    [Tooltip("Initial Z-rotation offset in degrees when the animation begins (e.g., -15 degrees tilt).")]
     [SerializeField] private float startRotation = -15f;
 
     // Cached initial scale to preserve aspect ratio & UI layout
     private Vector3 baseLocalScale;
+    private Vector3 starBaseScale = Vector3.one;
+    private RectTransform starTransform;
 
     private void Awake()
     {
@@ -67,6 +87,16 @@ public class SkinButtonHandler : MonoBehaviour
         if (targetTransform != null)
         {
             baseLocalScale = targetTransform.localScale;
+        }
+
+        if (unlockStarBadge != null)
+        {
+            starTransform = unlockStarBadge.GetComponent<RectTransform>();
+            if (starTransform != null)
+            {
+                starBaseScale = starTransform.localScale;
+            }
+            unlockStarBadge.SetActive(false);
         }
     }
 
@@ -206,6 +236,12 @@ public class SkinButtonHandler : MonoBehaviour
         skinImage.color = Color.white;
         GetComponent<Image>().color = standardImageColor;
 
+        if (unlockStarBadge != null)
+        {
+            if (starTransform != null) starTransform.localScale = starBaseScale;
+            unlockStarBadge.SetActive(false);
+        }
+
         foreach (Image image in selectionimages)
         {
             image.enabled = false;
@@ -244,6 +280,7 @@ public class SkinButtonHandler : MonoBehaviour
         Vector3 startScale = baseLocalScale * startScaleMultiplier;
         Vector3 peakScale = baseLocalScale * peakScaleMultiplier;
 
+        // Phase 0: Lock initial silhouette state
         skinImage.color = Color.black;
         Image buttonBg = GetComponent<Image>();
         if (buttonBg != null)
@@ -254,37 +291,71 @@ public class SkinButtonHandler : MonoBehaviour
         targetTransform.localScale = startScale;
         targetTransform.localRotation = Quaternion.Euler(0, 0, startRotation);
 
-        float elapsedTime = 0f;
-
-        while (elapsedTime < fadeDuration)
+        if (unlockStarBadge != null)
         {
-            elapsedTime += Time.deltaTime;
-            float rawProgress = Mathf.Clamp01(elapsedTime / fadeDuration);
+            if (starTransform != null) starTransform.localScale = starBaseScale;
+            unlockStarBadge.GetComponent<Image>().color = standardImageColor;
+            unlockStarBadge.SetActive(true);
+        }
 
-            float easedProgress = colorEase.Evaluate(rawProgress);
+        // =========================================================================
+        // PHASE 1: Scale up to peak as a black silhouette
+        // =========================================================================
+        float t = 0f;
+        while (t < scaleUpDuration)
+        {
+            t += Time.deltaTime;
+            float p = scaleUpDuration > 0f ? Mathf.Clamp01(t / scaleUpDuration) : 1f;
 
-            skinImage.color = Color.Lerp(Color.black, Color.white, easedProgress);
-            if (buttonBg != null)
-            {
-                buttonBg.color = Color.Lerp(disabledColor, standardImageColor, easedProgress);
-            }
-
-            if (rawProgress < 0.7f)
-            {
-                float popProgress = rawProgress / 0.7f;
-                targetTransform.localScale = Vector3.Lerp(startScale, peakScale, Mathf.Sin(popProgress * Mathf.PI * 0.5f));
-            }
-            else
-            {
-                float settleProgress = (rawProgress - 0.7f) / 0.3f;
-                targetTransform.localScale = Vector3.Lerp(peakScale, baseLocalScale, settleProgress);
-            }
-
-            targetTransform.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(startRotation, 0f, easedProgress));
+            targetTransform.localScale = Vector3.Lerp(startScale, peakScale, Mathf.Sin(p * Mathf.PI * 0.5f));
+            targetTransform.localRotation = Quaternion.Euler(0, 0, Mathf.Lerp(startRotation, 0f, p));
 
             yield return null;
         }
 
+        // Snap to exact peak transform state
+        targetTransform.localScale = peakScale;
+        targetTransform.localRotation = Quaternion.identity;
+
+        // =========================================================================
+        // REVEAL MOMENT: Switch to full color & pop open star badge
+        // =========================================================================
+        skinImage.color = Color.white;
+        if (buttonBg != null)
+        {
+            buttonBg.color = standardImageColor;
+        }
+
+        // =========================================================================
+        // PHASE 2: Hold at peak scale for the reveal moment
+        // =========================================================================
+        if (revealHoldDuration > 0f)
+        {
+            yield return new WaitForSeconds(revealHoldDuration);
+        }
+
+        // =========================================================================
+        // PHASE 3: Settle skin scale down & shrink star down to 0 before disabling
+        // =========================================================================
+        t = 0f;
+        while (t < scaleDownDuration)
+        {
+            t += Time.deltaTime;
+            float p = scaleDownDuration > 0f ? Mathf.Clamp01(t / scaleDownDuration) : 1f;
+
+            // Scale down skin target transform
+            targetTransform.localScale = Vector3.Lerp(peakScale, baseLocalScale, p);
+
+            // Scale down star badge transform concurrently
+            if (starTransform != null && unlockStarBadge.activeSelf)
+            {
+                starTransform.localScale = Vector3.Lerp(starBaseScale, Vector3.zero, p);
+            }
+
+            yield return null;
+        }
+
+        // Ensure final baseline integrity & clean up star state
         skinImage.color = Color.white;
         if (buttonBg != null)
         {
@@ -292,6 +363,12 @@ public class SkinButtonHandler : MonoBehaviour
         }
         targetTransform.localScale = baseLocalScale;
         targetTransform.localRotation = Quaternion.identity;
+
+        if (unlockStarBadge != null)
+        {
+            unlockStarBadge.SetActive(false);
+            if (starTransform != null) starTransform.localScale = starBaseScale; // Reset base scale for future use
+        }
 
         fadeCoroutine = null;
     }

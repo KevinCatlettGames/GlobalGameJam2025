@@ -40,14 +40,13 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     {
         Init();
 
-        if(IsServer)
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay)
             Invoke(nameof(DoShare), 2f);
     }
 
     void DoShare()
     {
-        if(IsServer)
-            ShareValuesToClientServerRpc();
+        ShareValuesToClientServerRpc();
     }
 
 
@@ -114,11 +113,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentlyOnLocked = isSkinLocked(skinToUse);
         playerTextImage.color = skinToUse.Color;
         avatar.sprite = skinToUse.SplashArt;
-
-        if (currentlyOnLocked)
-            avatar.color = Color.gray;
-        else
-            avatar.color = Color.white;
+        ApplySkinVisuals();
     }
 
     public void SwapColorWithIncrementation(bool increment)
