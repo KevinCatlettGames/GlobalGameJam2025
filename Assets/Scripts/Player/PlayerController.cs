@@ -671,6 +671,10 @@ public class PlayerController : NetworkBehaviour
 
     #region Spell Equip
 
+    public bool HasTwoSpells()
+    {
+        return firstSpell != null && secondSpell != null;
+    }
     private SO_Spell FindSpellByIndex(int spellIndex)
     {
         return ItemSpawner.Instance.GetSpellByIndex(spellIndex);
