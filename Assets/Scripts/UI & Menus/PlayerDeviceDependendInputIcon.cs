@@ -49,7 +49,7 @@ public class PlayerDeviceDependendInputIcon : MonoBehaviour
         deviceType = DeviceType.Xbox;
         UpdateIcon(deviceType);
         return;
-#endif
+#else
 
         if (device is Keyboard || device is Mouse)
         {
@@ -65,6 +65,7 @@ public class PlayerDeviceDependendInputIcon : MonoBehaviour
         }
 
         UpdateIcon(deviceType);
+#endif
     }
 
     private void UpdateIcon(DeviceType newDeviceType)

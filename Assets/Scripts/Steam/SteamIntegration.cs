@@ -238,7 +238,7 @@ public class SteamIntegration : MonoBehaviour
 
             if (newValue < threshold)
             {
-                SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
+                //SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
             }
 
             SteamUserStats.StoreStats();
