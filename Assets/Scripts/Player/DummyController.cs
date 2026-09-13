@@ -8,13 +8,24 @@ public class DummyController : PlayerController
     [SerializeField] private SkinSO skin;
     [SerializeField] private PlayerHUD dummyPlayerHUD;
     [SerializeField] private float resetDelay = 3f;
+    [SerializeField] private bool autoStart = true;
     private float moveTimer = 0;
     private int positionIndex = 0;
 
     private void Start()
     {
+        controller = GetComponent<CharacterController>();
+        if (autoStart) 
+            StartDummy();
+        else
+            controller.enabled = false;
+    }
+
+    public void StartDummy()
+    {
         SetUpPlayer(5, dummyPlayerHUD, null, skin, true);
         controller = GetComponent<CharacterController>();
+        controller.enabled = true;
         SetSpells(0, 0);
         isUsingGamepad = true;
         base.Start();
