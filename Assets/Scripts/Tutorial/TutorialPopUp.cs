@@ -9,6 +9,7 @@ using UnityEngine.InputSystem.UI;
 public class TutorialPopUp : MonoBehaviour
 {
     [SerializeField] private GameObject popUp;
+    [SerializeField] private GameObject inMapPopUp;
     [SerializeField] private GameObject closePrompt;
     [SerializeField] private DummyController dummy;
 
@@ -59,6 +60,7 @@ public class TutorialPopUp : MonoBehaviour
         players = PlayerManager.Instance.GetPlayers();
         isDone = true;
         Time.timeScale = 1f;
+        inMapPopUp.SetActive(true);
     }
     public bool CheckForDummySpawn()
     {
