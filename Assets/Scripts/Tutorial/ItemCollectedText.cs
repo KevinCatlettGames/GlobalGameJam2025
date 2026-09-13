@@ -3,7 +3,7 @@ using UnityEngine;
 public class ItemCollectedText : MonoBehaviour
 {
     [SerializeField] Item[] items;
-    [SerializeField] private GameObject canvas;
+    [SerializeField] private TutorialTextBox tutorialTextBox;
     [SerializeField] private TutorialPopUp tutorialPopUp;
     private bool isActive = false;
 
@@ -22,7 +22,7 @@ public class ItemCollectedText : MonoBehaviour
         if (tutorialPopUp.CheckForDummySpawn())
         {
             isActive = true;
-            canvas.SetActive(true);
+            tutorialTextBox.AdvanceTextBox();
             foreach (Item item in items)
             {
                 item.OnCollected -= EnableText;
