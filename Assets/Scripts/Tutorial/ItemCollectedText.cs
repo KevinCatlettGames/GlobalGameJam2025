@@ -4,6 +4,7 @@ public class ItemCollectedText : MonoBehaviour
 {
     [SerializeField] Item[] items;
     [SerializeField] private GameObject canvas;
+    [SerializeField] private TutorialPopUp tutorialPopUp;
     private bool isActive = false;
 
     private void Start()
@@ -18,11 +19,14 @@ public class ItemCollectedText : MonoBehaviour
     {
         if (isActive)
             return;
-        isActive = true;
-        canvas.SetActive(true);
-        foreach (Item item in items)
+        if (tutorialPopUp.CheckForDummySpawn())
         {
-            item.OnCollected -= EnableText;
+            isActive = true;
+            canvas.SetActive(true);
+            foreach (Item item in items)
+            {
+                item.OnCollected -= EnableText;
+            }
         }
     }
 
