@@ -2,7 +2,6 @@ using System;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.DualShock;
-using UnityEngine.InputSystem.Switch;
 using UnityEngine.InputSystem.XInput;
 using UnityEngine.UI;
 
@@ -42,6 +41,12 @@ public class PlayerDeviceDependendInputIcon : MonoBehaviour
 
 #if UNITY_SWITCH
         deviceType = DeviceType.Joycon;
+        UpdateIcon(deviceType);
+        return;
+#endif
+
+#if UNITY_STANDALONE_LINUX
+        deviceType = DeviceType.Xbox;
         UpdateIcon(deviceType);
         return;
 #endif

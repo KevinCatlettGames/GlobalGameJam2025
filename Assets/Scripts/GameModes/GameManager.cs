@@ -67,7 +67,7 @@ public class GameManager : NetworkBehaviour
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
 
     // Achievement Tracking State
-    private float multiKillTimeWindow = 10f;
+    private float multiKillTimeWindow = 5f;
     private Dictionary<int, List<float>> playerKillTimestamps = new Dictionary<int, List<float>>();
     private int[] rapidShotHitStreaks = new int[maxPlayers];
     private Dictionary<int, NunchuckCastTracker> playerNunchuckTrackers = new Dictionary<int, NunchuckCastTracker>();
@@ -187,6 +187,7 @@ public class GameManager : NetworkBehaviour
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
+        killsPerPlayerInRound = new int[3];
         ItemSpawner.Instance.InitialSpawn();
     }
 
@@ -216,7 +217,7 @@ public class GameManager : NetworkBehaviour
             hitReference.wasSlippery = false;
             hitReference.wasReflected = false;
         }
-
+        killsPerPlayerInRound = new int[3];
         isReadyToRestart = true;
     }
 
@@ -228,6 +229,7 @@ public class GameManager : NetworkBehaviour
         IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         ResetRapidShotStreaks();
+        killsPerPlayerInRound = new int[3];
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -246,6 +248,7 @@ public class GameManager : NetworkBehaviour
         IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         Invoke(nameof(EnableDeathzonesServerRpc), .5f);
+        killsPerPlayerInRound = new int[3];
     }
 
     public SO_GameSettings GetGameSettings() => gameSettings;
@@ -615,7 +618,7 @@ public class GameManager : NetworkBehaviour
 
         rapidShotHitStreaks[index]++;
 
-        if (rapidShotHitStreaks[index] >= 8)
+        if (rapidShotHitStreaks[index] >= 16)
         {
             AchievementSaveSystem.instance.UnlockAchievement(2);
             rapidShotHitStreaks[index] = 0;

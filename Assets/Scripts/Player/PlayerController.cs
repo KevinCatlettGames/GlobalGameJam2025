@@ -64,7 +64,7 @@ public class PlayerController : NetworkBehaviour
     private Coroutine firstSpellCoroutine;
     private Coroutine secondSpellCoroutine;
     private int pickedUpSpellsAmount = 0;
-    private List<SO_Spell> usedSpell = new List<SO_Spell>();
+    public List<SO_Spell> usedSpell = new List<SO_Spell>();
     private List<BasicBubble> activeLocalFakes = new List<BasicBubble>();
     private int localSpellCounter = 0;
 
