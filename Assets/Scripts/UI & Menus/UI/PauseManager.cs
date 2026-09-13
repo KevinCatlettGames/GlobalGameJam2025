@@ -1,16 +1,16 @@
+using System.Collections;
+using System.Threading.Tasks;
 using FMODUnity;
 using Unity.Netcode;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
-using Unity.Services.Lobbies;
-using Unity.Services.Authentication;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using System.Threading.Tasks;
-using System.Collections;
+using UnityEngine.SceneManagement;
 
-public class PauseManager : MonoBehaviour
+public class PauseManager : NetworkBehaviour
 {
     public static PauseManager Instance;
 
@@ -19,6 +19,7 @@ public class PauseManager : MonoBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
+    [SerializeField] private GameObject restartButton; // Reference to hide/disable restart for non-hosts
     [SerializeField] private SO_Scores scores;
 
     [Header("Input Settings")]
@@ -38,6 +39,17 @@ public class PauseManager : MonoBehaviour
     {
         if (Instance == null)
             Instance = this;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        // Dynamically hide/disable the restart button for connected clients (non-hosts)
+        if (restartButton != null && !GameManager.Instance.PlayingLocal)
+        {
+            restartButton.SetActive(IsServer || IsHost());
+        }
     }
 
     private void Start()
@@ -68,13 +80,27 @@ public class PauseManager : MonoBehaviour
     private void OnEnable()
     {
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
+
+            if (NetworkManager.Singleton.SceneManager != null)
+            {
+                NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
+            }
+        }
     }
 
     private void OnDisable()
     {
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+
+            if (NetworkManager.Singleton.SceneManager != null)
+            {
+                NetworkManager.Singleton.SceneManager.OnSceneEvent -= OnSceneEvent;
+            }
+        }
     }
 
     private void OnDestroy()
@@ -194,26 +220,41 @@ public class PauseManager : MonoBehaviour
         ReturnToMainMenu();
     }
 
+    private void OnSceneEvent(SceneEvent sceneEvent)
+    {
+        // When scene loading finishes for clients, handle un-fading if needed
+        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+        {
+            GameManager.IsGamePaused = false;
+            Time.timeScale = 1f;
+        }
+    }
+
     public void RestartGame()
     {
+        // ONLY allow Host / Server to trigger restart
+        if (!GameManager.Instance.PlayingLocal && !IsServer && !IsHost()) return;
         if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !NetworkManager.Singleton.IsServer) return;
 
         GameManager.IsGamePaused = false;
-        scores.ResetKills();
-        scores.ResetWins();
 
-        if (GameManager.Instance.PlayingLocal)
+        if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
         {
             Time.timeScale = 1f;
+            if (scores != null)
+            {
+                scores.ResetKills();
+                scores.ResetWins();
+            }
+
             if (MenuTransitionHandler.Instance)
             {
-                MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
+                MenuTransitionHandler.Instance.OnFadeComplete += LoadMapLocal;
                 MenuTransitionHandler.Instance.TriggerFade();
             }
             else
             {
-                LoadMap();
+                LoadMapLocal();
             }
         }
         else
@@ -225,36 +266,66 @@ public class PauseManager : MonoBehaviour
     [ServerRpc(RequireOwnership = false)]
     private void RestartGameServerRpc()
     {
+        if (!IsServer) return;
+
         Time.timeScale = 1f;
 
+        // Reset scores and trigger fade out on all connected clients
+        ResetScoresClientRpc();
+        TriggerTransitionClientRpc();
+
+        // Trigger fade out locally on the host
         if (MenuTransitionHandler.Instance)
         {
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsServer)
-                TriggerTransitionClientRpc();
-
-            MenuTransitionHandler.Instance.OnFadeComplete += LoadMap;
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadMapServer;
             MenuTransitionHandler.Instance.TriggerFade();
         }
         else
         {
-            LoadMap();
+            LoadMapServer();
         }
     }
 
     [ClientRpc]
     private void TriggerTransitionClientRpc()
     {
-        MenuTransitionHandler.Instance.TriggerFade();
+        // Skip host so it doesn't execute twice
+        if (IsServer) return;
+
+        Time.timeScale = 1f;
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
     }
 
-    private void LoadMap()
+    [ClientRpc]
+    public void ResetScoresClientRpc()
     {
-        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+        if (scores != null)
+        {
+            scores.ResetKills();
+            scores.ResetWins();
+        }
+    }
 
+    private void LoadMapServer()
+    {
         if (MenuTransitionHandler.Instance)
-            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMap;
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMapServer;
 
-        NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        }
+    }
+
+    private void LoadMapLocal()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMapLocal;
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
     }
 
     public void QuitGame()
@@ -340,6 +411,6 @@ public class PauseManager : MonoBehaviour
 
     private bool IsHost()
     {
-        return NetworkManager.Singleton.IsHost;
+        return NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
     }
 }

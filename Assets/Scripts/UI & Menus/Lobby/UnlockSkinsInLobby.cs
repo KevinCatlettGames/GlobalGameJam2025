@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class UnlockPendingSkinsManager : MonoBehaviour
+public class UnlockSkinsInLobby : MonoBehaviour
 {
     [SerializeField] SkinButtonHandler[] skinButtonHandlers; 
     AchievementSaveSystem achievementSaveSystem;
@@ -24,7 +24,7 @@ public class UnlockPendingSkinsManager : MonoBehaviour
 
         if (achievementSaveSystem && achievementSaveSystem.HasPendingUnlocks())
         {
-            List<int> pendingUnlocks = achievementSaveSystem.ConsumePendingUnlocks();
+            List<int> pendingUnlocks = achievementSaveSystem.GetPendingUnlocks(true);
             List<SkinButtonHandler> skinsToUnlock = new List<SkinButtonHandler>();
 
             foreach (SO_Achievement achSO in achievementSaveSystem.AchievementList)

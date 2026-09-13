@@ -178,10 +178,13 @@ public class AchievementSaveSystem : MonoBehaviour
 
     public bool HasPendingUnlocks() => pendingLobbyUnlocks.Count > 0;
 
-    public List<int> ConsumePendingUnlocks()
+    public List<int> GetPendingUnlocks(bool consume)
     {
         List<int> unlocksToReturn = new List<int>(pendingLobbyUnlocks);
-        pendingLobbyUnlocks.Clear();
+
+        if(consume)
+            pendingLobbyUnlocks.Clear();
+
         return unlocksToReturn;
     }
 
