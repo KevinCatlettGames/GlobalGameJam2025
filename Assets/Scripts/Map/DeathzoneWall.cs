@@ -10,6 +10,8 @@ public class DeathzoneWall : NetworkBehaviour
     private Vector3 effectDirection;
     private Vector3 effectPosition;
     [SerializeField] private bool isFloor = false;
+    public bool IsFloor { get { return isFloor; }}
+
     [SerializeField] private float delayFloor = .75f;
     [SerializeField] private float yOffsetFloor = 5f;
 

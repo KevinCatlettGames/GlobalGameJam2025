@@ -48,6 +48,10 @@ public class SnipeBubble : BasicBubble
                 Pop();
                 return;
             }
+            else if(otherBubble != null)
+            {
+                IncrementPierceAchievement();
+            }
         }
      
         if (other.CompareTag("Player"))
@@ -64,6 +68,19 @@ public class SnipeBubble : BasicBubble
             
         base.BubbleCollision(other);
     }
+
+    private void IncrementPierceAchievement()
+    {
+        if (!IsServer && !isLocalFake) return;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(1, 1);
+        //achSaveSystem.IncrementStat(24, (int)maxDamage);
+    }
+
 
     private void CheckMaxSniperDamageAchievement()
     {

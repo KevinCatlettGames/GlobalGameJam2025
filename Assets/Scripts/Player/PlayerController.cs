@@ -201,9 +201,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private LayerMask bubbleLayer;
     private HashSet<Collider> bubblesInside = new HashSet<Collider>();
     [SerializeField] private int shotsHitInARowAmountNeeded = 10;
-    private int shotsHitInARowAmount = 0;
-    private int pickedUpSpellsNeeded = 10;
-    
+    private int pickedUpSpellsNeeded = 15;
+
     #endregion
 
     #region Initialization
@@ -591,8 +590,8 @@ public class PlayerController : NetworkBehaviour
 
         if (AchievementSaveSystem.instance)
         {
-            if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
-                AchievementSaveSystem.instance.UnlockAchievement(28);
+            if (usedSpell.Count >= 8)
+                AchievementSaveSystem.instance.UnlockAchievement(23);
         }
     }
 
@@ -1214,8 +1213,8 @@ public class PlayerController : NetworkBehaviour
     }
 
     [ClientRpc]
-    public void DieClientRpc() => Die();
-    public void Die()
+    public void DieClientRpc(bool isSuperKO) => Die(isSuperKO);
+    public void Die(bool isSuperKO)
     {
         if (isDead) return;
         isDead = true;
@@ -1245,13 +1244,13 @@ public class PlayerController : NetworkBehaviour
 
         if (GameManager.Instance.PlayingLocal)
         {
-            GameManager.Instance.DeathReportLocal(playerID, killCreditID);
+            GameManager.Instance.DeathReportLocal(playerID, killCreditID, isSuperKO);
             DisableUIElementsLocal();
         }
         else
         {
             if(IsOwner)
-                GameManager.Instance.DeathReportServerRpc(playerID, killCreditID);
+                GameManager.Instance.DeathReportServerRpc(playerID, killCreditID, isSuperKO);
 
             DisableUIElementsServerRpc();
         }
@@ -1520,6 +1519,7 @@ public class PlayerController : NetworkBehaviour
         isSlippery = false;
         slowCounter = 0;
         isSlowed = false;
+        pickedUpSpellsAmount = 0;
         dashDisabledUI?.SetActive(false);
         isVulnerable = false;
         if (vulnerableRoutine != null)
@@ -1550,7 +1550,6 @@ public class PlayerController : NetworkBehaviour
         pickedUpSpellsAmount = 0; 
         usedSpell.Clear();
         isFirstGroundDetection = true;
-        shotsHitInARowAmount = 0; 
         
         playerStateHandler.ResetPlayer();
         if (trail != null)
@@ -1601,7 +1600,6 @@ public class PlayerController : NetworkBehaviour
         pickedUpSpellsAmount = 0;
         usedSpell.Clear();
         isFirstGroundDetection = true;
-        shotsHitInARowAmount = 0;
 
         playerStateHandler.ResetPlayer();
         if (trail != null)

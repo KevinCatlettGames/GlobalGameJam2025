@@ -46,17 +46,20 @@ public class PlayerStateHandler : MonoBehaviour
 
         if (other.CompareTag("Deathzone") && canDie)
         {
-            KillPlayer();
+            if(other.GetComponent<DeathzoneWall>().IsFloor)
+                KillPlayer(false);
+            else
+                KillPlayer(true);
         }
     }
-    public void KillPlayer()
+    public void KillPlayer(bool isSuperKO)
     {
         canDie = false;
 
         LooseLife();
 
         TargetGroupManager.Instance?.RemoveFromGroup(transform);
-        playerController.Die();
+        playerController.Die(isSuperKO);
         Invoke(nameof(DisablePlayer), 2f);
     }
 

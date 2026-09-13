@@ -103,8 +103,7 @@ public class RevolverBubble : BasicBubble
         if (isLocalFake) return;
 
         hitCount++;
-        if (hitCount >= maxAmmo)
-            CheckAllShotsHitAchievement();
+        CheckAllShotsHitAchievement();
     }
 
     private void CheckAllShotsHitAchievement()
@@ -115,7 +114,10 @@ public class RevolverBubble : BasicBubble
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
-        achSaveSystem.IncrementStat(19, 1);
-        achSaveSystem.IncrementStat(6, 1);
+
+        if(hitCount >= maxAmmo)
+            achSaveSystem.UnlockAchievement(19);
+        if(hitCount >= 4)
+            achSaveSystem.IncrementStat(6, 1);
     }
 }

@@ -187,7 +187,7 @@ public class GrenadeBubble : BasicBubble
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
-        AchievementSaveSystem.instance.IncrementStat(8);
+        AchievementSaveSystem.instance.IncrementStat(8,1);
     }
 
     private void UnlockHitTwoGrenadesMidairAchievement()

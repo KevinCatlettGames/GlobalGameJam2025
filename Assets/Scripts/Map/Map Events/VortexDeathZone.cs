@@ -33,7 +33,7 @@ public class VortexDeathZone : MonoBehaviour
                 {
                     timeInZone[id] = 0f;
                     RuntimeManager.PlayOneShotAttached(deathEvent, gameObject);
-                    playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer();
+                    playersInRange[i].GetComponent<PlayerStateHandler>().KillPlayer(false);
                     vortex.RemovePlayer(playersInRange[i]);
                     playersInRange.RemoveAt(i);
                 }
