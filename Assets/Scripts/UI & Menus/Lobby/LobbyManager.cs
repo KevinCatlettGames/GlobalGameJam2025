@@ -530,7 +530,7 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state)
+    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state, ulong steamID)
     {
         int index = -1;
 
@@ -547,7 +547,7 @@ public class LobbyManager : NetworkBehaviour
         {
             players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = clientIndex, IsReady = false });
           
-            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false);           
+            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false, steamID);           
             index = players.Count - 1;
         }
         else
@@ -1019,17 +1019,17 @@ public class LobbyManager : NetworkBehaviour
 
 
     [ServerRpc(RequireOwnership = false)]
-    public void UpdateTeamServerRpc(int playerIndex)
+    public void UpdateTeamServerRpc(int playerIndex, bool increment)
     {
-        UpdateTeamClientRpc(playerIndex);
+        UpdateTeamClientRpc(playerIndex, increment);
     }
 
     [ClientRpc]
-    public void UpdateTeamClientRpc(int playerIndex)
+    public void UpdateTeamClientRpc(int playerIndex, bool increment)
     {
         playerContainers[playerIndex]
        .GetComponentInChildren<TeamSelection>()
-       .ChangeTeam();
+       .ChangeTeam(increment);
     }
 
     [ServerRpc(RequireOwnership = false)]

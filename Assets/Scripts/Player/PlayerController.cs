@@ -1729,7 +1729,12 @@ public class PlayerController : NetworkBehaviour
         }
         playerStateHandler = GetComponent<PlayerStateHandler>();
         playerStateHandler.EnableDeath();
-        playerIndicator?.InitialiseIndicator(skinObject.Color, playerID);
+        
+        if(!TransportSwitcher.Instance || !TransportSwitcher.Instance.isUsingRelay)
+            playerIndicator?.InitialiseIndicator(skinObject.Color, playerID);
+        else if(TransportSwitcher.Instance.isUsingRelay)
+            playerIndicator?.InitialiseSteamAvatarIndicator(skinObject.Color, playerID);
+
         if (dropInJoin)
         {
             StartCoroutine(EntranceCoroutine(true));

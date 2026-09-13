@@ -23,6 +23,9 @@ public class TeamSelection : NetworkBehaviour
     private int maxTeamSize = 2;
     private bool initialSet = false;
 
+    [SerializeField] GameObject switchToAInputIcon;
+    [SerializeField] GameObject switchToBInputIcon;
+
     private void OnEnable()
     {
         Invoke(nameof(Init), 0.5f);
@@ -36,7 +39,10 @@ public class TeamSelection : NetworkBehaviour
             lobbyPlayerHandler.playerValuesList[playerIndex].TeamIndex = -1;
         }
 
-        LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
+        if(LobbyManager.instance)
+            LobbyManager.instance.OnReadyStateUpdated.RemoveListener(UpdateTeamIndex);
+
+        ChangeSwitchInputToNormalColor();
         playerContainerSkinChange.UpdateBlur();
     }
 
@@ -81,17 +87,25 @@ public class TeamSelection : NetworkBehaviour
         LobbyManager.instance.OnReadyStateUpdated.AddListener(UpdateTeamIndex);
     }
 
-    public void ChangeTeam()
+    public void ChangeTeam(bool increment)
     {
         Debug.Log("In change team");
         if (playerContainerManager.isReady)
             return;
 
         int potentialNewTeamID = -1;
-        if (currentTeamIndex == 1)
+        if (currentTeamIndex == 1 && increment)
             potentialNewTeamID = 2;
-        else if (currentTeamIndex == 2)
+        else if (currentTeamIndex == 2 && !increment)
             potentialNewTeamID = 1;
+
+        if (potentialNewTeamID == -1)
+        {
+            switchToAInputIcon.GetComponent<Image>().color = Color.red;
+            switchToBInputIcon.GetComponent<Image>().color = Color.red;
+            Invoke(nameof(ChangeSwitchInputToNormalColor), .3f);
+            return;
+        }
 
         int playersInPotentialTeam = 0;
 
@@ -109,6 +123,12 @@ public class TeamSelection : NetworkBehaviour
         SetTeam();
     }
 
+    void ChangeSwitchInputToNormalColor()
+    {
+        switchToAInputIcon.GetComponent<Image>().color = Color.white;
+        switchToBInputIcon.GetComponent<Image>().color = Color.white;
+    }
+
     private void SetTeam()
     {
         teamImage.enabled = true;
@@ -118,11 +138,15 @@ public class TeamSelection : NetworkBehaviour
         {
             teamImage.color = LobbyManager.instance.TeamColors[0];
             teamText.text = "T1";
+            switchToBInputIcon.SetActive(true);
+            switchToAInputIcon.SetActive(false);
         }
         else if (currentTeamIndex == 2)
         {
             teamImage.color = LobbyManager.instance.TeamColors[1];
             teamText.text = "T2";
+            switchToBInputIcon.SetActive(false);
+            switchToAInputIcon.SetActive(true);
         }
         playerContainerSkinChange.UpdateBlur();
     }

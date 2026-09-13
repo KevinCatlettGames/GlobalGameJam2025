@@ -8,7 +8,6 @@ public class PlayerIndicator : MonoBehaviour
     [SerializeField] private GameObject iconObject;
     [SerializeField] private GameObject textObject;
     [SerializeField] private Image arrowImage;
-    [SerializeField] private Image iconImage;
     [SerializeField] private TextMeshProUGUI text;
 
     private bool isUsingImage = false;
@@ -20,12 +19,11 @@ public class PlayerIndicator : MonoBehaviour
         text.text = "P" + (playerID + 1);
     }
 
-    public void InitialiseIndicator(Color color, Sprite icon)
+    public void InitialiseSteamAvatarIndicator(Color color, int playerID)
     {
         isUsingImage = true;
-        iconImage.sprite = icon;
+        iconObject.GetComponent<PlayerProfileDisplay>().ShowSteamAvatarBySteamID(LobbyPlayerValues.Instance.playerValuesList[playerID].SteamID);
         arrowImage.color = color;
-        text.color = color;
     }
 
     public void ToggleIndicator(bool enabled)
