@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InkTrigger : NetworkBehaviour 
 {
@@ -30,6 +31,7 @@ public class InkTrigger : NetworkBehaviour
             if (bubble && bubble.OwnerID.Value != ownerID.Value)
             {
                 bubble.ChangeSpeed(bubbleSlowFactor);
+                IncrementMakeBubbleSlowAchievement(bubble);
             }
         }
     }
@@ -53,5 +55,14 @@ public class InkTrigger : NetworkBehaviour
         {
             player.SetSlowed(false);
         }
+    }
+
+    private void IncrementMakeBubbleSlowAchievement(BasicBubble slowedBubble)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)slowedBubble.OwnerID.Value
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(9, 1);
     }
 }

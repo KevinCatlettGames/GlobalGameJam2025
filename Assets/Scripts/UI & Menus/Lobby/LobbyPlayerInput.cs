@@ -151,7 +151,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             playerInput.user.ActivateControlScheme("Keyboard");
 
         if (joined && playerIndex.Value != -1)
-            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, clickedDevice);
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, clickedDevice, networkSteamId.Value);
     }
 
     void OnClientConnectedCallback(ulong clientID)
@@ -219,9 +219,9 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (!TransportSwitcher.Instance.isUsingRelay)
             lobbyManager.SetReady(playerIndex.Value, false);
         else
-            lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+            lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false, networkSteamId.Value);
 
-        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0]);
+        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0], networkSteamId.Value);
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
@@ -297,7 +297,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             if (!TransportSwitcher.Instance.isUsingRelay)
                 lobbyManager.SetReady(playersListID, true);
             else
-                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, true);
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, true, networkSteamId.Value);
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
             {
@@ -334,7 +334,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             if (!TransportSwitcher.Instance.isUsingRelay)
                 lobbyManager.SetReady(playerIndex.Value, false);
             else
-                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false, networkSteamId.Value);
 
             PlaySFX(true, 3);
             return;
@@ -444,15 +444,21 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
 
         canNavigateTeam = false;
+        bool increment = true;
+        if(input.x > 0)
+            increment = true;
+        else if(input.x < 0)
+            increment = false;
+
         if (TransportSwitcher.Instance.isUsingRelay)
         {
-            lobbyManager.UpdateTeamServerRpc(playerIndex.Value);
+            lobbyManager.UpdateTeamServerRpc(playerIndex.Value, increment);
         }
         else
         {
             lobbyManager.playerContainers[playerIndex.Value]
                      .GetComponentInChildren<TeamSelection>()
-                     .ChangeTeam();
+                     .ChangeTeam(increment);
         }
 
         PlaySFX(true, 0);

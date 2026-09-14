@@ -1,7 +1,7 @@
 using Unity.Netcode;
 using UnityEngine;
 
-public class MatchSettingsSaveSystem : MonoBehaviour
+public class MatchSettingsSaveSystem : NetworkBehaviour
 {
     public static MatchSettingsSaveSystem instance;
     [SerializeField] MatchSettingsUISetup matchSettingsUISetup;
@@ -21,7 +21,8 @@ public class MatchSettingsSaveSystem : MonoBehaviour
 
     private void Load()
     {
-        LoadMatchSettings();
+        if(IsServer)
+            LoadMatchSettings();
     }
 
     public void SaveMatchSettings()

@@ -16,13 +16,14 @@ public class LobbyPlayerValues : NetworkBehaviour
         public InputDevice Device;
         public SkinSO Skin;
         public int TeamIndex;
-
-        public PlayerValues(int playerIndex, InputDevice device, SkinSO skin, int teamIndex)
+        public ulong SteamID;
+        public PlayerValues(int playerIndex, InputDevice device, SkinSO skin, int teamIndex, ulong steamID)
         {
             PlayerIndex = playerIndex;
             Device = device;
             Skin = skin;
             TeamIndex = teamIndex;
+            SteamID = steamID;
         }
     }
 
@@ -115,12 +116,12 @@ public class LobbyPlayerValues : NetworkBehaviour
                 if (manager != null) isReady = manager.isReady;
             }
 
-            SyncSinglePlayerClientRpc(pv.PlayerIndex, isReady, clientIDToShareTo, pv.TeamIndex);
+            SyncSinglePlayerClientRpc(pv.PlayerIndex, isReady, clientIDToShareTo, pv.TeamIndex, pv.SteamID);
         }
     }
 
     [ClientRpc]
-    private void SyncSinglePlayerClientRpc(int playerIndex, bool isReady, ulong targetClientId, int teamIndex)
+    private void SyncSinglePlayerClientRpc(int playerIndex, bool isReady, ulong targetClientId, int teamIndex, ulong steamID)
     {
         if (NetworkManager.Singleton.LocalClientId != targetClientId) return;
 
@@ -131,7 +132,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         var existing = playerValuesList.Find(p => p.PlayerIndex == playerIndex);
         if (existing == null)
         {
-            playerValuesList.Add(new PlayerValues(playerIndex, null, defaultSkin, teamIndex));
+            playerValuesList.Add(new PlayerValues(playerIndex, null, defaultSkin, teamIndex, steamID));
         }
 
         SortPlayerValues();
@@ -143,14 +144,14 @@ public class LobbyPlayerValues : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void AddNewPlayerValueServerRpc(int playerIndex, int skinIndex, bool isReady)
+    public void AddNewPlayerValueServerRpc(int playerIndex, int skinIndex, bool isReady, ulong steamID)
     {
-        AddNewPlayerValueClientRpc(playerIndex, skinIndex, isReady);
+        AddNewPlayerValueClientRpc(playerIndex, skinIndex, isReady, steamID);
     }
 
 
     [ClientRpc]
-    public void AddNewPlayerValueClientRpc(int playerIndex, int skinIndex, bool isReady)
+    public void AddNewPlayerValueClientRpc(int playerIndex, int skinIndex, bool isReady, ulong steamID)
     {
         SkinSO skinToUse = null;
         if (LobbyManager.instance != null && LobbyManager.instance.PossibleSkins.Length > 0)
@@ -162,7 +163,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         var existingPlayer = playerValuesList.Find(pd => pd.PlayerIndex == playerIndex);
         if (existingPlayer == null)
         {
-            playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse, -1));
+            playerValuesList.Add(new PlayerValues(playerIndex, null, skinToUse, -1, steamID));
             SortPlayerValues();
         }
 
@@ -195,7 +196,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         playerValuesList.Sort((a, b) => a.PlayerIndex.CompareTo(b.PlayerIndex));
     }
 
-    public void AssignDeviceToPlayer(int playerIndex, InputDevice device)
+    public void AssignDeviceToPlayer(int playerIndex, InputDevice device, ulong steamID)
     {
         if (playerIndex < 0 || playerIndex >= maxPlayers || device == null)
             return;
@@ -211,7 +212,7 @@ public class LobbyPlayerValues : NetworkBehaviour
                 ? LobbyManager.instance.PossibleSkins[0]
                 : null;
 
-            playerValuesList.Add(new PlayerValues(playerIndex, device, defaultSkin, -1));
+            playerValuesList.Add(new PlayerValues(playerIndex, device, defaultSkin, -1, steamID));
             SortPlayerValues();
         }
     }
@@ -222,7 +223,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         return pd != null ? pd.PlayerIndex : -1;
     }
 
-    public int AssignDeviceToNextFreePlayer(InputDevice device)
+    public int AssignDeviceToNextFreePlayer(InputDevice device, ulong steamID)
     {
         if (device == null) return -1;
 
@@ -233,7 +234,7 @@ public class LobbyPlayerValues : NetworkBehaviour
         {
             if (!playerValuesList.Exists(pd => pd.PlayerIndex == i))
             {
-                AssignDeviceToPlayer(i, device);
+                AssignDeviceToPlayer(i, device, steamID);
                 return i;
             }
         }

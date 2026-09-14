@@ -75,11 +75,6 @@ public class AchievementSaveSystem : MonoBehaviour
                 SetLocalAchievementState(ach.AchievementName, true);
                 localUpdated = true;
             }
-            else if (isUnlockedLocally && !isUnlockedInSteam)
-            {
-                SteamIntegration.instance.UnlockAchievement(i);
-                steamUpdated = true;
-            }
 
             if (!string.IsNullOrEmpty(ach.StatName))
             {
@@ -178,10 +173,13 @@ public class AchievementSaveSystem : MonoBehaviour
 
     public bool HasPendingUnlocks() => pendingLobbyUnlocks.Count > 0;
 
-    public List<int> ConsumePendingUnlocks()
+    public List<int> GetPendingUnlocks(bool consume)
     {
         List<int> unlocksToReturn = new List<int>(pendingLobbyUnlocks);
-        pendingLobbyUnlocks.Clear();
+
+        if(consume)
+            pendingLobbyUnlocks.Clear();
+
         return unlocksToReturn;
     }
 
@@ -244,6 +242,7 @@ public class AchievementSaveSystem : MonoBehaviour
     public void ClearAllAchievements()
     {
         pendingLobbyUnlocks.Clear();
+
         for (int i = 0; i < achievementList.Count; i++)
         {
             SO_Achievement ach = achievementList[i];
@@ -253,15 +252,19 @@ public class AchievementSaveSystem : MonoBehaviour
             {
                 SetStatInt(ach.StatName, 0);
             }
-
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-            if (SteamIntegration.instance != null)
-            {
-                SteamIntegration.instance.ClearAchievement(i);
-            }
-#endif
         }
         PlayerPrefs.Save();
+
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (SteamIntegration.instance != null)
+        {
+            SteamIntegration.instance.ResetAllSteamAchievements();
+        }
+        else
+        {
+            Debug.LogWarning("PlayerPrefs cleared, but SteamIntegration instance was not active to clear Steam cloud stats.");
+        }
+#endif
     }
     #endregion
 

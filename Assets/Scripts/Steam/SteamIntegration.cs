@@ -183,10 +183,20 @@ public class SteamIntegration : MonoBehaviour
             var list = AchievementSaveSystem.instance.AchievementList;
             if (achievementIndex < 0 || achievementIndex >= list.Count) return;
 
-            string id = list[achievementIndex].AchievementName;
+            SO_Achievement achSO = list[achievementIndex];
+            string id = achSO.AchievementName;
+
             var ach = new Steamworks.Data.Achievement(id);
             ach.Clear();
-            Debug.Log($"Steam Achievement Cleared: {id}");
+
+            if (!string.IsNullOrEmpty(achSO.StatName))
+            {
+                SteamUserStats.SetStat(achSO.StatName, 0);
+            }
+
+            SteamUserStats.StoreStats();
+
+            Debug.Log($"Steam Achievement Cleared & Pushed to Server: {id}");
         }
         catch (Exception e)
         {
@@ -269,6 +279,30 @@ public class SteamIntegration : MonoBehaviour
         catch (System.Exception e)
         {
             Debug.LogError($"Failed setting Steam stat {statName}: {e.Message}");
+        }
+#endif
+    }
+
+    public void ResetAllSteamAchievements()
+    {
+#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+        if (!SteamClient.IsValid)
+        {
+            Debug.LogWarning("Cannot reset Steam achievements: SteamClient is not valid.");
+            return;
+        }
+
+        try
+        {
+            // Parameter 'true' clears both achievements AND stats on Steam's servers
+            SteamUserStats.ResetAll(true);
+            SteamUserStats.StoreStats();
+            SteamUserStats.RequestCurrentStats(); // Refresh local cache
+            Debug.Log("Successfully wiped all Steam achievements and stats.");
+        }
+        catch (Exception e)
+        {
+            Debug.LogError($"Failed to reset Steam achievements: {e.Message}");
         }
 #endif
     }

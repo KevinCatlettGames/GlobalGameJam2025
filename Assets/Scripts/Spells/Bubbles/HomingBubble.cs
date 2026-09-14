@@ -1,5 +1,7 @@
+using System;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class HomingBubble : BasicBubble
 {
@@ -12,6 +14,7 @@ public class HomingBubble : BasicBubble
 
     float timeAlive = 0;
     bool achUnlocked = false;
+
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
         base.InitialiseBubble(ID, dir, playerCollider, assignedSpellID, fakeWithServerCaster);
@@ -66,5 +69,23 @@ public class HomingBubble : BasicBubble
         {
             vfx.GetComponent<DamageAfterDelay>()?.StartDamageAfterDelay(hitTarget, OwnerID.Value, damage, secondDmgDelay);
         }
+    }
+
+    private void Update()
+    {
+        if (achUnlocked) return;
+        timeAlive += Time.deltaTime;
+        if (timeAlive >= 2)
+        {
+            achUnlocked = true;
+            UnlockHomingDurationAchievement();
+        }
+    }
+
+    void UnlockHomingDurationAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != OwnerClientId
+           || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+        AchievementSaveSystem.instance.UnlockAchievement(7);
     }
 }

@@ -42,6 +42,7 @@ public class PlayerHUD : NetworkBehaviour
     [SerializeField] private Color deathColor;
     [SerializeField] private SkinSO skin;
     [SerializeField] private TextMeshProUGUI playerIndicatorText;
+    [SerializeField] private GameObject playerSteamAvatar;
     public SkinSO Skin { get { return skin; } }
     [SerializeField] private GameObject UICover;
     [SerializeField] private Image[] coloredUI;
@@ -102,10 +103,19 @@ public class PlayerHUD : NetworkBehaviour
     {
         if (isDummy) return;
         skin = LobbyPlayerValues.Instance.playerValuesList[playerID].Skin;
+        TransportSwitcher transportSwitcher = TransportSwitcher.Instance;
+
+        if (!transportSwitcher || !transportSwitcher.isUsingRelay)
+            playerSteamAvatar.SetActive(false);
+        else if (transportSwitcher && transportSwitcher.isUsingRelay)
+        {
+            playerIndicatorText.enabled = false;
+            playerSteamAvatar.GetComponent<PlayerProfileDisplay>().ShowSteamAvatarBySteamID(LobbyPlayerValues.Instance.playerValuesList[playerID].SteamID);
+        }
 
         if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
         {
-            if(LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
+            if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
             {
                 foreach (var uiElement in coloredUI)
                     uiElement.color = LobbyManager.instance.TeamColors[0];
