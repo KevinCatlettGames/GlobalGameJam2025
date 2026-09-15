@@ -936,7 +936,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &244109772
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2240,6 +2240,7 @@ GameObject:
   m_Component:
   - component: {fileID: 496812222}
   - component: {fileID: 496812223}
+  - component: {fileID: 496812224}
   m_Layer: 5
   m_Name: TutorialTextBox
   m_TagString: Untagged
@@ -2283,10 +2284,42 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   boxes:
-  - {fileID: 244109771}
   - {fileID: 1979077953}
   - {fileID: 2069737145}
   - {fileID: 1520135978}
+--- !u!114 &496812224
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 496812221}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 496812222}
+  outPos: -700
+  inPos: -400
+  transitionDuration: 0.3
+  doYPosTransition: 1
+  doXPosTransition: 0
+  introOnEnable: 0
+  easeIn: 9
+  easeOut: 8
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &546357551
 GameObject:
   m_ObjectHideFlags: 1
@@ -2347,6 +2380,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 558050884}
+  - component: {fileID: 558050885}
   m_Layer: 5
   m_Name: PopUp
   m_TagString: Untagged
@@ -2378,6 +2412,51 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &558050885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 558050883}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc7433055fe93f74a97c4c57c13ca3cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rectTransform: {fileID: 558050884}
+  outPos: 1000
+  inPos: 0
+  transitionDuration: 0.3
+  doYPosTransition: 1
+  doXPosTransition: 0
+  introOnEnable: 1
+  easeIn: 9
+  easeOut: 8
+  OnInTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnInTransitionComplete:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionStarted:
+    m_PersistentCalls:
+      m_Calls: []
+  OnOutTransitionComplete:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 558050883}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &574642442
 GameObject:
   m_ObjectHideFlags: 0
@@ -5636,6 +5715,7 @@ MonoBehaviour:
   tutorialTextBox: {fileID: 496812223}
   closePrompt: {fileID: 353973850}
   dummy: {fileID: 1837879936}
+  transition: {fileID: 558050885}
 --- !u!114 &1637227821 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 5214853150066412502, guid: 9265a00061d16954185757478609943a,
@@ -8109,7 +8189,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
-  gameModeType: 0
+  gameModeType: 2
   playEndless: 1
   gameSettings: {fileID: 11400000, guid: 0d3e08fb5cee10e4fb4b717d4c05c4cc, type: 2}
   mapEvent: {fileID: 0}
@@ -20874,6 +20954,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8489004707480151644, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: GlobalObjectIdHash
+      value: 1144608230
+      objectReference: {fileID: 0}
+    - target: {fileID: -8489004707480151644, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: SceneMigrationSynchronization
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8489004707480151644, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 683768597
+      objectReference: {fileID: 0}
     - target: {fileID: 170825381548629608, guid: ef310da78073cd04982db8f49e852300,
         type: 3}
       propertyPath: m_IsActive
@@ -20889,6 +20984,11 @@ PrefabInstance:
       propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 1124757203437471801, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 683768597
+      objectReference: {fileID: 0}
     - target: {fileID: 1924427299760352901, guid: ef310da78073cd04982db8f49e852300,
         type: 3}
       propertyPath: GlobalObjectIdHash
@@ -20898,6 +20998,11 @@ PrefabInstance:
         type: 3}
       propertyPath: SceneMigrationSynchronization
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 1924427299760352901, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 683768597
       objectReference: {fileID: 0}
     - target: {fileID: 2443735587043106483, guid: ef310da78073cd04982db8f49e852300,
         type: 3}
@@ -20934,6 +21039,11 @@ PrefabInstance:
       propertyPath: SceneMigrationSynchronization
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5270376664048028418, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 683768597
+      objectReference: {fileID: 0}
     - target: {fileID: 5342132669114325130, guid: ef310da78073cd04982db8f49e852300,
         type: 3}
       propertyPath: m_Enabled
@@ -20968,6 +21078,11 @@ PrefabInstance:
         type: 3}
       propertyPath: SceneMigrationSynchronization
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7649400469184737293, guid: ef310da78073cd04982db8f49e852300,
+        type: 3}
+      propertyPath: InScenePlacedSourceGlobalObjectIdHash
+      value: 683768597
       objectReference: {fileID: 0}
     - target: {fileID: 8312821401528896931, guid: ef310da78073cd04982db8f49e852300,
         type: 3}

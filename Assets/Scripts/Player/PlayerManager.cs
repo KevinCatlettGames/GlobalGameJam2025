@@ -509,12 +509,12 @@ public class PlayerManager : NetworkBehaviour
         }
     }
 
-    public void EnablePlayerInput()
+    public void EnablePlayerInput(bool enable)
     {
         List<PlayerController> players = GetPlayers();
         foreach (PlayerController player in players)
         {
-            player.ToggleInput(true);
+            player.ToggleInput(enable);
         }
     }
     #endregion

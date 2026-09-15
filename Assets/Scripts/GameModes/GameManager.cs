@@ -7,7 +7,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : NetworkBehaviour
 {
-    public enum GameModeType { Standard, Team }
+    public enum GameModeType { Standard, Team, Tutorial }
 
     public static GameManager Instance;
     public static bool IsGamePaused = false;

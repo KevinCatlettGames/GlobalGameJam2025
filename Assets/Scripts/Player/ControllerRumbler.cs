@@ -20,7 +20,7 @@ public class ControllerRumbler : MonoBehaviour
     {
         if (controller != null && timer > 0) 
         {
-            timer -= Time.deltaTime;
+            timer -= Time.unscaledDeltaTime;
             if (timer <= 0)
             {
                 timer = 0;

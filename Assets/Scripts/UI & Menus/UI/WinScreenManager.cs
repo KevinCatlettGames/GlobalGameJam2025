@@ -35,6 +35,7 @@ public class WinScreenManager : MonoBehaviour
         gameUI.SetActive(false);
         eventSystem.SetSelectedGameObject(restartButton.gameObject);
         ShowWinnerUsingWinScore();
+        PlayerManager.Instance.EnablePlayerInput(false);
     }
 
     public void ShowWinnerUsingWinScore()
