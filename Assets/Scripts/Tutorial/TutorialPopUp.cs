@@ -11,6 +11,7 @@ public class TutorialPopUp : MonoBehaviour
     [SerializeField] private TutorialTextBox tutorialTextBox;
     [SerializeField] private GameObject closePrompt;
     [SerializeField] private DummyController dummy;
+    [SerializeField] private DotweenAnchorTransition transition;
 
     private bool isOpened = false;
     private bool isDone = false;
@@ -42,6 +43,7 @@ public class TutorialPopUp : MonoBehaviour
     {
         popUp.SetActive(true);
         isOpened = true;
+        tutorialTextBox.ToggleTutorialText(false);
         Time.timeScale = 0f;
         StartCoroutine(ShowClosePrompt());
     }
@@ -54,11 +56,12 @@ public class TutorialPopUp : MonoBehaviour
     public void OnSubmitInput(InputAction.CallbackContext context)
     {
         if (!context.performed || !canBeClosed || isDone || !isOpened) return;
-        popUp.SetActive(false);
+        transition.DoOutro();
         continueAction.performed -= OnSubmitInput;
         players = PlayerManager.Instance.GetPlayers();
         isDone = true;
         Time.timeScale = 1f;
+        tutorialTextBox.ToggleTutorialText(true);
         tutorialTextBox.AdvanceTextBox();
     }
     public bool CheckForDummySpawn()

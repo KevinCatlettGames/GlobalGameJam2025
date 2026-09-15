@@ -431,10 +431,9 @@ public class BasicBubble : NetworkBehaviour
         Pop();
     }
 
-    public void OnServerConfirmReflect(Vector3 newDirection, Vector3 correctPosition)
+    public void OnServerConfirmReflect(Vector3 correctPosition, Vector3 newDirection)
     {
         direction = newDirection;
-        transform.rotation = Quaternion.LookRotation(newDirection);
         currentState = FakeBubbleState.Moving;
 
         float distance = Vector3.Distance(transform.position, correctPosition);
@@ -445,6 +444,7 @@ public class BasicBubble : NetworkBehaviour
 
             correctionCoroutine = StartCoroutine(SmoothCorrection(correctPosition));
         }
+        transform.rotation = Quaternion.LookRotation(direction);
     }
 
     protected virtual void Reflect(Vector3 normal)
@@ -477,7 +477,7 @@ public class BasicBubble : NetworkBehaviour
             fakeCopy.OwnerID.Value = newOwnerId;
             fakeCopy.isReflected = true;
 
-            fakeCopy.OnServerConfirmReflect(newDir, serverPos);
+            fakeCopy.OnServerConfirmReflect(serverPos, newDir);
 
             foreach (var trail in fakeCopy.GetComponentsInChildren<TrailRenderer>())
             {
