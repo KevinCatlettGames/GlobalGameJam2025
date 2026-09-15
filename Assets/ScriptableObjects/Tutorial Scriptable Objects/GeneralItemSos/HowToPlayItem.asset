@@ -12,26 +12,22 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f2f12cf79d32c24f93e62fcacc09a1c, type: 3}
   m_Name: HowToPlayItem
   m_EditorClassIdentifier: 
-  windowsClip: {fileID: 0}
-  linuxClip: {fileID: 0}
-  clipOutlineColor: {r: 0, g: 0, b: 0, a: 0}
-  showClipOutline: 0
-  itemMainImage: {fileID: 21300000, guid: 31640b92e523dcd4699876cc18eb8c3a, type: 3}
+  windowsClip: {fileID: 32900000, guid: cecc7ca97d601ec48ad3dfdfc1b81299, type: 3}
+  linuxClip: {fileID: 32900000, guid: cecc7ca97d601ec48ad3dfdfc1b81299, type: 3}
+  clipOutlineColor: {r: 0.8, g: 0.8, b: 0.8, a: 1}
+  showClipOutline: 1
+  itemMainImage: {fileID: 0}
   itemSprite: {fileID: 0}
   stats: 
   itemNameText: HOW TO
   showitemNameText: 0
-  itemNameImage: {fileID: 21300000, guid: a8a3cf9c8a4396d4e88134834b5fb751, type: 3}
+  itemNameImage: {fileID: 21300000, guid: 2594042f06ed2d7498da9c8e4a5052b2, type: 3}
   showitemNameImage: 1
-  itemDescription: 'How to Play:
-
-    Hit Wizzos with Spells to build up Damage on
-    them.
-
-    The more Damage they have, the farther they will be knocked back.
-    Use both your Spells to knock your Opponents out of the Arena.
-
-'
+  itemDescription: "Use your <color=#FFF8A1>2 Spells</color> to knock Opponents out
+    of the Arena.\n\nHit Players with Spells to build up <color=#FF3D5E>Damage</color>.
+    \nThe more Damage they have, the farther they will be<color=#FF3D5E> knocked
+    back</color>. \n\n<color=#CB98ED>Pick Up</color> new Spells from the Ground,
+    this will reset their <color=#CB98ED>Cooldown</color>.\n"
   itemDescriptionLocalizedString:
     m_TableReference:
       m_TableCollectionName: GUID:787f9328ab1102f4dbe15593b57817be
@@ -44,6 +40,8 @@ MonoBehaviour:
   useButton: 1
   buttonText: Play Test Level
   incorporateMainElementBackground: 1
+  useFullscreenImage: 0
+  isInputImage: 0
   references:
     version: 2
     RefIds: []
