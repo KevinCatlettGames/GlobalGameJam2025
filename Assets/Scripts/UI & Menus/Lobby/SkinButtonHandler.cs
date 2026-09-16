@@ -13,6 +13,8 @@ public class SkinButtonHandler : MonoBehaviour
     public SkinButtonHandler topSkinSelection;
     public SkinButtonHandler bottomSkinSelection;
 
+    public Image blurImage;
+    float blurAlpha = 0;
     public int skinButtonHandlerIndex = -1;
     public int skinAchievementIndex = -1;
     public Image[] selectionimages;
@@ -98,6 +100,7 @@ public class SkinButtonHandler : MonoBehaviour
             }
             unlockStarBadge.SetActive(false);
         }
+        blurAlpha = blurImage.color.a;
     }
 
     private void OnEnable()
@@ -117,12 +120,12 @@ public class SkinButtonHandler : MonoBehaviour
             || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
         {
             skinImage.color = Color.black;
-            GetComponent<Image>().color = disabledColor;
+            blurImage.color = new Color(disabledColor.r, disabledColor.g, disabledColor.b, blurAlpha);
         }
         else
         {
             skinImage.color = Color.white;
-            GetComponent<Image>().color = standardImageColor;
+            blurImage.color = standardImageColor;
         }
         didFirstInit = true;
     }
@@ -199,19 +202,19 @@ public class SkinButtonHandler : MonoBehaviour
 
     public void ToggleReadyVisuals()
     {
-        bool isSelectedNow = GetComponent<Image>().color != skinSo.Color;
+        bool isSelectedNow = blurImage.color != skinSo.Color;
 
         if (isSelectedNow)
         {
             if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
             {
                 skinImage.color = Color.black;
-                GetComponent<Image>().color = disabledColor;
+                blurImage.color = new Color(disabledColor.r, disabledColor.g, disabledColor.b, blurAlpha);
             }
             else
             {
                 skinImage.color = Color.white;
-                GetComponent<Image>().color = skinSo.Color;
+                blurImage.color = skinSo.Color;
             }
         }
         else
@@ -219,12 +222,12 @@ public class SkinButtonHandler : MonoBehaviour
             if (!SteamIntegration.instance.IsFullVersion && !skinSo.AvailableInDemo || AchievementSaveSystem.instance && skinSo.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinSo.UnlockAchievement.AchievementID))
             {
                 skinImage.color = Color.black;
-                GetComponent<Image>().color = disabledColor;
+                blurImage.color = new Color(disabledColor.r, disabledColor.g, disabledColor.b, blurAlpha);
             }
             else
             {
                 skinImage.color = Color.white;
-                GetComponent<Image>().color = standardImageColor;
+                blurImage.color = standardImageColor;
             }
         }
     }
@@ -234,7 +237,7 @@ public class SkinButtonHandler : MonoBehaviour
         gameObject.GetComponent<Outline>().effectColor = new Color(0, 0, 0, 0);
         transform.localScale = originalScale;
         skinImage.color = Color.white;
-        GetComponent<Image>().color = standardImageColor;
+        blurImage.color = standardImageColor;
 
         if (unlockStarBadge != null)
         {
@@ -280,13 +283,9 @@ public class SkinButtonHandler : MonoBehaviour
         Vector3 startScale = baseLocalScale * startScaleMultiplier;
         Vector3 peakScale = baseLocalScale * peakScaleMultiplier;
 
-        // Phase 0: Lock initial silhouette state
         skinImage.color = Color.black;
-        Image buttonBg = GetComponent<Image>();
-        if (buttonBg != null)
-        {
-            buttonBg.color = disabledColor;
-        }
+
+        blurImage.color = disabledColor;
 
         targetTransform.localScale = startScale;
         targetTransform.localRotation = Quaternion.Euler(0, 0, startRotation);
@@ -298,9 +297,6 @@ public class SkinButtonHandler : MonoBehaviour
             unlockStarBadge.SetActive(true);
         }
 
-        // =========================================================================
-        // PHASE 1: Scale up to peak as a black silhouette
-        // =========================================================================
         float t = 0f;
         while (t < scaleUpDuration)
         {
@@ -313,40 +309,25 @@ public class SkinButtonHandler : MonoBehaviour
             yield return null;
         }
 
-        // Snap to exact peak transform state
         targetTransform.localScale = peakScale;
         targetTransform.localRotation = Quaternion.identity;
 
-        // =========================================================================
-        // REVEAL MOMENT: Switch to full color & pop open star badge
-        // =========================================================================
         skinImage.color = Color.white;
-        if (buttonBg != null)
-        {
-            buttonBg.color = standardImageColor;
-        }
+        blurImage.color = standardImageColor;
 
-        // =========================================================================
-        // PHASE 2: Hold at peak scale for the reveal moment
-        // =========================================================================
         if (revealHoldDuration > 0f)
         {
             yield return new WaitForSeconds(revealHoldDuration);
         }
 
-        // =========================================================================
-        // PHASE 3: Settle skin scale down & shrink star down to 0 before disabling
-        // =========================================================================
         t = 0f;
         while (t < scaleDownDuration)
         {
             t += Time.deltaTime;
             float p = scaleDownDuration > 0f ? Mathf.Clamp01(t / scaleDownDuration) : 1f;
 
-            // Scale down skin target transform
             targetTransform.localScale = Vector3.Lerp(peakScale, baseLocalScale, p);
 
-            // Scale down star badge transform concurrently
             if (starTransform != null && unlockStarBadge.activeSelf)
             {
                 starTransform.localScale = Vector3.Lerp(starBaseScale, Vector3.zero, p);
@@ -355,19 +336,15 @@ public class SkinButtonHandler : MonoBehaviour
             yield return null;
         }
 
-        // Ensure final baseline integrity & clean up star state
         skinImage.color = Color.white;
-        if (buttonBg != null)
-        {
-            buttonBg.color = standardImageColor;
-        }
+        blurImage.color = standardImageColor;
         targetTransform.localScale = baseLocalScale;
         targetTransform.localRotation = Quaternion.identity;
 
         if (unlockStarBadge != null)
         {
             unlockStarBadge.SetActive(false);
-            if (starTransform != null) starTransform.localScale = starBaseScale; // Reset base scale for future use
+            if (starTransform != null) starTransform.localScale = starBaseScale;
         }
 
         fadeCoroutine = null;
@@ -376,6 +353,6 @@ public class SkinButtonHandler : MonoBehaviour
     public void ActDisabled()
     {
         skinImage.color = Color.black;
-        GetComponent<Image>().color = disabledColor;
+        blurImage.color = new Color(disabledColor.r, disabledColor.g, disabledColor.b, blurAlpha);
     }
 }
