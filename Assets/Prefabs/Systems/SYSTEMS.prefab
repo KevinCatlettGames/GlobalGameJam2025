@@ -174,15 +174,19 @@ MonoBehaviour:
   - PlayerIndex: 0
     Skin: {fileID: 11400000, guid: a89659f1bebec2240920383b74987893, type: 2}
     TeamIndex: 0
+    SteamID: 0
   - PlayerIndex: 1
     Skin: {fileID: 11400000, guid: 8becbd921c63b674eafc13c520f10fd4, type: 2}
     TeamIndex: 0
+    SteamID: 0
   - PlayerIndex: 2
     Skin: {fileID: 11400000, guid: 9e7d19a9dd1bd204da93d9a1c04eb672, type: 2}
     TeamIndex: 0
+    SteamID: 0
   - PlayerIndex: 3
     Skin: {fileID: 11400000, guid: f2bb8c2cc88648e4ba1b02fb6eb829c1, type: 2}
     TeamIndex: 0
+    SteamID: 0
   maxPlayers: 4
   maxTeamSize: 2
 --- !u!1 &3737377328279540851
@@ -427,7 +431,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 2029689404
+  GlobalObjectIdHash: 3225764618
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -520,7 +524,6 @@ Transform:
   - {fileID: 1378864988898156826}
   - {fileID: 1124112603073538366}
   - {fileID: 2948053536636108897}
-  - {fileID: 9004004167528869357}
   - {fileID: 8950919163246275209}
   - {fileID: 8026881040917413251}
   - {fileID: 2025811958067257644}
@@ -710,69 +713,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 1124112603073538366}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &7357413829955378733
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 9004004167528869357}
-  - component: {fileID: 8744945796883319022}
-  m_Layer: 0
-  m_Name: MusicManager
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &9004004167528869357
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7357413829955378733}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 7349568484040912180}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8744945796883319022
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7357413829955378733}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9a6610d2e704f1648819acc8d7460285, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  CollisionTag: 
-  EventReference:
-    Guid:
-      Data1: -1134828718
-      Data2: 1310793326
-      Data3: 2088074660
-      Data4: 713587035
-    Path: event:/music/playlist
-  Event: 
-  EventPlayTrigger: 1
-  EventStopTrigger: 2
-  AllowFadeout: 1
-  TriggerOnce: 0
-  Preload: 0
-  NonRigidbodyVelocity: 0
-  Params: []
-  OverrideAttenuation: 0
-  OverrideMinDistance: 1
-  OverrideMaxDistance: 20
 --- !u!1 &8007258355997475891
 GameObject:
   m_ObjectHideFlags: 0
