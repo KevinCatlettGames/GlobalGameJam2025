@@ -2,7 +2,8 @@ using UnityEngine;
 
 public class TutorialTextBox : MonoBehaviour
 {
-    [SerializeField] GameObject[] boxes;
+    [SerializeField] private GameObject[] boxes;
+    [SerializeField] private GameObject[] inMapTexts;
     int currentBox = -1;
     private DotweenAnchorTransition transition;
 
@@ -15,7 +16,13 @@ public class TutorialTextBox : MonoBehaviour
         if (currentBox == -1)
             ToggleTutorialText(true);
         else
+        {
             boxes[currentBox].SetActive(false);
+            if (currentBox < inMapTexts.Length && currentBox >= 0)
+            {
+                inMapTexts[currentBox].SetActive(true);
+            }
+        }
 
         currentBox++;
         if (currentBox < boxes.Length)

@@ -1,9 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.UI;
+using UnityEngine.Video;
 
 public class TutorialPopUp : MonoBehaviour
 {
@@ -12,7 +15,10 @@ public class TutorialPopUp : MonoBehaviour
     [SerializeField] private GameObject closePrompt;
     [SerializeField] private DummyController dummy;
     [SerializeField] private DotweenAnchorTransition transition;
+    [SerializeField] private VideoPlayer videoPlayer;
+    [SerializeField] private RawImage videoImage;
 
+    private RenderTexture renderTexture;
     private bool isOpened = false;
     private bool isDone = false;
     private bool dummySpawned = false;
@@ -37,6 +43,11 @@ public class TutorialPopUp : MonoBehaviour
                 }
             }
         }
+        renderTexture = new RenderTexture(1280, 720, 0);
+        renderTexture.Create();
+        videoPlayer.targetTexture = renderTexture;
+        videoImage.texture = renderTexture;
+        videoPlayer.Prepare();
     }
 
     public void OpenPopUp()
@@ -45,6 +56,7 @@ public class TutorialPopUp : MonoBehaviour
         isOpened = true;
         tutorialTextBox.ToggleTutorialText(false);
         Time.timeScale = 0f;
+        videoPlayer.Play();
         StartCoroutine(ShowClosePrompt());
     }
     private IEnumerator ShowClosePrompt()
@@ -86,5 +98,12 @@ public class TutorialPopUp : MonoBehaviour
             }
         }
         return false;
+    }
+    private void OnDestroy()
+    {
+        if (renderTexture != null)
+        {
+            renderTexture.Release();
+        }
     }
 }
