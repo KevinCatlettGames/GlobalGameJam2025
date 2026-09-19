@@ -33,7 +33,7 @@ public class MapRotationSystem : NetworkBehaviour
 
     public bool CheckForMapSwitch(int roundCount)
     {
-        if (!enableMapSwitch || roundCount < maxRounds || SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+        if (!enableMapSwitch || roundCount < maxRounds || SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || LobbyManager.instance && LobbyManager.instance.IsDemoLobby)
             return false;
 
         string currentScene = SceneManager.GetActiveScene().name;

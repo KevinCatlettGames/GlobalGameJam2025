@@ -1,6 +1,8 @@
 using FMODUnity;
 using System.Collections.Generic;
+using System.Net;
 using TMPro;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -17,6 +19,8 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private StudioEventEmitter emitter;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
+    [SerializeField] private Vector3 clientMainMenuButtonPosition;
     [SerializeField] private float panelSpacing = 400f;
 
     private void Awake()
@@ -33,7 +37,15 @@ public class WinScreenManager : MonoBehaviour
     private void OnEnable()
     {
         gameUI.SetActive(false);
-        eventSystem.SetSelectedGameObject(restartButton.gameObject);
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsHost
+            || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+            eventSystem.SetSelectedGameObject(restartButton.gameObject);
+        else if(mainMenuButton)
+        {          
+            mainMenuButton.gameObject.transform.localPosition = clientMainMenuButtonPosition;
+            eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
+        }
+
         ShowWinnerUsingWinScore();
         PlayerManager.Instance.EnablePlayerInput(false);
     }

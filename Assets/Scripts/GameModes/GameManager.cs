@@ -443,6 +443,11 @@ public class GameManager : NetworkBehaviour
         CheckForRoundEndLocal();
     }
 
+    public virtual void DeathReportOnlineBot()
+    {
+
+    }
+
     [ServerRpc(RequireOwnership = false)]
     public virtual void CheckForRoundEndServerRpc() { }
 

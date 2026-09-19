@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class DummyController : PlayerController
@@ -22,6 +23,29 @@ public class DummyController : PlayerController
     }
 
     public void StartDummy()
+    {
+        if (!TransportSwitcher.Instance || !TransportSwitcher.Instance.isUsingRelay)
+        {
+            SetUpPlayer(5, dummyPlayerHUD, null, skin, true);
+            controller = GetComponent<CharacterController>();
+            controller.enabled = true;
+            SetSpells(0, 0);
+            isUsingGamepad = true;
+            base.Start();
+            initialized = true;
+            dummyPlayerHUD.gameObject.SetActive(true);
+            dummyPlayerHUD.InitialisePlayerHUD(skin);
+            TargetGroupManager.Instance.AddToGroup(transform);
+        }
+        else
+        {
+            if (IsServer)
+                StartDummyClientRpc();
+        }
+    }
+
+    [ClientRpc]
+    void StartDummyClientRpc()
     {
         SetUpPlayer(5, dummyPlayerHUD, null, skin, true);
         controller = GetComponent<CharacterController>();

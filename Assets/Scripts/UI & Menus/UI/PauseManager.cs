@@ -19,17 +19,17 @@ public class PauseManager : NetworkBehaviour
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
-    [SerializeField] private GameObject restartButton; // Reference to hide/disable restart for non-hosts
+    [SerializeField] private GameObject restartButton;
     [SerializeField] private SO_Scores scores;
 
     [Header("Input Settings")]
-    [SerializeField] private float backInputCooldown = 0.2f; // Cooldown duration in seconds
+    [SerializeField] private float backInputCooldown = 0.2f;
 
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
     private bool isPauseMenuOpen = false;
     private bool isCurrentlyPaused = false;
-    private float allowBackInputTime; // Tracks unscaled time threshold for back input
+    private float allowBackInputTime;
 
     private InputSystemUIInputModule inputModuleUI;
     private InputAction pauseAction;
@@ -45,7 +45,6 @@ public class PauseManager : NetworkBehaviour
     {
         base.OnNetworkSpawn();
 
-        // Dynamically hide/disable the restart button for connected clients (non-hosts)
         if (restartButton != null && !GameManager.Instance.PlayingLocal)
         {
             restartButton.SetActive(IsServer || IsHost());
@@ -122,7 +121,6 @@ public class PauseManager : NetworkBehaviour
 
         if (isCurrentlyPaused)
         {
-            // Set cooldown to prevent back action from triggering in the same frame
             allowBackInputTime = Time.unscaledTime + backInputCooldown;
 
             isPauseMenuOpen = true;
@@ -154,7 +152,6 @@ public class PauseManager : NetworkBehaviour
 
     public void OnBackInput(InputAction.CallbackContext context)
     {
-        // Block back input if not performed, not paused, or still within cooldown
         if (!context.performed || !isCurrentlyPaused || Time.unscaledTime < allowBackInputTime)
             return;
 
@@ -166,7 +163,6 @@ public class PauseManager : NetworkBehaviour
             currentSubMenu = null;
             StartCoroutine(SetSelectedNextFrame(selectedGameObject));
 
-            // Refresh cooldown when navigating back out of a submenu
             allowBackInputTime = Time.unscaledTime + backInputCooldown;
         }
         else
@@ -213,16 +209,14 @@ public class PauseManager : NetworkBehaviour
         }
     }
 
-    // --- Multiplayer / Scene Management ---
-
     private void OnClientDisconnect(ulong clientId)
     {
-        ReturnToMainMenu();
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            ReturnToMainMenu();
     }
 
     private void OnSceneEvent(SceneEvent sceneEvent)
     {
-        // When scene loading finishes for clients, handle un-fading if needed
         if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
         {
             GameManager.IsGamePaused = false;
@@ -232,7 +226,6 @@ public class PauseManager : NetworkBehaviour
 
     public void RestartGame()
     {
-        // ONLY allow Host / Server to trigger restart
         if (!GameManager.Instance.PlayingLocal && !IsServer && !IsHost()) return;
         if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
 
@@ -270,11 +263,9 @@ public class PauseManager : NetworkBehaviour
 
         Time.timeScale = 1f;
 
-        // Reset scores and trigger fade out on all connected clients
         ResetScoresClientRpc();
         TriggerTransitionClientRpc();
 
-        // Trigger fade out locally on the host
         if (MenuTransitionHandler.Instance)
         {
             MenuTransitionHandler.Instance.OnFadeComplete += LoadMapServer;
@@ -289,7 +280,6 @@ public class PauseManager : NetworkBehaviour
     [ClientRpc]
     private void TriggerTransitionClientRpc()
     {
-        // Skip host so it doesn't execute twice
         if (IsServer) return;
 
         Time.timeScale = 1f;
@@ -325,7 +315,10 @@ public class PauseManager : NetworkBehaviour
         if (MenuTransitionHandler.Instance)
             MenuTransitionHandler.Instance.OnFadeComplete -= LoadMapLocal;
 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                  SceneManager.GetActiveScene().name,
+                  LoadSceneMode.Single
+              );      
     }
 
     public void QuitGame()

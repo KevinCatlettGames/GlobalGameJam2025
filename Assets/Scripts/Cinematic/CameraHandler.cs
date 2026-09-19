@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events; 
@@ -7,6 +8,7 @@ public class CameraHandler : NetworkBehaviour
     public static CameraHandler Instance;
     [SerializeField] private GameObject cinematicCamera;
     [SerializeField] private GameObject mainCamera;
+    [SerializeField] Countdown countDown; 
     public bool playCinematicAtStart = true;
     public UnityEvent onCinematicEnd;
     public UnityEvent onTransitionHolding;
@@ -66,7 +68,7 @@ public class CameraHandler : NetworkBehaviour
         {
             if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
                 StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
-            Invoke(nameof(StartWithoutCinematic), 2f);
+            Invoke(nameof(StartWithoutCinematicOnline), 2f);
         }
         else
         {
@@ -89,6 +91,31 @@ public class CameraHandler : NetworkBehaviour
         mainCamera.SetActive(true);
         PlayerManager.Instance.StartPlayerJoining();
         onCinematicEnd?.Invoke();
+    }
+
+    void StartWithoutCinematicOnline()
+    {
+        mainCamera.SetActive(true);
+        PlayerManager.Instance.StartPlayerJoining();
+        onCinematicEnd?.Invoke();
+        countDown?.OnCountdownStart?.Invoke();
+        Invoke(nameof(EnablePlayersWithoutCinematicOnline), 1f);
+    }
+
+
+    void EnablePlayersWithoutCinematicOnline()
+    {
+        EnablePlayersWithoutCinematicClientRpc();
+    }
+
+    [ClientRpc]
+    void EnablePlayersWithoutCinematicClientRpc()
+    {
+        List<PlayerController> players = PlayerManager.Instance.GetPlayers();
+        foreach (PlayerController player in players)
+            player.StartEntrence(true);
+
+        countDown?.onCountdownComplete?.Invoke();
     }
 
     public void OnTransitionHolding()

@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MatchSettingsSelection : NetworkBehaviour
+public class MatchSettingsSelection : MonoBehaviour
 {
     public static MatchSettingsSelection Instance;
 

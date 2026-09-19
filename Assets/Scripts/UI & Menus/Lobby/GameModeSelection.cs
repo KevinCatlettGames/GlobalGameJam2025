@@ -53,47 +53,6 @@ public class GameModeSelection : NetworkBehaviour
         gameModeSwitchInputAction.action.Disable();
     }
 
-    //private void Update()
-    //{
-    //    Vector2 stick =
-    //        gameModeSwitchInputAction.action.ReadValue<Vector2>();
-
-    //    int direction = 0;
-
-    //    if (stick.x < -stickThreshold)
-    //        direction = -1;
-    //    else if (stick.x > stickThreshold)
-    //        direction = 1;
-
-    //    if (direction != 0)
-    //    {
-    //        if (EventSystem.current.currentSelectedGameObject != gameModeButton.gameObject)
-    //            return;
-
-    //        if (!stickInUse)
-    //        {
-    //            pageHoldTimer = 0f;
-    //            UpdateGameMode(direction > 0);
-    //            stickInUse = true;
-    //        }
-    //        else
-    //        {
-    //            pageHoldTimer += Time.deltaTime;
-
-    //            if (pageHoldTimer >= pageInitialDelay)
-    //            {
-    //                UpdateGameMode(direction > 0);
-    //                pageHoldTimer = pageInitialDelay - pageRepeatRate;
-    //            }
-    //        }
-    //    }
-    //    else
-    //    {
-    //        stickInUse = false;
-    //        pageHoldTimer = 0f;
-    //    }
-    //}
-
     public void OnGameModeButtonClick()
     {
         UpdateGameMode(true, true);
@@ -103,23 +62,22 @@ public class GameModeSelection : NetworkBehaviour
     {
         int currentIndex = (int)LobbyManager.instance.SelectedGameMode;
 
-        int enumLength =
-            Enum.GetValues(typeof(GameManager.GameModeType)).Length;
+        int selectableModeLength = 2;
 
         if (increment)
         {
             if (allowPositiveLoop)
             {
-                currentIndex = (currentIndex + 1) % enumLength;
+                currentIndex = (currentIndex + 1) % selectableModeLength;
             }
             else
             {
-                currentIndex = Mathf.Min(currentIndex + 1, enumLength - 1);
+                currentIndex = Mathf.Min(currentIndex + 1, selectableModeLength - 1);
             }
         }
         else
         {
-            currentIndex = (currentIndex - 1 + enumLength) % enumLength;
+            currentIndex = (currentIndex - 1 + selectableModeLength) % selectableModeLength;
         }
 
         LobbyManager.instance.SelectedGameMode =
@@ -132,7 +90,7 @@ public class GameModeSelection : NetworkBehaviour
         if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             LobbyManager.instance.ChangeSelectedGameModeServerRpc();
 
-        RefreshNavigation(currentIndex, enumLength);
+        RefreshNavigation(currentIndex, selectableModeLength);
 
         buttonOnClickEmitter.Play();
     }

@@ -92,7 +92,10 @@ public class LobbyManager : NetworkBehaviour
     public LobbyPlayerInput lobbyInput;
 
     public UnityEvent OnLeavingLobby;
-
+    public bool isDemoLobby; 
+    public bool IsDemoLobby { get {  return isDemoLobby; } }
+    [SerializeField] DisableOnFullVersion[] allLobbyDisableOnFullVersions;
+    [SerializeField] UninteractableOnDemo[] allUninteractableOnDemos;
     private const GameManager.GameModeType GameModeConst = GameManager.GameModeType.Standard;
     private const LoadoutSelection.LoadOutType LoadOutTypeConst = LoadoutSelection.LoadOutType.IndividualRandom;
     private const int LeftSpellIndexConst = 0;
@@ -100,7 +103,7 @@ public class LobbyManager : NetworkBehaviour
     private const int WinsNeededConst = 5;
     private const bool PlayTutorialConst = false;
     private const bool PlayEndlessConst = false;
-
+    
     #endregion
 
     #region Player Settings
@@ -203,8 +206,14 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
+        if (selectedGameMode == GameManager.GameModeType.Tutorial)
+            selectedGameMode = GameManager.GameModeType.Standard;
+
         if (GameObject.FindWithTag("OnlineMatchmakingUI"))
             GameObject.FindWithTag("OnlineMatchmakingUI").SetActive(false);
+
+        if (!SteamIntegration.instance.IsFullVersion)
+            isDemoLobby = true;
     }
 
     private void Start()
@@ -286,6 +295,12 @@ public class LobbyManager : NetworkBehaviour
     void OnClientConnectedCallback(ulong clientID)
     {
         if (!IsServer) return;
+        if(SteamIntegration.instance.IsFullVersion)
+        {
+            isDemoLobby = false;
+        }
+
+        CheckIfShouldSwitchToDemoLobbyClientRpc();
         ChangeSelectedGameModeServerRpc();
         OnClientConnectedWinConditionUpdateServerRpc(clientID);
     }
@@ -661,7 +676,7 @@ public class LobbyManager : NetworkBehaviour
         if(TransportSwitcher.Instance.isUsingRelay)
             await Task.Delay(1000);
 
-        if(LobbyManager.instance.playTutorial && TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+        if(playTutorial)
         {
             if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0)
             {
@@ -675,7 +690,7 @@ public class LobbyManager : NetworkBehaviour
             return;
         }
 
-        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion && !isDemoLobby)
         {
 #if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
@@ -688,6 +703,7 @@ public class LobbyManager : NetworkBehaviour
             }
 #endif
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+            return;
         }
         else
         {
@@ -701,12 +717,13 @@ public class LobbyManager : NetworkBehaviour
                 }
             }
 #endif
-            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+            LoadDemo();
         }
     }
 
     public void LoadDemo()
     {
+        Debug.Log("In LoadDemo");
         if (MenuTransitionHandler.Instance)
         {
             MenuTransitionHandler.Instance.OnFadeComplete += LoadPlateMap;
@@ -910,7 +927,7 @@ public class LobbyManager : NetworkBehaviour
 
     private void HandleMapUsageToggleActiveState()
     {
-        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion) return;
+        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby) return;
 
         int disabledCount = 0;
 
@@ -939,12 +956,12 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby || !SteamIntegration.instance)
             {
                 if (toggle.isOn)
                     activeCount++;
             }
-            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
             {
                 if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
                     activeCount++;
@@ -955,14 +972,14 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby || !SteamIntegration.instance)
             {
                 if (toggle.isOn)
                     toggle.interactable = !lockActive;
                 else
                     toggle.interactable = true;
             }
-            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
             {
                 if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
                     toggle.interactable = !lockActive;
@@ -1039,6 +1056,32 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ClientRpc]
+    private void CheckIfShouldSwitchToDemoLobbyClientRpc()
+    {
+        if(isDemoLobby)
+        {
+            SwitchToDemoLobbyServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void SwitchToDemoLobbyServerRpc()
+    {
+        if(!isDemoLobby)
+        {
+            isDemoLobby = true;
+            ResetToDefaultSettings();
+            foreach (DisableOnFullVersion donFv in allLobbyDisableOnFullVersions)
+                donFv.gameObject.SetActive(true);
+            foreach (UninteractableOnDemo uOD in allUninteractableOnDemos)
+            {
+                if(uOD.gameObject.activeSelf)
+                    uOD.Evaluate();
+            }
+        }
+    }
+
+    [ClientRpc]
     public void OnClientConnectedWinConditionUpdateClientRpc(ulong clientID, bool playEndless, int winsNeeded)
     {
         if (NetworkManager.Singleton.LocalClientId != clientID) return; 
@@ -1060,9 +1103,27 @@ public class LobbyManager : NetworkBehaviour
             spell.CanUse = true;
         foreach(MapSettingsSO mapSettings in MapSettings)
         {
-            mapSettings.PlayMap = true;
-            mapSettings.PlayWithMapEvent = true;
-            mapSettings.MapRounds = 3;
+            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
+            {
+                if (mapSettings.MapID == 0)
+                {
+                    mapSettings.PlayMap = true;
+                    mapSettings.PlayWithMapEvent = true;
+                    mapSettings.MapRounds = 3;
+                }
+                else
+                {
+                    mapSettings.PlayMap = false;
+                    mapSettings.PlayWithMapEvent = false;
+                    mapSettings.MapRounds = 3;
+                }
+            }
+            else if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby)
+            {
+                mapSettings.PlayMap = true;
+                mapSettings.PlayWithMapEvent = true;
+                mapSettings.MapRounds = 3;
+            }
         }
     }
 }

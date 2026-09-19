@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.UI; 
 
 public class TutorialIndicator : MonoBehaviour
@@ -26,13 +27,6 @@ public class TutorialIndicator : MonoBehaviour
 
     public void EvaluateState()
     {
-        if (LobbyManager.instance && TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
-        {
-            image.sprite = inactiveSprite;
-            image.color = inactiveColor;
-            return;
-        }
-
         if (LobbyManager.instance)
         {
             image.sprite = LobbyManager.instance.playTutorial ? activeSprite : inactiveSprite;

@@ -54,7 +54,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     void ShareValuesToClientServerRpc()
     {
         ShareValuesClientRpc(currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
-        Invoke(nameof(DoShare), 10f);
+        //Invoke(nameof(DoShare), 10f);
     }
 
     void Init()

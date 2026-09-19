@@ -52,7 +52,9 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+        if(CameraHandler.Instance.playCinematicAtStart)
+            countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+
         if (!TransportSwitcher.Instance)
         {
             dropInJoin = true;

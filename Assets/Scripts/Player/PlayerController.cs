@@ -620,7 +620,6 @@ public class PlayerController : NetworkBehaviour
         if (!usedSpell.Contains(spell))
         {
             usedSpell.Add(spell);
-            Debug.Log("Added to used spells");
         }
 
         if (AchievementSaveSystem.instance)
@@ -1253,7 +1252,11 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
-            if(IsOwner)
+            if(playerID == 5)
+            {
+                GameManager.Instance.DeathReportOnlineBot();
+            }
+            if (IsOwner)
                 GameManager.Instance.DeathReportServerRpc(playerID, killCreditID, isSuperKO);
 
             DisableUIElementsServerRpc();

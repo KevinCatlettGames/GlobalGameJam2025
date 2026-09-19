@@ -256,7 +256,7 @@ PrefabInstance:
     - target: {fileID: -4890849169809216911, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       propertyPath: GlobalObjectIdHash
-      value: 3283734033
+      value: 131426447
       objectReference: {fileID: 0}
     - target: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
@@ -353,6 +353,18 @@ PrefabInstance:
         type: 3}
       insertIndex: 2
       addedObject: {fileID: 7444545396222946852}
+    - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1285312346465973699}
+    - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5060695780617588587}
+    - targetCorrespondingSourceObject: {fileID: 3441453709348038487, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7990818336010932037}
     - targetCorrespondingSourceObject: {fileID: 4927663622312149893, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
         type: 3}
       insertIndex: -1
@@ -505,7 +517,6 @@ MonoBehaviour:
   shakeAmplitude: 200
   firstSpellTransform: {fileID: 0}
   secondSpellTransform: {fileID: 0}
-  highDamageIndicator: {fileID: 0}
   highDamageThreshold: 100
   damageTypewriter: {fileID: 4598627908890438383}
   damageText: {fileID: 4856981395987042181}
@@ -543,6 +554,8 @@ MonoBehaviour:
   portrait: {fileID: 0}
   deathColor: {r: 0.3962264, g: 0.3962264, b: 0.3962264, a: 1}
   skin: {fileID: 0}
+  playerIndicatorText: {fileID: 0}
+  playerSteamAvatar: {fileID: 0}
   UICover: {fileID: 0}
   coloredUI: []
   ultSlider: {fileID: 0}
@@ -679,6 +692,7 @@ MonoBehaviour:
   canvas: {fileID: 1412180090470021779}
   meshParent: {fileID: 6658085004868030784}
   statusIndicator: {fileID: 1241565775416200116}
+  playerIndicator: {fileID: 0}
   dashStartEffect: {fileID: 3570557506723085958}
   splashEffect: {fileID: 1849275852360097474}
   wetEffect: {fileID: 6407302574501691948}
@@ -690,6 +704,7 @@ MonoBehaviour:
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
   damageColorEffectDuration: 0.1
+  usedSpell: []
   damageModifier: 0.15
   rumbleDurationFactor: 0.007
   knockbackDecaySpeed: 5
@@ -713,6 +728,7 @@ MonoBehaviour:
   gravityValue: -9.81
   rotationSpeed: 70
   moveSmoothTime: 0.1
+  bounceStrength: 20
   initialized: 0
   mainAnimator: {fileID: 0}
   groundMask:
@@ -729,3 +745,133 @@ MonoBehaviour:
   skin: {fileID: 11400000, guid: 80abd7710d123f34f8d0494f00d56020, type: 2}
   dummyPlayerHUD: {fileID: 3941336212067704126}
   resetDelay: 3
+  autoStart: 1
+--- !u!95 &1285312346465973699
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8383584260448112766}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 7fc1c4483c2db2b44b49075b0a7f76d3, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &5060695780617588587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8383584260448112766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e0eeba8a5c6dd4b458e65ce016a651a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  TransitionStateInfoList:
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: -356172345
+    TransitionDuration: 0.05
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 50413858
+    DestinationState: 995914302
+    TransitionDuration: 0.02
+    TriggerNameHash: 995914302
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: -356172345
+    TransitionDuration: 0.05
+    TriggerNameHash: -286129153
+    TransitionIndex: 1
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1908924014
+    DestinationState: 995914302
+    TransitionDuration: 0.019999998
+    TriggerNameHash: 995914302
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -356172345
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 3
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -356172345
+    DestinationState: 995914302
+    TransitionDuration: 0.02
+    TriggerNameHash: 995914302
+    TransitionIndex: 4
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -894030719
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 1525032995
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 795632812
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: -1348464516
+    DestinationState: -356172345
+    TransitionDuration: 0.1
+    TriggerNameHash: -286129153
+    TransitionIndex: 0
+  - IsCrossFadeExit: 0
+    Layer: 0
+    OriginatingState: 995914302
+    DestinationState: -356172345
+    TransitionDuration: 0.02
+    TriggerNameHash: -286129153
+    TransitionIndex: 2
+  m_Animator: {fileID: 1285312346465973699}
+--- !u!114 &7990818336010932037
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8383584260448112766}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9502ac45d0ac94649999dd315c352994, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ShowTopMostFoldoutHeaderGroup: 1
+  parentAnimator: {fileID: 0}
+  childAnimator: {fileID: 0}

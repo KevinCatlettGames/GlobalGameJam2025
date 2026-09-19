@@ -1,3 +1,4 @@
+using Unity.Netcode;
 using UnityEngine;
 
 public class TestingGM : GameManager
@@ -13,5 +14,26 @@ public class TestingGM : GameManager
             endTutorial = true;
         }
         base.DeathReportLocal(playerID, killCredit, isSuperKO);
+    }
+
+    public override void DeathReportOnlineBot()
+    {
+        EnableEndTutorialObjectServerRpc();
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    void EnableEndTutorialObjectServerRpc()
+    {
+        EnableEndTutorialObjectClientRpc();
+    }
+
+    [ClientRpc]
+    void EnableEndTutorialObjectClientRpc()
+    {
+        if (!endTutorial && endTutorialObject != null)
+        {
+            endTutorialObject.SetActive(true);
+            endTutorial = true;
+        }
     }
 }
