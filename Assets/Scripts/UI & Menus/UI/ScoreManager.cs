@@ -424,9 +424,12 @@ public class ScoreManager : MonoBehaviour
 
         if (showWinner)
         {
+            float transitionTime = countdown.PlayTransition();
+            yield return new WaitForSeconds(transitionTime / 2f);
             restartText.SetActive(false);
             winScreen.SetActive(true);
             scoreScreen.SetActive(false);
+            yield return new WaitForSeconds(transitionTime / 2f);
         }
         else
         {
