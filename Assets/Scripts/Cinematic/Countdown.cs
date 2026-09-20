@@ -22,6 +22,11 @@ public class Countdown : MonoBehaviour
     public UnityEvent OnCountdownStart;
     public UnityEvent onCountdownComplete;
 
+    [Header("Transition")]
+    [SerializeField] private Sprite[] transitionSprites;
+    [SerializeField] private Image transitionImage;
+    [SerializeField] private float transitionDuration = .3f;
+
     private Coroutine countdownCoroutine;
     private Animation animation;
 
@@ -59,6 +64,14 @@ public class Countdown : MonoBehaviour
     }
     private IEnumerator ShortCountdown()
     {
+        float timeBetweenFrames = transitionDuration / transitionSprites.Length;
+        transitionImage.enabled = true;
+        for (int i = 0; i < transitionSprites.Length; i++)
+        {
+            transitionImage.sprite = transitionSprites[i];
+            yield return new WaitForSeconds(timeBetweenFrames);
+        }
+        transitionImage.enabled = false;
         yield return new WaitForSeconds(timeBetweenElements / 2);
         countdownImage.enabled = true;
         countdownImage.sprite = countdownSprites[0];
@@ -67,7 +80,22 @@ public class Countdown : MonoBehaviour
         countdownImage.enabled = false;
         PlayerManager.Instance.EnablePlayerInput(true);
     }
-
+    public float PlayTransition()
+    {
+        StartCoroutine(PlayTransitionCoroutine());
+        return transitionDuration;
+    }
+    private IEnumerator PlayTransitionCoroutine()
+    {
+        float timeBetweenFrames = transitionDuration / transitionSprites.Length;
+        transitionImage.enabled = true;
+        for (int i = 0; i < transitionSprites.Length; i++)
+        {
+            transitionImage.sprite = transitionSprites[i];
+            yield return new WaitForSeconds(timeBetweenFrames);
+        }
+        transitionImage.enabled = false;
+    }
     private IEnumerator CountdownRoutine()
     {
         bool soundStarted = false;

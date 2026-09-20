@@ -18,6 +18,8 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] private GameObject scoreScreen;
     [SerializeField] private GameObject winScreen;
 
+    [SerializeField] private Countdown countdown;
+
     [Header("Animation Settings")]
     [SerializeField] private float reorderDuration = 0.6f;
 
@@ -255,17 +257,29 @@ public class ScoreManager : MonoBehaviour
 
     private IEnumerator ResolveScoresCoroutine()
     {
+        yield return new WaitForSeconds(countdown.PlayTransition());
+
         if (activePlayers.Count == 0 || activePlayers.Count > 4)
             yield break;
 
         restartText.SetActive(false);
         winnerShine.SetActive(false);
-        foreach (var panel in standardModeScorePanels)
+        if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {
-            panel.gameObject.SetActive(false);
+            foreach (var panel in standardModeScorePanels)
+            {
+                panel.gameObject.SetActive(false);
+            }
+        }
+        else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+        {
+            foreach (var panel in teamModeScorePanels)
+            {
+                panel.gameObject.SetActive(false);
+            }
         }
 
-        yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.2f);
 
         if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {

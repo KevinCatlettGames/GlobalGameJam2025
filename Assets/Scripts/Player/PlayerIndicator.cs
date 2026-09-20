@@ -1,5 +1,7 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Rendering;
 using UnityEngine.UI;
 
 public class PlayerIndicator : MonoBehaviour
@@ -11,6 +13,7 @@ public class PlayerIndicator : MonoBehaviour
     [SerializeField] private TextMeshProUGUI text;
 
     private bool isUsingImage = false;
+    private float disableDelay = 2f;
 
     public void InitialiseIndicator(Color color, int playerID)
     {
@@ -28,10 +31,27 @@ public class PlayerIndicator : MonoBehaviour
 
     public void ToggleIndicator(bool enabled)
     {
-        arrowObject.SetActive(enabled);
-        if (isUsingImage)
-            iconObject.SetActive(enabled);
+        if (enabled)
+        {
+            arrowObject.SetActive(enabled);
+            if (isUsingImage)
+                iconObject.SetActive(enabled);
+            else
+                textObject.SetActive(enabled);
+        }
         else
-            textObject.SetActive(enabled);
+        {
+            StartCoroutine(DelayedDeactivate());
+        }
+    }
+
+    private IEnumerator DelayedDeactivate()
+    {
+        yield return new WaitForSeconds(disableDelay);
+        arrowObject.SetActive(false);
+        if (isUsingImage)
+            iconObject.SetActive(false);
+        else
+            textObject.SetActive(false);
     }
 }

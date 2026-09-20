@@ -73,6 +73,7 @@ public class ClamEvent : MapEvent
         if (!NetworkManager.Singleton.IsServer) return;
         if (clams.Length <= 0) return;
         isClaming = true;
+        timer = 0;
     }
 
     protected override void StopEvent()

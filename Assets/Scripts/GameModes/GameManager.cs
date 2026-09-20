@@ -202,7 +202,7 @@ public class GameManager : NetworkBehaviour
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
-        UIManager.Instance.SetScoreScreenActive(true);
+        UIManager.Instance.SetScoreScreenActive(true, true);
         finishedRoundCount++;
 
         if (LobbyManager.instance)
@@ -227,7 +227,7 @@ public class GameManager : NetworkBehaviour
         gameEnded = false;
         isReadyToRestart = false;
         IsResetting = false;
-        UIManager.Instance.SetScoreScreenActive(false);
+        UIManager.Instance.SetScoreScreenActive(false, true);
         ResetRapidShotStreaks();
         killsPerPlayerInRound = new int[maxPlayers];
     }
@@ -246,7 +246,7 @@ public class GameManager : NetworkBehaviour
         gameEnded = false;
         isReadyToRestart = false;
         IsResetting = false;
-        UIManager.Instance.SetScoreScreenActive(false);
+        UIManager.Instance.SetScoreScreenActive(false, true);
         Invoke(nameof(EnableDeathzonesServerRpc), .5f);
         killsPerPlayerInRound = new int[maxPlayers];
     }
