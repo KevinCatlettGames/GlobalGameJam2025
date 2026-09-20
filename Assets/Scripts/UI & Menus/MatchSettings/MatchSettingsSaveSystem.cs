@@ -34,9 +34,9 @@ public class MatchSettingsSaveSystem : NetworkBehaviour
         PlayerPrefs.SetInt("LoadOutType", (int)lobbyManager.selectedLoadoutType);
         PlayerPrefs.SetInt("LeftSpellIndex", lobbyManager.selectedLeftSpellIndex);
         PlayerPrefs.SetInt("RightSpellIndex", lobbyManager.selectedRightSpellIndex);
-        PlayerPrefs.SetInt("WinsNeeded", lobbyManager.winsNeeded);
+        PlayerPrefs.SetInt("WinsNeeded", lobbyManager.winsNeeded.Value);
         PlayerPrefs.SetInt("PlayTutorial", lobbyManager.playTutorial ? 1 : 0);
-        PlayerPrefs.SetInt("PlayEndless", lobbyManager.playEndless ? 1 : 0);
+        PlayerPrefs.SetInt("PlayEndless", lobbyManager.playEndless.Value ? 1 : 0);
 
         // SPELLS
         for (int i = 0; i < lobbyManager.Spells.Length; i++)
@@ -104,10 +104,10 @@ public class MatchSettingsSaveSystem : NetworkBehaviour
 
         lobbyManager.selectedLeftSpellIndex = PlayerPrefs.GetInt("LeftSpellIndex", lobbyManager.selectedLeftSpellIndex);
         lobbyManager.selectedRightSpellIndex = PlayerPrefs.GetInt("RightSpellIndex", lobbyManager.selectedRightSpellIndex);
-        lobbyManager.winsNeeded = PlayerPrefs.GetInt("WinsNeeded", lobbyManager.winsNeeded);
+        lobbyManager.winsNeeded.Value = PlayerPrefs.GetInt("WinsNeeded", lobbyManager.winsNeeded.Value);
 
         lobbyManager.playTutorial = PlayerPrefs.GetInt("PlayTutorial", lobbyManager.playTutorial ? 1 : 0) == 1;
-        lobbyManager.playEndless = PlayerPrefs.GetInt("PlayEndless", lobbyManager.playEndless ? 1 : 0) == 1;
+        lobbyManager.playEndless.Value = PlayerPrefs.GetInt("PlayEndless", lobbyManager.playEndless.Value ? 1 : 0) == 1;
     }
 
     private void LoadSpellSettings()

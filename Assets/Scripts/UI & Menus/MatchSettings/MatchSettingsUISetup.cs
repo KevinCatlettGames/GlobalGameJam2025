@@ -43,9 +43,9 @@ public class MatchSettingsUISetup : MonoBehaviour
         LobbyManager lobbyManager = LobbyManager.instance;
 
         playTutorialToggle.SetIsOnWithoutNotify(lobbyManager.playTutorial);
-        playEndlessToggle.SetIsOnWithoutNotify(lobbyManager.playEndless);
-        winsNeededSlider.SetValueWithoutNotify(lobbyManager.winsNeeded);
-        winsNeededText.text = lobbyManager.winsNeeded.ToString();
+        playEndlessToggle.SetIsOnWithoutNotify(lobbyManager.playEndless.Value);
+        winsNeededSlider.SetValueWithoutNotify(lobbyManager.winsNeeded.Value);
+        winsNeededText.text = lobbyManager.winsNeeded.Value.ToString();
 
         int gameModeValue = (int)lobbyManager.SelectedGameMode;
         if (gameModeValue == 1)

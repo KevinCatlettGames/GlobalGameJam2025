@@ -388,7 +388,7 @@ public class ScoreManager : MonoBehaviour
             {
                 for (int teamID = 0; teamID < 2; teamID++)
                 {
-                    if (scores.WinScores[teamID] >= LobbyManager.instance.winsNeeded)
+                    if (scores.WinScores[teamID] >= LobbyManager.instance.winsNeeded.Value)
                     {
                         showWinner = true;
                         break;
@@ -399,7 +399,7 @@ public class ScoreManager : MonoBehaviour
             {
                 foreach (var p in activePlayers)
                 {
-                    if (scores.WinScores[p] >= LobbyManager.instance.winsNeeded)
+                    if (scores.WinScores[p] >= LobbyManager.instance.winsNeeded.Value)
                     {
                         showWinner = true;
                         break;

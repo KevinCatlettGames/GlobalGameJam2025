@@ -75,10 +75,8 @@ public class LobbyManager : NetworkBehaviour
         set => ChangeSelectedGameModeClientRpc(value);
     }
 
-    public int winsNeeded = 8;
-
-    [Tooltip("If enabled, the game runs endlessly.")]
-    public bool playEndless;
+    public NetworkVariable<int> winsNeeded = new NetworkVariable<int>(5);
+    public NetworkVariable<bool> playEndless = new NetworkVariable<bool>(false);
 
     [Tooltip("Number of rounds already played.")]
     public int playedRounds;
@@ -101,7 +99,7 @@ public class LobbyManager : NetworkBehaviour
     private const int LeftSpellIndexConst = 0;
     private const int RightSpellIndexConst = 0;
     private const int WinsNeededConst = 5;
-    private const bool PlayTutorialConst = false;
+    private const bool PlayTutorialConst = true;
     private const bool PlayEndlessConst = false;
     
     #endregion
@@ -302,7 +300,6 @@ public class LobbyManager : NetworkBehaviour
 
         CheckIfShouldSwitchToDemoLobbyClientRpc();
         ChangeSelectedGameModeServerRpc();
-        OnClientConnectedWinConditionUpdateServerRpc(clientID);
     }
 
     void OnClientDisconnectedCallback(ulong clientID)
@@ -731,6 +728,22 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
+    public void ShowLoadingScreenForClients()
+    {
+        ShowLoadingScreenForClientsClientRpc();
+    }
+
+    [ClientRpc]
+    private void ShowLoadingScreenForClientsClientRpc()
+    {
+        if (IsServer) return; 
+
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+    }
+
     public void LoadPlateMap()
     {
         if (MenuTransitionHandler.Instance)
@@ -1003,7 +1016,7 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     void SetWinsNeededClientRpc(int value)
     {
-        winsNeeded = value;
+        winsNeeded.Value = value;
         MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
@@ -1031,7 +1044,7 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     void ToggleEndlessClientRpc(bool toggle)
     {
-        playEndless = toggle;
+        playEndless.Value = toggle;
     }
 
 
@@ -1047,12 +1060,6 @@ public class LobbyManager : NetworkBehaviour
         playerContainers[playerIndex]
        .GetComponentInChildren<TeamSelection>()
        .ChangeTeam(increment);
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void OnClientConnectedWinConditionUpdateServerRpc(ulong clientID)
-    {
-        OnClientConnectedWinConditionUpdateClientRpc(clientID, this.playEndless, this.winsNeeded);
     }
 
     [ClientRpc]
@@ -1081,24 +1088,15 @@ public class LobbyManager : NetworkBehaviour
         }
     }
 
-    [ClientRpc]
-    public void OnClientConnectedWinConditionUpdateClientRpc(ulong clientID, bool playEndless, int winsNeeded)
-    {
-        if (NetworkManager.Singleton.LocalClientId != clientID) return; 
-
-        this.playEndless = playEndless;
-        this.winsNeeded = winsNeeded;
-    }
-
     public void ResetToDefaultSettings()
     {
         selectedGameMode = GameModeConst;
         selectedLoadoutType = LoadOutTypeConst;
         selectedLeftSpellIndex = LeftSpellIndexConst;
         selectedRightSpellIndex = RightSpellIndexConst;
-        winsNeeded = WinsNeededConst;
+        winsNeeded.Value = WinsNeededConst;
         playTutorial = PlayTutorialConst;
-        playEndless = PlayEndlessConst;
+        playEndless.Value = PlayEndlessConst;
         foreach (SO_Spell spell in Spells)
             spell.CanUse = true;
         foreach(MapSettingsSO mapSettings in MapSettings)

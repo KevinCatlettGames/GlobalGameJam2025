@@ -28,10 +28,13 @@ public class EndTutorialZone : MonoBehaviour
                 {
                     tutorialMapNetworkInitializer.DespawnTutorialObjects();
 
-                    if (MapRotationSystem.Instance && !SteamIntegration.instance || MapRotationSystem.Instance && SteamIntegration.instance && SteamIntegration.instance.IsFullVersion)
+                    if (MapRotationSystem.Instance && !SteamIntegration.instance || MapRotationSystem.Instance && SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !LobbyManager.instance.IsDemoLobby)
                         MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
-                    else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+                    else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || LobbyManager.instance && LobbyManager.instance.IsDemoLobby)
+                    {
+                        LobbyManager.instance.ShowLoadingScreenForClients();
                         LobbyManager.instance.LoadDemo();
+                    }
                     exitComplete = true;
                     //Debug.Log("EXIT TUTORIAL");
                 }

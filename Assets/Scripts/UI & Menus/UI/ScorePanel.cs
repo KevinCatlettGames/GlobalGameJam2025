@@ -40,11 +40,11 @@ public class ScorePanel : MonoBehaviour
         killsText.enabled = false;
 
 
-        if(LobbyManager.instance && !LobbyManager.instance.playEndless)
+        if(LobbyManager.instance && !LobbyManager.instance.playEndless.Value)
         {
             foreach(Image image in fakePointBubbles)
                 image.enabled = false;
-            for (int i = 0; i < LobbyManager.instance.winsNeeded; i++)
+            for (int i = 0; i < LobbyManager.instance.winsNeeded.Value; i++)
             {
                 if(fakePointBubbles.Length > i)
                     fakePointBubbles[i].enabled = true;

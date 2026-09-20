@@ -8,7 +8,7 @@ public class ScoreBoxReposition : MonoBehaviour
 
     private void OnEnable()
     {
-        if (LobbyManager.instance && !LobbyManager.instance.playEndless && LobbyManager.instance.winsNeeded <= xPositions.Length)
-            GetComponent<RectTransform>().localPosition = new Vector3(xPositions[LobbyManager.instance.winsNeeded - 1], transform.localPosition.y, transform.localPosition.z);
+        if (LobbyManager.instance && !LobbyManager.instance.playEndless.Value && LobbyManager.instance.winsNeeded.Value <= xPositions.Length)
+            GetComponent<RectTransform>().localPosition = new Vector3(xPositions[LobbyManager.instance.winsNeeded.Value - 1], transform.localPosition.y, transform.localPosition.z);
     }
 }
