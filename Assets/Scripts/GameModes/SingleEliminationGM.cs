@@ -111,9 +111,11 @@ public class SingleEliminationGM : GameManager
                 if (playerStates[i] == PlayerState.alive)
                 {
                     winnerID = i;
-                    players[winnerID].Victory();
-
-                    if(gameModeType == GameModeType.Standard)
+                    if (players[winnerID] != null)
+                    {
+                        players[winnerID].Victory();
+                    }
+                    if (gameModeType == GameModeType.Standard)
                         ScoreManager.Instance.AddPendingScore(winnerID, true);
                     else if(gameModeType == GameModeType.Team)
                         ScoreManager.Instance.AddPendingTeamScore(teamIDs[winnerID], true);
@@ -124,7 +126,7 @@ public class SingleEliminationGM : GameManager
                 }
             }
 
-            if (winnerID >= 0 && winnerID < playerHUDs.Length)
+            if (winnerID >= 0 && winnerID < maxPlayers)
             {
                 yield return new WaitForSeconds(danceTime);
             }

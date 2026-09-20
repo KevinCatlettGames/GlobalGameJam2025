@@ -1668,7 +1668,7 @@ public class PlayerController : NetworkBehaviour
         
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            if(LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)
+            if(LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team && playerID != 5)
             {
                 if (LobbyPlayerValues.Instance.playerValuesList[playerID].TeamIndex == 1)
                 {

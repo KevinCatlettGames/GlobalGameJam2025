@@ -187,7 +187,7 @@ public class GameManager : NetworkBehaviour
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
-        killsPerPlayerInRound = new int[3];
+        killsPerPlayerInRound = new int[maxPlayers];
         ItemSpawner.Instance.InitialSpawn();
     }
 
@@ -217,7 +217,7 @@ public class GameManager : NetworkBehaviour
             hitReference.wasSlippery = false;
             hitReference.wasReflected = false;
         }
-        killsPerPlayerInRound = new int[3];
+        killsPerPlayerInRound = new int[maxPlayers];
         isReadyToRestart = true;
     }
 
@@ -229,7 +229,7 @@ public class GameManager : NetworkBehaviour
         IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         ResetRapidShotStreaks();
-        killsPerPlayerInRound = new int[3];
+        killsPerPlayerInRound = new int[maxPlayers];
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -248,7 +248,7 @@ public class GameManager : NetworkBehaviour
         IsResetting = false;
         UIManager.Instance.SetScoreScreenActive(false);
         Invoke(nameof(EnableDeathzonesServerRpc), .5f);
-        killsPerPlayerInRound = new int[3];
+        killsPerPlayerInRound = new int[maxPlayers];
     }
 
     public SO_GameSettings GetGameSettings() => gameSettings;

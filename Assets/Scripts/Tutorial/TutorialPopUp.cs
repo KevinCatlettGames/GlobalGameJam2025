@@ -55,7 +55,10 @@ public class TutorialPopUp : MonoBehaviour
         popUp.SetActive(true);
         isOpened = true;
         tutorialTextBox.ToggleTutorialText(false);
-        Time.timeScale = 0f;
+
+        if(!TransportSwitcher.Instance || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+            Time.timeScale = 0f;
+
         videoPlayer.Play();
         StartCoroutine(ShowClosePrompt());
     }

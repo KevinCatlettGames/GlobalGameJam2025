@@ -1246,6 +1246,7 @@ GameObject:
   - component: {fileID: 7543862790643688373}
   - component: {fileID: 1715483761393341708}
   - component: {fileID: 8012612233036303541}
+  - component: {fileID: 3700540199726109038}
   m_Layer: 5
   m_Name: RestartButton
   m_TagString: Untagged
@@ -1352,7 +1353,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 489326015046335535}
+  m_TargetGraphic: {fileID: 1367915234636622115}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
@@ -1487,6 +1488,19 @@ MonoBehaviour:
             m_StringArgument: 
             m_BoolArgument: 0
           m_CallState: 2
+--- !u!114 &3700540199726109038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1411840807667917139}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6422507186716014686416f640fb3529, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clientID: 0
 --- !u!1 &1708792306299857648
 GameObject:
   m_ObjectHideFlags: 0
@@ -6775,7 +6789,7 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7517755444268223317}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: -100}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -6871,8 +6885,8 @@ MonoBehaviour:
   emitter: {fileID: 3140911133348559556}
   eventSystem: {fileID: 0}
   restartButton: {fileID: 7691904042290826135}
-  mainMenuButton: {fileID: 0}
-  clientMainMenuButtonPosition: {x: 0, y: 0, z: 0}
+  mainMenuButton: {fileID: 3320507421572402942}
+  clientMainMenuButtonPosition: {x: -370, y: -419, z: 100}
   panelSpacing: 400
 --- !u!114 &3140911133348559556
 MonoBehaviour:
@@ -7026,7 +7040,7 @@ MonoBehaviour:
     m_SelectedTrigger: Selected
     m_DisabledTrigger: Disabled
   m_Interactable: 1
-  m_TargetGraphic: {fileID: 3242108320669554435}
+  m_TargetGraphic: {fileID: 3569844298888612340}
   m_OnClick:
     m_PersistentCalls:
       m_Calls:

@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -21,13 +22,19 @@ public class EndTutorialZone : MonoBehaviour
         {
             if (progress >= 1)
             {
-                tutorialMapNetworkInitializer.DespawnTutorialObjects();
-                if (MapRotationSystem.Instance && !SteamIntegration.instance || MapRotationSystem.Instance && SteamIntegration.instance && SteamIntegration.instance.IsFullVersion)
-                    MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
-                else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
-                    LobbyManager.instance.LoadDemo();
-                exitComplete = true;
-                //Debug.Log("EXIT TUTORIAL");
+                if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsServer
+                    || !TransportSwitcher.Instance
+                    || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+                {
+                    tutorialMapNetworkInitializer.DespawnTutorialObjects();
+
+                    if (MapRotationSystem.Instance && !SteamIntegration.instance || MapRotationSystem.Instance && SteamIntegration.instance && SteamIntegration.instance.IsFullVersion)
+                        MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+                    else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+                        LobbyManager.instance.LoadDemo();
+                    exitComplete = true;
+                    //Debug.Log("EXIT TUTORIAL");
+                }
             }
             else
             {

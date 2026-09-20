@@ -43,6 +43,8 @@ public class ExplodingBubble : BasicBubble
         }
 
         fizzleEffect = hitEffect;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            ChangeToHitEffectClientRpc();
         Pop();
     }
 
@@ -135,16 +137,28 @@ public class ExplodingBubble : BasicBubble
         {
             Explode();
             fizzleEffect = hitEffect;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ChangeToHitEffectClientRpc();
+
         }
         else
         {
             fizzleEffect = earlyFizzleEffect;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ChangeToEarlyFizzleClientRpc();
         }
         base.Pop();
     }
 
-    public void ChangeToEarlyFizzle()
+    [ClientRpc]
+    void ChangeToHitEffectClientRpc()
     {
-        fizzleEffect = earlyFizzleEffect;
+        fizzleEffect = hitEffect;
+    }
+
+    [ClientRpc]
+    void ChangeToEarlyFizzleClientRpc()
+    {
+        fizzleEffect = hitEffect;
     }
 }

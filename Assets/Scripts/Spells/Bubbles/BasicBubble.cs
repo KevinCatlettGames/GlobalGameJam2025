@@ -379,6 +379,9 @@ public class BasicBubble : NetworkBehaviour
             if (!isUlt) playerCollider.GetComponent<PlayerController>().GainUltCharge(damage, true);
 
             fizzleEffect = hitEffect;
+            if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ChangeFizzleToHitEffectClientRpc();
+
             hasHitPlayer = true;
             if (popOnPlayerHit)
             {
@@ -400,6 +403,13 @@ public class BasicBubble : NetworkBehaviour
         {
             Pop();
         }
+    }
+
+
+    [ClientRpc]
+    void ChangeFizzleToHitEffectClientRpc()
+    {
+        fizzleEffect = hitEffect;
     }
 
     protected virtual void Pop()
