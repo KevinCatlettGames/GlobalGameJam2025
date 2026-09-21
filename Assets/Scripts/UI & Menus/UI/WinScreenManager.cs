@@ -20,7 +20,6 @@ public class WinScreenManager : MonoBehaviour
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button mainMenuButton;
-    [SerializeField] private Vector3 clientMainMenuButtonPosition;
     [SerializeField] private float panelSpacing = 400f;
 
     private void Awake()
@@ -41,10 +40,7 @@ public class WinScreenManager : MonoBehaviour
             || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
             eventSystem.SetSelectedGameObject(restartButton.gameObject);
         else if(mainMenuButton)
-        {          
-            mainMenuButton.gameObject.transform.localPosition = clientMainMenuButtonPosition;
             eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
-        }
 
         ShowWinnerUsingWinScore();
         PlayerManager.Instance.EnablePlayerInput(false);
