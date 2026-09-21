@@ -41,7 +41,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         Init();
 
         if(IsServer && TransportSwitcher.Instance.isUsingRelay)
-            Invoke(nameof(DoShare), 2f);
+            Invoke(nameof(DoShare), 1f);
     }
 
     void DoShare()
@@ -54,7 +54,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     void ShareValuesToClientServerRpc()
     {
         ShareValuesClientRpc(currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
-        //Invoke(nameof(DoShare), 10f);
+        Invoke(nameof(DoShare), 5f);
     }
 
     void Init()
