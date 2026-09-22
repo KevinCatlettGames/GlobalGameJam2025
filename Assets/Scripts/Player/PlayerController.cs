@@ -267,7 +267,6 @@ public class PlayerController : NetworkBehaviour
         HandleMovementAndRotation();
         HandleAnimations();
         ApplyMovement();
-        HandleDesyncAndSync();
         HandleGroundRaycast();
         IncrementDodgeBubbleAchievement();
     }
@@ -356,9 +355,16 @@ public class PlayerController : NetworkBehaviour
         bool isMoving = movementInput.sqrMagnitude > 0.01f;
 
         if (GameManager.Instance.PlayingLocal)
+        {
             mainAnimator?.SetBool("IsWalking", isMoving);
+        }
         else
-            WalkingAnimServerRpc(new Vector3(movementInput.x, 0, movementInput.y));
+        {
+            if (isMoving != wasMovingLastFrame)
+            {
+                WalkingAnimServerRpc(isMoving);
+            }
+        }
 
         if (!wasMovingLastFrame && isMoving)
         {
@@ -367,14 +373,6 @@ public class PlayerController : NetworkBehaviour
         }
 
         wasMovingLastFrame = isMoving;
-    }
-    
-    private void HandleDesyncAndSync()
-    {
-        if (Vector3.Distance(transform.position, lastPosition) > desyncThreshold)
-        {
-            lastPosition = transform.position;
-        }
     }
 
     public void Teleport(Vector3 destination, Quaternion rotation)
@@ -791,22 +789,26 @@ public class PlayerController : NetworkBehaviour
 
         StartCoroutine(SprintCoroutine());
 
-        if (GameManager.Instance.PlayingLocal)
+        TriggerSprintEffectsLocal();
+
+        if (!GameManager.Instance.PlayingLocal)
         {
-            if (dashStartEffect != null)
-            {
-                Instantiate(dashStartEffect, transform.position, transform.rotation);
-                RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
-            }
-            mainAnimator.Play("Dash", 0, 0);
+            SprintStateServerRpc(true);
         }
-        else
+    }
+
+    private void TriggerSprintEffectsLocal()
+    {
+        if (dashStartEffect != null)
         {
             Instantiate(dashStartEffect, transform.position, transform.rotation);
             RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
-            SpawnDashEffectServerRpc();
-            DashAnimServerRpc();
         }
+
+        if (GameManager.Instance.PlayingLocal)
+            mainAnimator.Play("Dash", 0, 0);
+        else
+            GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Dash");
     }
 
     private IEnumerator SprintCoroutine()
@@ -818,10 +820,7 @@ public class PlayerController : NetworkBehaviour
         moveSmoothTime = 0f;
         isSprinting = true;
 
-        if (GameManager.Instance.PlayingLocal)
-            OnBeginSprint?.Invoke();
-        else
-            BeginSprintServerRpc();
+        OnBeginSprint?.Invoke();
 
         float duration = 0;
         do
@@ -839,43 +838,46 @@ public class PlayerController : NetworkBehaviour
         moveSmoothTime = originalSmooth;
         isSprinting = false;
 
-        if (GameManager.Instance.PlayingLocal)
-            OnEndSprint?.Invoke();
-        else
-            EndSprintServerRpc();
+        OnEndSprint?.Invoke();
+
+        if (!GameManager.Instance.PlayingLocal)
+        {
+            SprintStateServerRpc(false);
+        }
 
         yield return new WaitForSeconds(sprintCooldown);
         canSprint = true;
     }
 
     [ServerRpc(RequireOwnership = false)]
-    private void SpawnDashEffectServerRpc() => SpawnDashEffectClientRpc();
+    private void SprintStateServerRpc(bool isStarting)
+    {
+        SprintStateClientRpc(isStarting);
+    }
 
     [ClientRpc]
-    private void SpawnDashEffectClientRpc()
+    private void SprintStateClientRpc(bool isStarting)
     {
         if (IsOwner) return;
-        if (dashStartEffect != null)
+
+        if (isStarting)
         {
-            Instantiate(dashStartEffect, transform.position, transform.rotation);
-            RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
+            if (dashStartEffect != null)
+            {
+                Instantiate(dashStartEffect, transform.position, transform.rotation);
+                RuntimeManager.PlayOneShotAttached(dashEvent, gameObject);
+            }
+            GetComponent<NetworkAnimatorProxy>().SetAnimTrigger("Dash");
+            OnBeginSprint?.Invoke();
+        }
+        else
+        {
+            OnEndSprint?.Invoke();
         }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void BeginSprintServerRpc() => BeginSprintClientRpc();
-
-    [ClientRpc]
-    private void BeginSprintClientRpc() => OnBeginSprint?.Invoke();
-
-    [ServerRpc(RequireOwnership = false)]
-    private void EndSprintServerRpc() => EndSprintClientRpc();
-
-    [ClientRpc]
-    private void EndSprintClientRpc() => OnEndSprint?.Invoke();
-
     #endregion
-    
+
     #region Emotes
 
     public void OnEmote(InputAction.CallbackContext context)
@@ -1310,7 +1312,8 @@ public class PlayerController : NetworkBehaviour
                     player.ApplyImpulseLocal(direction, bounceStrength);
                 else
                 {
-                    player.ApplyImpulseServerRpc(direction, bounceStrength);
+                    if(IsServer)
+                        player.ApplyImpulseClientRpc(direction, bounceStrength);
                 }
                 ApplyImpulseLocal(-direction, bounceStrength);
                 break;
@@ -1328,7 +1331,8 @@ public class PlayerController : NetworkBehaviour
                         }
                         else
                         {
-                            ApplyKnockbackServerRpc(-1, v, 1, dmg, false);
+                            if(IsServer)
+                                ApplyKnockbackClientRpc(-1, v, 1, dmg, false);
                         }
                     }
                     else
@@ -1861,15 +1865,15 @@ public class PlayerController : NetworkBehaviour
     #region RPC Animations
 
     [ServerRpc(RequireOwnership = false)]
-    private void WalkingAnimServerRpc(Vector3 direction)
+    private void WalkingAnimServerRpc(bool isWalking)
     {
-        WalkingAnimClientRpc(direction);
+        WalkingAnimClientRpc(isWalking);
     }
 
     [ClientRpc]
-    private void WalkingAnimClientRpc(Vector3 direction)
+    private void WalkingAnimClientRpc(bool isWalking)
     {
-        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsWalking", direction.sqrMagnitude > 0.01f);
+        GetComponent<NetworkAnimatorProxy>().SetAnimBool("IsWalking", isWalking);
     }
 
     [ServerRpc(RequireOwnership = false)]

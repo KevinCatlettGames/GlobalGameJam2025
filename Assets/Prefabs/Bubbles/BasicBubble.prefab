@@ -5015,6 +5015,7 @@ MonoBehaviour:
       Data3: -1059374198
       Data4: 1862568052
     Path: event:/sfx/spells/basic_spell
+  desyncThreshold: 0.75
   isLocalFake: 0
   impactLayerMask:
     serializedVersion: 2
@@ -5103,7 +5104,7 @@ MonoBehaviour:
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -5118,10 +5119,10 @@ MonoBehaviour:
   ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
+  Interpolate: 1
   SlerpPosition: 0
 --- !u!114 &-9100837447648041081
 MonoBehaviour:
