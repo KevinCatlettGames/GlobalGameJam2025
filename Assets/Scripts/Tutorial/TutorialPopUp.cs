@@ -17,6 +17,8 @@ public class TutorialPopUp : MonoBehaviour
     [SerializeField] private DotweenAnchorTransition transition;
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage videoImage;
+    [SerializeField] private VideoClip windowsClip;
+    [SerializeField] private VideoClip linuxClip;
 
     private RenderTexture renderTexture;
     private bool isOpened = false;
@@ -45,6 +47,11 @@ public class TutorialPopUp : MonoBehaviour
         }
         renderTexture = new RenderTexture(1280, 720, 0);
         renderTexture.Create();
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR
+        videoPlayer.clip = windowsClip;
+#else
+        videoPlayer.clip = linuxClip;
+#endif
         videoPlayer.targetTexture = renderTexture;
         videoImage.texture = renderTexture;
         videoPlayer.Prepare();
