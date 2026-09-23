@@ -536,7 +536,7 @@ public class PlayerController : NetworkBehaviour
                 fmodEvent.start();
                 fmodEvent.release();
             }
-            SlapAnimServerRpc(isFirstSpell);
+            // SlapAnimServerRpc(isFirstSpell);
         }
     }
 
@@ -660,6 +660,15 @@ public class PlayerController : NetworkBehaviour
         {
             if (usedSpell.Count >= ItemSpawner.Instance.SpawnableItems.Length)
                 AchievementSaveSystem.instance.UnlockAchievement(28);
+        }
+
+        if (spell != null)
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(spell.SpellVoiceEvent);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+            fmodEvent.setParameterByName(voiceProfileParam, voiceProfile);
+            fmodEvent.start();
+            fmodEvent.release();
         }
     }
 
