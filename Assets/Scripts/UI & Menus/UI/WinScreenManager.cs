@@ -36,11 +36,11 @@ public class WinScreenManager : MonoBehaviour
     private void OnEnable()
     {
         gameUI.SetActive(false);
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsHost
-            || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
-            eventSystem.SetSelectedGameObject(restartButton.gameObject);
-        else if(mainMenuButton)
-            eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
+        //if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsHost
+        //    || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+        //    eventSystem.SetSelectedGameObject(restartButton.gameObject);
+        //else if(mainMenuButton)
+        //    eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
 
         ShowWinnerUsingWinScore();
         PlayerManager.Instance.EnablePlayerInput(false);

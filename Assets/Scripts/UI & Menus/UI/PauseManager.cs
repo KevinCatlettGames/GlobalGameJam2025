@@ -35,6 +35,8 @@ public class PauseManager : NetworkBehaviour
     private InputAction pauseAction;
     private InputAction backAction;
 
+    public bool PausingEnabled = true;
+
     private void Awake()
     {
         if (Instance == null)
@@ -146,7 +148,7 @@ public class PauseManager : NetworkBehaviour
 
     public void OnPauseInput(InputAction.CallbackContext context)
     {
-        if (!context.performed) return;
+        if (!context.performed || !PausingEnabled) return;
         TogglePause();
     }
 
