@@ -1,13 +1,10 @@
 using FMODUnity;
 using System.Collections.Generic;
-using Unity.VisualScripting;
-using UnityEditor.Timeline.Actions;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
 using UnityEngine.UI;
-using static UnityEngine.Timeline.DirectorControlPlayable;
 
 public class WinScreenButtons : MonoBehaviour
 {
