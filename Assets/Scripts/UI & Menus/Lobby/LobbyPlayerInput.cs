@@ -1,11 +1,13 @@
 ﻿using FMOD.Studio;
 using FMODUnity;
+using JetBrains.Annotations;
 using Steamworks;
 using System;
 using System.Collections;
 using System.Globalization;
 using Unity.Collections;
 using Unity.Netcode;
+using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
@@ -268,7 +270,7 @@ public class LobbyPlayerInput : NetworkBehaviour
         {
             if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == playerIndex.Value && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
             {
-                LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
+                //LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
                 PlaySFX(false, 3);
                 return;
             }
@@ -290,7 +292,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                 || AchievementSaveSystem.instance && LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement.AchievementID))
             {
                 PlaySFX(false, 3);
-                LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
+                //LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
                 return;
             }
 
@@ -305,7 +307,9 @@ public class LobbyPlayerInput : NetworkBehaviour
                     playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
             }
 
-            PlaySFX(true, 2);
+            PlaySFX(true, 3);
+            PlaySFXWithParam(true, 4, "VoiceProfile", (int)LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.VoiceProfile);
+
         }
     }
 
@@ -337,6 +341,7 @@ public class LobbyPlayerInput : NetworkBehaviour
                 lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false, networkSteamId.Value);
 
             PlaySFX(true, 3);
+            PlaySFXWithParam(true, 5, "VoiceProfile", (int)LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.VoiceProfile);
             return;
         }
 
@@ -479,18 +484,50 @@ public class LobbyPlayerInput : NetworkBehaviour
         }
     }
 
+    private void PlaySFXWithParam(bool shareWithClients, int referenceID, string paramName, int voiceProfile)
+    {
+        if (TransportSwitcher.Instance.isUsingRelay && shareWithClients)
+        {
+            PlaySFXWithParamServerRpc(playerIndex.Value, referenceID, paramName, voiceProfile);
+        }
+        else
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+            fmodEvent.setParameterByName(paramName, voiceProfile);
+            fmodEvent.start();
+            fmodEvent.release();
+        }
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void PlaySFXServerRpc(int playerID, int referenceID)
     {
         PlaySFXClientRpc(playerID, referenceID);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void PlaySFXWithParamServerRpc(int playerID, int referenceID, string paramName, int voiceProfile)
+    {
+        PlaySFXWithParamClientRpc(playerID, referenceID, paramName, voiceProfile);
+
+    }
 
     [ClientRpc]
     private void PlaySFXClientRpc(int playerID, int referenceID)
     {
         EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+        fmodEvent.start();
+        fmodEvent.release();
+    }
+
+    [ClientRpc]
+    private void PlaySFXWithParamClientRpc(int playerID, int referenceID, string paramName, int voiceProfile)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+        fmodEvent.setParameterByName(paramName, voiceProfile);
         fmodEvent.start();
         fmodEvent.release();
     }
