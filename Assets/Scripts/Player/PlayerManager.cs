@@ -2,6 +2,7 @@ using FMODUnity;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -30,7 +31,6 @@ public class PlayerManager : NetworkBehaviour
 
     private int playersInitializedCount = 0;
 
-    public InputActionProperty startGameInputAction; 
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
 
@@ -64,12 +64,7 @@ public class PlayerManager : NetworkBehaviour
 
     private void OnDisable()
     {
-        startGameInputAction.action.performed -= ActionOnPerformed;
-        startGameInputAction.action.Disable();
-
         InputSystem.onDeviceChange -= OnDeviceChange;
-        startGameInputAction.action.performed -= ActionOnPerformed;
-        startGameInputAction.action.Disable();
     }
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
@@ -113,12 +108,6 @@ public class PlayerManager : NetworkBehaviour
         GameManager.Instance.OnGameStarted += ResetPlayers;
         if (GameManager.Instance.PlayingLocal)
         {
-            if (!TransportSwitcher.Instance)
-            {
-                startGameInputAction.action.performed += ActionOnPerformed;
-                startGameInputAction.action.Enable();
-            }
-
             playerInputManager.enabled = true;
         }
         
@@ -132,49 +121,6 @@ public class PlayerManager : NetworkBehaviour
         }
     }
     
-    private void ActionOnPerformed(InputAction.CallbackContext context)
-    {
-        startGameInputAction.action.performed -= ActionOnPerformed;
-        startGameInputAction.action.Disable();
-        
-        if (LobbyPlayerValues.Instance != null)
-        {
-            LobbyPlayerValues lobbyPlayerHandler = LobbyPlayerValues.Instance;
-
-            foreach (LobbyPlayerValues.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
-            {
-                if (playerDevice == null) continue;
-
-                InputDevice device = playerDevice.Device;
-                bool isDeviceAvailable = device != null && device.added;
-
-                if (device is Keyboard)
-                {
-                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex,
-                        -1,
-                        "Keyboard",
-                        isDeviceAvailable ? device : null
-                    );
-                }
-                else if (device is Gamepad || !isDeviceAvailable)
-                {
-                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex,
-                        -1,
-                        null,
-                        isDeviceAvailable ? device : null
-                    );
-
-                    if (newPlayer != null && isDeviceAvailable)
-                    {
-                        newPlayer.SwitchCurrentControlScheme(device);
-                    }
-                }
-            }
-        }
-    }
-
     void StartLocalGame()
     {
         RerollSpells();

@@ -49,6 +49,7 @@ public class GameManager : NetworkBehaviour
     #region Protected & Private State
 
     protected const int maxPlayers = 4;
+    protected int playerCount = 0;
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
@@ -272,6 +273,7 @@ public class GameManager : NetworkBehaviour
         }
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
+        playerCount++;
     }
 
     public List<PlayerController> GetTeam(int playerID)
