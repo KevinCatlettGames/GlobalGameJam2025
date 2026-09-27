@@ -36,7 +36,6 @@ public class EndTutorialZone : MonoBehaviour
                         LobbyManager.instance.LoadDemo();
                     }
                     exitComplete = true;
-                    //Debug.Log("EXIT TUTORIAL");
                 }
             }
             else
@@ -59,7 +58,6 @@ public class EndTutorialZone : MonoBehaviour
             if (!playerControllers.Contains(p) && p.PlayerID != 5)
             {
                 playerControllers.Add(p);
-                Debug.Log(p.PlayerID);
             }
         }
     }
