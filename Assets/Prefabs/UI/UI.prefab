@@ -1332,9 +1332,13 @@ MonoBehaviour:
   pingIcon: {fileID: 6793991281469390504}
   pingText: {fileID: 156073328272815305}
   checkInterval: 1
-  moderatePing: 100
-  poorPing: 180
-  criticalPing: 300
+  startupDelay: 10
+  moderatePing: 80
+  poorPing: 140
+  criticalPing: 220
+  smoothingFactor: 0.25
+  hysteresisMargin: 15
+  hideDelay: 2
   moderateColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   poorColor: {r: 1, g: 0.5, b: 0, a: 1}
   criticalColor: {r: 1, g: 0, b: 0, a: 1}
@@ -2296,7 +2300,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 828, y: 80.3}
+  m_AnchoredPosition: {x: 828, y: 11.9}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &507590849843832796
@@ -3236,6 +3240,7 @@ MonoBehaviour:
   restartButton: {fileID: 0}
   scores: {fileID: 11400000, guid: 1ade5abf6505b6648bf5cb3734a47118, type: 2}
   backInputCooldown: 0.2
+  PausingEnabled: 1
 --- !u!114 &6096867511664182512
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5432,7 +5437,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
-  m_AnchoredPosition: {x: 827.5, y: 35.4}
+  m_AnchoredPosition: {x: 827.5, y: -33.000023}
   m_SizeDelta: {x: 200, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1753748289173556841

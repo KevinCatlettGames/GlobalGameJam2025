@@ -5523,6 +5523,7 @@ GameObject:
   - component: {fileID: 668938801046869058}
   - component: {fileID: 6669410909583104016}
   - component: {fileID: 1353372073339631796}
+  - component: {fileID: 6162131660501553809}
   m_Layer: 5
   m_Name: ReadyButton_Image
   m_TagString: Untagged
@@ -5570,19 +5571,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0.43529412, b: 0.050980393, a: 1}
+  m_Color: {r: 0.6509434, g: 0.6509434, b: 0.6509434, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
-  m_FillAmount: 1
+  m_FillAmount: 0
   m_FillClockwise: 1
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
@@ -5709,6 +5710,27 @@ MonoBehaviour:
   OverrideAttenuation: 0
   OverrideMinDistance: 1
   OverrideMaxDistance: 20
+--- !u!114 &6162131660501553809
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6329736415446368541}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 0fd402a6cc1e2e74f855c1ef70976e8d, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: a8cfe7c27f5796a4892fdaef2bebbbf1, type: 3}
 --- !u!1 &6405012057631436170
 GameObject:
   m_ObjectHideFlags: 0
@@ -7539,6 +7561,7 @@ GameObject:
   - component: {fileID: 3583404368210583453}
   - component: {fileID: 2622884681268351927}
   - component: {fileID: 8536298504643581351}
+  - component: {fileID: 8556935436056412976}
   m_Layer: 5
   m_Name: ReadyButtonBackground_Image
   m_TagString: Untagged
@@ -7586,14 +7609,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 1, b: 0.11711717, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7603,6 +7626,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &8556935436056412976
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8010167646592663324}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 0fd402a6cc1e2e74f855c1ef70976e8d, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: a8cfe7c27f5796a4892fdaef2bebbbf1, type: 3}
 --- !u!1 &8054316700189613039
 GameObject:
   m_ObjectHideFlags: 0
@@ -8649,6 +8693,7 @@ GameObject:
   - component: {fileID: 4333607242076453081}
   - component: {fileID: 2083764139975821263}
   - component: {fileID: 8271687869487714042}
+  - component: {fileID: 5966388608761113580}
   m_Layer: 5
   m_Name: BackButton_Image
   m_TagString: Untagged
@@ -8696,14 +8741,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.955, g: 0.23604715, b: 0.23604715, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8713,6 +8758,27 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &5966388608761113580
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8970204199467961758}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: 623778ff5783c2c409e2e3c4c49208cf, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &8994225426166135894
 GameObject:
   m_ObjectHideFlags: 0
