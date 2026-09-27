@@ -101,7 +101,8 @@ public class PlayerController : NetworkBehaviour
     public bool WasSlowedWhenLastHit { get { return wasSlowedWhenLastHit; } }
     private int slipperyCounter = 0;
     private bool isSlippery = false; 
-    private Coroutine vulnerableRoutine = null;
+    private Coroutine vulnerableRoutine = null; 
+    private Coroutine stopVulnerableRoutine = null;
     private float vulnerableTimer = 0f;
     private bool isStunned = false;
     #endregion
@@ -1466,6 +1467,14 @@ public class PlayerController : NetworkBehaviour
     }
     private void StopVulnerable()
     {
+        if(stopVulnerableRoutine == null)
+        {
+            stopVulnerableRoutine = StartCoroutine(StopVulnerableCoroutine());
+        }
+    }
+    private IEnumerator StopVulnerableCoroutine()
+    {
+        yield return new WaitForSeconds(.1f);
         if (vulnerableRoutine != null)
             StopCoroutine(vulnerableRoutine);
         vulnerableRoutine = null;
@@ -1473,6 +1482,7 @@ public class PlayerController : NetworkBehaviour
         shaderManager?.SetShaderState(ShaderState.sauced, false);
         if (vulnerableEffect)
             vulnerableEffect.Stop();
+        stopVulnerableRoutine = null;
     }
     public void Stun(float duration)
     {

@@ -115,10 +115,8 @@ public class SingleEliminationGM : GameManager
                     {
                         players[winnerID].Victory();
                     }
-                    if (gameModeType == GameModeType.Standard)
-                        ScoreManager.Instance.AddPendingScore(winnerID, true);
-                    else if(gameModeType == GameModeType.Team)
-                        ScoreManager.Instance.AddPendingTeamScore(teamIDs[winnerID], true);
+
+                    ScoreManager.Instance.AddPendingScore(winnerID, true);
 
                     UnlockRoundEndWithZeroDamageAchievement(winnerID);
                     UnlockRoundEndWithXDamageAchievement(winnerID);
@@ -145,10 +143,7 @@ public class SingleEliminationGM : GameManager
             }
             if (winnerID != -1)
             {
-                if (gameModeType == GameModeType.Standard)
-                    ScoreManager.Instance.AddPendingScore(winnerID, true);
-                else if (gameModeType == GameModeType.Team)
-                    ScoreManager.Instance.AddPendingTeamScore(winnerID, true);
+                ScoreManager.Instance.AddPendingTeamScore(winnerID, true);
                 yield return new WaitForSeconds(danceTime);
             }
         }
