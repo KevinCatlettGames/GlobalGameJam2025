@@ -10,8 +10,7 @@ public class MusicPlayer : MonoBehaviour
         if (Instance == null)
         {
             Instance = this;
-            DontDestroyOnLoad(this.gameObject);
-            Debug.Log(gameObject);
+            DontDestroyOnLoad(gameObject);
         }
         else
         {

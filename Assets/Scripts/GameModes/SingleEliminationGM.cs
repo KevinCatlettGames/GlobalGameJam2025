@@ -4,6 +4,8 @@ using Unity.Netcode;
 
 public class SingleEliminationGM : GameManager
 {
+    private float roundEndTimer = 0f;
+    private float checkIntevall = 1f;
     private void Start()
     {
         Time.timeScale = 1;
@@ -21,7 +23,7 @@ public class SingleEliminationGM : GameManager
                 CallGameEndClientRpc();
             }
         }
-        else
+        else if (gameModeType == GameModeType.Standard)
         {
             if (CountAlivePlayers() <= 1)
             {
@@ -42,12 +44,34 @@ public class SingleEliminationGM : GameManager
                 CallGameEndLocal();
             }
         }
-        else
+        else if (gameModeType == GameModeType.Standard)
         {
             if (CountAlivePlayers() <= 1)
             {
                 gameEnded = true;
                 CallGameEndLocal();
+            }
+        }
+    }
+    private void Update()
+    {
+        if (gameEnded == false && playerCount >= 2)
+        {
+            if (roundEndTimer < checkIntevall)
+            {
+                roundEndTimer += Time.deltaTime;
+            }
+            else
+            {
+                roundEndTimer = 0;
+                if (PlayingLocal)
+                {
+                    CheckForRoundEndLocal();
+                }
+                else
+                {
+                    CheckForRoundEndServerRpc();
+                }
             }
         }
     }
