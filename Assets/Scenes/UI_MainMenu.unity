@@ -733,6 +733,18 @@ MonoBehaviour:
   OnInputActionPerformed:
     m_PersistentCalls:
       m_Calls:
+      - m_Target: {fileID: 44679711}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
       - m_Target: {fileID: 128647767}
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
@@ -745,10 +757,10 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 1
         m_CallState: 2
-      - m_Target: {fileID: 44679711}
-        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
-        m_MethodName: SetActive
-        m_Mode: 6
+      - m_Target: {fileID: 623553324}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -12551,13 +12563,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 256631123}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 256631119}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -12701,6 +12713,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 256631122}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -13183,6 +13207,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
       value: 
       objectReference: {fileID: 623553324}
+    - target: {fileID: 2766429392476838613, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24,
+        type: 3}
     - target: {fileID: 5544960541027663232, guid: 236dbc0945aff8d4a80d4d018c7ada38,
         type: 3}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[1].m_Target
@@ -13248,6 +13278,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 6645603933553882544, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24,
+        type: 3}
+    - target: {fileID: 6645603933553882544, guid: 236dbc0945aff8d4a80d4d018c7ada38,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[2].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff,
+        type: 3}
     - target: {fileID: 8916640113473416445, guid: 236dbc0945aff8d4a80d4d018c7ada38,
         type: 3}
       propertyPath: m_Name
@@ -15151,7 +15193,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -15183,11 +15225,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBindings:
   - deviceType: 0
-    sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   - deviceType: 1
     sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
   - deviceType: 2
-    sprite: {fileID: 21300000, guid: 623778ff5783c2c409e2e3c4c49208cf, type: 3}
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
   - deviceType: 3
     sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &444237286
@@ -21683,13 +21725,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 1042356997}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 1042356993}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -21833,6 +21875,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 256631122}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -22287,6 +22341,18 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -50
       objectReference: {fileID: 0}
+    - target: {fileID: 5966388608761113580, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24,
+        type: 3}
+    - target: {fileID: 5966388608761113580, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[2].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff,
+        type: 3}
     - target: {fileID: 5973513855934105576, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -22307,6 +22373,30 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -50
       objectReference: {fileID: 0}
+    - target: {fileID: 6162131660501553809, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9,
+        type: 3}
+    - target: {fileID: 6162131660501553809, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[1].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ed203f1f5074b074d9bba4b8c6b65a1e,
+        type: 3}
+    - target: {fileID: 6162131660501553809, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[2].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7b4543979d73e524e938605dd3bb6e06,
+        type: 3}
+    - target: {fileID: 6162131660501553809, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[3].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 05f6d50dd1bf1b64fb924b1654b5b2f6,
+        type: 3}
     - target: {fileID: 6196948189873246076, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -22332,6 +22422,12 @@ PrefabInstance:
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
       value: 
       objectReference: {fileID: 623553324}
+    - target: {fileID: 6994603502027088779, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9,
+        type: 3}
     - target: {fileID: 6997283663101581687, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -22452,11 +22548,47 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -50
       objectReference: {fileID: 0}
+    - target: {fileID: 8271687869487714042, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24,
+        type: 3}
     - target: {fileID: 8408213555490486540, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_SizeDelta.x
       value: 1300
       objectReference: {fileID: 0}
+    - target: {fileID: 8536298504643581351, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: m_Sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9,
+        type: 3}
+    - target: {fileID: 8556935436056412976, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[0].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9,
+        type: 3}
+    - target: {fileID: 8556935436056412976, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[1].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: ed203f1f5074b074d9bba4b8c6b65a1e,
+        type: 3}
+    - target: {fileID: 8556935436056412976, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[2].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 7b4543979d73e524e938605dd3bb6e06,
+        type: 3}
+    - target: {fileID: 8556935436056412976, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      propertyPath: spriteBindings.Array.data[3].sprite
+      value: 
+      objectReference: {fileID: 21300000, guid: 05f6d50dd1bf1b64fb924b1654b5b2f6,
+        type: 3}
     - target: {fileID: 8614224648252444844, guid: a27d0d55d454db44fae51c54a90438aa,
         type: 3}
       propertyPath: m_AnchorMax.y
@@ -24508,6 +24640,7 @@ GameObject:
   - component: {fileID: 1257254763}
   - component: {fileID: 1257254765}
   - component: {fileID: 1257254764}
+  - component: {fileID: 1257254766}
   m_Layer: 5
   m_Name: BackButton_Image
   m_TagString: Untagged
@@ -24547,14 +24680,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.955, g: 0.23604715, b: 0.23604715, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -24572,6 +24705,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1257254762}
   m_CullTransparentMesh: 1
+--- !u!114 &1257254766
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1257254762}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &1257797819
 GameObject:
   m_ObjectHideFlags: 0
@@ -25527,6 +25681,7 @@ GameObject:
   - component: {fileID: 1418068447}
   - component: {fileID: 1418068449}
   - component: {fileID: 1418068448}
+  - component: {fileID: 1418068450}
   m_Layer: 5
   m_Name: BackButton_Image
   m_TagString: Untagged
@@ -25566,14 +25721,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.955, g: 0.23604715, b: 0.23604715, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -25591,6 +25746,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1418068446}
   m_CullTransparentMesh: 1
+--- !u!114 &1418068450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418068446}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &1425575173
 GameObject:
   m_ObjectHideFlags: 0
@@ -25602,6 +25778,7 @@ GameObject:
   - component: {fileID: 1425575174}
   - component: {fileID: 1425575176}
   - component: {fileID: 1425575175}
+  - component: {fileID: 1425575177}
   m_Layer: 5
   m_Name: BackButton_Image
   m_TagString: Untagged
@@ -25641,14 +25818,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.955, g: 0.23604715, b: 0.23604715, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -25666,6 +25843,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1425575173}
   m_CullTransparentMesh: 1
+--- !u!114 &1425575177
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425575173}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &1449200997
 GameObject:
   m_ObjectHideFlags: 0
@@ -27045,13 +27243,13 @@ MonoBehaviour:
     callback:
       m_PersistentCalls:
         m_Calls:
-        - m_Target: {fileID: 0}
-          m_TargetAssemblyTypeName: UnityEngine.EventSystems.EventSystem, UnityEngine.UI
-          m_MethodName: SetSelectedGameObject
-          m_Mode: 2
+        - m_Target: {fileID: 1542448592}
+          m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+          m_MethodName: Play
+          m_Mode: 1
           m_Arguments:
-            m_ObjectArgument: {fileID: 1542448588}
-            m_ObjectArgumentAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+            m_ObjectArgument: {fileID: 0}
+            m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
             m_IntArgument: 0
             m_FloatArgument: 0
             m_StringArgument: 
@@ -27195,6 +27393,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
         m_MethodName: SetActive
         m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 256631122}
+        m_TargetAssemblyTypeName: FMODUnity.StudioEventEmitter, FMODUnity
+        m_MethodName: Play
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -28460,14 +28670,14 @@ RectTransform:
   m_GameObject: {fileID: 1589286990}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.57588, y: 0.57588, z: 0.57588}
+  m_LocalScale: {x: 0.759125, y: 0.759125, z: 0.759125}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1996974313}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -68}
+  m_AnchoredPosition: {x: 0, y: -87.8}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1589286992
@@ -28484,11 +28694,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBindings:
   - deviceType: 0
-    sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+    sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   - deviceType: 1
-    sprite: {fileID: 21300000, guid: 9304efaf057138941a18155e0a690164, type: 3}
+    sprite: {fileID: 21300000, guid: ed203f1f5074b074d9bba4b8c6b65a1e, type: 3}
   - deviceType: 2
-    sprite: {fileID: 21300000, guid: e8a5d510a464177458712b25528a34f8, type: 3}
+    sprite: {fileID: 21300000, guid: 7b4543979d73e524e938605dd3bb6e06, type: 3}
   - deviceType: 3
     sprite: {fileID: 21300000, guid: 05f6d50dd1bf1b64fb924b1654b5b2f6, type: 3}
 --- !u!114 &1589286993
@@ -28511,7 +28721,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -31104,6 +31314,7 @@ GameObject:
   - component: {fileID: 1894963134}
   - component: {fileID: 1894963136}
   - component: {fileID: 1894963135}
+  - component: {fileID: 1894963137}
   m_Layer: 5
   m_Name: BackButton_Image
   m_TagString: Untagged
@@ -31143,14 +31354,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.955, g: 0.23604715, b: 0.23604715, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -31168,6 +31379,27 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1894963133}
   m_CullTransparentMesh: 1
+--- !u!114 &1894963137
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1894963133}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cc32d15d231f9745916b79082c3f5bf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  spriteBindings:
+  - deviceType: 0
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
+  - deviceType: 1
+    sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
+  - deviceType: 2
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
+  - deviceType: 3
+    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
 --- !u!1 &1926789242
 GameObject:
   m_ObjectHideFlags: 0
