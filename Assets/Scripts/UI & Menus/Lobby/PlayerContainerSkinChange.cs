@@ -22,7 +22,8 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     bool wasInit = false;
     public GameObject emptyPlayerContainer;
     public SkinUnlockTextHandler skinUnlockHandler;
-
+    bool didShareOnce = false;
+    bool didShareTwice = false;
     private void OnDisable()
     {
         if (LobbyManager.instance != null)
@@ -54,7 +55,13 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     void ShareValuesToClientServerRpc()
     {
         ShareValuesClientRpc(currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
-        Invoke(nameof(DoShare), 5f);
+        if (!didShareOnce)
+            didShareOnce = true;
+        if (didShareOnce)
+            didShareTwice = true;
+
+        if(!didShareTwice)
+            Invoke(nameof(DoShare), 5f);
     }
 
     void Init()
