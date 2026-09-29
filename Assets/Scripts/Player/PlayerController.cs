@@ -1077,8 +1077,9 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
             fmodEvent.start();
             fmodEvent.release();
-
+            IncrementProcEffectAchievement();
             isCrit = true;
+
             StopVulnerable();
         }
 
@@ -1165,7 +1166,7 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
             fmodEvent.start();
             fmodEvent.release();
-
+            IncrementProcEffectAchievement();
             isCrit = true;
             StopVulnerable();
         }
@@ -1876,6 +1877,16 @@ public class PlayerController : NetworkBehaviour
         
             if (AchievementSaveSystem.instance != null)
                 AchievementSaveSystem.instance.IncrementStat(17, 1);
+        }
+    }
+
+    private void IncrementProcEffectAchievement()
+    {
+        if (SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        if (AchievementSaveSystem.instance)
+        {
+            AchievementSaveSystem.instance.IncrementStat(20, 1);
         }
     }
 
