@@ -33,7 +33,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private void OnEnable()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         SteamIntegration.OnSteamStatsReady += HandleSteamStatsReady;
 
         if (SteamIntegration.instance != null && SteamIntegration.instance.statsLoaded)
@@ -45,7 +45,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
     private void OnDisable()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         SteamIntegration.OnSteamStatsReady -= HandleSteamStatsReady;
 #endif
     }
@@ -57,7 +57,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
     public void SyncAchievementsFromPlatform()
     {
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance == null || !SteamIntegration.instance.statsLoaded) return;
 
         bool localUpdated = false;
@@ -124,7 +124,7 @@ public class AchievementSaveSystem : MonoBehaviour
             pendingLobbyUnlocks.Add(index);
         }
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
             SteamIntegration.instance.UnlockAchievement(index);
@@ -181,7 +181,7 @@ public class AchievementSaveSystem : MonoBehaviour
         SetStatInt(ach.StatName, newVal);
         PlayerPrefs.Save();
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
             SteamIntegration.instance.SetSteamStatIntAndIndicate(ach.StatName, ach.AchievementName, newVal, ach.StatThreshold);
@@ -239,7 +239,7 @@ public class AchievementSaveSystem : MonoBehaviour
         pendingLobbyUnlocks.Remove(index);
         PlayerPrefs.Save();
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH        
         if (SteamIntegration.instance != null)
         {
             SteamIntegration.instance.ClearAchievement(index);
@@ -268,7 +268,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
         PlayerPrefs.Save();
 
-#if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH        
         if (SteamIntegration.instance != null)
         {
             // Pass 'true' to also reset stats on Steam if supported

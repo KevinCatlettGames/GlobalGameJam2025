@@ -14,6 +14,7 @@ public class RevolverBubble : BasicBubble
 
     private int hitCount = 0;
     private Vector3 offset;
+    bool revolverAchIncremented = false;
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerSpawn)
     {
@@ -117,7 +118,10 @@ public class RevolverBubble : BasicBubble
 
         if(hitCount >= maxAmmo)
             achSaveSystem.UnlockAchievement(19);
-        if(hitCount >= 4)
+        if (hitCount >= 4 && !revolverAchIncremented)
+        {
+            revolverAchIncremented = true;
             achSaveSystem.IncrementStat(6, 1);
+        }
     }
 }

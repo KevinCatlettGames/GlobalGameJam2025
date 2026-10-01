@@ -702,7 +702,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockBotAchievement(int killerID, BasicBubble.SpellType usedSpell)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6 || hitReferences[killerID].playerHitID != 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 6 || hitReferences[killerID].playerHitID != 5) return;
 
         if (!playerWeaponKills.ContainsKey(killerID))
         {

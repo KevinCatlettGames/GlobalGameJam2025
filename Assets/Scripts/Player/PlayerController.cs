@@ -1820,7 +1820,7 @@ public class PlayerController : NetworkBehaviour
             groundCheckDistance,
             groundMask);
 
-        if (!groundRaycastWasDetected && groundRaycastIsDetected)
+        if (!groundRaycastWasDetected && groundRaycastIsDetected && isSprinting)
             IncrementRegainGroundAchievement(hit);
         
         groundRaycastWasDetected = groundRaycastIsDetected;

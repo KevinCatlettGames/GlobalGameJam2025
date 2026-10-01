@@ -6,6 +6,7 @@ using Unity.Netcode;
 
 public class LevelSwitcher : MonoBehaviour
 {
+#if UNITY_EDITOR
     public string[] scenes; 
     
     void Update()
@@ -38,4 +39,5 @@ public class LevelSwitcher : MonoBehaviour
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);
         }
     }
+#endif
 }
