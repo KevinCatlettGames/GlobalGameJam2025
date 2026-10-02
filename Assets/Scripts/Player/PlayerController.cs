@@ -1759,8 +1759,10 @@ public class PlayerController : NetworkBehaviour
         
         if(!TransportSwitcher.Instance || !TransportSwitcher.Instance.isUsingRelay)
             playerIndicator?.InitialiseIndicator(skinObject.Color, playerID);
+#if !UNITY_SWITCH
         else if(TransportSwitcher.Instance.isUsingRelay)
             playerIndicator?.InitialiseSteamAvatarIndicator(skinObject.Color, playerID);
+#endif
 
         if (dropInJoin)
         {
@@ -1870,8 +1872,7 @@ public class PlayerController : NetworkBehaviour
 
             if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
 
-            bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
 
             if (bubble.HasPopped || !isSprinting) continue;
         

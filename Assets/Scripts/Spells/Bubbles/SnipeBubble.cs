@@ -71,23 +71,31 @@ public class SnipeBubble : BasicBubble
 
     private void IncrementPierceAchievement()
     {
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
+        IncrementPierceAchievementClientRpc();
+    }
 
+    [ClientRpc]
+    void IncrementPierceAchievementClientRpc()
+    {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+    || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(1, 1);
-        //achSaveSystem.IncrementStat(24, (int)maxDamage);
     }
-
 
     private void CheckMaxSniperDamageAchievement()
     {
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
+        IncrementMaxSniperDamageAchievementClientRpc();
+    }
 
+    [ClientRpc]
+    void IncrementMaxSniperDamageAchievementClientRpc()
+    {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+    || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(1, (int)maxDamage);

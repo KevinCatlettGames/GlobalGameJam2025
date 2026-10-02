@@ -22,12 +22,14 @@ public class PlayerIndicator : MonoBehaviour
         text.text = "P" + (playerID + 1);
     }
 
+#if !UNITY_SWITCH
     public void InitialiseSteamAvatarIndicator(Color color, int playerID)
     {
         isUsingImage = true;
         iconObject.GetComponent<PlayerProfileDisplay>().ShowSteamAvatarBySteamID(LobbyPlayerValues.Instance.playerValuesList[playerID].SteamID);
         arrowImage.color = color;
     }
+#endif
 
     public void ToggleIndicator(bool enabled)
     {

@@ -50,7 +50,7 @@ public class PlayerDeviceDependendInputIcon : MonoBehaviour
         UpdateIcon(deviceType);
         return;
 #else
-
+#if !UNITY_SWITCH
         if (device is Keyboard || device is Mouse)
         {
             deviceType = DeviceType.KeyboardMouse;
@@ -65,6 +65,7 @@ public class PlayerDeviceDependendInputIcon : MonoBehaviour
         }
 
         UpdateIcon(deviceType);
+#endif
 #endif
     }
 

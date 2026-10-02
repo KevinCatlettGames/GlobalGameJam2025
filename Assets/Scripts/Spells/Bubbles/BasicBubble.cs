@@ -676,8 +676,13 @@ public class BasicBubble : NetworkBehaviour
 
     protected void IncrementMissedShotAchievement()
     {
-        if (!IsServer && !isLocalFake) return;
+        if (!IsServer) return;
+        IncrementMissedShotAchievementClientRpc();         
+    }
 
+    [ClientRpc]
+    void IncrementMissedShotAchievementClientRpc()
+    {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
             || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
 

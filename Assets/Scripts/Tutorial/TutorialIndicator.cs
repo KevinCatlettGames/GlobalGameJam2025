@@ -19,7 +19,7 @@ public class TutorialIndicator : MonoBehaviour
         }
         else
         {
-            int tutorialActive = PlayerPrefs.GetInt("PlayedTutorial");
+            int tutorialActive = LobbyManager.instance.playTutorial ? 0 : 1;
             image.sprite = tutorialActive == 0 ? activeSprite : inactiveSprite;
             image.color = tutorialActive == 0 ? activeColor : inactiveColor;
         }
