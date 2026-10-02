@@ -110,7 +110,9 @@ public class PlayerHUD : NetworkBehaviour
         else if (transportSwitcher && transportSwitcher.isUsingRelay)
         {
             playerIndicatorText.enabled = false;
+#if !UNITY_SWITCH
             playerSteamAvatar.GetComponent<PlayerProfileDisplay>().ShowSteamAvatarBySteamID(LobbyPlayerValues.Instance.playerValuesList[playerID].SteamID);
+#endif
         }
 
         if (LobbyManager.instance && LobbyManager.instance.SelectedGameMode == GameManager.GameModeType.Team)

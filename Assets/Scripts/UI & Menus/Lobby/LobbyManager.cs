@@ -248,26 +248,26 @@ public class LobbyManager : NetworkBehaviour
             GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
         }
 
-        if (alwaysActivateTutorialOnInit)
-        {
-            playTutorial = true;
-            playTutorialToggle.isOn = true;
-        }
-        else
-        {
-            bool playedTutorial = false;
-            playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
-            if (playedTutorial)
-            {
-                playTutorial = false;
-                playTutorialToggle.isOn = false;
-            }
-            else
-            {
-                playTutorial = true;
-                playTutorialToggle.isOn = true;
-            }
-        }
+        //if (alwaysActivateTutorialOnInit)
+        //{
+        //    playTutorial = true;
+        //    playTutorialToggle.isOn = true;
+        //}
+        //else
+        //{
+        //    bool playedTutorial = false;
+        //    playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
+        //    if (playedTutorial)
+        //    {
+        //        playTutorial = false;
+        //        playTutorialToggle.isOn = false;
+        //    }
+        //    else
+        //    {
+        //        playTutorial = true;
+        //        playTutorialToggle.isOn = true;
+        //    }
+        //}
     }
 
     private void OnEnable()
