@@ -183,7 +183,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 7
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 1
   damage: 66
   knockback: 2
@@ -203,17 +208,14 @@ MonoBehaviour:
       Data3: -1882999902
       Data4: -202881918
     Path: event:/sfx/spells/fast_spell
+  desyncThreshold: 0.75
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
-  minDamage: 13
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 1216
+  minDamage: 1
   damageRampUpDistance: 30
+  critThreshold: 60
 --- !u!114 &-7592650989984657302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -285,7 +287,7 @@ MonoBehaviour:
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -300,10 +302,10 @@ MonoBehaviour:
   ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
+  Interpolate: 1
   SlerpPosition: 0
 --- !u!114 &-709415337100710187
 MonoBehaviour:
@@ -1957,7 +1959,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 61cf8d4749148cb4693b92753339686e, type: 3}
+    - sprite: {fileID: 21300000, guid: 10c29092101d1ce458b3a25adf96a74f, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -5495,7 +5497,7 @@ PrefabInstance:
         type: 3}
       propertyPath: UVModule.sprites.Array.data[0].sprite
       value: 
-      objectReference: {fileID: 21300000, guid: 61cf8d4749148cb4693b92753339686e,
+      objectReference: {fileID: 21300000, guid: 10c29092101d1ce458b3a25adf96a74f,
         type: 3}
     - target: {fileID: 3580366476286885389, guid: 74295bed2b8579c419dfafd9b2fcf2da,
         type: 3}

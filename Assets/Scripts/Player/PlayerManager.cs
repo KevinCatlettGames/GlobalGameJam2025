@@ -1,9 +1,12 @@
+using FMODUnity;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
+using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Unity.Netcode;
-using FMODUnity;
+using UnityEngine.InputSystem.Users;
 
 public class PlayerManager : NetworkBehaviour
 {
@@ -28,12 +31,11 @@ public class PlayerManager : NetworkBehaviour
 
     private int playersInitializedCount = 0;
 
-    public InputActionProperty startGameInputAction; 
     public PlayerInputManager playerInputManager;
     public Countdown countdown;
 
     private bool dropInJoin = false;
-    
+
     private void Awake()
     {
         if (Instance == null)
@@ -50,18 +52,50 @@ public class PlayerManager : NetworkBehaviour
 
     private void Start()
     {
-        countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+        if(CameraHandler.Instance.playCinematicAtStart)
+            countdown.OnCountdownStart.AddListener(StartPlayerJoining);
+
         if (!TransportSwitcher.Instance)
         {
             dropInJoin = true;
         }
+        InputSystem.onDeviceChange += OnDeviceChange;
     }
 
     private void OnDisable()
     {
-        startGameInputAction.action.performed -= ActionOnPerformed;
-        startGameInputAction.action.Disable();
+        InputSystem.onDeviceChange -= OnDeviceChange;
     }
+
+    private void OnDeviceChange(InputDevice device, InputDeviceChange change)
+    {
+        if (change == InputDeviceChange.Reconnected && device is Gamepad gamepad)
+        {
+            foreach (var player in GetPlayers())
+            {
+                var input = player.GetComponent<PlayerInput>();
+
+                if (input != null && (input.devices.Count == 0 || !input.devices[0].added))
+                {
+                    input.user.UnpairDevices();
+                    input.SwitchCurrentControlScheme("Gamepad", gamepad);
+
+                    if (player.TryGetComponent<PlayerController>(out var controller))
+                    {
+                        controller.IsUsingGamepad = true;
+                    }
+
+                    if (!player.TryGetComponent<ControllerRumbler>(out var rumbler))
+                    {
+                        rumbler = player.gameObject.AddComponent<ControllerRumbler>();
+                    }
+                    rumbler.SetController(gamepad);
+                    break;
+                }
+            }
+        }
+    }
+
 
     public void StartPlayerJoining()
     {
@@ -74,12 +108,6 @@ public class PlayerManager : NetworkBehaviour
         GameManager.Instance.OnGameStarted += ResetPlayers;
         if (GameManager.Instance.PlayingLocal)
         {
-            if (!TransportSwitcher.Instance)
-            {
-                startGameInputAction.action.performed += ActionOnPerformed;
-                startGameInputAction.action.Enable();
-            }
-
             playerInputManager.enabled = true;
         }
         
@@ -93,48 +121,6 @@ public class PlayerManager : NetworkBehaviour
         }
     }
     
-    private void ActionOnPerformed(InputAction.CallbackContext context)
-    {
-        startGameInputAction.action.performed -= ActionOnPerformed;
-        startGameInputAction.action.Disable();
-        
-        if (LobbyPlayerValues.Instance != null)
-        {
-            LobbyPlayerValues lobbyPlayerHandler = LobbyPlayerValues.Instance;
-
-            foreach (LobbyPlayerValues.PlayerValues playerDevice in lobbyPlayerHandler.playerValuesList)
-            {
-                if (playerDevice == null) continue;
-
-                InputDevice device = playerDevice.Device;
-
-                if (device is Keyboard)
-                {
-                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, 
-                        -1,
-                        "Keyboard", 
-                        playerDevice.Device 
-                    );
-                }
-                else if (device is Gamepad)
-                {
-                    PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
-                        playerDevice.PlayerIndex, 
-                        -1,
-                        null,
-                        playerDevice.Device 
-                    );
-
-                    if (newPlayer != null)
-                    {
-                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
-                    }
-                }
-            }
-        }
-    }
-
     void StartLocalGame()
     {
         RerollSpells();
@@ -147,28 +133,28 @@ public class PlayerManager : NetworkBehaviour
                 if (playerDevice == null) continue;
 
                 InputDevice device = playerDevice.Device;
-
+                bool isDeviceAvailable = device != null && device.added;
                 if (device is Keyboard)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
                         playerDevice.PlayerIndex,
                         -1,
                         "Keyboard",
-                        playerDevice.Device
+                        isDeviceAvailable ? device : null
                     );
                 }
-                else if (device is Gamepad)
+                else if (device is Gamepad || !isDeviceAvailable)
                 {
                     PlayerInput newPlayer = PlayerInputManager.instance.JoinPlayer(
                         playerDevice.PlayerIndex,
                         -1,
                         null,
-                        playerDevice.Device
+                        isDeviceAvailable ? device : null
                     );
 
-                    if (newPlayer != null)
+                    if (newPlayer != null && isDeviceAvailable)
                     {
-                        newPlayer.SwitchCurrentControlScheme(playerDevice.Device);
+                        newPlayer.SwitchCurrentControlScheme(device);
                     }
                 }
 
@@ -178,6 +164,7 @@ public class PlayerManager : NetworkBehaviour
         }
         ItemSpawner.Instance.InitialSpawn();
         playerInputManager.enabled = false;
+        StartPlayerEntrance();
     }
 
     #region Player Joining and Initialization
@@ -451,6 +438,32 @@ public class PlayerManager : NetworkBehaviour
             }
         }
         return playerControllers;
+    }
+
+    public void StartPlayerEntrance()
+    {
+        StartCoroutine(PlayerEntrance(GetPlayers()));
+    }
+
+    private IEnumerator PlayerEntrance(List<PlayerController> playerControllers)
+    {
+        float remainingTime = .6f * 3f; // Time between Countdown Elements * Countdown Count
+        float timeBetweenEntrance = remainingTime / playerControllers.Count;
+        foreach (PlayerController player in playerControllers)
+        {
+            yield return new WaitForSeconds(timeBetweenEntrance * .5f);
+            player.StartEntrence(false);
+            yield return new WaitForSeconds(timeBetweenEntrance * .5f);
+        }
+    }
+
+    public void EnablePlayerInput(bool enable)
+    {
+        List<PlayerController> players = GetPlayers();
+        foreach (PlayerController player in players)
+        {
+            player.ToggleInput(enable);
+        }
     }
     #endregion
 }

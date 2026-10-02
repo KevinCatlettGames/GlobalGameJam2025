@@ -31,8 +31,8 @@ public class DotweenAnchorTransition : MonoBehaviour
     {
         if (rectTransform == null)
             rectTransform = GetComponent<RectTransform>();
-
-        SetToOutPosition();
+        if(enabled)
+            SetToOutPosition();
     }
 
     private void OnEnable()

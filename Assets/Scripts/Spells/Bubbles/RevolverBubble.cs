@@ -1,6 +1,7 @@
 using System.Collections;
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class RevolverBubble : BasicBubble
 {
@@ -13,6 +14,7 @@ public class RevolverBubble : BasicBubble
 
     private int hitCount = 0;
     private Vector3 offset;
+    bool revolverAchIncremented = false;
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerSpawn)
     {
@@ -72,7 +74,8 @@ public class RevolverBubble : BasicBubble
 
             if (bubbleScript != null)
             {
-                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, AssignedSpellID.Value+1, fakeWithServerCaster);
+                int uniqueBulletID = (AssignedSpellID.Value * 10) + (i + 1);
+                bubbleScript.InitialiseBubble(OwnerID.Value, dir, playerCollider, uniqueBulletID, fakeWithServerCaster);
             }
 
             yield return new WaitForSeconds(delayBetweenShots);
@@ -81,9 +84,10 @@ public class RevolverBubble : BasicBubble
 
         yield return new WaitForSeconds(.1f);
         if (IsServer) DisableRevolverMeshClientRpc();
-        if(isLocalFake)
-            foreach(MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
+        if (isLocalFake)
+            foreach (MeshRenderer meshRenderer in GetComponentsInChildren<MeshRenderer>())
                 meshRenderer.enabled = false;
+
         yield return new WaitForSeconds(3f);
         Destroy(gameObject);
     }
@@ -100,8 +104,7 @@ public class RevolverBubble : BasicBubble
         if (isLocalFake) return;
 
         hitCount++;
-        if (hitCount >= maxAmmo)
-            CheckAllShotsHitAchievement();
+        CheckAllShotsHitAchievement();
     }
 
     private void CheckAllShotsHitAchievement()
@@ -109,11 +112,16 @@ public class RevolverBubble : BasicBubble
        if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
-        //Debug.Log("Increment all shots hit revolver ach");
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
-        achSaveSystem.IncrementStat(19, 1);
-        achSaveSystem.IncrementStat(6, 1);
+
+        if(hitCount >= maxAmmo)
+            achSaveSystem.UnlockAchievement(19);
+        if (hitCount >= 4 && !revolverAchIncremented)
+        {
+            revolverAchIncremented = true;
+            achSaveSystem.IncrementStat(6, 1);
+        }
     }
 }

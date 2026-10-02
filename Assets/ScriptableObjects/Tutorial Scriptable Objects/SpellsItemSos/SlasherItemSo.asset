@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f2f12cf79d32c24f93e62fcacc09a1c, type: 3}
   m_Name: SlasherItemSo
   m_EditorClassIdentifier: 
-  windowsClip: {fileID: 32900000, guid: 60a47471af0e06f45bb86f7d378149d5, type: 3}
-  linuxClip: {fileID: 32900000, guid: cb5da11eefb214443a42add7e30bac9c, type: 3}
+  windowsClip: {fileID: 32900000, guid: 0847c28909e66084c81dbc05ac9e319d, type: 3}
+  linuxClip: {fileID: 32900000, guid: c4abd9bb83cbf404f8dce4ff3541a40c, type: 3}
   clipOutlineColor: {r: 0.9843138, g: 0.39607847, b: 0.43529415, a: 1}
   showClipOutline: 1
   itemMainImage: {fileID: 0}
   itemSprite: {fileID: 21300000, guid: 31640b92e523dcd4699876cc18eb8c3a, type: 3}
-  stats: 020000000300000003000000
+  stats: 030000000200000003000000
   itemNameText: 
   showitemNameText: 0
   itemNameImage: {fileID: 21300000, guid: 7cef13ce2b47bba4d8f289e557c28c18, type: 3}
@@ -26,7 +26,10 @@ MonoBehaviour:
   itemDescription: 'Creates a pair of Bubbles
 
     <color=#FF7D87>spinning around</color>
-    the player.'
+    the player.
+
+    The <color=#FF7D87>second</color> hit on the same target will<color=#FF7D87>
+    crit</color>.'
   itemDescriptionLocalizedString:
     m_TableReference:
       m_TableCollectionName: GUID:787f9328ab1102f4dbe15593b57817be
@@ -39,6 +42,8 @@ MonoBehaviour:
   useButton: 1
   buttonText: Play Test Level
   incorporateMainElementBackground: 1
+  useFullscreenImage: 0
+  isInputImage: 0
   references:
     version: 2
     RefIds: []

@@ -1,10 +1,12 @@
-using UnityEngine;
 using Unity.Netcode;
+using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class SnipeBubble : BasicBubble
 {
     [SerializeField] private float minDamage = 10f;
     [SerializeField] private float damageRampUpDistance = 25f;
+    [SerializeField] private float critThreshold = 60f;
 
     private float damageScaling = 0f;
     private float maxDamage = 0f;
@@ -46,6 +48,10 @@ public class SnipeBubble : BasicBubble
                 Pop();
                 return;
             }
+            else if(otherBubble != null)
+            {
+                IncrementPierceAchievement();
+            }
         }
      
         if (other.CompareTag("Player"))
@@ -57,15 +63,31 @@ public class SnipeBubble : BasicBubble
         }
 
         damage = currentDamage;
+        if (damage >= critThreshold)
+            isCrit = true;
+            
         base.BubbleCollision(other);
     }
+
+    private void IncrementPierceAchievement()
+    {
+        if (!IsServer && !isLocalFake) return;
+
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(1, 1);
+        //achSaveSystem.IncrementStat(24, (int)maxDamage);
+    }
+
 
     private void CheckMaxSniperDamageAchievement()
     {
         if (!IsServer && !isLocalFake) return;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(1, (int)maxDamage);

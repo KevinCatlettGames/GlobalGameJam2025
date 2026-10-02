@@ -25,11 +25,11 @@ public class DamageField : MonoBehaviour
                     direction.y = 0;
                     if (GameManager.Instance.PlayingLocal)
                     {
-                        playersInside[i].ApplyKnockbackLocal(-1, direction, 0, damage);
+                        playersInside[i].ApplyKnockbackLocal(-1, direction, 0, damage, false);
                     }
                     else
                     {
-                        playersInside[i].ApplyKnockbackClientRpc(-1, direction, 0, damage);
+                        playersInside[i].ApplyKnockbackClientRpc(-1, direction, 0, damage, false);
                     }
                 }
                 timer = 0;

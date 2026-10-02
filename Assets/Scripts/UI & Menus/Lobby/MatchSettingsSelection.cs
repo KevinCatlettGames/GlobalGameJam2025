@@ -5,7 +5,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
 
-public class MatchSettingsSelection : NetworkBehaviour
+public class MatchSettingsSelection : MonoBehaviour
 {
     public static MatchSettingsSelection Instance;
 
@@ -29,6 +29,8 @@ public class MatchSettingsSelection : NetworkBehaviour
     public Button spellButton;
     public Button mapsButton;
     public Button backButton;
+    public Button resetButton;
+    public Button saveButton;
     public Button gameModeButton;
     public Button loadoutButton;
     public Button leftSpellButton;
@@ -40,9 +42,12 @@ public class MatchSettingsSelection : NetworkBehaviour
     public Toggle explosionToggle;
     public Toggle giantToggle;
     public Toggle grenadeToggle;
+    public Toggle blastToggle;
+    public Toggle slasherToggle;
     public Toggle plateToggle;
     public Toggle potToggle;
     public Slider bucketSlider;
+    public Slider tunaSlider;
 
     public GameObject roundsToWinOption;
     public StudioEventEmitter tabSwitchEmitter;
@@ -61,15 +66,21 @@ public class MatchSettingsSelection : NetworkBehaviour
 
     private void OnEnable()
     {
-        mainLobbyUI.SetActive(false);
+        if (mainLobbyUI != null)
+            mainLobbyUI.SetActive(false);
+
+        EnableTabToggling();
         SetTab(Tab.General);
     }
 
     private void OnDisable()
     {
-        mainLobbyUI.SetActive(true);
+        if (mainLobbyUI != null)
+            mainLobbyUI.SetActive(true);
+
         DisableTabToggling();
     }
+
     public void SetTab(Tab tab)
     {
         if (!SteamIntegration.instance.IsFullVersion && tab == Tab.Maps)
@@ -86,9 +97,6 @@ public class MatchSettingsSelection : NetworkBehaviour
         }
         else
             currentTab = tab;
-
-        if (!tabTogglingEnabled)
-            EnableTabToggling();
 
         generalTabFrame.SetActive(tab == Tab.General);
         spellsTabFrame.SetActive(tab == Tab.Spells);
@@ -112,34 +120,16 @@ public class MatchSettingsSelection : NetworkBehaviour
             LobbyManager.instance.selectedLoadoutType ==
             LoadoutSelection.LoadOutType.SharedCustom;
 
-        bool scoreAtMax =
-            Mathf.Approximately(
-                scoreToWinSlider.value,
-                scoreToWinSlider.maxValue
-            );
-
         Navigation endlessNav = endlessToggle.navigation;
         endlessNav.mode = Navigation.Mode.Explicit;
 
         endlessNav.selectOnRight =
-            isCustom ? leftSpellButton : loadoutButton;
+            scoreToWinSlider; ;
 
         endlessToggle.navigation = endlessNav;
 
         Navigation scoreNav = scoreToWinSlider.navigation;
         scoreNav.mode = Navigation.Mode.Explicit;
-
-        scoreNav.selectOnRight =
-            isCustom && scoreAtMax
-                ? rightSpellButton
-                : null;
-
-        scoreNav.selectOnRight =
-          !isCustom && scoreAtMax
-              ? loadoutButton
-              : null;
-
-        scoreToWinSlider.navigation = scoreNav;
     }
 
     private void SetButtonNavigation(Tab tab)
@@ -147,20 +137,23 @@ public class MatchSettingsSelection : NetworkBehaviour
         Navigation generalNav = generalButton.navigation;
         Navigation spellNav = spellButton.navigation;
         Navigation mapsNav = mapsButton.navigation;
-        Navigation backNav = backButton.navigation;
+        Navigation resetNav = resetButton.navigation;
+        Navigation saveNav = saveButton.navigation;
 
         generalNav.mode = Navigation.Mode.Explicit;
         spellNav.mode = Navigation.Mode.Explicit;
         mapsNav.mode = Navigation.Mode.Explicit;
-        backNav.mode = Navigation.Mode.Explicit;
-
+        resetNav.mode = Navigation.Mode.Explicit;
+        saveNav.mode = Navigation.Mode.Explicit;
+ 
         switch (tab)
         {
             case Tab.General:
                 generalNav.selectOnDown = gameModeButton;
                 spellNav.selectOnDown = loadoutButton;
                 mapsNav.selectOnDown = loadoutButton;
-                backNav.selectOnUp = scoreToWinSlider;
+                resetNav.selectOnUp = endlessToggle;
+                saveNav.selectOnUp = scoreToWinSlider;
                 EventSystem.current.SetSelectedGameObject(generalButton.gameObject);
                 break;
 
@@ -168,7 +161,8 @@ public class MatchSettingsSelection : NetworkBehaviour
                 generalNav.selectOnDown = explosionToggle;
                 spellNav.selectOnDown = explosionToggle;
                 mapsNav.selectOnDown = giantToggle;
-                backNav.selectOnUp = grenadeToggle;
+                resetNav.selectOnUp = blastToggle;
+                saveNav.selectOnUp = slasherToggle;
                 EventSystem.current.SetSelectedGameObject(spellButton.gameObject);
                 break;
 
@@ -176,7 +170,8 @@ public class MatchSettingsSelection : NetworkBehaviour
                 generalNav.selectOnDown = plateToggle;
                 spellNav.selectOnDown = plateToggle;
                 mapsNav.selectOnDown = potToggle;
-                backNav.selectOnUp = bucketSlider;
+                resetNav.selectOnUp = bucketSlider;
+                saveNav.selectOnUp = tunaSlider;
                 EventSystem.current.SetSelectedGameObject(mapsButton.gameObject);
                 break;
 
@@ -184,7 +179,6 @@ public class MatchSettingsSelection : NetworkBehaviour
                 generalNav.selectOnDown = backButton;
                 spellNav.selectOnDown = backButton;
                 mapsNav.selectOnDown = backButton;
-                backNav.selectOnUp = generalButton;
                 EventSystem.current.SetSelectedGameObject(generalButton.gameObject);
                 break;
         }
@@ -192,7 +186,8 @@ public class MatchSettingsSelection : NetworkBehaviour
         generalButton.navigation = generalNav;
         spellButton.navigation = spellNav;
         mapsButton.navigation = mapsNav;
-        backButton.navigation = backNav;
+        resetButton.navigation = resetNav;
+        saveButton.navigation = saveNav;
     }
 
     private void EnableTabToggling()
@@ -202,6 +197,9 @@ public class MatchSettingsSelection : NetworkBehaviour
         leftTabSwitchAction.action.Enable();
         rightTabSwitchAction.action.Enable();
 
+        leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
+        rightTabSwitchAction.action.performed -= OnRightTabSwitch;
+
         leftTabSwitchAction.action.performed += OnLeftTabSwitch;
         rightTabSwitchAction.action.performed += OnRightTabSwitch;
     }
@@ -210,22 +208,19 @@ public class MatchSettingsSelection : NetworkBehaviour
     {
         tabTogglingEnabled = false;
 
-        leftTabSwitchAction.action.Disable();
-        rightTabSwitchAction.action.Disable();
-
         leftTabSwitchAction.action.performed -= OnLeftTabSwitch;
         rightTabSwitchAction.action.performed -= OnRightTabSwitch;
     }
 
     private void OnLeftTabSwitch(InputAction.CallbackContext ctx)
     {
-        if (ctx.canceled) return;
+        if (!tabTogglingEnabled || !ctx.performed) return;
         ChangeTab(false);
     }
 
     private void OnRightTabSwitch(InputAction.CallbackContext ctx)
     {
-        if (ctx.canceled) return;
+        if (!tabTogglingEnabled || !ctx.performed) return;
         ChangeTab(true);
     }
 

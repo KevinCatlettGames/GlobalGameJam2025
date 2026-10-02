@@ -7,10 +7,12 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : NetworkBehaviour
 {
-    public enum GameModeType { Standard, Team }
+    public enum GameModeType { Standard, Team, Tutorial }
 
     public static GameManager Instance;
     public static bool IsGamePaused = false;
+    private bool isResetting = false;
+    public bool IsResetting { get { return isResetting; } set { isResetting = value; } }
 
     #region Serialized & Public Fields
 
@@ -47,6 +49,7 @@ public class GameManager : NetworkBehaviour
     #region Protected & Private State
 
     protected const int maxPlayers = 4;
+    protected int playerCount = 0;
     protected float gameEndDelay = 1f;
     protected bool gameEnded;
     protected bool isReadyToRestart = false;
@@ -65,7 +68,7 @@ public class GameManager : NetworkBehaviour
     protected PlayerState[] playerStates = new PlayerState[maxPlayers];
 
     // Achievement Tracking State
-    private float multiKillTimeWindow = 10f;
+    private float multiKillTimeWindow = 5f;
     private Dictionary<int, List<float>> playerKillTimestamps = new Dictionary<int, List<float>>();
     private int[] rapidShotHitStreaks = new int[maxPlayers];
     private Dictionary<int, NunchuckCastTracker> playerNunchuckTrackers = new Dictionary<int, NunchuckCastTracker>();
@@ -111,8 +114,10 @@ public class GameManager : NetworkBehaviour
     {
         if (LobbyManager.instance)
         {
-            gameModeType = LobbyManager.instance.SelectedGameMode;
-            playEndless = LobbyManager.instance.playEndless;
+            if(SceneManager.GetActiveScene().buildIndex != 6)
+                gameModeType = LobbyManager.instance.SelectedGameMode;
+
+            playEndless = LobbyManager.instance.playEndless.Value;
         }
 
         if (Instance != null)
@@ -125,12 +130,11 @@ public class GameManager : NetworkBehaviour
         for (int i = 0; i < maxPlayers; i++)
             playerStates[i] = PlayerState.missing;
 
-        Cursor.lockState = CursorLockMode.Locked;
         IsGamePaused = false;
 
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
-            countdown.onCountdownComplete.AddListener(StartGameAfterDelay);
+            countdown.OnCountdownStart.AddListener(StartGameAfterDelay);
         }
         else
         {
@@ -154,7 +158,7 @@ public class GameManager : NetworkBehaviour
     {
         if (LobbyManager.instance && countdown)
         {
-            countdown.onCountdownComplete.RemoveListener(StartGameAfterDelay);
+            countdown.OnCountdownStart.RemoveListener(StartGameAfterDelay);
         }
     }
 
@@ -184,6 +188,7 @@ public class GameManager : NetworkBehaviour
             Invoke(nameof(CallPlayerManagerInitialize), .1f);
             Invoke(nameof(EnableDeathzonesServerRpc), .2f);
         }
+        killsPerPlayerInRound = new int[maxPlayers];
         ItemSpawner.Instance.InitialSpawn();
     }
 
@@ -198,7 +203,7 @@ public class GameManager : NetworkBehaviour
     public virtual void EndGame()
     {
         OnGameEnded?.Invoke();
-        UIManager.Instance.SetScoreScreenActive(true);
+        UIManager.Instance.SetScoreScreenActive(true, true);
         finishedRoundCount++;
 
         if (LobbyManager.instance)
@@ -213,7 +218,7 @@ public class GameManager : NetworkBehaviour
             hitReference.wasSlippery = false;
             hitReference.wasReflected = false;
         }
-
+        killsPerPlayerInRound = new int[maxPlayers];
         isReadyToRestart = true;
     }
 
@@ -222,8 +227,10 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
-        UIManager.Instance.SetScoreScreenActive(false);
+        IsResetting = false;
+        UIManager.Instance.SetScoreScreenActive(false, true);
         ResetRapidShotStreaks();
+        killsPerPlayerInRound = new int[maxPlayers];
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -239,8 +246,10 @@ public class GameManager : NetworkBehaviour
         OnGameStarted?.Invoke();
         gameEnded = false;
         isReadyToRestart = false;
-        UIManager.Instance.SetScoreScreenActive(false);
+        IsResetting = false;
+        UIManager.Instance.SetScoreScreenActive(false, true);
         Invoke(nameof(EnableDeathzonesServerRpc), .5f);
+        killsPerPlayerInRound = new int[maxPlayers];
     }
 
     public SO_GameSettings GetGameSettings() => gameSettings;
@@ -264,6 +273,7 @@ public class GameManager : NetworkBehaviour
         }
         players[playerID] = player;
         playerHUDs[playerID] = playerHUD;
+        playerCount++;
     }
 
     public List<PlayerController> GetTeam(int playerID)
@@ -335,27 +345,36 @@ public class GameManager : NetworkBehaviour
             rapidShotHitStreaks[playerHitID] = 0;
         }
 
-        UnlockHitRapidShotsWithoutGettingHitAchievement(index);
+        UnlockHitRapidShotsWithoutMissing(index);
 
         if (spellType == BasicBubble.SpellType.Slasher && playerHitID != index)
         {
             RegisterNunchuckHit(index, castID);
         }
 
-        UnlockCyborgAchievement(index, spellType);
+        UnlockQueenAchievement(index, spellType);
     }
 
+    private int[] killsPerPlayerInRound = new int[maxPlayers];
+
     [ServerRpc(RequireOwnership = false)]
-    public virtual void DeathReportServerRpc(int playerID, int killCredit)
+    public virtual void DeathReportServerRpc(int playerID, int killCredit, bool isSuperKO)
     {
-        DeathReportClientRpc(playerID, killCredit);
+        DeathReportClientRpc(playerID, killCredit, isSuperKO);
+
+        if(killCredit >= 0)
+        {
+            killsPerPlayerInRound[killCredit]++;
+            if (killsPerPlayerInRound[killCredit] >= 3)
+                UnlockKingAchievement();
+        }
 
         if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
-        {
+        {           
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
             IncrementReflectedKillAchievement(killCredit);
-            IncrementSlowedPlayersKilledAchievement(killCredit);
+            //IncrementSlowedPlayersKilledAchievement(killCredit);
             IncrementDoubleNunchuckKillAchievement(killCredit);
 
             HitReference hit = hitReferences[killCredit];
@@ -363,12 +382,17 @@ public class GameManager : NetworkBehaviour
             {
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
+        }
+        Debug.Log(playerStates[playerID]);
+        if (playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
         }
         CheckForRoundEndServerRpc();
     }
 
     [ClientRpc]
-    private void DeathReportClientRpc(int playerID, int killCredit)
+    private void DeathReportClientRpc(int playerID, int killCredit, bool isSuperKO)
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
@@ -379,7 +403,7 @@ public class GameManager : NetworkBehaviour
         }
     }
 
-    public virtual void DeathReportLocal(int playerID, int killCredit)
+    public virtual void DeathReportLocal(int playerID, int killCredit, bool isSuperKO)
     {
         if (killCredit >= 0 && killCredit < maxPlayers)
         {
@@ -389,13 +413,23 @@ public class GameManager : NetworkBehaviour
                 ScoreManager.Instance.AddPendingTeamScore(teamIDs[killCredit], false);
         }
 
+        if (isSuperKO && hitReferences[killCredit].spellType == BasicBubble.SpellType.Giant)
+            IncrementBoatSuperKOAchievement(killCredit);
+
         if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
+            if (killCredit >= 0)
+            {
+                killsPerPlayerInRound[killCredit]++;
+                if (killsPerPlayerInRound[killCredit] >= 3)
+                    UnlockKingAchievement();
+            }
+
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
             UnlockBotAchievement(killCredit, hitReferences[killCredit].spellType);
             IncrementReflectedKillAchievement(killCredit);
-            IncrementSlowedPlayersKilledAchievement(killCredit);
+            //IncrementSlowedPlayersKilledAchievement(killCredit);
             IncrementDoubleNunchuckKillAchievement(killCredit);
 
             HitReference hit = hitReferences[killCredit];
@@ -404,7 +438,16 @@ public class GameManager : NetworkBehaviour
                 CheckDetonationMultiKillAchievement(killCredit, hit.castID);
             }
         }
+        if (playerID >= 0 && playerID < playerStates.Length && playerStates[playerID] == PlayerState.dead)
+        {
+            ItemSpawner.Instance.ChangeMaxItemAmount(false);
+        }
         CheckForRoundEndLocal();
+    }
+
+    public virtual void DeathReportOnlineBot()
+    {
+
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -444,7 +487,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID
             || players[winnerID].Damage > 0
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(16);
     }
@@ -453,26 +496,36 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)winnerID
             || players[winnerID].Damage < damageAmountForAchievement
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(12);
+    }
+
+    protected void IncrementBoatSuperKOAchievement(int killCredit)
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killCredit
+         || hitReferences[killCredit].spellType != BasicBubble.SpellType.Giant
+         || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.IncrementStat(22, 1);
     }
 
     private void IncrementSmallerGiantBubbleKillAchievement(int playerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID
             || hitReferences[playerID].spellType != BasicBubble.SpellType.SmallerGiant
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
         achSaveSystem.IncrementStat(0, 1);
-        achSaveSystem.IncrementStat(22, 1);
+        //achSaveSystem.IncrementStat(22, 1);
     }
 
     private void IncrementDoubleNunchuckKillAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         HitReference hit = hitReferences[killerID];
 
@@ -516,7 +569,7 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID
             || hitReferences[playerID].spellType != BasicBubble.SpellType.Exploding && hitReferences[playerID].spellType != BasicBubble.SpellType.Grenade
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         if (playerID != hitReferences[playerID].playerHitID) return;
         if (!hitReferences[playerID].wasHitByExplosion) return;
@@ -524,10 +577,19 @@ public class GameManager : NetworkBehaviour
         AchievementSaveSystem.instance.UnlockAchievement(14);
     }
 
+    public void UnlockKingAchievement()
+    {
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay || !AchievementSaveSystem.instance 
+            || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
+        achSaveSystem.UnlockAchievement(27);
+    }
+
     private void UnlockMultiKillAchievements(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
 
@@ -542,30 +604,35 @@ public class GameManager : NetworkBehaviour
         int killsWithinWindow = playerKillTimestamps[killerID].Count;
         if (killsWithinWindow == 2)
             achSaveSystem.UnlockAchievement(13);
-        else if (killsWithinWindow == 3)
-            achSaveSystem.UnlockAchievement(27);
+        //else if (killsWithinWindow == 3)
+        //    achSaveSystem.UnlockAchievement(27);
     }
 
-    private void UnlockHitRapidShotsWithoutGettingHitAchievement(int index)
+    private void UnlockHitRapidShotsWithoutMissing(int index)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)index
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         HitReference hit = hitReferences[index];
 
-        if (hit.spellType != BasicBubble.SpellType.Basic) return;
+        if (hit.spellType != BasicBubble.SpellType.Basic)
+        {
+            ResetRapidShotStreaks();
+            return;
+        }
+
         if (hit.playerHitID == index) return;
 
         rapidShotHitStreaks[index]++;
 
-        if (rapidShotHitStreaks[index] >= 8)
+        if (rapidShotHitStreaks[index] >= 16)
         {
             AchievementSaveSystem.instance.UnlockAchievement(2);
             rapidShotHitStreaks[index] = 0;
         }
     }
 
-    private void ResetRapidShotStreaks()
+    public void ResetRapidShotStreaks()
     {
         for (int i = 0; i < rapidShotHitStreaks.Length; i++)
         {
@@ -577,17 +644,17 @@ public class GameManager : NetworkBehaviour
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
             || !AchievementSaveSystem.instance
-            || !hitReferences[killerID].wasReflected || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !hitReferences[killerID].wasReflected || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(3, 1);
     }
 
-    private void IncrementSlowedPlayersKilledAchievement(int killerID)
-    {
-        if (SceneManager.GetActiveScene().buildIndex == 5 || !AchievementSaveSystem.instance || !players[hitReferences[killerID].playerHitID].WasSlowedWhenLastHit) return;
+    //private void IncrementSlowedPlayersKilledAchievement(int killerID)
+    //{
+    //    if (SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6 | !AchievementSaveSystem.instance || !players[hitReferences[killerID].playerHitID].WasSlowedWhenLastHit) return;
 
-        AchievementSaveSystem.instance.IncrementStat(9, 1);
-    }
+    //    AchievementSaveSystem.instance.IncrementStat(9, 1);
+    //}
 
     private void CheckDetonationMultiKillAchievement(int killerID, int castID)
     {
@@ -609,7 +676,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockDetonationAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(5, 1);
     }
@@ -635,7 +702,7 @@ public class GameManager : NetworkBehaviour
     private void UnlockBotAchievement(int killerID, BasicBubble.SpellType usedSpell)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex != 5 || hitReferences[killerID].playerHitID != 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 6 || hitReferences[killerID].playerHitID != 5) return;
 
         if (!playerWeaponKills.ContainsKey(killerID))
         {
@@ -657,13 +724,14 @@ public class GameManager : NetworkBehaviour
         {
             weaponComboStreak[attackerID] = 0;
             lastWeaponHit[attackerID] = BasicBubble.SpellType.Null;
+            ResetRapidShotStreaks();
         }
     }
 
-    private void UnlockCyborgAchievement(int index, BasicBubble.SpellType currentWeapon)
+    private void UnlockQueenAchievement(int index, BasicBubble.SpellType currentWeapon)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)index
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         if (currentWeapon == BasicBubble.SpellType.Null || hitReferences[index].playerHitID == index) return;
 
@@ -679,7 +747,7 @@ public class GameManager : NetworkBehaviour
 
         if (weaponComboStreak[index] >= 3)
         {
-            AchievementSaveSystem.instance.UnlockAchievement(23);
+            AchievementSaveSystem.instance.UnlockAchievement(28);
             // Debug.Log($"Achievement Unlocked: Hit 3 different weapons in a row for player {index}!");
 
             weaponComboStreak[index] = 0;

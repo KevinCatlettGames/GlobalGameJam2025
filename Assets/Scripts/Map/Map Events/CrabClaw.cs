@@ -45,9 +45,9 @@ public class CrabClaw : MonoBehaviour
                 if (player != null)
                 {
                     if (GameManager.Instance.PlayingLocal)
-                        player.ApplyKnockbackLocal(-1, direction, knockback, damage);
+                        player.ApplyKnockbackLocal(-1, direction, knockback, damage, false);
                     else
-                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage);
+                        player.ApplyKnockbackServerRpc(-1, direction, knockback, damage, false);
                 }
             }          
         }

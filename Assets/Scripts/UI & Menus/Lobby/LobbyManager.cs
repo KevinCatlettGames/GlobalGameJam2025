@@ -1,10 +1,10 @@
 using FMODUnity;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using TMPro;
 using Unity.Netcode;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -35,6 +35,9 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Scene name used when random loading is disabled.")]
     [SerializeField] private string plateLevel = "Lvl_Teller";
 
+    [Tooltip("Scene name used when random loading is disabled.")]
+    [SerializeField] private string tutorialLevel = "Lvl_Tutorial";
+
     [Tooltip("Reference to score tracking ScriptableObject.")]
     [SerializeField] private SO_Scores scores;
 
@@ -47,7 +50,10 @@ public class LobbyManager : NetworkBehaviour
     [Tooltip("Available spells/weapons.")]
     [SerializeField] private SO_Spell[] spells;
 
-    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+    [SerializeField] private bool alwaysActivateTutorialOnInit = false; 
+    public bool AlwaysActivateTutorialOnInit { get { return alwaysActivateTutorialOnInit; } }
+
+    public LoadoutSelection.LoadOutType selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
     public int selectedLeftSpellIndex = 0;
     public int selectedRightSpellIndex = 0;
 
@@ -69,13 +75,13 @@ public class LobbyManager : NetworkBehaviour
         set => ChangeSelectedGameModeClientRpc(value);
     }
 
-    public int winsNeeded = 8;
-
-    [Tooltip("If enabled, the game runs endlessly.")]
-    public bool playEndless;
+    public NetworkVariable<int> winsNeeded = new NetworkVariable<int>(5);
+    public NetworkVariable<bool> playEndless = new NetworkVariable<bool>(false);
 
     [Tooltip("Number of rounds already played.")]
     public int playedRounds;
+
+    public bool playTutorial = true; 
 
     [Tooltip("UI panel for match settings.")]
     [SerializeField] public GameObject matchSettingsSelection;
@@ -84,7 +90,18 @@ public class LobbyManager : NetworkBehaviour
     public LobbyPlayerInput lobbyInput;
 
     public UnityEvent OnLeavingLobby;
-
+    public bool isDemoLobby; 
+    public bool IsDemoLobby { get {  return isDemoLobby; } }
+    [SerializeField] DisableOnFullVersion[] allLobbyDisableOnFullVersions;
+    [SerializeField] UninteractableOnDemo[] allUninteractableOnDemos;
+    private const GameManager.GameModeType GameModeConst = GameManager.GameModeType.Standard;
+    private const LoadoutSelection.LoadOutType LoadOutTypeConst = LoadoutSelection.LoadOutType.IndividualRandom;
+    private const int LeftSpellIndexConst = 0;
+    private const int RightSpellIndexConst = 0;
+    private const int WinsNeededConst = 5;
+    private const bool PlayTutorialConst = true;
+    private const bool PlayEndlessConst = false;
+    
     #endregion
 
     #region Player Settings
@@ -162,6 +179,8 @@ public class LobbyManager : NetworkBehaviour
     [SerializeField] private Color[] teamColors;
     public Color[] TeamColors { get { return teamColors; } }
 
+    [SerializeField] Toggle playTutorialToggle;
+
     #endregion
 
     #region Audio
@@ -185,15 +204,21 @@ public class LobbyManager : NetworkBehaviour
         else
             Destroy(gameObject);
 
+        if (selectedGameMode == GameManager.GameModeType.Tutorial)
+            selectedGameMode = GameManager.GameModeType.Standard;
+
         if (GameObject.FindWithTag("OnlineMatchmakingUI"))
             GameObject.FindWithTag("OnlineMatchmakingUI").SetActive(false);
+
+        if (!SteamIntegration.instance.IsFullVersion)
+            isDemoLobby = true;
     }
 
     private void Start()
     {
         scores.ResetKills();
         scores.ResetWins();
-        selectedLoadoutType = LoadoutSelection.LoadOutType.SharedRandom;
+        selectedLoadoutType = LoadoutSelection.LoadOutType.IndividualRandom;
         selectedLeftSpellIndex = 0;
         selectedRightSpellIndex = 0;
 
@@ -222,6 +247,27 @@ public class LobbyManager : NetworkBehaviour
             player.GetComponent<NetworkObject>().SpawnAsPlayerObject(0, true);
             GameLobby.instance.ChangeServerLockState(GameLobby.instance.currentServerIsPrivate, false);
         }
+
+        if (alwaysActivateTutorialOnInit)
+        {
+            playTutorial = true;
+            playTutorialToggle.isOn = true;
+        }
+        else
+        {
+            bool playedTutorial = false;
+            playedTutorial = PlayerPrefs.GetInt("PlayedTutorial") == 0 ? playedTutorial = false : playedTutorial = true;
+            if (playedTutorial)
+            {
+                playTutorial = false;
+                playTutorialToggle.isOn = false;
+            }
+            else
+            {
+                playTutorial = true;
+                playTutorialToggle.isOn = true;
+            }
+        }
     }
 
     private void OnEnable()
@@ -247,8 +293,13 @@ public class LobbyManager : NetworkBehaviour
     void OnClientConnectedCallback(ulong clientID)
     {
         if (!IsServer) return;
+        if(SteamIntegration.instance.IsFullVersion)
+        {
+            isDemoLobby = false;
+        }
+
+        CheckIfShouldSwitchToDemoLobbyClientRpc();
         ChangeSelectedGameModeServerRpc();
-        OnClientConnectedWinConditionUpdateServerRpc(clientID);
     }
 
     void OnClientDisconnectedCallback(ulong clientID)
@@ -267,25 +318,82 @@ public class LobbyManager : NetworkBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
+        if (SceneManager.GetActiveScene().buildIndex != 0) return;
         if (!canAddNewDevices) return;
+
         switch (change)
         {
             case InputDeviceChange.Added:
-                //Debug.Log($"Device added: {device.displayName}");
-                playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
-                break;
+                if (TryReconnectDeviceToOrphanedPlayer(device))
+                {
+                    return;
+                }
 
-            case InputDeviceChange.Removed:
-                //Debug.Log($"Device removed: {device.displayName}");
-                break;
-
-            case InputDeviceChange.Reconnected:
-                //Debug.Log($"Device reconnected: {device.displayName}");
+                if (!IsDeviceAlreadyPaired(device))
+                {
+                    playerInputManager.JoinPlayer(playerIndex: -1, controlScheme: null, pairWithDevice: device);
+                }
                 break;
 
             case InputDeviceChange.Disconnected:
-                //Debug.Log($"Device disconnected: {device.displayName}");
+                HandleDeviceDisconnected(device);
                 break;
+        }
+    }
+
+    private bool TryReconnectDeviceToOrphanedPlayer(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            if (player.devices.Count == 0 || IsPlayerDisconnected(player))
+            {
+                if (player.user.valid)
+                {
+                    player.user.UnpairDevices();
+                }
+
+                player.SwitchCurrentControlScheme(device);
+
+                Debug.Log($"Reconnected device {device.name} to existing Player {player.playerIndex}");
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool IsPlayerDisconnected(PlayerInput player)
+    {
+        foreach (var d in player.devices)
+        {
+            if (d.added) return false;
+        }
+        return true;
+    }
+
+    private bool IsDeviceAlreadyPaired(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            foreach (var pairedDevice in player.devices)
+            {
+                if (pairedDevice == device) return true;
+            }
+        }
+        return false;
+    }
+
+    private void HandleDeviceDisconnected(InputDevice device)
+    {
+        foreach (var player in PlayerInput.all)
+        {
+            if (player.devices.Contains(device))
+            {
+                if (player.user.valid)
+                    player.user.UnpairDevices();
+
+                Debug.Log($"Player {player.playerIndex} controller lost power/disconnected.");
+                return;
+            }
         }
     }
 
@@ -434,7 +542,7 @@ public class LobbyManager : NetworkBehaviour
     }
 
     [ServerRpc(RequireOwnership = false)]
-    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state)
+    public void ToggleReadyServerRpc(int playerIndex, ulong clientIndex, bool state, ulong steamID)
     {
         int index = -1;
 
@@ -451,7 +559,7 @@ public class LobbyManager : NetworkBehaviour
         {
             players.Add(new PlayerLobbyState {PlayerIndex = playerIndex, ClientIndex = clientIndex, IsReady = false });
           
-            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false);           
+            LobbyPlayerValues.Instance.AddNewPlayerValueServerRpc(playerIndex, possibleSkins[playerIndex].Index, false, steamID);           
             index = players.Count - 1;
         }
         else
@@ -565,7 +673,21 @@ public class LobbyManager : NetworkBehaviour
         if(TransportSwitcher.Instance.isUsingRelay)
             await Task.Delay(1000);
 
-        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion)
+        if(playTutorial)
+        {
+            if (MenuTransitionHandler.Instance && SceneManager.GetActiveScene().buildIndex == 0)
+            {
+                MenuTransitionHandler.Instance.OnFadeComplete += LoadTutorial;
+                MenuTransitionHandler.Instance.TriggerFade();
+            }
+            else
+            {
+                LoadTutorial();
+            }            
+            return;
+        }
+
+        if (loadRandomLevel && SteamIntegration.instance.IsFullVersion && !isDemoLobby)
         {
 #if !UNITY_SWITCH
             SteamJoinHandler.instance.ClearRichPresence();
@@ -578,6 +700,7 @@ public class LobbyManager : NetworkBehaviour
             }
 #endif
             MapRotationSystem.Instance.CheckForMapSwitch(MapRotationSystem.Instance.MaxRounds);
+            return;
         }
         else
         {
@@ -591,8 +714,58 @@ public class LobbyManager : NetworkBehaviour
                 }
             }
 #endif
-            NetworkManager.Singleton.SceneManager.LoadScene(plateLevel, LoadSceneMode.Single);
+            LoadDemo();
         }
+    }
+
+    public void LoadDemo()
+    {
+        Debug.Log("In LoadDemo");
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadPlateMap;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+    }
+
+    public void ShowLoadingScreenForClients()
+    {
+        ShowLoadingScreenForClientsClientRpc();
+    }
+
+    [ClientRpc]
+    private void ShowLoadingScreenForClientsClientRpc()
+    {
+        if (IsServer) return; 
+
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+    }
+
+    public void LoadPlateMap()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadPlateMap;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                   plateLevel,
+                   LoadSceneMode.Single
+               );
+    }
+
+    void LoadTutorial()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadTutorial;
+        //Debug.Log("Loading tutorial");
+        PlayerPrefs.SetInt("PlayedTutorial", 1);
+        SaveManager.Save();
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                   tutorialLevel,
+                   LoadSceneMode.Single
+               );
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -607,6 +780,9 @@ public class LobbyManager : NetworkBehaviour
         PlayStartSFXClientRpc();
         uiParent.SetActive(false);
         GetComponent<PlayerInputManager>().enabled = false;
+
+        if (!IsServer && MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.TriggerFade();
     }
 
     private void ChangeStartButtonState(bool enable)
@@ -764,7 +940,7 @@ public class LobbyManager : NetworkBehaviour
 
     private void HandleMapUsageToggleActiveState()
     {
-        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion) return;
+        if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby) return;
 
         int disabledCount = 0;
 
@@ -793,12 +969,12 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby || !SteamIntegration.instance)
             {
                 if (toggle.isOn)
                     activeCount++;
             }
-            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
             {
                 if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
                     activeCount++;
@@ -809,14 +985,14 @@ public class LobbyManager : NetworkBehaviour
 
         foreach (Toggle toggle in weaponToggles)
         {
-            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
+            if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby || !SteamIntegration.instance)
             {
                 if (toggle.isOn)
                     toggle.interactable = !lockActive;
                 else
                     toggle.interactable = true;
             }
-            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
+            else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
             {
                 if (toggle.isOn && !toggle.GetComponent<UninteractableOnDemo>())
                     toggle.interactable = !lockActive;
@@ -840,13 +1016,24 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     void SetWinsNeededClientRpc(int value)
     {
-        winsNeeded = value;
+        winsNeeded.Value = value;
         MatchSettingsSelection.Instance.ApplyLoadoutConditionalNavigation();
     }
 
     public void ToggleEndless(bool toggle)
     {
        ToggleEndlessServerRpc(toggle);
+    }
+
+    public void TogglePlayTutorial(bool toggle)
+    {
+        playTutorial = toggle;
+    }
+
+    public void SwitchPlayTutorialState()
+    {
+        playTutorial = !playTutorial;
+        playTutorialToggle.isOn = !playTutorialToggle.isOn;
     }
 
     [ServerRpc(RequireOwnership = false)]
@@ -857,36 +1044,84 @@ public class LobbyManager : NetworkBehaviour
     [ClientRpc]
     void ToggleEndlessClientRpc(bool toggle)
     {
-        playEndless = toggle;
+        playEndless.Value = toggle;
     }
 
 
     [ServerRpc(RequireOwnership = false)]
-    public void UpdateTeamServerRpc(int playerIndex)
+    public void UpdateTeamServerRpc(int playerIndex, bool increment)
     {
-        UpdateTeamClientRpc(playerIndex);
+        UpdateTeamClientRpc(playerIndex, increment);
     }
 
     [ClientRpc]
-    public void UpdateTeamClientRpc(int playerIndex)
+    public void UpdateTeamClientRpc(int playerIndex, bool increment)
     {
         playerContainers[playerIndex]
        .GetComponentInChildren<TeamSelection>()
-       .ChangeTeam();
-    }
-
-    [ServerRpc(RequireOwnership = false)]
-    public void OnClientConnectedWinConditionUpdateServerRpc(ulong clientID)
-    {
-        OnClientConnectedWinConditionUpdateClientRpc(clientID, this.playEndless, this.winsNeeded);
+       .ChangeTeam(increment);
     }
 
     [ClientRpc]
-    public void OnClientConnectedWinConditionUpdateClientRpc(ulong clientID, bool playEndless, int winsNeeded)
+    private void CheckIfShouldSwitchToDemoLobbyClientRpc()
     {
-        if (NetworkManager.Singleton.LocalClientId != clientID) return; 
+        if(isDemoLobby)
+        {
+            SwitchToDemoLobbyServerRpc();
+        }
+    }
 
-        this.playEndless = playEndless;
-        this.winsNeeded = winsNeeded;
+    [ServerRpc(RequireOwnership = false)]
+    private void SwitchToDemoLobbyServerRpc()
+    {
+        if(!isDemoLobby)
+        {
+            isDemoLobby = true;
+            ResetToDefaultSettings();
+            foreach (DisableOnFullVersion donFv in allLobbyDisableOnFullVersions)
+                donFv.gameObject.SetActive(true);
+            foreach (UninteractableOnDemo uOD in allUninteractableOnDemos)
+            {
+                if(uOD.gameObject.activeSelf)
+                    uOD.Evaluate();
+            }
+        }
+    }
+
+    public void ResetToDefaultSettings()
+    {
+        selectedGameMode = GameModeConst;
+        selectedLoadoutType = LoadOutTypeConst;
+        selectedLeftSpellIndex = LeftSpellIndexConst;
+        selectedRightSpellIndex = RightSpellIndexConst;
+        winsNeeded.Value = WinsNeededConst;
+        playTutorial = PlayTutorialConst;
+        playEndless.Value = PlayEndlessConst;
+        foreach (SO_Spell spell in Spells)
+            spell.CanUse = true;
+        foreach(MapSettingsSO mapSettings in MapSettings)
+        {
+            if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion || isDemoLobby)
+            {
+                if (mapSettings.MapID == 0)
+                {
+                    mapSettings.PlayMap = true;
+                    mapSettings.PlayWithMapEvent = true;
+                    mapSettings.MapRounds = 3;
+                }
+                else
+                {
+                    mapSettings.PlayMap = false;
+                    mapSettings.PlayWithMapEvent = false;
+                    mapSettings.MapRounds = 3;
+                }
+            }
+            else if(SteamIntegration.instance && SteamIntegration.instance.IsFullVersion && !isDemoLobby)
+            {
+                mapSettings.PlayMap = true;
+                mapSettings.PlayWithMapEvent = true;
+                mapSettings.MapRounds = 3;
+            }
+        }
     }
 }

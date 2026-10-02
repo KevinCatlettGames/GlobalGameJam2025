@@ -132,7 +132,8 @@ public class TargetGroupManager : MonoBehaviour
         {
             foreach (Transform t in targetGroup)
             {
-                bounds.Encapsulate(t.transform.position);
+                if(t)
+                    bounds.Encapsulate(t.transform.position);
             }
         }
         else

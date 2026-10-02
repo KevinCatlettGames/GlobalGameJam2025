@@ -71,6 +71,12 @@ public class Slasher : MonoBehaviour
             // Forwards direction and target to the parent SlashBubble.
             // Our prediction gates in SlashBubble.SlasherHit will intercept fake hits safely!
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
+            if (other.CompareTag("Bubble"))
+            {
+                SpawnPopEffect();
+                if (slasherParent != null && !other.TryGetComponent<WallBubble>(out WallBubble x)) slasherParent.SetActive(false);
+                return;
+            }
         }
     }
 

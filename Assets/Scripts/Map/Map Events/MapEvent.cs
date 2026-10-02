@@ -4,6 +4,7 @@ using UnityEngine;
 public abstract class MapEvent : NetworkBehaviour
 {
     [SerializeField] private float firstStartDelay = 5f;
+    [SerializeField] private float startDelay = 4f;
     [SerializeField] private int mapID = 0;
     public void InitialiseMapEvent()
     {
@@ -20,18 +21,21 @@ public abstract class MapEvent : NetworkBehaviour
         if (TransportSwitcher.Instance)
         {
             if (!NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameStarted += StartAfterDelay;
             GameManager.Instance.OnGameEnded += StopEvent;
             Invoke(nameof(StartEvent), firstStartDelay);
         }
         else
         {
-            GameManager.Instance.OnGameStarted += StartEvent;
+            GameManager.Instance.OnGameStarted += StartAfterDelay;
             GameManager.Instance.OnGameEnded += StopEvent;
             Invoke(nameof(StartEvent), firstStartDelay);
         }
     }
-
+    protected void StartAfterDelay()
+    {
+        Invoke(nameof(StartEvent), startDelay);
+    }
     protected abstract void StartEvent();
     protected abstract void StopEvent();
 
@@ -40,12 +44,12 @@ public abstract class MapEvent : NetworkBehaviour
         if (TransportSwitcher.Instance)
         {
             if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
-            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameStarted -= StartAfterDelay;
             GameManager.Instance.OnGameEnded -= StopEvent;
         }
         else
         {
-            GameManager.Instance.OnGameStarted -= StartEvent;
+            GameManager.Instance.OnGameStarted -= StartAfterDelay;
             GameManager.Instance.OnGameEnded -= StopEvent;
         }
     }

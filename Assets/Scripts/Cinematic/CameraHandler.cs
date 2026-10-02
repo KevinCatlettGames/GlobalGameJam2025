@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.Events; 
@@ -7,6 +8,7 @@ public class CameraHandler : NetworkBehaviour
     public static CameraHandler Instance;
     [SerializeField] private GameObject cinematicCamera;
     [SerializeField] private GameObject mainCamera;
+    [SerializeField] Countdown countDown; 
     public bool playCinematicAtStart = true;
     public UnityEvent onCinematicEnd;
     public UnityEvent onTransitionHolding;
@@ -27,7 +29,6 @@ public class CameraHandler : NetworkBehaviour
 
     private void Init()
     {
-        mainCamera.SetActive(false);
         cinematicCamera.SetActive(false);
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
         {
@@ -42,18 +43,15 @@ public class CameraHandler : NetworkBehaviour
 
     void Begin()
     { 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && IsServer)
-        {
-            LobbyManager.instance.OnAllPlayersLoadedIn.RemoveListener(Begin);
-        }
-
         if (cinematicCamera == null || !playCinematicAtStart)
         {
             mainCamera.SetActive(true);
+            cinematicCamera.SetActive(false);
             Invoke(nameof(StartWithoutCinematic), 2f);
         }
         else
         {
+            mainCamera.SetActive(false);
             cinematicCamera.SetActive(true);
         }
     }
@@ -68,10 +66,15 @@ public class CameraHandler : NetworkBehaviour
 
         if (cinematicCamera == null || !playCinematicAtStart)
         {
-            Invoke(nameof(StartWithoutCinematic), 2f);
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
+                StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
+            Invoke(nameof(StartWithoutCinematicOnline), 2f);
         }
         else
         {
+            if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn)
+                StartCoroutine(MenuTransitionHandler.Instance.PlayFadeAfterSceneChangeSmoothly());
+            mainCamera.SetActive(false);
             cinematicCamera.SetActive(true);
         }
     }
@@ -85,8 +88,34 @@ public class CameraHandler : NetworkBehaviour
 
     void StartWithoutCinematic()
     {
+        mainCamera.SetActive(true);
         PlayerManager.Instance.StartPlayerJoining();
         onCinematicEnd?.Invoke();
+    }
+
+    void StartWithoutCinematicOnline()
+    {
+        mainCamera.SetActive(true);
+        PlayerManager.Instance.StartPlayerJoining();
+        onCinematicEnd?.Invoke();
+        countDown?.OnCountdownStart?.Invoke();
+        Invoke(nameof(EnablePlayersWithoutCinematicOnline), 1f);
+    }
+
+
+    void EnablePlayersWithoutCinematicOnline()
+    {
+        EnablePlayersWithoutCinematicClientRpc();
+    }
+
+    [ClientRpc]
+    void EnablePlayersWithoutCinematicClientRpc()
+    {
+        List<PlayerController> players = PlayerManager.Instance.GetPlayers();
+        foreach (PlayerController player in players)
+            player.StartEntrence(true);
+
+        countDown?.onCountdownComplete?.Invoke();
     }
 
     public void OnTransitionHolding()

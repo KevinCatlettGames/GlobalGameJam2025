@@ -30,7 +30,7 @@ public class SplitTracker
         {
             firstHitPlayer = playerHit;
         }
-        else if (firstHitPlayer != playerHit)
+        else
         {
             achievementUnlocked = true;
             IncrementSplitAchievement();

@@ -33,6 +33,7 @@ public class SoapMapEvent : MapEvent
         if (!NetworkManager.Singleton.IsServer) return;
         isSpawning = false;
         waveSize = startWaveSize;
+        ToggleWarningIndicatorServerRpc(false);
         StopAllCoroutines();
     }
     private IEnumerator SpawnWaves()

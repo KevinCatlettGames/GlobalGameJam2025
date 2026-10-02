@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using UnityEngine.Localization.Components;
+using UnityEngine.Localization;
 
 public class SkinUnlockTextHandler : MonoBehaviour
 {
@@ -15,6 +16,7 @@ public class SkinUnlockTextHandler : MonoBehaviour
     [SerializeField] private bool useUnlocking = false;
 
     private LocalizeStringEvent _descriptionLocalizer;
+    [SerializeField] LocalizedString fullversionRequiredLocalizer;
     [SerializeField] private Vector2 descriptionOffsetOnNoStat = new Vector2(0, -10);
     private Vector2 originalDescriptionPosition;
     private void Awake()
@@ -27,38 +29,40 @@ public class SkinUnlockTextHandler : MonoBehaviour
     }
 
     public void SetSkinUnlockText(SkinSO skinSO)
-    {
-        if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
-        {
-            HideUnlockUI();
-            return;
-        }    
-
-
+    {  
         if (skinSO == null)
         {
             HideUnlockUI();
             return;
         }
 
-        var achievement = skinSO.UnlockAchievement;
-
-        if (!useUnlocking || achievement == null)
+        if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
         {
-            HideUnlockUI();
-            return;
+            var achievement = skinSO.UnlockAchievement;
+
+            if (!useUnlocking || achievement == null)
+            {
+                HideUnlockUI();
+                return;
+            }
+
+            bool isUnlocked = AchievementSaveSystem.instance != null &&
+                              AchievementSaveSystem.instance.IsAchievementUnlocked(achievement.AchievementID);
+
+            if (isUnlocked)
+            {
+                HideUnlockUI();
+                return;
+            }
+            ShowAchievementDetails(achievement);
         }
-
-        bool isUnlocked = AchievementSaveSystem.instance != null &&
-                          AchievementSaveSystem.instance.IsAchievementUnlocked(achievement.AchievementID);
-
-        if (isUnlocked)
+        else if (SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
         {
-            HideUnlockUI();
-            return;
+            if (skinSO.Index > 3)
+                ShowAchievementDetails(null);
+            else
+                HideUnlockUI();
         }
-
-        ShowAchievementDetails(achievement);
     }
 
     private void ShowAchievementDetails(SO_Achievement achievement)
@@ -66,32 +70,48 @@ public class SkinUnlockTextHandler : MonoBehaviour
         background.SetActive(true);
         achievementDescriptionObject.SetActive(true);
 
-        if (_descriptionLocalizer != null)
+        if (SteamIntegration.instance && SteamIntegration.instance.IsFullVersion || !SteamIntegration.instance)
         {
-            _descriptionLocalizer.StringReference = achievement.AchievementDescriptionLocalization;
+            if (_descriptionLocalizer != null)
+            {
+                _descriptionLocalizer.StringReference = achievement.AchievementDescriptionLocalization;
+            }
+
+            bool hasStatProgress = achievement.StatID != -1;
+            achievementStatSlider.gameObject.SetActive(hasStatProgress);
+
+            if (hasStatProgress && AchievementSaveSystem.instance != null)
+            {
+                int currentValue = AchievementSaveSystem.instance.GetStatInt(achievement.StatName);
+                int targetValue = achievement.StatThreshold;
+
+                achievementStatSlider.maxValue = targetValue;
+                achievementStatSlider.value = currentValue;
+                statText.text = $"{currentValue}/{targetValue}";
+                achievementDescriptionObject.transform.localPosition = originalDescriptionPosition;
+            }
+            else
+            {
+                statText.text = string.Empty;
+
+                achievementDescriptionObject.transform.localPosition
+                    = new Vector2(
+                        originalDescriptionPosition.x + descriptionOffsetOnNoStat.x,
+                        originalDescriptionPosition.y + descriptionOffsetOnNoStat.y);
+            }
         }
-
-        bool hasStatProgress = achievement.StatID != -1;
-        achievementStatSlider.gameObject.SetActive(hasStatProgress);
-
-        if (hasStatProgress && AchievementSaveSystem.instance != null)
+        else if(SteamIntegration.instance && !SteamIntegration.instance.IsFullVersion)
         {
-            int currentValue = AchievementSaveSystem.instance.GetStatInt(achievement.StatName);
-            int targetValue = achievement.StatThreshold;
+            if(fullversionRequiredLocalizer != null)
+            {
+                _descriptionLocalizer.StringReference = fullversionRequiredLocalizer;
+                statText.text = string.Empty;
 
-            achievementStatSlider.maxValue = targetValue;
-            achievementStatSlider.value = currentValue;
-            statText.text = $"{currentValue}/{targetValue}";
-            achievementDescriptionObject.transform.localPosition = originalDescriptionPosition;
-        }
-        else
-        {
-            statText.text = string.Empty;
-            
-            achievementDescriptionObject.transform.localPosition 
-                = new Vector2(
-                    originalDescriptionPosition.x + descriptionOffsetOnNoStat.x, 
-                    originalDescriptionPosition.y + descriptionOffsetOnNoStat.y);
+                achievementDescriptionObject.transform.localPosition
+                    = new Vector2(
+                        originalDescriptionPosition.x + descriptionOffsetOnNoStat.x,
+                        originalDescriptionPosition.y + descriptionOffsetOnNoStat.y);
+            }
         }
     }
 

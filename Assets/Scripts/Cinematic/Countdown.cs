@@ -1,14 +1,16 @@
-using System.Collections;
-using UnityEngine;
-using UnityEngine.UI;
-using UnityEngine.Events;
+using FMOD.Studio;
 using FMODUnity;
+using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.UI;
 
 public class Countdown : MonoBehaviour
 {
     [Header("Countdown Settings")]
     [SerializeField] private float timeBetweenElements = .5f;
+    [SerializeField] EventReference countDownEvent;
 
     [Header("Sprite Countdown")]
     [SerializeField] private Image countdownImage;
@@ -20,7 +22,13 @@ public class Countdown : MonoBehaviour
     public UnityEvent OnCountdownStart;
     public UnityEvent onCountdownComplete;
 
+    [Header("Transition")]
+    [SerializeField] private Sprite[] transitionSprites;
+    [SerializeField] private Image transitionImage;
+    [SerializeField] private float transitionDuration = .3f;
+
     private Coroutine countdownCoroutine;
+    private Animation animation;
 
     private void Start()
     {
@@ -28,6 +36,9 @@ public class Countdown : MonoBehaviour
 
         if (countdownImage != null)
             countdownImage.enabled = false;
+
+        animation = GetComponent<Animation>();
+        GameManager.Instance.OnGameStarted += StartShortCountdown;
     }
 
     public void StartCountdown()
@@ -47,12 +58,49 @@ public class Countdown : MonoBehaviour
             onCountdownComplete?.Invoke();
         }
     }
-
+    public void StartShortCountdown()
+    {
+        StartCoroutine(ShortCountdown());
+    }
+    private IEnumerator ShortCountdown()
+    {
+        float timeBetweenFrames = transitionDuration / transitionSprites.Length;
+        transitionImage.enabled = true;
+        for (int i = 0; i < transitionSprites.Length; i++)
+        {
+            transitionImage.sprite = transitionSprites[i];
+            yield return new WaitForSeconds(timeBetweenFrames);
+        }
+        transitionImage.enabled = false;
+        yield return new WaitForSeconds(timeBetweenElements / 2);
+        countdownImage.enabled = true;
+        countdownImage.sprite = countdownSprites[0];
+        animation.Play();
+        yield return new WaitForSeconds(timeBetweenElements * 2);
+        countdownImage.enabled = false;
+        PlayerManager.Instance.EnablePlayerInput(true);
+    }
+    public float PlayTransition()
+    {
+        StartCoroutine(PlayTransitionCoroutine());
+        return transitionDuration;
+    }
+    private IEnumerator PlayTransitionCoroutine()
+    {
+        float timeBetweenFrames = transitionDuration / transitionSprites.Length;
+        transitionImage.enabled = true;
+        for (int i = 0; i < transitionSprites.Length; i++)
+        {
+            transitionImage.sprite = transitionSprites[i];
+            yield return new WaitForSeconds(timeBetweenFrames);
+        }
+        transitionImage.enabled = false;
+    }
     private IEnumerator CountdownRoutine()
     {
+        bool soundStarted = false;
         int currentCount = countdownSprites.Length -1;
         yield return new WaitForSeconds(.1f);
-
         List<PlayerController> players = PlayerManager.Instance.GetPlayers();
         int playerCount = players.Count -1;
         float animTime = .45f;
@@ -60,17 +108,37 @@ public class Countdown : MonoBehaviour
         while (currentCount > -1)
         {
             yield return new WaitForSeconds(timeBetweenElements - animTime);
-            if (currentCount <= playerCount)
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
             {
-                players[currentCount].StartEntrence(currentCount * timeBetweenElements);
+                if (currentCount <= playerCount)
+                {
+                    players[currentCount].StartEntrence(false);
+                }
             }
             yield return new WaitForSeconds(animTime);
+            if (!soundStarted)
+            {
+                soundStarted = true;
+                EventInstance fmodEvent = RuntimeManager.CreateInstance(countDownEvent);
+                RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
+                int r = Random.Range(0, 5); //Amount of voice profiles
+                fmodEvent.setParameterByName("VoiceProfile", r);
+                fmodEvent.start();
+                fmodEvent.release();
+            }
             countdownImage.enabled = true;
             countdownImage.sprite = countdownSprites[currentCount];
             currentCount--;
         }
+        animation.Play();
         yield return new WaitForSeconds(timeBetweenElements);
         onCountdownComplete?.Invoke();
+        PlayerManager.Instance.EnablePlayerInput(true);
         countdownImage.enabled = false;
+    }
+
+    private void OnDestroy()
+    {
+        GameManager.Instance.OnGameStarted -= StartShortCountdown;
     }
 }

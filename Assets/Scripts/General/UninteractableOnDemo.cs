@@ -10,9 +10,14 @@ public class UninteractableOnDemo : MonoBehaviour
 
     private void OnEnable()
     {
+        Evaluate();
+    }
+
+    public void Evaluate()
+    {
         if (SteamIntegration.instance != null)
         {
-            if (!SteamIntegration.instance.IsFullVersion)
+            if (!SteamIntegration.instance.IsFullVersion || LobbyManager.instance && LobbyManager.instance.isDemoLobby)
             {
                 Selectable uiElement = GetComponent<Selectable>();
 
@@ -25,7 +30,7 @@ public class UninteractableOnDemo : MonoBehaviour
                         toggleElement.isOn = false;
                     }
                     OnInteractionDisabled?.Invoke();
-                }              
+                }
                 else
                 {
                     Debug.LogWarning($"No Selectable UI component found on {gameObject.name}", gameObject);

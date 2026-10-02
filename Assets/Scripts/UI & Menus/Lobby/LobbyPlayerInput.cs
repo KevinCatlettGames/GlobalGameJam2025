@@ -10,7 +10,6 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.Utilities;
-using UnityEngine.UI;
 
 public class LobbyPlayerInput : NetworkBehaviour
 {
@@ -151,7 +150,7 @@ public class LobbyPlayerInput : NetworkBehaviour
             playerInput.user.ActivateControlScheme("Keyboard");
 
         if (joined && playerIndex.Value != -1)
-            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, clickedDevice);
+            LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, clickedDevice, networkSteamId.Value);
     }
 
     void OnClientConnectedCallback(ulong clientID)
@@ -219,9 +218,9 @@ public class LobbyPlayerInput : NetworkBehaviour
         if (!TransportSwitcher.Instance.isUsingRelay)
             lobbyManager.SetReady(playerIndex.Value, false);
         else
-            lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+            lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false, networkSteamId.Value);
 
-        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0]);
+        LobbyPlayerValues.Instance.AssignDeviceToPlayer(playerIndex.Value, playerInput.devices[0], networkSteamId.Value);
 
         foreach (GameObject playerContainer in lobbyManager.playerContainers)
         {
@@ -268,7 +267,8 @@ public class LobbyPlayerInput : NetworkBehaviour
         {
             if (playerContainer.GetComponent<PlayerContainerManager>().uiIndex == playerIndex.Value && playerContainer.GetComponent<PlayerContainerSkinChange>().currentlyOnLocked)
             {
-                PlaySFX(true, 3);
+                //LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
+                PlaySFX(false, 3);
                 return;
             }
         }
@@ -289,13 +289,14 @@ public class LobbyPlayerInput : NetworkBehaviour
                 || AchievementSaveSystem.instance && LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.UnlockAchievement.AchievementID))
             {
                 PlaySFX(false, 3);
+                //LobbyManager.instance.playerContainers[playerIndex.Value].GetComponent<PlayerContainerManager>().TriggerErrorImage();
                 return;
             }
 
             if (!TransportSwitcher.Instance.isUsingRelay)
                 lobbyManager.SetReady(playersListID, true);
             else
-                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, true);
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, true, networkSteamId.Value);
 
             foreach (GameObject playerContainer in lobbyManager.playerContainers)
             {
@@ -303,7 +304,9 @@ public class LobbyPlayerInput : NetworkBehaviour
                     playerContainer.GetComponent<PlayerContainerSkinChange>().UpdateSkin();
             }
 
-            PlaySFX(true, 2);
+            PlaySFX(true, 3);
+            PlaySFXWithParam(true, 4, "VoiceProfile", (int)LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.VoiceProfile);
+
         }
     }
 
@@ -332,9 +335,10 @@ public class LobbyPlayerInput : NetworkBehaviour
             if (!TransportSwitcher.Instance.isUsingRelay)
                 lobbyManager.SetReady(playerIndex.Value, false);
             else
-                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false);
+                lobbyManager.ToggleReadyServerRpc(playerIndex.Value, NetworkManager.Singleton.LocalClientId, false, networkSteamId.Value);
 
             PlaySFX(true, 3);
+            PlaySFXWithParam(true, 5, "VoiceProfile", (int)LobbyPlayerValues.Instance.playerValuesList[playerIndex.Value].Skin.VoiceProfile);
             return;
         }
 
@@ -442,15 +446,21 @@ public class LobbyPlayerInput : NetworkBehaviour
             return;
 
         canNavigateTeam = false;
+        bool increment = true;
+        if(input.x > 0)
+            increment = true;
+        else if(input.x < 0)
+            increment = false;
+
         if (TransportSwitcher.Instance.isUsingRelay)
         {
-            lobbyManager.UpdateTeamServerRpc(playerIndex.Value);
+            lobbyManager.UpdateTeamServerRpc(playerIndex.Value, increment);
         }
         else
         {
             lobbyManager.playerContainers[playerIndex.Value]
                      .GetComponentInChildren<TeamSelection>()
-                     .ChangeTeam();
+                     .ChangeTeam(increment);
         }
 
         PlaySFX(true, 0);
@@ -471,18 +481,50 @@ public class LobbyPlayerInput : NetworkBehaviour
         }
     }
 
+    private void PlaySFXWithParam(bool shareWithClients, int referenceID, string paramName, int voiceProfile)
+    {
+        if (TransportSwitcher.Instance.isUsingRelay && shareWithClients)
+        {
+            PlaySFXWithParamServerRpc(playerIndex.Value, referenceID, paramName, voiceProfile);
+        }
+        else
+        {
+            EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+            RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+            fmodEvent.setParameterByName(paramName, voiceProfile);
+            fmodEvent.start();
+            fmodEvent.release();
+        }
+    }
+
     [ServerRpc(RequireOwnership = false)]
     private void PlaySFXServerRpc(int playerID, int referenceID)
     {
         PlaySFXClientRpc(playerID, referenceID);
     }
 
+    [ServerRpc(RequireOwnership = false)]
+    private void PlaySFXWithParamServerRpc(int playerID, int referenceID, string paramName, int voiceProfile)
+    {
+        PlaySFXWithParamClientRpc(playerID, referenceID, paramName, voiceProfile);
+
+    }
 
     [ClientRpc]
     private void PlaySFXClientRpc(int playerID, int referenceID)
     {
         EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
         RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+        fmodEvent.start();
+        fmodEvent.release();
+    }
+
+    [ClientRpc]
+    private void PlaySFXWithParamClientRpc(int playerID, int referenceID, string paramName, int voiceProfile)
+    {
+        EventInstance fmodEvent = RuntimeManager.CreateInstance(eventReferences[referenceID]);
+        RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform);
+        fmodEvent.setParameterByName(paramName, voiceProfile);
         fmodEvent.start();
         fmodEvent.release();
     }
@@ -504,13 +546,17 @@ public class LobbyPlayerInput : NetworkBehaviour
 
     public void OnToggleMatchSettings(InputAction.CallbackContext context)
     {
+        if (!context.performed) return;
+
         if (isQuitting) return;
         if (!isActiveAndEnabled) return;
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay &&
             !NetworkManager.Singleton.IsServer) return;
 
         PlaySFX(false, 3);
-        lobbyManager._MatchSettingsSelection.SetActive(!lobbyManager._MatchSettingsSelection.activeSelf);
+
+        bool currentState = lobbyManager._MatchSettingsSelection.activeSelf;
+        lobbyManager._MatchSettingsSelection.SetActive(!currentState);
     }
 
 #if !UNITY_SWITCH

@@ -82,4 +82,9 @@ public class PlayerContainerManager : MonoBehaviour
         playerProfileDisplay.ShowSteamAvatarBySteamID(networkSteamID);
 #endif
     }
+
+    public void TriggerErrorImage()
+    {
+        readyObject.GetComponent<ChangeImageForDuration>().DoIt();
+    }
 }

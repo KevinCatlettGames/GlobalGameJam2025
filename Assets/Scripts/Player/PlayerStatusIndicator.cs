@@ -14,6 +14,8 @@ public class PlayerStatusIndicator : MonoBehaviour
     }
     public void SetStatus(ShaderState status)
     {
+        if (!image) return; 
+
         int i = ((int)status);
         if (i == 0)
         {

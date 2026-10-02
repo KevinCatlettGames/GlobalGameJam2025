@@ -1,7 +1,9 @@
-using UnityEngine;
-using System.Collections.Generic;
 using FMODUnity;
+using System.Collections.Generic;
+using System.Net;
 using TMPro;
+using Unity.Netcode;
+using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -11,16 +13,13 @@ public class WinScreenManager : MonoBehaviour
 
     [SerializeField] private GameObject gameUI;
     [SerializeField] private SO_Scores scores;
-    [SerializeField] private GameObject[] winPanels;
-    [SerializeField] private Outline[] outlines;
-    [SerializeField] private Image[] killImages;
-    [SerializeField] private TextMeshProUGUI[] killCounts;
-    [SerializeField] private Image teamImage;
-    [SerializeField] private TextMeshProUGUI teamKillText;
-    [SerializeField] private Image[] playerImages;
+    [SerializeField] private Image[] nonWinnerBadgeImages;
+    [SerializeField] private WinPanel[] winnerPanels;
+    [SerializeField] private WinPanel[] loserPanels;
     [SerializeField] private StudioEventEmitter emitter;
     [SerializeField] private EventSystem eventSystem;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button mainMenuButton;
     [SerializeField] private float panelSpacing = 400f;
 
     private void Awake()
@@ -36,19 +35,19 @@ public class WinScreenManager : MonoBehaviour
 
     private void OnEnable()
     {
-        Cursor.visible = true;
-        Cursor.lockState = CursorLockMode.None;
-
         gameUI.SetActive(false);
-        eventSystem.SetSelectedGameObject(restartButton.gameObject);
+        //if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.IsHost
+        //    || TransportSwitcher.Instance && !TransportSwitcher.Instance.isUsingRelay)
+        //    eventSystem.SetSelectedGameObject(restartButton.gameObject);
+        //else if(mainMenuButton)
+        //    eventSystem.SetSelectedGameObject(mainMenuButton.gameObject);
+
         ShowWinnerUsingWinScore();
+        PlayerManager.Instance.EnablePlayerInput(false);
     }
 
     public void ShowWinnerUsingWinScore()
     {
-        foreach (var panel in winPanels)
-            panel.SetActive(false);
-
         List<int> winnerPlayerIDs =
             GameManager.Instance.GameMode ==
             GameManager.GameModeType.Standard
@@ -57,50 +56,61 @@ public class WinScreenManager : MonoBehaviour
 
         int winnerCount = winnerPlayerIDs.Count;
 
+        float xPositionStart = winnerPanels[0].GetComponent<RectTransform>().anchoredPosition.x;
+
         for (int i = 0; i < winnerCount; i++)
         {
             int playerID = winnerPlayerIDs[i];
 
-            winPanels[i].SetActive(true);
-
-            outlines[i].effectColor =
-                LobbyPlayerValues.Instance
-                .playerValuesList[playerID]
-                .Skin.Color;
+            winnerPanels[i].SetPanel(
+                LobbyPlayerValues.Instance.playerValuesList[playerID].Skin.SplashArt,
+                scores.WinScores[playerID],
+                scores.KillScores[playerID]);
 
             RectTransform rectTransform =
-                winPanels[i].GetComponent<RectTransform>();
+                winnerPanels[i].GetComponent<RectTransform>();
 
             float xPosition =
                 (i - (winnerCount - 1) / 2f)
                 * panelSpacing;
-
+            xPosition += xPositionStart;
             rectTransform.anchoredPosition =
                 new Vector2(
                     xPosition,
                     rectTransform.anchoredPosition.y
                 );
 
-            playerImages[i].sprite =
-                LobbyPlayerValues.Instance
-                .playerValuesList[playerID]
-                .Skin.SplashArt;
-
             if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
             {
-                killCounts[i].text =
-                    scores.KillScores[playerID]
-                    .ToString();
+                List<ScoreManager.PlayerScoreEntry> playerScoreEntries = ScoreManager.Instance.GetScores(false);
+                int imageIndex = 0;
+                for (int x = winnerCount; x < playerScoreEntries.Count; x++)
+                {
+                    int loserID = playerScoreEntries[x].playerID;
+                    SkinSO skin = LobbyPlayerValues.Instance.playerValuesList[loserID].Skin;
+                    nonWinnerBadgeImages[imageIndex].enabled = true;
+                    nonWinnerBadgeImages[imageIndex].color = skin.Color;
+                    loserPanels[imageIndex].SetPanel(skin.HeadSprites[0], scores.WinScores[loserID], scores.KillScores[loserID]);
+                    imageIndex++;
+                }
             }
             else
             {
-                killCounts[i].enabled = false;
-                killImages[i].enabled = false;
-                if (scores.KillScores[playerID] == 0) return;
-                teamImage.enabled = true;
-                teamKillText.enabled = true;
-                teamKillText.text = scores.KillScores[playerID].ToString();
+                List<ScoreManager.TeamScoreEntry> teamScoreEntries = ScoreManager.Instance.GetTeamScores(false);
+                List<PlayerController> loserTeam = teamScoreEntries[1].teamPlayers;
+                int imageIndex = 0;
+                for (int y = 0; y < loserTeam.Count; y++)
+                {
+                    SkinSO skin = loserTeam[y].CurrentSkinSO;
+                    nonWinnerBadgeImages[imageIndex].enabled = true;
+                    nonWinnerBadgeImages[imageIndex].color = skin.Color;
+                    nonWinnerBadgeImages[imageIndex].enabled = true;
+                    nonWinnerBadgeImages[imageIndex].color = skin.Color;
+                    loserPanels[imageIndex].SetPanel(skin.HeadSprites[0], scores.WinScores[loserTeam[y].PlayerID], scores.KillScores[loserTeam[y].PlayerID]);
+                    imageIndex++;
+                }
             }
+
         }
 
         emitter.Play();
@@ -171,4 +181,5 @@ public class WinScreenManager : MonoBehaviour
 
         return winners;
     }
+
 }

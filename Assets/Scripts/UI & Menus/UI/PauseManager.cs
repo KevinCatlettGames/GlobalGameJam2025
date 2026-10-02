@@ -1,139 +1,196 @@
+using System.Collections;
+using System.Threading.Tasks;
 using FMODUnity;
 using Unity.Netcode;
+using Unity.Services.Authentication;
+using Unity.Services.Lobbies;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.SceneManagement;
-using Unity.Services.Lobbies;
-using Unity.Services.Authentication;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.UI;
-using System.Threading.Tasks;
+using UnityEngine.SceneManagement;
 
-public class PauseManager : MonoBehaviour
+public class PauseManager : NetworkBehaviour
 {
     public static PauseManager Instance;
-    [SerializeField] private EventReference togglePauseSound; 
+
+    [Header("Audio & UI References")]
+    [SerializeField] private EventReference togglePauseSound;
     [SerializeField] private GameObject pauseMenu;
     [SerializeField] private GameObject pauseMenuButtons;
     [SerializeField] private GameObject selectedGameObject;
+    [SerializeField] private GameObject restartButton;
     [SerializeField] private SO_Scores scores;
-    
+
+    [Header("Input Settings")]
+    [SerializeField] private float backInputCooldown = 0.2f;
+
     private EventSystem eventSystem;
     private GameObject currentSubMenu;
-    private bool isPauseMenuOpen = true;
+    private bool isPauseMenuOpen = false;
     private bool isCurrentlyPaused = false;
+    private float allowBackInputTime;
 
     private InputSystemUIInputModule inputModuleUI;
     private InputAction pauseAction;
     private InputAction backAction;
 
+    public bool PausingEnabled = true;
+
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
             Instance = this;
+    }
+
+    public override void OnNetworkSpawn()
+    {
+        base.OnNetworkSpawn();
+
+        if (restartButton != null && !GameManager.Instance.PlayingLocal)
+        {
+            restartButton.SetActive(IsServer || IsHost());
+        }
     }
 
     private void Start()
     {
         eventSystem = EventSystem.current;
-        inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
-        pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
-        backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
-
-        if (pauseAction != null)
+        if (eventSystem != null)
         {
-            pauseAction.performed += OnPauseInput;
-            pauseAction.Enable();
-        }
-        if (backAction != null)
-        {
-            backAction.performed += OnBackInput;
-            backAction.Enable();
-        }
+            inputModuleUI = eventSystem.gameObject.GetComponent<InputSystemUIInputModule>();
+            if (inputModuleUI != null && inputModuleUI.actionsAsset != null)
+            {
+                pauseAction = inputModuleUI.actionsAsset.FindAction("UI/Pause");
+                backAction = inputModuleUI.actionsAsset.FindAction("UI/Back");
 
+                if (pauseAction != null)
+                {
+                    pauseAction.performed += OnPauseInput;
+                    pauseAction.Enable();
+                }
+                if (backAction != null)
+                {
+                    backAction.performed += OnBackInput;
+                    backAction.Enable();
+                }
+            }
+        }
     }
 
     private void OnEnable()
     {
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback += OnClientDisconnect;
-    }
-    
-    private void OnClientDisconnect(ulong clientId)
-    {
-        //Debug.Log("Player disconnected — returning to main menu...");
-        ReturnToMainMenu();
+
+            if (NetworkManager.Singleton.SceneManager != null)
+            {
+                NetworkManager.Singleton.SceneManager.OnSceneEvent += OnSceneEvent;
+            }
+        }
     }
 
     private void OnDisable()
     {
         if (NetworkManager.Singleton != null)
+        {
             NetworkManager.Singleton.OnClientDisconnectCallback -= OnClientDisconnect;
+
+            if (NetworkManager.Singleton.SceneManager != null)
+            {
+                NetworkManager.Singleton.SceneManager.OnSceneEvent -= OnSceneEvent;
+            }
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (pauseAction != null)
+            pauseAction.performed -= OnPauseInput;
+
+        if (backAction != null)
+            backAction.performed -= OnBackInput;
     }
 
     private void TogglePause()
     {
         RuntimeManager.PlayOneShot(togglePauseSound, transform.position);
-        pauseMenu.SetActive(!isCurrentlyPaused);
 
-        if (!isCurrentlyPaused)
+        isCurrentlyPaused = !isCurrentlyPaused;
+        GameManager.IsGamePaused = isCurrentlyPaused;
+        pauseMenu.SetActive(isCurrentlyPaused);
+
+        if (isCurrentlyPaused)
         {
-            isCurrentlyPaused = true;
-            GameManager.IsGamePaused = true;
-            SetSelected();
+            allowBackInputTime = Time.unscaledTime + backInputCooldown;
 
-            if (GameManager.Instance.PlayingLocal)
+            isPauseMenuOpen = true;
+            StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+
+            if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
                 Time.timeScale = 0f;
-
-            Cursor.lockState = CursorLockMode.None;
-            Cursor.visible = true;
         }
         else
         {
-            isCurrentlyPaused = false;
-            GameManager.IsGamePaused = false;
-
-            if (GameManager.Instance.PlayingLocal)
+            if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
                 Time.timeScale = 1f;
 
-            Cursor.lockState = CursorLockMode.Locked;
-            Cursor.visible = false;
-
-            if (!isPauseMenuOpen && currentSubMenu != null)
+            if (currentSubMenu != null)
             {
                 currentSubMenu.SetActive(false);
                 pauseMenuButtons.SetActive(true);
-                isPauseMenuOpen = true;
                 currentSubMenu = null;
             }
+            isPauseMenuOpen = false;
         }
     }
 
-    public void RestartGame()
+    public void OnPauseInput(InputAction.CallbackContext context)
     {
-        GameManager.IsGamePaused = false;
-        scores.ResetKills();
-        scores.ResetWins();
-        
-        if (GameManager.Instance.PlayingLocal)
+        if (!context.performed || !PausingEnabled) return;
+        TogglePause();
+    }
+
+    public void OnBackInput(InputAction.CallbackContext context)
+    {
+        if (!context.performed || !isCurrentlyPaused || Time.unscaledTime < allowBackInputTime)
+            return;
+
+        if (!isPauseMenuOpen && currentSubMenu != null)
         {
-            Time.timeScale = 1f;
-            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+            currentSubMenu.SetActive(false);
+            pauseMenuButtons.SetActive(true);
+            isPauseMenuOpen = true;
+            currentSubMenu = null;
+            StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+
+            allowBackInputTime = Time.unscaledTime + backInputCooldown;
         }
         else
-            RestartGameServerRpc();
+        {
+            TogglePause();
+        }
     }
 
-    [ServerRpc(RequireOwnership = false)]
-    private void RestartGameServerRpc()
+    private IEnumerator SetSelectedNextFrame(GameObject target)
     {
-        Time.timeScale = 1f;
-        NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        yield return null;
+        if (eventSystem != null && target != null)
+        {
+            eventSystem.SetSelectedGameObject(null);
+            eventSystem.SetSelectedGameObject(target);
+        }
     }
 
-    public void QuitGame()
+    public void SetSelected()
     {
-        Application.Quit();
+        StartCoroutine(SetSelectedNextFrame(selectedGameObject));
+    }
+
+    public void SetSelectedButton(GameObject gameObject)
+    {
+        StartCoroutine(SetSelectedNextFrame(gameObject));
     }
 
     public void ToggleSubMenu(GameObject subMenu)
@@ -154,11 +211,127 @@ public class PauseManager : MonoBehaviour
         }
     }
 
+    private void OnClientDisconnect(ulong clientId)
+    {
+        if(TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            ReturnToMainMenu();
+    }
+
+    private void OnSceneEvent(SceneEvent sceneEvent)
+    {
+        if (sceneEvent.SceneEventType == SceneEventType.LoadEventCompleted)
+        {
+            GameManager.IsGamePaused = false;
+            Time.timeScale = 1f;
+        }
+    }
+
+    public void RestartGame()
+    {
+        if (!GameManager.Instance.PlayingLocal && !IsServer && !IsHost()) return;
+        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+
+        GameManager.IsGamePaused = false;
+
+        if (GameManager.Instance != null && GameManager.Instance.PlayingLocal)
+        {
+            Time.timeScale = 1f;
+            if (scores != null)
+            {
+                scores.ResetKills();
+                scores.ResetWins();
+            }
+
+            if (MenuTransitionHandler.Instance)
+            {
+                MenuTransitionHandler.Instance.OnFadeComplete += LoadMapLocal;
+                MenuTransitionHandler.Instance.TriggerFade();
+            }
+            else
+            {
+                LoadMapLocal();
+            }
+        }
+        else
+        {
+            RestartGameServerRpc();
+        }
+    }
+
+    [ServerRpc(RequireOwnership = false)]
+    private void RestartGameServerRpc()
+    {
+        if (!IsServer) return;
+
+        Time.timeScale = 1f;
+
+        ResetScoresClientRpc();
+        TriggerTransitionClientRpc();
+
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.OnFadeComplete += LoadMapServer;
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+        else
+        {
+            LoadMapServer();
+        }
+    }
+
+    [ClientRpc]
+    private void TriggerTransitionClientRpc()
+    {
+        if (IsServer) return;
+
+        Time.timeScale = 1f;
+        if (MenuTransitionHandler.Instance)
+        {
+            MenuTransitionHandler.Instance.TriggerFade();
+        }
+    }
+
+    [ClientRpc]
+    public void ResetScoresClientRpc()
+    {
+        if (scores != null)
+        {
+            scores.ResetKills();
+            scores.ResetWins();
+        }
+    }
+
+    private void LoadMapServer()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMapServer;
+
+        if (IsServer && NetworkManager.Singleton != null && NetworkManager.Singleton.SceneManager != null)
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(SceneManager.GetActiveScene().name, LoadSceneMode.Single);
+        }
+    }
+
+    private void LoadMapLocal()
+    {
+        if (MenuTransitionHandler.Instance)
+            MenuTransitionHandler.Instance.OnFadeComplete -= LoadMapLocal;
+
+        NetworkManager.Singleton.SceneManager.LoadScene(
+                  SceneManager.GetActiveScene().name,
+                  LoadSceneMode.Single
+              );      
+    }
+
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
+
     public async void ReturnToMainMenu()
     {
-        Cursor.visible = true;
-        Time.timeScale = 1f; 
-        
+        if (MenuTransitionHandler.Instance && MenuTransitionHandler.Instance.fadeIsOn) return;
+
         try
         {
             if (GameLobby.instance != null && GlobalLobby.CurrentLobby != null)
@@ -186,8 +359,8 @@ public class PauseManager : MonoBehaviour
 
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
             NetworkManager.Singleton.Shutdown();
-        
-        if(NetworkManager.Singleton)
+
+        if (NetworkManager.Singleton)
             Destroy(NetworkManager.Singleton.gameObject);
 
         GlobalLobby.CurrentLobby = null;
@@ -197,21 +370,20 @@ public class PauseManager : MonoBehaviour
 
     public async void ReturnToLobby()
     {
-        Cursor.visible = true;
-        Time.timeScale = 1f; 
-        
-        if(LobbyManager.instance)
+        Time.timeScale = 1f;
+
+        if (LobbyManager.instance)
             Destroy(LobbyManager.instance.gameObject);
 
         LoadLobby();
     }
 
-    void LoadLobby()
+    private void LoadLobby()
     {
         SceneManager.LoadScene("UI_Lobby");
     }
 
-    void InitLoadMenu()
+    private void InitLoadMenu()
     {
         if (MenuTransitionHandler.Instance)
         {
@@ -222,12 +394,11 @@ public class PauseManager : MonoBehaviour
         {
             LoadMenu();
         }
-        
     }
 
-    void LoadMenu()
+    private void LoadMenu()
     {
-        if(MenuTransitionHandler.Instance)
+        if (MenuTransitionHandler.Instance)
             MenuTransitionHandler.Instance.OnFadeComplete -= LoadMenu;
 
         SceneManager.LoadScene("UI_MainMenu");
@@ -235,48 +406,6 @@ public class PauseManager : MonoBehaviour
 
     private bool IsHost()
     {
-        return NetworkManager.Singleton.IsHost;
-    }
-    
-    public void SetSelected()
-    {
-        eventSystem.SetSelectedGameObject(selectedGameObject);
-    }
-    public void SetSelectedButton(GameObject gameObject)
-    {
-        eventSystem.SetSelectedGameObject(gameObject);
-    }
-    public void OnPauseInput(InputAction.CallbackContext context)
-    {
-         TogglePause();       
-    }
-
-    public void OnBackInput(InputAction.CallbackContext context)
-    {
-        if (!isCurrentlyPaused) return;
-        
-        if (!isPauseMenuOpen && currentSubMenu != null)
-        {
-            currentSubMenu.SetActive(false);
-            pauseMenuButtons.SetActive(true);
-            isPauseMenuOpen = true;
-            currentSubMenu = null;
-            SetSelected();
-        }
-        else
-        {
-            TogglePause();
-        }
-    }
-    private void OnDestroy()
-    {
-        if (pauseAction != null)
-        {
-            pauseAction.performed -= OnPauseInput;
-        }
-        if (backAction != null)
-        {
-            backAction.performed -= OnBackInput;
-        }
+        return NetworkManager.Singleton != null && NetworkManager.Singleton.IsHost;
     }
 }

@@ -31,14 +31,6 @@ public class MenuSelection : MonoBehaviour
         Vector2 mousePosition = new Vector2(.3f * Screen.width, .65f * Screen.height);
         Mouse.current.WarpCursorPosition(mousePosition);
     }
-
-    void Update()
-    {
-        if (!Cursor.visible && (Input.GetKeyDown(KeyCode.Mouse0) || Input.GetKeyDown(KeyCode.Mouse1)))
-        {
-            Cursor.visible = true;
-        }
-    }
     
     public void QuitGame()
     {

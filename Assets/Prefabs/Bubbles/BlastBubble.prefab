@@ -154,13 +154,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 14
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 5
   damage: 13
   knockback: 4
   speed: 1
   range: 420
-  inflationSpeed: 23
+  inflationSpeed: 18
   popOnPlayerHit: 0
   popOnBubbleHit: 0
   fizzleEffect: {fileID: 7883030796252567183, guid: 9be20bda9bff75b468860f956ae64f7d,
@@ -174,16 +179,13 @@ MonoBehaviour:
       Data3: -1491654476
       Data4: -847071278
     Path: event:/sfx/spells/snot_spell
+  desyncThreshold: 0.75
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   splat: {fileID: 5835028745261568127, guid: 9d631cdc4b29c504ebf72cc972256ed8, type: 3}
+  fakeSplat: {fileID: 0}
   groundedLayerMask:
     serializedVersion: 2
     m_Bits: 512
@@ -273,7 +275,7 @@ MonoBehaviour:
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -288,10 +290,10 @@ MonoBehaviour:
   ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
+  Interpolate: 1
   SlerpPosition: 0
 --- !u!114 &-9100837447648041081
 MonoBehaviour:

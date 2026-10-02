@@ -6,7 +6,6 @@ public class FishEvent : MapEvent
 {
     [SerializeField] private JumpingFish jumpingFish;
     [SerializeField] private Transform[] jumpingPoints;
-    [SerializeField] private float startDelay = 3f;
     [SerializeField] private float jumpDelay = 10f;
     private bool isLeft = false;
     private int jp_offset = 0;
@@ -19,7 +18,7 @@ public class FishEvent : MapEvent
     protected override void StartEvent()
     {
         if (!NetworkManager.Singleton.IsServer) return;
-        Invoke(nameof(FishGo), startDelay);
+        FishGo();
     }
     protected override void StopEvent()
     {

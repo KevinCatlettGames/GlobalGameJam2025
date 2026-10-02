@@ -1,5 +1,4 @@
 using FMODUnity;
-using System.Collections;
 using Unity.Netcode;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,16 +22,12 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     bool wasInit = false;
     public GameObject emptyPlayerContainer;
     public SkinUnlockTextHandler skinUnlockHandler;
-
+    bool didShareOnce = false;
+    bool didShareTwice = false;
     private void OnDisable()
     {
         if (LobbyManager.instance != null)
             LobbyManager.instance.OnReadyStateUpdated.RemoveListener(ReadyStateUpdated);
-
-        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback -= OnClientConnectedCallback;
-        }
 
         blurImage.color = initialBlurColor;
     }
@@ -45,6 +40,28 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     private void OnEnable()
     {
         Init();
+
+        if(IsServer && TransportSwitcher.Instance.isUsingRelay)
+            Invoke(nameof(DoShare), 1f);
+    }
+
+    void DoShare()
+    {
+        ShareValuesToClientServerRpc();
+    }
+
+
+    [ServerRpc]
+    void ShareValuesToClientServerRpc()
+    {
+        ShareValuesClientRpc(currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
+        if (!didShareOnce)
+            didShareOnce = true;
+        if (didShareOnce)
+            didShareTwice = true;
+
+        if(!didShareTwice)
+            Invoke(nameof(DoShare), 5f);
     }
 
     void Init()
@@ -66,41 +83,18 @@ public class PlayerContainerSkinChange : NetworkBehaviour
     }
 
 
-    private void Start()
-    {
-        if (IsServer && TransportSwitcher.Instance.isUsingRelay)
-        {
-            NetworkManager.Singleton.OnClientConnectedCallback += OnClientConnectedCallback;
-        }
-    }
-
-    void OnClientConnectedCallback(ulong clientID)
-    {
-        if (clientID == NetworkManager.Singleton.LocalClientId) return;
-        if (!IsSpawned || !IsServer) return;
-        StartCoroutine(WaitAndShareValues(clientID));
-    }
-
-    IEnumerator WaitAndShareValues(ulong clientID)
-    {
-        yield return new WaitForSeconds(1f);
-        ShareValuesClientRpc(clientID, currentColorIndex, currentlyOnLocked, currentSkinSelection.skinButtonHandlerIndex);
-    }
-
-
-
     [ClientRpc]
-    void ShareValuesClientRpc(ulong clientID, int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
+    void ShareValuesClientRpc(int currentColorIndex, bool currentlyOnLocked, int currentSkinSelectionIndex)
     {
-        if (NetworkManager.Singleton.LocalClientId != clientID) return;
+        if (IsServer) return;
         init = true;
         wasInit = true;
         this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
         this.currentColorIndex = currentColorIndex;
         this.currentlyOnLocked = currentlyOnLocked;
-        this.currentSkinSelection = allSkinSelections[currentSkinSelectionIndex];
-        currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
-        avatar.GetComponent<ScaleToCorrectSize>().Play();
+        this.currentSkinSelection.ChangePlayerIcon(-1, playerIndex, GetComponent<PlayerContainerManager>());
+        //avatar.GetComponent<ScaleToCorrectSize>().Play();
         UpdateSkin();
         UpdateBlur();
         foreach(LobbyPlayerInput lobbyPlayerInput in LobbyManager.instance.allLobbyPlayerInputs)
@@ -126,11 +120,7 @@ public class PlayerContainerSkinChange : NetworkBehaviour
         currentlyOnLocked = isSkinLocked(skinToUse);
         playerTextImage.color = skinToUse.Color;
         avatar.sprite = skinToUse.SplashArt;
-
-        if (currentlyOnLocked)
-            avatar.color = Color.gray;
-        else
-            avatar.color = Color.white;
+        ApplySkinVisuals();
     }
 
     public void SwapColorWithIncrementation(bool increment)
@@ -291,13 +281,31 @@ public class PlayerContainerSkinChange : NetworkBehaviour
 
         if (currentlyOnLocked)
         {
-            avatar.color = Color.gray;
+            if (!SteamIntegration.instance.IsFullVersion && !skinToUse.AvailableInDemo
+            || AchievementSaveSystem.instance && skinToUse.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinToUse.UnlockAchievement.AchievementID))
+            {
+                avatar.color = Color.black;
+            }
+            else
+            {
+                avatar.color = Color.gray;
+            }
+
             if (currentSkinSelection)
                 currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }
         else
         {
-            avatar.color = Color.white;
+            if (!SteamIntegration.instance.IsFullVersion && !skinToUse.AvailableInDemo
+            || AchievementSaveSystem.instance && skinToUse.UnlockAchievement && !AchievementSaveSystem.instance.IsAchievementUnlocked(skinToUse.UnlockAchievement.AchievementID))
+            {
+                avatar.color = Color.black;
+            }
+            else
+            {
+                avatar.color = Color.white;
+            }
+
             if (currentSkinSelection)
                 currentSkinSelection.ChangePlayerIcon(1, playerIndex, GetComponent<PlayerContainerManager>());
         }

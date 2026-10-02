@@ -26,23 +26,21 @@ public class SplitBubble : BasicBubble
 
         SplitTracker sharedTracker = new SplitTracker();
 
-        GameObject bubbleA = SpawnSingleChild(offsetAngle);
-        GameObject bubbleB = SpawnSingleChild(-offsetAngle);
+        GameObject bubbleA = SpawnSingleChild(offsetAngle, subIdOffset: 1);
+        GameObject bubbleB = SpawnSingleChild(-offsetAngle, subIdOffset: 2);
 
-        if (bubbleA != null)
+        if (bubbleA != null && bubbleA.TryGetComponent<SplitAchievementHandler>(out var hA))
         {
-            var hA = bubbleA.GetComponent<SplitAchievementHandler>();
-            if (hA) hA.tracker = sharedTracker;
+            hA.tracker = sharedTracker;
         }
 
-        if (bubbleB != null)
+        if (bubbleB != null && bubbleB.TryGetComponent<SplitAchievementHandler>(out var hB))
         {
-            var hB = bubbleB.GetComponent<SplitAchievementHandler>();
-            if (hB) hB.tracker = sharedTracker;
+            hB.tracker = sharedTracker;
         }
     }
 
-    private GameObject SpawnSingleChild(float angle)
+    private GameObject SpawnSingleChild(float angle, int subIdOffset)
     {
         Vector3 splitDirection = Quaternion.AngleAxis(angle, Vector3.up) * direction;
         Vector3 spawnPosition = transform.position + (splitDirection * offsetDistance);
@@ -62,7 +60,10 @@ public class SplitBubble : BasicBubble
         }
 
         if (bubbleScript != null)
-            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, AssignedSpellID.Value + 1, fakeWithServerCaster);
+        {
+            int uniqueChildID = (AssignedSpellID.Value * 10) + subIdOffset;
+            bubbleScript.InitialiseBubble(OwnerID.Value, splitDirection, playerCollider, uniqueChildID, fakeWithServerCaster);
+        }
 
         return bubble;
     }

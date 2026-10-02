@@ -185,7 +185,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   spellType: 2
-  OwnerID: -1
+  OwnerID:
+    m_InternalValue: 0
+  AssignedSpellID:
+    m_InternalValue: 0
+  fakeCopy: {fileID: 0}
+  fakeWithServerCaster: 0
   size: 4
   damage: 33
   knockback: 5
@@ -205,15 +210,11 @@ MonoBehaviour:
       Data3: -1137229913
       Data4: 2278068
     Path: event:/sfx/spells/explosion_spell
+  desyncThreshold: 0.75
   isLocalFake: 0
-  syncedCastID:
-    m_InternalValue: 0
-  serverBubbleTarget: {fileID: 0}
-  visualChildMesh: {fileID: 0}
-  visualBlendSpeed: 15
-  isMeshHiddenForOwner: 0
-  catchUpTime: 0.2
-  maxTrackingDuration: 0.35
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 1216
   indicator: 0
   explosionRadius: 8
   earlyFizzleEffect: {fileID: 7883030796252567183, guid: 105305074cad54c46a7cd3bd4eddd75e,
@@ -276,7 +277,7 @@ MonoBehaviour:
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -291,10 +292,10 @@ MonoBehaviour:
   ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
+  Interpolate: 1
   SlerpPosition: 0
 --- !u!114 &-2242726300544867474
 MonoBehaviour:

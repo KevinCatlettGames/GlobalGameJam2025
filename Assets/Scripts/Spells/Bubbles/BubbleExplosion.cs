@@ -34,9 +34,9 @@ public class BubbleExplosion : NetworkBehaviour
                     if (player != null)
                     {
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID, direction, knockback, damage, false);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID, direction, knockback, damage, false);
                     }
                 }
                 else

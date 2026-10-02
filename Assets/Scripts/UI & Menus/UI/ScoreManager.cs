@@ -1,3 +1,4 @@
+using FMODUnity;
 using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
@@ -11,10 +12,13 @@ public class ScoreManager : MonoBehaviour
     [SerializeField] public ScorePanel[] teamModeScorePanels;
     [SerializeField] private PlayerHUD[] playerHUDs;
     [SerializeField] private SO_Scores scores;
+    [SerializeField] private EventReference scorePanelSwitch;
 
     [SerializeField] private GameObject restartText;
     [SerializeField] private GameObject scoreScreen;
     [SerializeField] private GameObject winScreen;
+
+    [SerializeField] private Countdown countdown;
 
     [Header("Animation Settings")]
     [SerializeField] private float reorderDuration = 0.6f;
@@ -134,7 +138,7 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
-    private struct PlayerScoreEntry
+    public struct PlayerScoreEntry
     {
         public int playerID;
         public int displayPlayerID;
@@ -143,7 +147,7 @@ public class ScoreManager : MonoBehaviour
         public int kills;
     }
 
-    private struct TeamScoreEntry
+    public struct TeamScoreEntry
     {
         public int teamID;
         public List<PlayerController> teamPlayers;
@@ -151,7 +155,7 @@ public class ScoreManager : MonoBehaviour
         public int kills;
     }
 
-    private List<PlayerScoreEntry> GetScores(bool usePreviousScores)
+    public List<PlayerScoreEntry> GetScores(bool usePreviousScores)
     {
         List<PlayerScoreEntry> list = new List<PlayerScoreEntry>();
 
@@ -210,7 +214,7 @@ public class ScoreManager : MonoBehaviour
         return list;
     }
 
-    private List<TeamScoreEntry> GetTeamScores(bool usePreviousScores)
+    public List<TeamScoreEntry> GetTeamScores(bool usePreviousScores)
     {
         List<TeamScoreEntry> list = new List<TeamScoreEntry>();
 
@@ -253,17 +257,29 @@ public class ScoreManager : MonoBehaviour
 
     private IEnumerator ResolveScoresCoroutine()
     {
+        yield return new WaitForSeconds(countdown.PlayTransition());
+
         if (activePlayers.Count == 0 || activePlayers.Count > 4)
             yield break;
 
         restartText.SetActive(false);
         winnerShine.SetActive(false);
-        foreach (var panel in standardModeScorePanels)
+        if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {
-            panel.gameObject.SetActive(false);
+            foreach (var panel in standardModeScorePanels)
+            {
+                panel.gameObject.SetActive(false);
+            }
+        }
+        else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+        {
+            foreach (var panel in teamModeScorePanels)
+            {
+                panel.gameObject.SetActive(false);
+            }
         }
 
-        yield return new WaitForSeconds(0.2f);
+            yield return new WaitForSeconds(0.2f);
 
         if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {
@@ -309,6 +325,12 @@ public class ScoreManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.3f);
 
+            //var newSorted = GetScores(usePreviousScores: false);
+
+            //foreach (var entry in newSorted)
+            //{
+            //    standardModeScorePanels[entry.playerID].SetScores(entry.wins, entry.kills);
+            //}
             var newSorted = GetScores(usePreviousScores: false);
             yield return StartCoroutine(AnimateStandardPanelsReorder(newSorted));
 
@@ -380,7 +402,7 @@ public class ScoreManager : MonoBehaviour
             {
                 for (int teamID = 0; teamID < 2; teamID++)
                 {
-                    if (scores.WinScores[teamID] >= LobbyManager.instance.winsNeeded)
+                    if (scores.WinScores[teamID] >= LobbyManager.instance.winsNeeded.Value)
                     {
                         showWinner = true;
                         break;
@@ -391,7 +413,7 @@ public class ScoreManager : MonoBehaviour
             {
                 foreach (var p in activePlayers)
                 {
-                    if (scores.WinScores[p] >= LobbyManager.instance.winsNeeded)
+                    if (scores.WinScores[p] >= LobbyManager.instance.winsNeeded.Value)
                     {
                         showWinner = true;
                         break;
@@ -402,9 +424,12 @@ public class ScoreManager : MonoBehaviour
 
         if (showWinner)
         {
+            float transitionTime = countdown.PlayTransition();
+            yield return new WaitForSeconds(transitionTime / 2f);
             restartText.SetActive(false);
             winScreen.SetActive(true);
             scoreScreen.SetActive(false);
+            yield return new WaitForSeconds(transitionTime / 2f);
         }
         else
         {
@@ -432,6 +457,7 @@ public class ScoreManager : MonoBehaviour
             targetPositions[playerID] = standardSlotPositions[i];
         }
 
+        RuntimeManager.PlayOneShot(scorePanelSwitch);
         while (elapsed < reorderDuration)
         {
             elapsed += Time.deltaTime;

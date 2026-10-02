@@ -1,5 +1,6 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ExplodingBubble : BasicBubble
 {
@@ -29,7 +30,6 @@ public class ExplodingBubble : BasicBubble
             var otherBubble = other.GetComponent<BasicBubble>();
             if (otherBubble != null)
             {
-                // Detonated by player's own bubble
                 if (otherBubble.OwnerID.Value == OwnerID.Value)
                 {
                     wasDetonatedByBubble = true;
@@ -43,9 +43,8 @@ public class ExplodingBubble : BasicBubble
         }
 
         fizzleEffect = hitEffect;
-        if (IsOwner)
-            ChangeToExplosionServerRpc();
-
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+            ChangeToHitEffectClientRpc();
         Pop();
     }
 
@@ -80,17 +79,17 @@ public class ExplodingBubble : BasicBubble
                             knockback *= primaryKnockbackIncrease;
 
                         if (GameManager.Instance.PlayingLocal)
-                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackLocal(OwnerID.Value, direction, knockback, damage, isCrit);
                         else
-                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage);
+                            player.ApplyKnockbackServerRpc(OwnerID.Value, direction, knockback, damage, isCrit);
 
                         if (playerCollider != null)
                         {
                             var controller = playerCollider.GetComponent<PlayerController>();
                             if (controller != null) controller.GainUltCharge(damage, true);
-                            if (controller != null) GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
-                            if (controller != null)
                             {
+                                controller.GainUltCharge(damage, true);
+                                GameManager.Instance.ChangeHitReference(OwnerID.Value, spellType, player.PlayerID, false, false, true);
                                 GameManager.Instance.RegisterExplosionHit(
                                     OwnerID.Value,
                                     player.PlayerID,
@@ -125,48 +124,40 @@ public class ExplodingBubble : BasicBubble
     private void UnlockDetonationMultiKillAchievement(int killerID)
     {
         if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)killerID
-            || !AchievementSaveSystem.instance) return;
+            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5) return;
 
-        // Replace YOUR_ACHIEVEMENT_ID with the actual ID integer
         AchievementSaveSystem.instance.IncrementStat(5, 1);
-        //Debug.Log($"Achievement Unlocked: 2 KOs from detonating own explosive with another bubble!");
     }
 
     protected override void Pop()
     {
         if (hasPopped) return;
 
-        if (isReadyToExpode) Explode();
+        if (isReadyToExpode)
+        {
+            Explode();
+            fizzleEffect = hitEffect;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ChangeToHitEffectClientRpc();
+
+        }
         else
         {
             fizzleEffect = earlyFizzleEffect;
-            if (IsOwner)
-                ChangeToEarlyFizzleServerRpc();
-
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay)
+                ChangeToEarlyFizzleClientRpc();
         }
         base.Pop();
     }
 
-    [ServerRpc]
-    private void ChangeToEarlyFizzleServerRpc()
+    [ClientRpc]
+    void ChangeToHitEffectClientRpc()
     {
-        ChangeToEarlyFizzleClientRpc();
+        fizzleEffect = hitEffect;
     }
 
     [ClientRpc]
-    private void ChangeToEarlyFizzleClientRpc()
-    {
-        fizzleEffect = earlyFizzleEffect;
-    }
-
-    [ServerRpc]
-    private void ChangeToExplosionServerRpc()
-    {
-        ChangeToExplosionClientRpc();
-    }
-
-    [ClientRpc]
-    private void ChangeToExplosionClientRpc()
+    void ChangeToEarlyFizzleClientRpc()
     {
         fizzleEffect = hitEffect;
     }

@@ -4,6 +4,8 @@ using Unity.Netcode;
 
 public class SingleEliminationGM : GameManager
 {
+    private float roundEndTimer = 0f;
+    private float checkIntevall = 1f;
     private void Start()
     {
         Time.timeScale = 1;
@@ -21,7 +23,7 @@ public class SingleEliminationGM : GameManager
                 CallGameEndClientRpc();
             }
         }
-        else
+        else if (gameModeType == GameModeType.Standard)
         {
             if (CountAlivePlayers() <= 1)
             {
@@ -42,12 +44,34 @@ public class SingleEliminationGM : GameManager
                 CallGameEndLocal();
             }
         }
-        else
+        else if (gameModeType == GameModeType.Standard)
         {
             if (CountAlivePlayers() <= 1)
             {
                 gameEnded = true;
                 CallGameEndLocal();
+            }
+        }
+    }
+    private void Update()
+    {
+        if (gameEnded == false && playerCount >= 2)
+        {
+            if (roundEndTimer < checkIntevall)
+            {
+                roundEndTimer += Time.deltaTime;
+            }
+            else
+            {
+                roundEndTimer = 0;
+                if (PlayingLocal)
+                {
+                    CheckForRoundEndLocal();
+                }
+                else
+                {
+                    CheckForRoundEndServerRpc();
+                }
             }
         }
     }
@@ -111,12 +135,12 @@ public class SingleEliminationGM : GameManager
                 if (playerStates[i] == PlayerState.alive)
                 {
                     winnerID = i;
-                    players[winnerID].Victory();
+                    if (players[winnerID] != null)
+                    {
+                        players[winnerID].Victory();
+                    }
 
-                    if(gameModeType == GameModeType.Standard)
-                        ScoreManager.Instance.AddPendingScore(winnerID, true);
-                    else if(gameModeType == GameModeType.Team)
-                        ScoreManager.Instance.AddPendingTeamScore(teamIDs[winnerID], true);
+                    ScoreManager.Instance.AddPendingScore(winnerID, true);
 
                     UnlockRoundEndWithZeroDamageAchievement(winnerID);
                     UnlockRoundEndWithXDamageAchievement(winnerID);
@@ -124,7 +148,7 @@ public class SingleEliminationGM : GameManager
                 }
             }
 
-            if (winnerID >= 0 && winnerID < playerHUDs.Length)
+            if (winnerID >= 0 && winnerID < maxPlayers)
             {
                 yield return new WaitForSeconds(danceTime);
             }
@@ -143,10 +167,7 @@ public class SingleEliminationGM : GameManager
             }
             if (winnerID != -1)
             {
-                if (gameModeType == GameModeType.Standard)
-                    ScoreManager.Instance.AddPendingScore(winnerID, true);
-                else if (gameModeType == GameModeType.Team)
-                    ScoreManager.Instance.AddPendingTeamScore(winnerID, true);
+                ScoreManager.Instance.AddPendingTeamScore(winnerID, true);
                 yield return new WaitForSeconds(danceTime);
             }
         }

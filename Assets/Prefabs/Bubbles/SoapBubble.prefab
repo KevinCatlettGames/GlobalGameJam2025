@@ -208,7 +208,11 @@ MonoBehaviour:
       Data3: 664557447
       Data4: 1032818776
     Path: event:/sfx/spells/slippery_spell
+  desyncThreshold: 0.75
   isLocalFake: 0
+  impactLayerMask:
+    serializedVersion: 2
+    m_Bits: 1216
   soapDropInterval: 0.2
   soapPuddleObject: {fileID: 5835028745261568127, guid: 600a0e3882b13d4419654c6d22705dc3,
     type: 3}
@@ -245,7 +249,7 @@ MonoBehaviour:
   ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
-  UseUnreliableDeltas: 0
+  UseUnreliableDeltas: 1
   SyncPositionX: 1
   SyncPositionY: 1
   SyncPositionZ: 1
@@ -260,10 +264,10 @@ MonoBehaviour:
   ScaleThreshold: 0.05
   UseQuaternionSynchronization: 0
   UseQuaternionCompression: 0
-  UseHalfFloatPrecision: 0
+  UseHalfFloatPrecision: 1
   InLocalSpace: 0
   SwitchTransformSpaceWhenParented: 0
-  Interpolate: 0
+  Interpolate: 1
   SlerpPosition: 0
 --- !u!114 &8954989852802518801
 MonoBehaviour:
@@ -1940,7 +1944,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 61cf8d4749148cb4693b92753339686e, type: 3}
+    - sprite: {fileID: 21300000, guid: 10c29092101d1ce458b3a25adf96a74f, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:

@@ -13,6 +13,7 @@ public class ResizeEffect : MonoBehaviour
     [Header("Sound Events")] [SerializeField]
     private StudioEventEmitter emitter;
     [SerializeField] StudioEventEmitter endEmitter;
+    [SerializeField] EventReference winSweetner;
 
     public bool HasPerformedEffect { get; set; }
 
@@ -72,6 +73,8 @@ public class ResizeEffect : MonoBehaviour
 
             yield return null;
         }
+
+        RuntimeManager.PlayOneShot(winSweetner);
         transform.localScale = startScale;
         HasPerformedEffect = true;
     }

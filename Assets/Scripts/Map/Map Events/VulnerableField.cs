@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class VulnerableField : MonoBehaviour
 {
@@ -19,9 +20,6 @@ public class VulnerableField : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playersInRange.Add(other.GetComponent<PlayerController>());
-
-            if(!other.GetComponent<PlayerController>().IsVulnerable)
-                IncrementProcEffectAchievement();
         }
     }
     private void OnTriggerExit(Collider other)
@@ -29,14 +27,6 @@ public class VulnerableField : MonoBehaviour
         if (other.CompareTag("Player") && playersInRange.Contains(other.GetComponent<PlayerController>()))
         {
             playersInRange.Remove(other.GetComponent<PlayerController>());
-        }
-    }
-
-    private void IncrementProcEffectAchievement()
-    {
-        if (AchievementSaveSystem.instance)
-        {
-            AchievementSaveSystem.instance.IncrementStat(20, 1);
         }
     }
 }

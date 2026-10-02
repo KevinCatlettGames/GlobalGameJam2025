@@ -7,7 +7,6 @@ public class WallManager : MapEvent
     [SerializeField] private List<WallFormation> wallFormations;
     [SerializeField] private float stayTime = 5f;
     [SerializeField] private float sinkTime = 5f;
-    [SerializeField] private float startDelay = 3f;
     private int currentFormation = -1;
     private bool wallsActive = false;
 
@@ -63,7 +62,7 @@ public class WallManager : MapEvent
     protected override void StartEvent()
     {
         if (!NetworkManager.Singleton.IsServer) return;
-        Invoke(nameof(RiseWalls), startDelay);
+        RiseWalls();
     }
     protected override void StopEvent()
     {

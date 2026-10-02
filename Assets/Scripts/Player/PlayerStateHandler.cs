@@ -1,6 +1,4 @@
-using System;
 using UnityEngine;
-using FMODUnity;
 
 
 public enum PlayerState
@@ -14,8 +12,6 @@ public enum PlayerState
 
 public class PlayerStateHandler : MonoBehaviour
 {
-    [SerializeField] private EventReference deathEvent;
-    [SerializeField] private EventReference startEvent;
     [SerializeField] private float respawnTime = 3f;
     [SerializeField] private Transform setRespawnPosition;
     private SO_GameSettings gameSettings;
@@ -28,7 +24,6 @@ public class PlayerStateHandler : MonoBehaviour
 
     private void Start()
     {
-        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         playerController = GetComponent<PlayerController>();
         characterController = GetComponent<CharacterController>();
         gameSettings = GameManager.Instance.GetGameSettings();
@@ -51,17 +46,20 @@ public class PlayerStateHandler : MonoBehaviour
 
         if (other.CompareTag("Deathzone") && canDie)
         {
-            KillPlayer();
+            if(other.GetComponent<DeathzoneWall>().IsFloor)
+                KillPlayer(false);
+            else
+                KillPlayer(true);
         }
     }
-    public void KillPlayer()
+    public void KillPlayer(bool isSuperKO)
     {
         canDie = false;
 
         LooseLife();
 
         TargetGroupManager.Instance?.RemoveFromGroup(transform);
-        playerController.Die();
+        playerController.Die(isSuperKO);
         Invoke(nameof(DisablePlayer), 2f);
     }
 
@@ -86,7 +84,6 @@ public class PlayerStateHandler : MonoBehaviour
             transform.position = setRespawnPosition.position;
             transform.rotation = setRespawnPosition.rotation;
         }
-        RuntimeManager.PlayOneShotAttached(startEvent, gameObject);
         characterController.enabled = true;
         canDie = true;
         GameManager.Instance.ChangePlayerStateServerRpc(playerController.PlayerID, PlayerState.alive);
@@ -134,7 +131,7 @@ public class PlayerStateHandler : MonoBehaviour
     }
     private void Respawn()
     {
-        playerController.ResetPlayerController();
+        playerController.ResetPlayerController(true);
     }
     private void ResetLifes()
     {
