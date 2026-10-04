@@ -47,7 +47,7 @@ public class TutorialPopUp : MonoBehaviour
         }
         renderTexture = new RenderTexture(1280, 720, 0);
         renderTexture.Create();
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR || UNITY_SWITCH
         videoPlayer.clip = windowsClip;
 #else
         videoPlayer.clip = linuxClip;

@@ -29,6 +29,9 @@ public class DynamicInputIcon : MonoBehaviour
         {
             UpdateIcon(InputDeviceDetector.Instance.CurrentDeviceType);
         }
+#if UNITY_SWITCH
+        targetImage.sprite = spriteBindings[3].sprite;
+#endif 
     }
 
     private void OnDisable()
@@ -49,5 +52,9 @@ public class DynamicInputIcon : MonoBehaviour
         }
         if(!set)
             targetImage.sprite = spriteBindings[0].sprite;
+
+#if UNITY_SWITCH
+        targetImage.sprite = spriteBindings[3].sprite;
+#endif 
     }
 }

@@ -101,16 +101,15 @@ public class Tutorial : MonoBehaviour
         videoPlayer.targetTexture = runtimeTexture;
         itemRawImage.texture = runtimeTexture;
 
-        // Subscribe ONCE here to prevent callback stack buildup leaks
-        videoPlayer.prepareCompleted += OnVideoPrepared;
+        // Prevent Unity from dropping frames when loading media chunks
+        videoPlayer.skipOnDrop = false;
+
+        // Unsubscribe prepare event as direct playback is used instead
+        // videoPlayer.prepareCompleted += OnVideoPrepared;
     }
 
     private void OnDestroy()
     {
-        if (videoPlayer != null)
-        {
-            videoPlayer.prepareCompleted -= OnVideoPrepared;
-        }
         if (runtimeTexture != null)
         {
             runtimeTexture.Release();
@@ -280,7 +279,7 @@ public class Tutorial : MonoBehaviour
         if (items == null || items.Length == 0) return;
 
         var item = items[index];
-        bool hasVideo = false; 
+        bool hasVideo = false;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR
         hasVideo = item.WindowsClip != null;
 #endif
@@ -290,7 +289,10 @@ public class Tutorial : MonoBehaviour
         hasVideo = item.LinuxClip != null;
 #endif
 
-        videoPlayer.Stop();
+        if (videoPlayer.isPlaying)
+        {
+            videoPlayer.Stop();
+        }
         videoPlayer.clip = null;
 
         itemRawImage.enabled = hasVideo;
@@ -316,7 +318,9 @@ public class Tutorial : MonoBehaviour
             videoPlayer.clip = item.LinuxClip;
 #endif
 
-            videoPlayer.Prepare();
+            // MATCH STOREHANDLER DIRECT PLAYBACK:
+            videoPlayer.frame = 0;
+            videoPlayer.Play();
         }
 
         bool hasMainImage = item.ItemMainImage != null;
@@ -326,7 +330,7 @@ public class Tutorial : MonoBehaviour
             itemMainImage.enabled = false;
             itemLongDescriptionText.enabled = false;
             itemShortDescriptionText.enabled = false;
-            
+
             itemFullscreenImage.enabled = hasMainImage;
 
             if (!item.IsInputImage)
@@ -446,12 +450,6 @@ public class Tutorial : MonoBehaviour
         }
     }
 
-    private void OnVideoPrepared(VideoPlayer vp)
-    {
-        // Don't modify the event listener array here. Just play.
-        vp.Play();
-    }
-
     private void UpdatePageDots()
     {
         TutorialItemSO[] items = GetActiveItems();
@@ -477,7 +475,7 @@ public class Tutorial : MonoBehaviour
             }
         }
     }
-#endregion
+    #endregion
 
     public void SetTab(Tab tab, bool initialSet)
     {
@@ -541,7 +539,7 @@ public class Tutorial : MonoBehaviour
         Destroy(NetworkManager.Singleton.gameObject);
         currentSceneToLoad = sceneName;
         if (MenuTransitionHandler.Instance)
-        {         
+        {
             MenuTransitionHandler.Instance.OnFadeComplete += LoadTestScene;
             MenuTransitionHandler.Instance.TriggerFade();
         }

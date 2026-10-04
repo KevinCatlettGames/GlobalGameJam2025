@@ -1,13 +1,15 @@
+using Cinemachine;
 using UnityEngine;
 using UnityEngine.UI; 
 
 public class SwitchLobbyStarter : MonoBehaviour
 {
-    public SwitchControllerSupport switchControllerSupport; 
-
 #if UNITY_SWITCH
     Button button;
     public GameObject localOnlineMenu;
+    public MainMenuLobbyCreator mainMenuLobbyCreator;
+    public CinemachineVirtualCamera virtualCamera;
+
     private void Awake()
     {
         button = GetComponent<Button>();
@@ -17,7 +19,8 @@ public class SwitchLobbyStarter : MonoBehaviour
     void StartSwitchLobby()
     {
         localOnlineMenu.SetActive(false);
-        MainMenuLobbyCreator.Instance.StartSceneLocal("UI_Lobby");
+        mainMenuLobbyCreator.StartSceneLocal("UI_Lobby");
+        virtualCamera.Priority = 1;
     }
 #endif 
 }

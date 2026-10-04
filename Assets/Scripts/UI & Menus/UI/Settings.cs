@@ -14,9 +14,11 @@ public class Settings : MonoBehaviour
     private const float DEFAULT_SFX = 0.5f;
     private const float DEFAULT_MUSIC = 0.5f;
 
+#if !UNITY_SWITCH
     private const bool DEFAULT_FULLSCREEN = true;
     private const int DEFAULT_RESOLUTION = 2;
     private const int DEFAULT_QUALITY = 2;
+#endif
     #endregion
 
     #region Pending Settings
@@ -24,9 +26,11 @@ public class Settings : MonoBehaviour
     private float pendingSfx;
     private float pendingMusic;
 
+#if !UNITY_SWITCH
     private bool pendingFullscreen;
     private int pendingResolution;
     private int pendingQuality;
+#endif
     #endregion
 
     #region Video
@@ -84,7 +88,7 @@ public class Settings : MonoBehaviour
     [SerializeField] private Button resetButton;
     [SerializeField] private Button backButton;
     [SerializeField] private StudioEventEmitter emitter;
-    public UnityEvent OnBackPressed; 
+    public UnityEvent OnBackPressed;
     #endregion
 
     public enum Tab { Video, Audio, Game }
@@ -103,10 +107,13 @@ public class Settings : MonoBehaviour
         LoadSavedIntoPending();
         ApplyPendingToUI();
 
-        ApplyVideoRuntime();
         ApplyAudioRuntime();
-
+#if !UNITY_SWITCH
+        ApplyVideoRuntime();
         SetTab(Tab.Video, true);
+#else
+        SetTab(Tab.Audio, true);
+#endif
 
         UpdateApplyButton();
     }
@@ -125,7 +132,9 @@ public class Settings : MonoBehaviour
     private void Start()
     {
         InitialiseAudio();
+#if !UNITY_SWITCH
         InitialiseVideo();
+#endif
     }
 
     private void InitialiseAudio()
@@ -135,6 +144,7 @@ public class Settings : MonoBehaviour
         musicVCA = FMODUnity.RuntimeManager.GetVCA("vca:/Music");
     }
 
+#if !UNITY_SWITCH
     private void InitialiseVideo()
     {
         InitialiseResolutions();
@@ -147,9 +157,7 @@ public class Settings : MonoBehaviour
     public void SetFullscreen(bool isFullScreen)
     {
         pendingFullscreen = isFullScreen;
-
         Screen.fullScreen = isFullScreen;
-
         UpdateApplyButton();
     }
 
@@ -195,11 +203,12 @@ public class Settings : MonoBehaviour
         resolutionDropdown.value = value;
         resolutionDropdown.RefreshShownValue();
     }
+#endif
 
     public void SetMasterVolume(float volume)
     {
         pendingMaster = volume * 0.01f;
-        masterValueText.text = Mathf.RoundToInt(volume).ToString();
+        if (masterValueText != null) masterValueText.text = Mathf.RoundToInt(volume).ToString();
 
         masterVCA.setVolume(pendingMaster);
 
@@ -209,7 +218,7 @@ public class Settings : MonoBehaviour
     public void SetSFXVolume(float volume)
     {
         pendingSfx = volume * 0.01f;
-        sfxValueText.text = Mathf.RoundToInt(volume).ToString();
+        if (sfxValueText != null) sfxValueText.text = Mathf.RoundToInt(volume).ToString();
 
         sfxVCA.setVolume(pendingSfx);
 
@@ -219,7 +228,7 @@ public class Settings : MonoBehaviour
     public void SetMusicVolume(float volume)
     {
         pendingMusic = volume * 0.01f;
-        musicValueText.text = Mathf.RoundToInt(volume).ToString();
+        if (musicValueText != null) musicValueText.text = Mathf.RoundToInt(volume).ToString();
 
         musicVCA.setVolume(pendingMusic);
 
@@ -273,27 +282,32 @@ public class Settings : MonoBehaviour
     private void ExitSettings(InputAction.CallbackContext obj)
     {
 #if !UNITY_SWITCH
-        if (resolutionDropdown.IsExpanded || graphicsQualityDropdown.IsExpanded) return;
+        if ((resolutionDropdown != null && resolutionDropdown.IsExpanded) || 
+            (graphicsQualityDropdown != null && graphicsQualityDropdown.IsExpanded)) 
+            return;
 #endif
         OnBackPressed?.Invoke();
-        backButton.onClick?.Invoke();
+        if (backButton != null) backButton.onClick?.Invoke();
     }
 
     public void SetTab(Tab tab, bool initialSet)
     {
+#if UNITY_SWITCH
+        tab = Tab.Audio;
+#else
         if (!useGameTab && tab == Tab.Game)
             tab = Tab.Video;
-
-#if UNITY_SWITCH
-        tab = Tab.Audio; 
-#endif 
+#endif
 
         currentTab = tab;
 
-        if (currentTab == Tab.Video)
-            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(videoButton.gameObject);
-        else if(currentTab == Tab.Audio)
-            FindFirstObjectByType<EventSystem>().SetSelectedGameObject(audioButton.gameObject);
+        if (EventSystem.current != null)
+        {
+            if (currentTab == Tab.Video && videoButton != null)
+                EventSystem.current.SetSelectedGameObject(videoButton.gameObject);
+            else if (currentTab == Tab.Audio && audioButton != null)
+                EventSystem.current.SetSelectedGameObject(audioButton.gameObject);
+        }
 
         if (!tabTogglingEnabled)
             EnableTabToggling();
@@ -307,6 +321,9 @@ public class Settings : MonoBehaviour
 
     private void ChangeTab(bool forward)
     {
+#if UNITY_SWITCH
+        return; // Prevent tab switching on Switch
+#else
         if (!tabTogglingEnabled) return;
 
         Tab nextTab;
@@ -325,56 +342,59 @@ public class Settings : MonoBehaviour
         }
 
         SetTab(nextTab, false);
+#endif
     }
 
     private void UpdateTabVisibility(Tab tab)
     {
-        videoTab.SetActive(tab == Tab.Video);
-        videoTabFrame.SetActive(tab == Tab.Video);
+        if (videoTab != null) videoTab.SetActive(tab == Tab.Video);
+        if (videoTabFrame != null) videoTabFrame.SetActive(tab == Tab.Video);
 
-        audioTab.SetActive(tab == Tab.Audio);
-        audioTabFrame.SetActive(tab == Tab.Audio);
+        if (audioTab != null) audioTab.SetActive(tab == Tab.Audio);
+        if (audioTabFrame != null) audioTabFrame.SetActive(tab == Tab.Audio);
 
-        gameTab.SetActive(tab == Tab.Game);
-        gameTabFrame.SetActive(tab == Tab.Game);
+        if (gameTab != null) gameTab.SetActive(tab == Tab.Game);
+        if (gameTabFrame != null) gameTabFrame.SetActive(tab == Tab.Game);
     }
 
     private void SetButtonNavigation(Tab tab)
     {
-        Navigation newApplyNav = new Navigation();
-        newApplyNav.mode = Navigation.Mode.Explicit;
-        newApplyNav.selectOnDown = applyButton.navigation.selectOnDown;
-        newApplyNav.selectOnLeft = applyButton.navigation.selectOnLeft;
-        newApplyNav.selectOnRight = applyButton.navigation.selectOnRight;
+        Navigation newApplyNav = new Navigation { mode = Navigation.Mode.Explicit };
+        if (applyButton != null)
+        {
+            newApplyNav.selectOnDown = applyButton.navigation.selectOnDown;
+            newApplyNav.selectOnLeft = applyButton.navigation.selectOnLeft;
+            newApplyNav.selectOnRight = applyButton.navigation.selectOnRight;
+        }
 
-        Navigation newResetNav = new Navigation();
-        newResetNav.mode = Navigation.Mode.Explicit;
-        newResetNav.selectOnDown = resetButton.navigation.selectOnDown;
-        newResetNav.selectOnLeft = resetButton.navigation.selectOnLeft;
-        newResetNav.selectOnRight = resetButton.navigation.selectOnRight;
+        Navigation newResetNav = new Navigation { mode = Navigation.Mode.Explicit };
+        if (resetButton != null)
+        {
+            newResetNav.selectOnDown = resetButton.navigation.selectOnDown;
+            newResetNav.selectOnLeft = resetButton.navigation.selectOnLeft;
+            newResetNav.selectOnRight = resetButton.navigation.selectOnRight;
+        }
 
+        Navigation newVideoNav = new Navigation { mode = Navigation.Mode.Explicit };
+        if (videoButton != null)
+        {
+            newVideoNav.selectOnUp = videoButton.navigation.selectOnUp;
+            newVideoNav.selectOnLeft = videoButton.navigation.selectOnLeft;
+            newVideoNav.selectOnRight = videoButton.navigation.selectOnRight;
+        }
 
-        Navigation newVideoNav = new Navigation();
-        newVideoNav.mode = Navigation.Mode.Explicit;
-        newVideoNav.selectOnUp = videoButton.navigation.selectOnUp;
-        newVideoNav.selectOnLeft = videoButton.navigation.selectOnLeft;
-        newVideoNav.selectOnRight = videoButton.navigation.selectOnRight;
-
-        Navigation newAudioNav = new Navigation();
-        newAudioNav.mode = Navigation.Mode.Explicit;
-        newAudioNav.selectOnUp = audioButton.navigation.selectOnUp;
-        newAudioNav.selectOnLeft = audioButton.navigation.selectOnLeft;
-        newAudioNav.selectOnRight = audioButton.navigation.selectOnRight;
+        Navigation newAudioNav = new Navigation { mode = Navigation.Mode.Explicit };
+        if (audioButton != null)
+        {
+            newAudioNav.selectOnUp = audioButton.navigation.selectOnUp;
+            newAudioNav.selectOnLeft = audioButton.navigation.selectOnLeft;
+            newAudioNav.selectOnRight = audioButton.navigation.selectOnRight;
+        }
 
         switch (tab)
         {
             case Tab.Video:
-#if UNITY_SWITCH
-                newApplyNav.selectOnUp = videoButton;
-                newResetNav.selectOnUp = videoButton;
-                newVideoNav.selectOnDown = resetButton;
-                newAudioNav.selectOnDown = applyButton;
-#else
+#if !UNITY_SWITCH
                 newApplyNav.selectOnUp = graphicsQualityDropdown;
                 newResetNav.selectOnUp = graphicsQualityDropdown;
                 newVideoNav.selectOnDown = fullScreenToggle;
@@ -393,22 +413,18 @@ public class Settings : MonoBehaviour
                 newVideoNav.selectOnDown = applyButton;
                 newAudioNav.selectOnDown = applyButton;
                 break;
-            default:
-                newApplyNav.selectOnUp = videoButton;
-                newResetNav.selectOnUp = videoButton;
-                newVideoNav.selectOnDown = applyButton;
-                newAudioNav.selectOnDown = applyButton;
-                break;
         }
-        applyButton.navigation = newApplyNav;
-        resetButton.navigation = newResetNav;
-        videoButton.navigation = newVideoNav;
-        audioButton.navigation = newAudioNav;
+
+        if (applyButton != null) applyButton.navigation = newApplyNav;
+        if (resetButton != null) resetButton.navigation = newResetNav;
+        if (videoButton != null) videoButton.navigation = newVideoNav;
+        if (audioButton != null) audioButton.navigation = newAudioNav;
     }
 
     public void SetSelected()
     {
-        EventSystem.current.SetSelectedGameObject(selectedObject);
+        if (EventSystem.current != null)
+            EventSystem.current.SetSelectedGameObject(selectedObject);
     }
 
     private void LoadSavedIntoPending()
@@ -417,28 +433,38 @@ public class Settings : MonoBehaviour
         pendingSfx = PlayerPrefs.GetFloat(SettingsInitialiser.SfxVolKey, DEFAULT_SFX);
         pendingMusic = PlayerPrefs.GetFloat(SettingsInitialiser.MusicVolKey, DEFAULT_MUSIC);
 
+#if !UNITY_SWITCH
         pendingFullscreen = PlayerPrefs.GetInt("Fullscreen", DEFAULT_FULLSCREEN ? 1 : 0) == 1;
         pendingResolution = PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION);
         pendingQuality = PlayerPrefs.GetInt("QualityLevel", DEFAULT_QUALITY);
+#endif
     }
 
     private void ApplyPendingToUI()
     {
-        masterSlider.value = pendingMaster * 100f;
-        sfxSlider.value = pendingSfx * 100f;
-        musicSlider.value = pendingMusic * 100f;
+        if (masterSlider != null) masterSlider.value = pendingMaster * 100f;
+        if (sfxSlider != null) sfxSlider.value = pendingSfx * 100f;
+        if (musicSlider != null) musicSlider.value = pendingMusic * 100f;
 
-        masterValueText.text = Mathf.RoundToInt(masterSlider.value).ToString();
-        sfxValueText.text = Mathf.RoundToInt(sfxSlider.value).ToString();
-        musicValueText.text = Mathf.RoundToInt(musicSlider.value).ToString();
+        if (masterValueText != null) masterValueText.text = Mathf.RoundToInt(masterSlider.value).ToString();
+        if (sfxValueText != null) sfxValueText.text = Mathf.RoundToInt(sfxSlider.value).ToString();
+        if (musicValueText != null) musicValueText.text = Mathf.RoundToInt(musicSlider.value).ToString();
 
-        fullScreenToggle.isOn = pendingFullscreen;
+#if !UNITY_SWITCH
+        if (fullScreenToggle != null) fullScreenToggle.isOn = pendingFullscreen;
 
-        resolutionDropdown.value = pendingResolution;
-        resolutionDropdown.RefreshShownValue();
+        if (resolutionDropdown != null)
+        {
+            resolutionDropdown.value = pendingResolution;
+            resolutionDropdown.RefreshShownValue();
+        }
 
-        graphicsQualityDropdown.value = pendingQuality;
-        graphicsQualityDropdown.RefreshShownValue();
+        if (graphicsQualityDropdown != null)
+        {
+            graphicsQualityDropdown.value = pendingQuality;
+            graphicsQualityDropdown.RefreshShownValue();
+        }
+#endif
     }
 
     private void UpdateApplyButton()
@@ -457,18 +483,15 @@ public class Settings : MonoBehaviour
             !Mathf.Approximately(
                 pendingMusic,
                 PlayerPrefs.GetFloat(SettingsInitialiser.MusicVolKey, DEFAULT_MUSIC)
-            )
-            ||
-            pendingFullscreen !=
-            (PlayerPrefs.GetInt("Fullscreen", DEFAULT_FULLSCREEN ? 1 : 0) == 1)
-            ||
-            pendingResolution !=
-            PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION)
-            ||
-            pendingQuality !=
-            PlayerPrefs.GetInt("QualityLevel", DEFAULT_QUALITY);
+            );
 
-        applyButton.interactable = hasChanges;
+#if !UNITY_SWITCH
+        hasChanges |= pendingFullscreen != (PlayerPrefs.GetInt("Fullscreen", DEFAULT_FULLSCREEN ? 1 : 0) == 1)
+            || pendingResolution != PlayerPrefs.GetInt("ResolutionLevel", DEFAULT_RESOLUTION)
+            || pendingQuality != PlayerPrefs.GetInt("QualityLevel", DEFAULT_QUALITY);
+#endif
+
+        if (applyButton != null) applyButton.interactable = hasChanges;
     }
 
     public void ApplySettings()
@@ -477,13 +500,17 @@ public class Settings : MonoBehaviour
         PlayerPrefs.SetFloat(SettingsInitialiser.SfxVolKey, pendingSfx);
         PlayerPrefs.SetFloat(SettingsInitialiser.MusicVolKey, pendingMusic);
 
+#if !UNITY_SWITCH
         PlayerPrefs.SetInt("Fullscreen", pendingFullscreen ? 1 : 0);
         PlayerPrefs.SetInt("ResolutionLevel", pendingResolution);
         PlayerPrefs.SetInt("QualityLevel", pendingQuality);
+#endif
 
         SaveManager.Save();
 
-        EventSystem.current.SetSelectedGameObject(resetButton.gameObject);
+        if (EventSystem.current != null && resetButton != null)
+            EventSystem.current.SetSelectedGameObject(resetButton.gameObject);
+
         UpdateApplyButton();
     }
 
@@ -492,8 +519,10 @@ public class Settings : MonoBehaviour
         LoadSavedIntoPending();
 
         ApplyPendingToUI();
-        ApplyVideoRuntime();
         ApplyAudioRuntime();
+#if !UNITY_SWITCH
+        ApplyVideoRuntime();
+#endif
 
         UpdateApplyButton();
     }
@@ -504,19 +533,21 @@ public class Settings : MonoBehaviour
         pendingSfx = DEFAULT_SFX;
         pendingMusic = DEFAULT_MUSIC;
 
+#if !UNITY_SWITCH
         pendingFullscreen = DEFAULT_FULLSCREEN;
         pendingResolution = DEFAULT_RESOLUTION;
         pendingQuality = DEFAULT_QUALITY;
+        ApplyVideoRuntime();
+#endif
 
         ApplyPendingToUI();
-        ApplyVideoRuntime();
         ApplyAudioRuntime();
-
         ApplySettings();
 
         UpdateApplyButton();
     }
 
+#if !UNITY_SWITCH
     private void ApplyVideoRuntime()
     {
         Screen.fullScreen = pendingFullscreen;
@@ -530,6 +561,7 @@ public class Settings : MonoBehaviour
         QualitySettings.SetQualityLevel(pendingQuality);
         Application.targetFrameRate = pendingQuality == 0 ? 60 : -1;
     }
+#endif
 
     private void ApplyAudioRuntime()
     {
