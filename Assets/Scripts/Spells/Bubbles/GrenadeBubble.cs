@@ -184,8 +184,7 @@ public class GrenadeBubble : BasicBubble
     {
         if (NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId != (ulong)OwnerID.Value) return;
 
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay
-            || !AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+        if (!AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
 
         AchievementSaveSystem.instance.IncrementStat(8,1);
     }

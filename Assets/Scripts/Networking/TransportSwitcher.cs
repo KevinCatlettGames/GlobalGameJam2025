@@ -57,8 +57,44 @@ public class TransportSwitcher : MonoBehaviour
     {
         if (scene.name == mainMenuSceneName)
         {
+            CleanupNetworkConnection();
+
             canSwitch = true;
             isUsingRelay = false; 
+        }
+    }
+
+    /// <summary>
+    /// Shuts down NetworkManager and resets active transports to allow joining a new lobby.
+    /// </summary>
+    public void CleanupNetworkConnection()
+    {
+        if (NetworkManager.Singleton != null)
+        {
+            // Check if NetworkManager is still active (as Host, Server, or Client)
+            if (NetworkManager.Singleton.IsListening ||
+                NetworkManager.Singleton.IsClient ||
+                NetworkManager.Singleton.IsServer)
+            {
+                // Fully shuts down active connections and unbinds socket listeners
+                NetworkManager.Singleton.Shutdown();
+            }
+
+            // Reset UnityTransport parameters (Relay endpoints & allocation data)
+            ResetTransportData(relayTransport);
+            ResetTransportData(unityTransport);
+        }
+    }
+
+    private void ResetTransportData(UnityTransport transport)
+    {
+        if (transport != null)
+        {
+            // Calling SetRelayServerData with default/empty parameters resets Relay IP/Port allocation
+            transport.SetRelayServerData(default);
+
+            // Alternatively, if you need to clear listening address for direct IP connections:
+            // transport.SetConnectionData("0.0.0.0", 7777);
         }
     }
 

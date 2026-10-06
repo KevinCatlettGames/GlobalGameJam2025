@@ -6,6 +6,7 @@ using Unity.Netcode;
 using Unity.Services.Authentication;
 using Unity.Services.Lobbies;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -15,7 +16,7 @@ public class LobbyButtons : MonoBehaviour
     public Image backRadialFillImage;
     private bool isLeaving;
     public GameObject mainMenuButton;
-
+    public GameObject eventSystem;
     [SerializeField] private float startGameHoldDuration = 1f;
     [SerializeField] private float backHoldDuration = 1f;
 
@@ -98,6 +99,7 @@ public class LobbyButtons : MonoBehaviour
         {
             gameStarting = true;
             ResetStartRadial();
+            eventSystem.SetActive(false);
             lobbyManager.LoadGameScene();
         }
     }

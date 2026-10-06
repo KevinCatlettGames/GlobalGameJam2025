@@ -57,33 +57,38 @@ public class SteamIntegration : MonoBehaviour
     private void OnApplicationQuit()
     {
         if (SteamClient.IsValid)
+        {
+            // Unsubscribe from callbacks on exit
+            SteamUserStats.OnUserStatsReceived -= OnUserStatsReceivedCallback;
+            SteamUserStats.OnAchievementProgress -= OnAchievementProgressCallback;
+
             SteamClient.Shutdown();
+        }
     }
 
     private void InitializeSteam()
     {
         try
         {
-            if (SteamClient.IsValid)
+            if (!SteamClient.IsValid)
             {
-                bool loaded = SteamUserStats.RequestCurrentStats();
-                if (loaded)
-                {
-                    OnSteamStatsLoaded();
-                }
-                return;
+                uint appId = isFullVersion ? 3670670u : 3769210u;
+                SteamClient.Init(appId);
             }
 
-            uint appId = isFullVersion ? 3670670u : 3769210u;
-            SteamClient.Init(appId);
+            // Unsubscribe first to prevent duplicate handler accumulation on re-init
+            SteamUserStats.OnUserStatsReceived -= OnUserStatsReceivedCallback;
+            SteamUserStats.OnUserStatsReceived += OnUserStatsReceivedCallback;
 
-            // Listen to Facepunch's native callback when UserStats arrive
+            SteamUserStats.OnAchievementProgress -= OnAchievementProgressCallback;
             SteamUserStats.OnAchievementProgress += OnAchievementProgressCallback;
 
-            bool success = SteamUserStats.RequestCurrentStats();
-            if (success)
+            // Dispatch stats fetch request to Steam servers
+            bool requestSent = SteamUserStats.RequestCurrentStats();
+
+            if (!requestSent)
             {
-                OnSteamStatsLoaded();
+                Debug.LogWarning("SteamUserStats.RequestCurrentStats() failed to dispatch request to Steam.");
             }
         }
         catch (Exception e)
@@ -92,12 +97,24 @@ public class SteamIntegration : MonoBehaviour
         }
     }
 
+    private void OnUserStatsReceivedCallback(SteamId steamId, Result result)
+    {
+        if (result == Result.OK)
+        {
+            OnSteamStatsLoaded();
+        }
+        else
+        {
+            Debug.LogError($"Failed to download user stats from Steam. Result: {result}");
+        }
+    }
+
     private void OnSteamStatsLoaded()
     {
         statsLoaded = true;
         SetLocaleBasedOnSteamLanguage();
 
-        //Debug.Log("Steam stats loaded successfully - Invoking OnSteamStatsReady");
+        Debug.Log("Steam stats loaded successfully - Invoking OnSteamStatsReady");
         OnSteamStatsReady?.Invoke();
     }
 
@@ -169,7 +186,6 @@ public class SteamIntegration : MonoBehaviour
         string id = list[achievementIndex].AchievementName;
         var ach = new Steamworks.Data.Achievement(id);
         ach.Trigger();
-        //Debug.Log($"Steam Achievement Unlocked: {id}");
 #endif
     }
 
@@ -230,18 +246,36 @@ public class SteamIntegration : MonoBehaviour
     public void SetSteamStatIntAndIndicate(string statName, string achievementAPIName, int newValue, int threshold)
     {
 #if (UNITY_STANDALONE_WIN || UNITY_STANDALONE_LINUX || UNITY_EDITOR) && !UNITY_SWITCH
-        if (!isFullVersion || !SteamClient.IsValid || !statsLoaded) return;
+        if (!isFullVersion || !SteamClient.IsValid || !statsLoaded)
+        {
+            //Debug.LogWarning($"Skipping Stat Update '{statName}': FullVersion={isFullVersion}, Valid={SteamClient.IsValid}, StatsLoaded={statsLoaded}");
+            return;
+        }
 
         try
         {
-            SteamUserStats.SetStat(statName, newValue);
-
-            if (newValue < threshold)
+            bool setSuccess = SteamUserStats.SetStat(statName, newValue);
+            if (!setSuccess)
             {
-                //SteamUserStats.IndicateAchievementProgress(achievementAPIName, newValue, threshold);
+                Debug.LogError($"SteamUserStats.SetStat failed for stat '{statName}'. Check exact API Name in Steamworks Portal.");
+                return;
             }
 
-            SteamUserStats.StoreStats();
+            if (newValue < threshold && !string.IsNullOrEmpty(achievementAPIName))
+            {
+               // SteamUserStats.IndicateAchievementProgress(achievementAPIName, (int)Mathf.Max(0, newValue), (int)Mathf.Max(1, threshold));
+            }
+
+            bool storeSuccess = SteamUserStats.StoreStats();
+            if (!storeSuccess)
+            {
+                Debug.LogError($"SteamUserStats.StoreStats failed for stat '{statName}'.");
+            }
+            else
+            {
+                //Debug.Log($"Stored stat '{statName}' with value {newValue}");
+                SteamUserStats.GetStatInt(statName);
+            }
         }
         catch (Exception e)
         {
@@ -264,7 +298,7 @@ public class SteamIntegration : MonoBehaviour
             return 0;
         }
 #else
-    return 0;
+        return 0;
 #endif
     }
 
@@ -275,6 +309,7 @@ public class SteamIntegration : MonoBehaviour
         try
         {
             SteamUserStats.SetStat(statName, value);
+            SteamUserStats.StoreStats();
         }
         catch (System.Exception e)
         {
@@ -294,10 +329,11 @@ public class SteamIntegration : MonoBehaviour
 
         try
         {
-            // Parameter 'true' clears both achievements AND stats on Steam's servers
             SteamUserStats.ResetAll(true);
             SteamUserStats.StoreStats();
-            SteamUserStats.RequestCurrentStats(); // Refresh local cache
+            SteamUserStats.RequestCurrentStats();
+
+
             Debug.Log("Successfully wiped all Steam achievements and stats.");
         }
         catch (Exception e)

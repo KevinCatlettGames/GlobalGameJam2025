@@ -1077,8 +1077,9 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
             fmodEvent.start();
             fmodEvent.release();
-
+            IncrementProcEffectAchievement();
             isCrit = true;
+
             StopVulnerable();
         }
 
@@ -1165,7 +1166,7 @@ public class PlayerController : NetworkBehaviour
             RuntimeManager.AttachInstanceToGameObject(fmodEvent, transform, GetComponent<Rigidbody>());
             fmodEvent.start();
             fmodEvent.release();
-
+            IncrementProcEffectAchievement();
             isCrit = true;
             StopVulnerable();
         }
@@ -1758,8 +1759,10 @@ public class PlayerController : NetworkBehaviour
         
         if(!TransportSwitcher.Instance || !TransportSwitcher.Instance.isUsingRelay)
             playerIndicator?.InitialiseIndicator(skinObject.Color, playerID);
+#if !UNITY_SWITCH
         else if(TransportSwitcher.Instance.isUsingRelay)
             playerIndicator?.InitialiseSteamAvatarIndicator(skinObject.Color, playerID);
+#endif
 
         if (dropInJoin)
         {
@@ -1819,7 +1822,7 @@ public class PlayerController : NetworkBehaviour
             groundCheckDistance,
             groundMask);
 
-        if (!groundRaycastWasDetected && groundRaycastIsDetected)
+        if (!groundRaycastWasDetected && groundRaycastIsDetected && isSprinting)
             IncrementRegainGroundAchievement(hit);
         
         groundRaycastWasDetected = groundRaycastIsDetected;
@@ -1869,13 +1872,22 @@ public class PlayerController : NetworkBehaviour
 
             if (!b.TryGetComponent<BasicBubble>(out var bubble)) continue;
 
-            bool isLocalPlayer = NetworkManager.Singleton != null && NetworkManager.Singleton.LocalClientId == (ulong)playerID;
-            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && !isLocalPlayer || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
+            if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && NetworkManager.Singleton.LocalClientId != (ulong)playerID || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) continue;
 
             if (bubble.HasPopped || !isSprinting) continue;
         
             if (AchievementSaveSystem.instance != null)
                 AchievementSaveSystem.instance.IncrementStat(17, 1);
+        }
+    }
+
+    private void IncrementProcEffectAchievement()
+    {
+        if (SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+
+        if (AchievementSaveSystem.instance)
+        {
+            AchievementSaveSystem.instance.IncrementStat(20, 1);
         }
     }
 

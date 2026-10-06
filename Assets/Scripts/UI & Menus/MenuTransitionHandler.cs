@@ -44,9 +44,6 @@ public class MenuTransitionHandler : MonoBehaviour
 
         if (!fadeIsOn)
             fadeIsOn = true;
-
-        CancelInvoke(nameof(SafetyFadeTrigger));
-        Invoke(nameof(SafetyFadeTrigger), 15f);
     }
 
     public IEnumerator PlayFadeAfterSceneChangeSmoothly()
@@ -76,15 +73,6 @@ public class MenuTransitionHandler : MonoBehaviour
         {
             fadeIsOn = false; 
             
-            StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
-        }
-    }
-
-    private void SafetyFadeTrigger()
-    {
-        if (fadeIsOn)
-        {
-            fadeIsOn = false;
             StartCoroutine(PlayFadeAfterSceneChangeSmoothly());
         }
     }

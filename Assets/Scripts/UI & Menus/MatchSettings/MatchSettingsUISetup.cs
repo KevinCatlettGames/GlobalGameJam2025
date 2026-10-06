@@ -33,6 +33,8 @@ public class MatchSettingsUISetup : MonoBehaviour
     [SerializeField] private Slider tunaRoundsSlider;
     [SerializeField] private TextMeshProUGUI tunaRoundsText;
 
+    bool initialSetup = false; 
+
     public void OnEnable()
     {
         Setup();
@@ -59,19 +61,22 @@ public class MatchSettingsUISetup : MonoBehaviour
             gameModeSelection.UpdateGameModeSelectionUI();
         }
 
-        int loadoutValue = (int)lobbyManager.selectedLoadoutType;
-        if (loadoutValue == 1)
+        if (!initialSetup)
         {
-            loadoutSelection.OnLoadoutButtonClick();
-        }
-        else if (loadoutValue == 2)
-        {
-            loadoutSelection.OnLoadoutButtonClick();
-            loadoutSelection.OnLoadoutButtonClick();
-        }
-        else if(loadoutValue == 0)
-        {
-            loadoutSelection.ResetLoadoutType();
+            int loadoutValue = (int)lobbyManager.selectedLoadoutType;
+            if (loadoutValue == 1)
+            {
+                loadoutSelection.OnLoadoutButtonClick();
+            }
+            else if (loadoutValue == 2)
+            {
+                loadoutSelection.OnLoadoutButtonClick();
+                loadoutSelection.OnLoadoutButtonClick();
+            }
+            else if (loadoutValue == 0)
+            {
+                loadoutSelection.ResetLoadoutType();
+            }
         }
 
             for (int i = 0; i < spellToggles.Length; i++)
@@ -114,5 +119,7 @@ public class MatchSettingsUISetup : MonoBehaviour
         tunaEventToggle.SetIsOnWithoutNotify(lobbyManager.MapSettings[3].PlayWithMapEvent);
         tunaRoundsSlider.SetValueWithoutNotify(lobbyManager.MapSettings[3].MapRounds);
         tunaRoundsText.text = lobbyManager.MapSettings[3].MapRounds.ToString();
+
+        initialSetup = true;
     }
 }

@@ -10,5 +10,7 @@ public class RandomVideoClipOnEnable : MonoBehaviour
     {
         int randomInt = Random.Range(0, clips.Length);
         videoPlayer.clip = clips[randomInt];
+        videoPlayer.frame = 0;
+        videoPlayer.Play();
     }
 }
