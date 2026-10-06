@@ -2,7 +2,9 @@ using EditorAttributes;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+#if UNITY_SWITCH
 using UnityEngine.Switch;
+#endif
 
 public class AchievementSaveSystem : MonoBehaviour
 {
@@ -240,7 +242,7 @@ public class AchievementSaveSystem : MonoBehaviour
         pendingLobbyUnlocks.Remove(index);
         PlayerPrefs.Save();
 
-#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH        
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
             SteamIntegration.instance.ClearAchievement(index);
@@ -269,7 +271,7 @@ public class AchievementSaveSystem : MonoBehaviour
 
         PlayerPrefs.Save();
 
-#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH        
+#if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
         {
             // Pass 'true' to also reset stats on Steam if supported
