@@ -395,10 +395,10 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3175149927326940812}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0, y: 0}
-  m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 5, y: -0}
-  m_SizeDelta: {x: 0, y: -2.11}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 5, y: 15}
+  m_SizeDelta: {x: 160, y: 27.89}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &834197961158646917
 CanvasRenderer:
@@ -2159,6 +2159,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4ebfa9deecc7a194dad2431471dbc069, type: 2}
   - {fileID: 11400000, guid: 127e34a2a8d4d8546877e6c5028f97a7, type: 2}
   - {fileID: 11400000, guid: b8d21cce2e5f7ae4b935247c497f0887, type: 2}
+  - {fileID: 11400000, guid: 2fa49533b27a4814b8fa955aa7b92d0b, type: 2}
+  - {fileID: 11400000, guid: 6ea1de2450fa7684fb73042239e16806, type: 2}
   leftTabSwitchAction:
     m_UseReference: 0
     m_Action:
@@ -2391,7 +2393,7 @@ VideoPlayer:
   m_RenderMode: 2
   m_AspectRatio: 2
   m_DataSource: 0
-  m_TimeUpdateMode: 1
+  m_TimeUpdateMode: 2
   m_PlaybackSpeed: 1
   m_AudioOutputMode: 0
   m_TargetAudioSources:
@@ -4108,7 +4110,7 @@ RectTransform:
   m_GameObject: {fileID: 4358787786208593304}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2303533033122901470}
@@ -4280,7 +4282,7 @@ RectTransform:
   m_GameObject: {fileID: 4553507386815731997}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 0.5}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 0.6}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 2303533033122901470}
@@ -5509,9 +5511,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3175149927326940812}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 80.199905, y: 0}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 80.199905, y: 15}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8435512298342028267
@@ -5542,7 +5544,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -5688,13 +5690,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBindings:
   - deviceType: 0
-    sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+    sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   - deviceType: 1
-    sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+    sprite: {fileID: 21300000, guid: ed203f1f5074b074d9bba4b8c6b65a1e, type: 3}
   - deviceType: 2
-    sprite: {fileID: 21300000, guid: 0fd402a6cc1e2e74f855c1ef70976e8d, type: 3}
+    sprite: {fileID: 21300000, guid: 7b4543979d73e524e938605dd3bb6e06, type: 3}
   - deviceType: 3
-    sprite: {fileID: 21300000, guid: a8cfe7c27f5796a4892fdaef2bebbbf1, type: 3}
+    sprite: {fileID: 21300000, guid: 05f6d50dd1bf1b64fb924b1654b5b2f6, type: 3}
 --- !u!1 &6405012057631436170
 GameObject:
   m_ObjectHideFlags: 0
@@ -7547,9 +7549,9 @@ RectTransform:
   m_Children: []
   m_Father: {fileID: 3175149927326940812}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 80.2, y: -0.0000004172325}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 80.2, y: 15}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &2622884681268351927
@@ -7580,7 +7582,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -7604,13 +7606,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBindings:
   - deviceType: 0
-    sprite: {fileID: 21300000, guid: 80ffd8c9c36f50343b452e5eb74aaaa7, type: 3}
+    sprite: {fileID: 21300000, guid: be432f3be56d37646945cba3ba8836c9, type: 3}
   - deviceType: 1
-    sprite: {fileID: 21300000, guid: 59c5fd1fcedec564f85780640af0678f, type: 3}
+    sprite: {fileID: 21300000, guid: ed203f1f5074b074d9bba4b8c6b65a1e, type: 3}
   - deviceType: 2
-    sprite: {fileID: 21300000, guid: 0fd402a6cc1e2e74f855c1ef70976e8d, type: 3}
+    sprite: {fileID: 21300000, guid: 7b4543979d73e524e938605dd3bb6e06, type: 3}
   - deviceType: 3
-    sprite: {fileID: 21300000, guid: a8cfe7c27f5796a4892fdaef2bebbbf1, type: 3}
+    sprite: {fileID: 21300000, guid: 05f6d50dd1bf1b64fb924b1654b5b2f6, type: 3}
 --- !u!1 &8054316700189613039
 GameObject:
   m_ObjectHideFlags: 0
@@ -8001,9 +8003,9 @@ RectTransform:
   - {fileID: 757241153291594123}
   m_Father: {fileID: 7490866753443137822}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 759, y: -509}
+  m_AnchorMin: {x: 0.5, y: 0}
+  m_AnchorMax: {x: 0.5, y: 0}
+  m_AnchoredPosition: {x: 759, y: 30}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &3852189618129452310
@@ -8158,8 +8160,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rectTransform: {fileID: 0}
-  outPos: -585
-  inPos: -509
+  outPos: -75
+  inPos: 30
   transitionDuration: 1
   doYPosTransition: 1
   doXPosTransition: 0
@@ -8712,7 +8714,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
+  m_Sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -8736,13 +8738,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   spriteBindings:
   - deviceType: 0
-    sprite: {fileID: 21300000, guid: 2e58a223e5ff0f244970179dfab3ddac, type: 3}
+    sprite: {fileID: 21300000, guid: a63aef1baa205704081106679afc3e24, type: 3}
   - deviceType: 1
     sprite: {fileID: 21300000, guid: 9a1a8ca1f1e131146a36674585badc4c, type: 3}
   - deviceType: 2
-    sprite: {fileID: 21300000, guid: 623778ff5783c2c409e2e3c4c49208cf, type: 3}
+    sprite: {fileID: 21300000, guid: c782d2d9fb4f9d34ead5b012f4b2c7ff, type: 3}
   - deviceType: 3
-    sprite: {fileID: 21300000, guid: d3ad045c3531da84b94cfd1ce79d3e1b, type: 3}
+    sprite: {fileID: 21300000, guid: ffccc950c016baf4fa262b9edfe76d9e, type: 3}
 --- !u!1 &8994225426166135894
 GameObject:
   m_ObjectHideFlags: 0
