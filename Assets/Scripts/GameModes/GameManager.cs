@@ -362,13 +362,6 @@ public class GameManager : NetworkBehaviour
     {
         DeathReportClientRpc(playerID, killCredit, isSuperKO);
 
-        if(killCredit >= 0)
-        {
-            killsPerPlayerInRound[killCredit]++;
-            if (killsPerPlayerInRound[killCredit] >= 3)
-                UnlockKingAchievement();
-        }
-
         if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {           
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
@@ -418,13 +411,6 @@ public class GameManager : NetworkBehaviour
 
         if (killCredit >= 0 && killCredit < maxPlayers && hitReferences[killCredit].spellType != BasicBubble.SpellType.Null && hitReferences[killCredit].playerHitID == playerID)
         {
-            if (killCredit >= 0)
-            {
-                killsPerPlayerInRound[killCredit]++;
-                if (killsPerPlayerInRound[killCredit] >= 3)
-                    UnlockKingAchievement();
-            }
-
             IncrementSmallerGiantBubbleKillAchievement(killCredit);
             UnlockMultiKillAchievements(killCredit);
             UnlockBotAchievement(killCredit, hitReferences[killCredit].spellType);
@@ -575,15 +561,6 @@ public class GameManager : NetworkBehaviour
         if (!hitReferences[playerID].wasHitByExplosion) return;
 
         AchievementSaveSystem.instance.UnlockAchievement(14);
-    }
-
-    public void UnlockKingAchievement()
-    {
-        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay || !AchievementSaveSystem.instance 
-            || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
-
-        AchievementSaveSystem achSaveSystem = AchievementSaveSystem.instance;
-        achSaveSystem.UnlockAchievement(27);
     }
 
     private void UnlockMultiKillAchievements(int killerID)

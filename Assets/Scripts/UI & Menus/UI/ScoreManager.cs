@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class ScoreManager : MonoBehaviour
 {
@@ -25,6 +26,7 @@ public class ScoreManager : MonoBehaviour
 
     private int[] pendingWins = new int[4];
     private int[] pendingKills = new int[4];
+    private int[] pendingDeaths = new int[4];
 
     private List<int> activePlayers = new List<int>();
 
@@ -33,7 +35,6 @@ public class ScoreManager : MonoBehaviour
 
     public bool showWinner = false;
 
-    // Cache layout slot anchor positions for baseline vertical heights
     private Vector2[] standardSlotPositions;
     private Vector2[] teamSlotPositions;
 
@@ -138,6 +139,22 @@ public class ScoreManager : MonoBehaviour
         }
     }
 
+    public void AddPlayerDeath(int playerID)
+    {
+        scores.DeathScores[playerID]++;
+        pendingDeaths[playerID]++;
+    }
+
+    public void AddTeamDeath(int teamID)
+    {
+        int teamIndex = teamID - 1;
+        if (teamIndex >= 0 && teamIndex < scores.TeamDeathScores.Length)
+        {
+            scores.TeamDeathScores[teamIndex]++;
+            pendingDeaths[teamIndex]++;
+        }
+    }
+
     public struct PlayerScoreEntry
     {
         public int playerID;
@@ -225,7 +242,6 @@ public class ScoreManager : MonoBehaviour
                 ? GameManager.Instance.TeamA
                 : GameManager.Instance.TeamB;
 
-            // Retrieve team total kills directly from scores.KillScores[team]
             int teamTotalKills = scores.KillScores[team];
 
             int wins = scores.WinScores[team] - (usePreviousScores ? pendingWins[team] : 0);
@@ -279,7 +295,7 @@ public class ScoreManager : MonoBehaviour
             }
         }
 
-            yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.2f);
 
         if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
         {
@@ -325,16 +341,9 @@ public class ScoreManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.3f);
 
-            //var newSorted = GetScores(usePreviousScores: false);
-
-            //foreach (var entry in newSorted)
-            //{
-            //    standardModeScorePanels[entry.playerID].SetScores(entry.wins, entry.kills);
-            //}
             var newSorted = GetScores(usePreviousScores: false);
             yield return StartCoroutine(AnimateStandardPanelsReorder(newSorted));
 
-            // CHECK FOR NEW LEADER (STANDARD)
             int oldLeaderID = previousSorted[0].playerID;
             int newLeaderID = newSorted[0].playerID;
 
@@ -369,7 +378,6 @@ public class ScoreManager : MonoBehaviour
 
             yield return new WaitForSeconds(0.2f);
 
-            // Add pending team wins and kills visually
             for (int i = 0; i < previousSortedTeams.Count; i++)
             {
                 var entry = previousSortedTeams[i];
@@ -395,6 +403,30 @@ public class ScoreManager : MonoBehaviour
         }
 
         yield return new WaitForSeconds(1.5f);
+
+        // === FLAWLESS VICTORY CHECK (5 WINS, 0 DEATHS) ===
+        if (GameManager.Instance.GameMode == GameManager.GameModeType.Standard)
+        {
+            foreach (int p in activePlayers)
+            {
+                if (scores.WinScores[p] >= 5 && scores.DeathScores[p] == 0)
+                {
+                    UnlockKingAchievement(p);
+                    Debug.Log($"Player {p} achieved a Flawless Victory! (5 Wins, 0 Deaths)");
+                }
+            }
+        }
+        else if (GameManager.Instance.GameMode == GameManager.GameModeType.Team)
+        {
+            for (int teamID = 0; teamID < 2; teamID++)
+            {
+                if (scores.WinScores[teamID] >= 5 && scores.TeamDeathScores[teamID] == 0)
+                {
+                    UnlockKingAchievement(teamID);
+                    Debug.Log($"Team {teamID} achieved a Flawless Victory! (5 Wins, 0 Deaths)");
+                }
+            }
+        }
 
         if (!GameManager.Instance.playEndless && LobbyManager.instance)
         {
@@ -435,6 +467,7 @@ public class ScoreManager : MonoBehaviour
         {
             pendingWins = new int[4];
             pendingKills = new int[4];
+            pendingDeaths = new int[4];
 
             if (NetworkManager.Singleton.IsServer)
                 restartText.SetActive(true);
@@ -520,6 +553,7 @@ public class ScoreManager : MonoBehaviour
     {
         scores.ResetWins();
         scores.ResetKills();
+        scores.ResetDeaths();
     }
 
     private void OnApplicationQuit()
@@ -530,5 +564,13 @@ public class ScoreManager : MonoBehaviour
     public int[] GetKillScores()
     {
         return scores.KillScores;
+    }
+
+    public void UnlockKingAchievement(int playerID)
+    {
+        if (!AchievementSaveSystem.instance || SceneManager.GetActiveScene().buildIndex == 5 || SceneManager.GetActiveScene().buildIndex == 6) return;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && GameManager.Instance.GameMode == GameManager.GameModeType.Team) return;
+        if (TransportSwitcher.Instance && TransportSwitcher.Instance.isUsingRelay && GameManager.Instance.GameMode == GameManager.GameModeType.Standard && NetworkManager.Singleton.LocalClientId != (ulong)playerID) return;
+        AchievementSaveSystem.instance.UnlockAchievement(27);
     }
 }
