@@ -98,8 +98,11 @@ public class AchievementSaveSystem : MonoBehaviour
         }
 
         if (localUpdated)
-        {
+        {          
             PlayerPrefs.Save();
+#if UNITY_SWITCH
+            FsSaveDataPlayerPrefs.instance.SaveGameData();
+#endif
         }
 
         if (steamUpdated)
@@ -107,7 +110,7 @@ public class AchievementSaveSystem : MonoBehaviour
             Steamworks.SteamUserStats.StoreStats();
         }
 #endif
-    }
+        }
 
     #region Achievement Unlocks
     [Button]
@@ -121,7 +124,9 @@ public class AchievementSaveSystem : MonoBehaviour
 
         SetLocalAchievementState(ach.AchievementName, true);
         PlayerPrefs.Save();
-
+#if UNITY_SWITCH
+            FsSaveDataPlayerPrefs.instance.SaveGameData();
+#endif
         if (!pendingLobbyUnlocks.Contains(index))
         {
             pendingLobbyUnlocks.Add(index);
@@ -183,6 +188,9 @@ public class AchievementSaveSystem : MonoBehaviour
         int newVal = Mathf.Min(currentVal + amount, ach.StatThreshold);
         SetStatInt(ach.StatName, newVal);
         PlayerPrefs.Save();
+#if UNITY_SWITCH
+            FsSaveDataPlayerPrefs.instance.SaveGameData();
+#endif
 
 #if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
