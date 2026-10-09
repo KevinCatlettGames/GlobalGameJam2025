@@ -7,17 +7,17 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Ice_Material
-  m_Shader: {fileID: -6465566751694194690, guid: 18495e8ce9f66454d89873da60f2f2e9,
+  m_Name: PuddleWater
+  m_Shader: {fileID: -6465566751694194690, guid: d5d5fcfb6759bc64eb22340bc92e28ce,
     type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
-  m_LightmapFlags: 2
+  m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
+  m_CustomRenderQueue: 2950
   stringTagMap: {}
   disabledShaderPasses:
   - MOTIONVECTORS
@@ -25,10 +25,6 @@ Material:
   m_SavedProperties:
     serializedVersion: 3
     m_TexEnvs:
-    - _IceTexture:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
     - unity_Lightmaps:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
@@ -43,24 +39,24 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _Float: 3.12
-    - _Metallic: 1
-    - _NoiseScale: 50.51
-    - _Normals: 0
+    - _FoamAmount: 4.9
+    - _FoamCutOff: 0.85
+    - _FoamScale: 4.41
+    - _FoamSpeed: 0.002
     - _QueueControl: 0
-    - _QueueOffset: 0
-    - _RefractionAmount: 0.15
-    - _Smoothness: 0.32
-    - _fresnelpower: 1
-    - _innerstrength: 0.98
-    - _voroni_scale: 8.4
+    - _QueueOffset: -50
+    - _RefractionScale: 1
+    - _RefractionSpeed: 1
+    - _RefractionStrength: 1
+    - _WaterDepth: 6.29
+    - _isOrtho: 1
     m_Colors:
-    - _3te: {r: 0.3773585, g: 0.087219656, b: 0.11359589, a: 1}
-    - _IceColor: {r: 0.8254717, g: 0.96863055, b: 1, a: 1}
-    - _IceColorDeep: {r: 0.629895, g: 0.8218456, b: 0.8962264, a: 1}
+    - _DeepColor: {r: 0.21560164, g: 0.4811321, b: 0.46644932, a: 1}
+    - _FoamColor: {r: 0.71342117, g: 0.9056604, b: 0.84061444, a: 1}
+    - _ShallowColor: {r: 0.8254717, g: 1, b: 0.9477768, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
---- !u!114 &7700984422209894683
+--- !u!114 &121864697543171653
 MonoBehaviour:
   m_ObjectHideFlags: 11
   m_CorrespondingSourceObject: {fileID: 0}
