@@ -121,7 +121,9 @@ public class AchievementSaveSystem : MonoBehaviour
 
         SetLocalAchievementState(ach.AchievementName, true);
         PlayerPrefs.Save();
-
+#if UNITY_SWITCH
+        FsSaveDataPlayerPrefs.instance.SavePlayerPrefs();
+#endif
         if (!pendingLobbyUnlocks.Contains(index))
         {
             pendingLobbyUnlocks.Add(index);
@@ -183,6 +185,9 @@ public class AchievementSaveSystem : MonoBehaviour
         int newVal = Mathf.Min(currentVal + amount, ach.StatThreshold);
         SetStatInt(ach.StatName, newVal);
         PlayerPrefs.Save();
+#if UNITY_SWITCH
+        FsSaveDataPlayerPrefs.instance.SavePlayerPrefs();
+#endif
 
 #if (UNITY_STANDALONE || UNITY_EDITOR) && !UNITY_SWITCH
         if (SteamIntegration.instance != null)
