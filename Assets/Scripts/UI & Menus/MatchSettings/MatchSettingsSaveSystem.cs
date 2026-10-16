@@ -53,6 +53,9 @@ public class MatchSettingsSaveSystem : NetworkBehaviour
         }
 
         PlayerPrefs.Save();
+#if UNITY_SWITCH && !UNITY_EDITOR
+        FsSaveDataPlayerPrefs.instance.SavePlayerPrefs();
+#endif
     }
 
     public void LoadMatchSettings()
@@ -87,7 +90,9 @@ public class MatchSettingsSaveSystem : NetworkBehaviour
         }
 
         PlayerPrefs.Save();
-
+#if UNITY_SWITCH && !UNITY_EDITOR
+        FsSaveDataPlayerPrefs.instance.SavePlayerPrefs();
+#endif
         if (lobbyManager != null)
             lobbyManager.ResetToDefaultSettings();
 

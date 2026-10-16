@@ -17,6 +17,7 @@ public class TutorialPopUp : MonoBehaviour
     [SerializeField] private DotweenAnchorTransition transition;
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage videoImage;
+    [SerializeField] private Image videoLoadingImage;
     [SerializeField] private VideoClip windowsClip;
     [SerializeField] private VideoClip linuxClip;
 
@@ -55,6 +56,14 @@ public class TutorialPopUp : MonoBehaviour
         videoPlayer.targetTexture = renderTexture;
         videoImage.texture = renderTexture;
         videoPlayer.Prepare();
+    }
+
+    public void Update()
+    {
+        if (!videoPlayer.isPlaying)
+            videoLoadingImage.enabled = true;
+        else 
+            videoLoadingImage.enabled = false;
     }
 
     public void OpenPopUp()

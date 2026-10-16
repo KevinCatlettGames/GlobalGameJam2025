@@ -34,8 +34,8 @@ public class ControllerRumbler : MonoBehaviour
         if (timer > maxDuration) timer = maxDuration;
 
 #if UNITY_SWITCH
-        lowMotorSpeed = (lowIntensity *.5f) * lowFrFactor;
-        highMotorSpeed = (highIntensity * .5f) * highFrFactor;
+        lowMotorSpeed = (lowIntensity *.2f) * lowFrFactor;
+        highMotorSpeed = (highIntensity * .2f) * highFrFactor;
 #else
         lowMotorSpeed = lowIntensity * lowFrFactor;
         highMotorSpeed = highIntensity * highFrFactor;
