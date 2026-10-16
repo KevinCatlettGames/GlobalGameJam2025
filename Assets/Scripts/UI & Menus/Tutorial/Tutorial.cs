@@ -33,6 +33,7 @@ public class Tutorial : MonoBehaviour
     [Header("Media Display")]
     [SerializeField] private VideoPlayer videoPlayer;
     [SerializeField] private RawImage itemRawImage;
+    [SerializeField] private Image loadingImage;
     [SerializeField] private Image videoOutline;
     [SerializeField] private Image itemMainImage;
     [SerializeField] private Image itemSpriteImage;
@@ -244,6 +245,17 @@ public class Tutorial : MonoBehaviour
             stickInUse = false;
             pageHoldTimer = 0f;
         }
+
+        if (itemRawImage.enabled && videoPlayer.isPlaying)
+        {
+            loadingImage.enabled = false;
+        }
+        else if(itemRawImage.enabled && !videoPlayer.isPlaying)
+        {
+            loadingImage.enabled = true;
+        }
+        else if(!itemRawImage.enabled)
+            loadingImage.enabled = false;
     }
 
     private void ChangePage(bool forward)

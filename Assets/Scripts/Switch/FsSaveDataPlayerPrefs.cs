@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class FsSaveDataPlayerPrefs : MonoBehaviour
 {
-#if UNITY_SWITCH
+#if UNITY_SWITCH && !UNITY_EDITOR
     public static FsSaveDataPlayerPrefs instance = null;
     private bool hasInitialized = false;
 
