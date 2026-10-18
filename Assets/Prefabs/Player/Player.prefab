@@ -15390,6 +15390,7 @@ GameObject:
   - component: {fileID: 5391527640114850242}
   - component: {fileID: 4161366380558500022}
   - component: {fileID: 4240239874201322337}
+  - component: {fileID: 4261246162166122202}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -15519,6 +15520,7 @@ MonoBehaviour:
   spellSpawnEffect: {fileID: 7883030796252567183, guid: add96b9f7591c7f419575e22c13b6fc6,
     type: 3}
   damageColorEffectDuration: 0.15
+  usedSpell: []
   damageModifier: 0.15
   rumbleDurationFactor: 0.007
   knockbackDecaySpeed: 5
@@ -15854,7 +15856,7 @@ CharacterController:
   m_Height: 6
   m_Radius: 1.7
   m_SlopeLimit: 5
-  m_StepOffset: 0.1
+  m_StepOffset: 0.4
   m_SkinWidth: 0.2
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0.4, z: 0.25}
@@ -15887,6 +15889,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   damagePopup: {fileID: 3888078841614670242, guid: 35fd1df2fd20c1c4199426dc3f342c85,
     type: 3}
+--- !u!114 &4261246162166122202
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3441453709348038487}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6b3f5805d17b594a8e3b38d2dbb0e83, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &3771730546468720695
 GameObject:
   m_ObjectHideFlags: 0
@@ -21007,6 +21021,7 @@ MonoBehaviour:
   m_VerticalAlignment: 256
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
