@@ -15414,6 +15414,7 @@ Transform:
   - {fileID: 575409155661145705}
   - {fileID: 3081180404761276024}
   - {fileID: 7190049906251611985}
+  - {fileID: 8149259437677011732}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &-4890849169809216911
@@ -15605,6 +15606,8 @@ MonoBehaviour:
   rotationSpeed: 70
   moveSmoothTime: 0.1
   bounceStrength: 20
+  stepUpRayOrigin: {fileID: 8149259437677011732}
+  stepUpRayLength: 1.4
   initialized: 0
   mainAnimator: {fileID: 0}
   groundMask:
@@ -20831,6 +20834,37 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!1 &4822307339960914776
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8149259437677011732}
+  m_Layer: 0
+  m_Name: RayOrigin
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8149259437677011732
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4822307339960914776}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -1, z: 2.25}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 8774792281679756014}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4927663622312149893
 GameObject:
   m_ObjectHideFlags: 0
