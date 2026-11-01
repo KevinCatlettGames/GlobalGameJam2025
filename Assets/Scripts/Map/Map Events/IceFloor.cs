@@ -12,7 +12,7 @@ public class IceFloor : MonoBehaviour
     [SerializeField] private Material crackedMaterial;
     private Material material;
     bool isCracked = false;
-    bool isActive = true;
+    bool isActive = false;
     Vector3 start;
     Vector3 end;
 
@@ -71,9 +71,13 @@ public class IceFloor : MonoBehaviour
     public void ResetFloorPiece()
     {
         StopAllCoroutines();
-        isActive = true;
         isCracked = false;
+        isActive = false;
         transform.position = start;
         meshRenderer.material = material;
+    }
+    public void ActivateIcePice()
+    {
+        isActive = true;
     }
 }
