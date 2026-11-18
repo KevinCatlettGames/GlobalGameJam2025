@@ -495,6 +495,7 @@ MonoBehaviour:
   ShowTopMostFoldoutHeaderGroup: 1
   cinematicCamera: {fileID: 8433132425064620196}
   mainCamera: {fileID: 2119692710809655977}
+  countDown: {fileID: 0}
   playCinematicAtStart: 1
   onCinematicEnd:
     m_PersistentCalls:
@@ -727,6 +728,7 @@ GameObject:
   m_Component:
   - component: {fileID: 6439761349551863153}
   - component: {fileID: 6414289593802014521}
+  - component: {fileID: 2197878145858123471}
   m_Layer: 0
   m_Name: PostProcessing Volume
   m_TagString: Untagged
@@ -766,6 +768,18 @@ MonoBehaviour:
   blendDistance: 0
   weight: 1
   sharedProfile: {fileID: 11400000, guid: fd5f57f3c4b972f428be190f17805edc, type: 2}
+--- !u!114 &2197878145858123471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5804839899110380300}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b20616c74e9887b49a8c479bccbcf4d5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6002289494887291752
 GameObject:
   m_ObjectHideFlags: 0
