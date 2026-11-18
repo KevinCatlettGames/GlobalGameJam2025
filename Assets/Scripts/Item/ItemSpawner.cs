@@ -1,3 +1,4 @@
+using Febucci.UI.Core;
 using System.Collections.Generic;
 using Unity.Netcode;
 using UnityEngine;
@@ -105,20 +106,25 @@ public class ItemSpawner : MonoBehaviour
         {
             Vector3 randomPos;
             int i = 0;
+            int searchAngleIncrement = 5;
+            randomPos = Random.insideUnitSphere * spawnRadius;
+            if (side != 0)
+            {
+                randomPos.x += Random.Range(-side, side);
+            }
+            randomPos.y = itemPrefab.transform.position.y;
             do
             {
-                randomPos = Random.insideUnitSphere * spawnRadius;
-                if (side != 0)
+                if (Physics.Raycast(randomPos, Vector3.down, out RaycastHit hitInfo, 2f, LayerMask.GetMask("Ground")))
                 {
-                    randomPos.x += Random.Range(-side, side);
+                    Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
+                    if (wallOverlaps.Length == 0) break;
                 }
-                randomPos.y = itemPrefab.transform.position.y;
-                Collider[] wallOverlaps = Physics.OverlapSphere(randomPos, 2.3f, LayerMask.GetMask("Wall"));
-                if (wallOverlaps.Length == 0) break;
-                i++;
-            } while (i < 10);
+                randomPos = Quaternion.AngleAxis(searchAngleIncrement, Vector3.up) * randomPos;
+                i += searchAngleIncrement;
+            } while (i < 360);
 
-            if (i == 10) return;
+            if (i >= 360) return;
             spawnPosition = randomPos;
         }
         else

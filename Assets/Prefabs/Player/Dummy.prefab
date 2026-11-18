@@ -141,6 +141,7 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
+  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -568,6 +569,12 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 6600595476254504745}
   m_PrefabAsset: {fileID: 0}
+--- !u!4 &3066382714330403901 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8149259437677011732, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
+    type: 3}
+  m_PrefabInstance: {fileID: 6600595476254504745}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &3570557506723085958 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 7644629191960709551, guid: dfb56a8bfd7dffa408c3f49d91c88fa8,
@@ -729,6 +736,8 @@ MonoBehaviour:
   rotationSpeed: 70
   moveSmoothTime: 0.1
   bounceStrength: 20
+  stepUpRayOrigin: {fileID: 3066382714330403901}
+  stepUpRayLength: 1
   initialized: 0
   mainAnimator: {fileID: 0}
   groundMask:

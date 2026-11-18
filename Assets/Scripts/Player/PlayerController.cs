@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Unity.Netcode;
+using Unity.Services.Multiplayer;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
@@ -139,6 +140,8 @@ public class PlayerController : NetworkBehaviour
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float moveSmoothTime = 0.1f;
     [SerializeField] private float bounceStrength = 20f;
+    [SerializeField] private Transform stepUpRayOrigin;
+    [SerializeField] private float stepUpRayLength = 1f;
     private float currentPlayerSpeed = 1;
 
     protected CharacterController controller;
@@ -280,8 +283,19 @@ public class PlayerController : NetworkBehaviour
     {
         if (groundedPlayer && playerVelocity.y < 0)
             playerVelocity.y = 0f;
-        else
+        else if (!groundedPlayer)
+        {
+            Debug.DrawRay(stepUpRayOrigin.position, Vector3.down);
+            if (Physics.Raycast(stepUpRayOrigin.position, Vector3.down, out RaycastHit hitInfo, stepUpRayLength, LayerMask.GetMask("Ground")))
+            {
+                if (hitInfo.distance > .25f)
+                {
+                    playerVelocity.y -= gravityValue * Time.deltaTime;
+                    return;
+                }
+            }
             playerVelocity.y += gravityValue * Time.deltaTime;
+        }
     }
 
     private void HandleMovementAndRotation()

@@ -10,6 +10,7 @@ public class BlastBubble : BasicBubble
     [SerializeField] private float extraOffset = 4.5f;
     [SerializeField] private float shooterKnb = 8f;
     private const float raycastDistance = 5f;
+    bool isReady = false;
 
     public override void InitialiseBubble(int ID, Vector3 dir, Collider playerCollider, int assignedSpellID, bool fakeWithServerCaster)
     {
@@ -32,6 +33,7 @@ public class BlastBubble : BasicBubble
 
     protected override void InflateOverlapChack()
     {
+        isReady = true;
         Collider[] overlaps = Physics.OverlapSphere(transform.position, size, LayerMask.GetMask("Player", "Bubble"));
 
         foreach (Collider col in overlaps)
@@ -66,23 +68,22 @@ public class BlastBubble : BasicBubble
         Pop();
     }
 
-    public override void BubbleCollision(GameObject other)
-    {
-        return;
-    }
-
     protected override void Pop()
     {
-        if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
+        if (isReady)
         {
-            if (IsServer)
+            if (Physics.Raycast(transform.position, Vector3.down, out RaycastHit hitInfo, raycastDistance, groundedLayerMask))
             {
-                GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
-                puddle.GetComponent<NetworkObject>()?.Spawn();
-                puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
-                puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID.Value);
+                if (IsServer)
+                {
+                    GameObject puddle = Instantiate(splat, hitInfo.point, transform.rotation);
+                    puddle.GetComponent<NetworkObject>()?.Spawn();
+                    puddle.GetComponent<Puddle>().InitialisePuddle(playerCollider);
+                    puddle.GetComponent<InkTrigger>()?.SetOwner(OwnerID.Value);
+                }
             }
         }
+            
 
         base.Pop();
     }
