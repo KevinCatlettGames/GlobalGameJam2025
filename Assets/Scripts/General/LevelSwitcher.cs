@@ -34,6 +34,14 @@ public class LevelSwitcher : MonoBehaviour
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[4], LoadSceneMode.Single);
         }
+        else if (Input.GetKeyDown(KeyCode.Alpha5))
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[5], LoadSceneMode.Single);
+        }
+        else if (Input.GetKeyDown(KeyCode.Alpha6))
+        {
+            NetworkManager.Singleton.SceneManager.LoadScene(scenes[6], LoadSceneMode.Single);
+        }
         else if (Input.GetKeyDown(KeyCode.Alpha0))
         {
             NetworkManager.Singleton.SceneManager.LoadScene(scenes[0], LoadSceneMode.Single);
