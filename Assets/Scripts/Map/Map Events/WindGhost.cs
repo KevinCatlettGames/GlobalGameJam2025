@@ -5,42 +5,32 @@ using UnityEngine.Splines;
 
 public class WindGhost : MonoBehaviour
 {
-    [SerializeField] private GameObject windBox;
-    [SerializeField] private float boxInterval;
     private SplineAnimate splineAnimate;
+    private GhostExplode explode;
 
     private void Awake()
     {
         splineAnimate = GetComponent<SplineAnimate>();
+        explode = GetComponent<GhostExplode>();
     }
 
     public void HauntPath(SplineContainer splineContainer)
     {
         splineAnimate.Container = splineContainer;
         splineAnimate.Restart(true);
+        explode.Rearm();
         StartCoroutine(hauntPathCoroutine(splineAnimate.Duration));
     }
 
     private IEnumerator hauntPathCoroutine(float totalTime)
     {
-        float intervalTime = boxInterval / totalTime;
-        float timer = intervalTime;
-        while (totalTime > timer)
-        {
-            yield return null;
-            timer += Time.deltaTime;
-            if (timer >= intervalTime)
-            {
-                SpawnWindBox();
-                timer -= intervalTime;
-                totalTime -= intervalTime;
-            }
-        }
-        gameObject.SetActive(false);
+        yield return new WaitForSeconds(totalTime);
+        StopGhost();
     }
 
-    private void SpawnWindBox()
+    public void StopGhost()
     {
-        Instantiate(windBox, transform.position, transform.rotation);
+        StopAllCoroutines();
+        gameObject.SetActive(false);
     }
 }
