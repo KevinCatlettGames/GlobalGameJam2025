@@ -26,7 +26,7 @@ public class HomingTargeting : MonoBehaviour
 
         if (other.transform.root == transform.root) return;
 
-        if (other.CompareTag("Player"))
+        if (other.CompareTag("Player") || other.CompareTag("Ghost"))
         {
             if (!targetsInRange.Contains(other.transform))
             {
@@ -49,7 +49,7 @@ public class HomingTargeting : MonoBehaviour
     {
         if (other == null) return;
 
-        if ((other.CompareTag("Player") || other.CompareTag("Bubble")) && targetsInRange.Contains(other.transform))
+        if ((other.CompareTag("Player") || other.CompareTag("Bubble") || other.CompareTag("Ghost")) && targetsInRange.Contains(other.transform))
         {
             targetsInRange.Remove(other.transform);
         }

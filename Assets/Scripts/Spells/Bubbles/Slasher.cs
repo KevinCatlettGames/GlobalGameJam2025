@@ -68,6 +68,12 @@ public class Slasher : MonoBehaviour
         {
             SpawnHitEffect();
 
+            if (other.CompareTag("Ghost"))
+            {
+                slasherParent.SetActive(false);
+                other.GetComponent<GhostExplode>().Explode();
+                return;
+            }
             // Forwards direction and target to the parent SlashBubble.
             // Our prediction gates in SlashBubble.SlasherHit will intercept fake hits safely!
             slasherBubble.SlasherHit(transform.forward, other.gameObject);
