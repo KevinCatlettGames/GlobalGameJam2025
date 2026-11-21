@@ -13,7 +13,7 @@ public class GhostEvent : MapEvent
     {
         windGhost = windGhost_A;
         SendGhost();
-        Invoke(nameof(SendGhost), timeBetweenGhosts * 1.7f);
+        Invoke(nameof(SendGhost), timeBetweenGhosts * .8f);
     }
 
     protected override void StopEvent()
