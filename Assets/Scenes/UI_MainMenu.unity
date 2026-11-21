@@ -22949,7 +22949,11 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 3389169797269743735, guid: a27d0d55d454db44fae51c54a90438aa,
+        type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1741561225}
   m_SourcePrefab: {fileID: 100100000, guid: a27d0d55d454db44fae51c54a90438aa, type: 3}
 --- !u!1 &1059995517
 GameObject:
@@ -28922,9 +28926,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c6a4da923cadad849987b66cbd1373ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  localOnlineMenu: {fileID: 1615264941}
-  mainMenuLobbyCreator: {fileID: 1468472511}
-  virtualCamera: {fileID: 1392243278}
+  localOnlineMenu: {fileID: 0}
+  mainMenuLobbyCreator: {fileID: 0}
+  virtualCamera: {fileID: 0}
 --- !u!114 &1587543321
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -31436,6 +31440,59 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   targetText: {fileID: 997983645}
+--- !u!1 &1741561220 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3389169797269743735, guid: a27d0d55d454db44fae51c54a90438aa,
+    type: 3}
+  m_PrefabInstance: {fileID: 1056089978}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1741561224 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7570021184906241921, guid: a27d0d55d454db44fae51c54a90438aa,
+    type: 3}
+  m_PrefabInstance: {fileID: 1056089978}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741561220}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &1741561225
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1741561220}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3f55fcc3768689a4f9cf863b8c11c618, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_LocalizedAssetReference:
+    m_TableReference:
+      m_TableCollectionName: GUID:5b9ec9932c9402144bce1389ca391aba
+    m_TableEntryReference:
+      m_KeyId: 12183396352
+      m_Key: 
+    m_FallbackState: 0
+    m_WaitForCompletion: 0
+  m_UpdateAsset:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1741561224}
+        m_TargetAssemblyTypeName: UnityEngine.UI.Image, UnityEngine.UI
+        m_MethodName: set_overrideSprite
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1803388909
 GameObject:
   m_ObjectHideFlags: 0

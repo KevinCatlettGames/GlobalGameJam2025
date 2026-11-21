@@ -107,6 +107,11 @@ public class Tutorial : MonoBehaviour
 
         // Unsubscribe prepare event as direct playback is used instead
         // videoPlayer.prepareCompleted += OnVideoPrepared;
+
+#if UNITY_SWITCH
+        itemFullscreenImage.GetComponent<LocalizeSpriteEvent>().enabled = true;
+#endif 
+
     }
 
     private void OnDestroy()
