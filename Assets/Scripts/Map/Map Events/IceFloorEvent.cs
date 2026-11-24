@@ -30,5 +30,6 @@ public class IceFloorEvent : MapEvent
         {
             iceFloor.ResetFloorPiece();
         }
+        IceFloor.ClearSunkenList();
     }
 }

@@ -1,4 +1,7 @@
+using NUnit.Framework;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class IceFloor : MonoBehaviour
@@ -10,6 +13,9 @@ public class IceFloor : MonoBehaviour
     // Animator
     [SerializeField] private MeshRenderer meshRenderer;
     [SerializeField] private Material crackedMaterial;
+    [SerializeField] private static int maxSunkenFloors = 3;
+    private static List<IceFloor> sunkenFloors = new List<IceFloor>();
+    private Coroutine sinkCoroutine;
     private Material material;
     bool isCracked = false;
     bool isActive = false;
@@ -42,7 +48,12 @@ public class IceFloor : MonoBehaviour
         if (!isActive)
             return;
         isActive = false;
-        StartCoroutine(SinkCoroutine());
+        sinkCoroutine = StartCoroutine(SinkCoroutine());
+        if (sunkenFloors.Count >= maxSunkenFloors)
+        {
+            sunkenFloors[0].Rise();
+        }
+        sunkenFloors.Add(this);
     }
     private IEnumerator SinkCoroutine()
     {
@@ -55,9 +66,19 @@ public class IceFloor : MonoBehaviour
             yield return null;
         }
         yield return new WaitForSeconds(stayTime);
+        Rise();
+    }
+    public void Rise()
+    {
+        StopCoroutine(sinkCoroutine);
+        sunkenFloors.Remove(this);
+        StartCoroutine(RiseCoroutine());
+    }
+    private IEnumerator RiseCoroutine()
+    {
         isCracked = false;
-        rate = 1 / riseDuration;
-        progress = 0;
+        float rate = 1 / riseDuration;
+        float progress = 0;
         meshRenderer.material = material;
         while (progress < 1)
         {
@@ -75,6 +96,10 @@ public class IceFloor : MonoBehaviour
         isActive = false;
         transform.position = start;
         meshRenderer.material = material;
+    }
+    public static void ClearSunkenList()
+    {
+        sunkenFloors.Clear();
     }
     public void ActivateIcePice()
     {
