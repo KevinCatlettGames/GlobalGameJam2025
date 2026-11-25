@@ -8,12 +8,12 @@ public class GhostExplode : MonoBehaviour
     [SerializeField] private float primaryTargetFactor = .5f;
     [SerializeField] private GameObject explosionEffect;
     private bool hasExploded = false;
-    private WindGhost windGhost;
+    private LeafGhost leafGhost;
     private int ownerID = -1;
 
     private void Start()
     {
-        windGhost = GetComponent<WindGhost>();
+        leafGhost = GetComponent<LeafGhost>();
     }
 
     public void Explode()
@@ -70,7 +70,7 @@ public class GhostExplode : MonoBehaviour
 
         Instantiate(explosionEffect, transform.position, Quaternion.identity);
         
-        windGhost.StopGhost();
+        leafGhost.StopGhost();
     }
 
     public void Rearm()
@@ -82,6 +82,14 @@ public class GhostExplode : MonoBehaviour
     private void OnCollisionEnter(Collision collision)
     {
         if (hasExploded) return;
+
+        if (collision.gameObject.TryGetComponent<Reflector>(out var reflector) && reflector.GetIsReflecting())
+        {
+            ownerID = reflector.OwnerID;
+            Vector3 reflectNormal = collision.GetContact(0).normal;
+            leafGhost.ReflectGhost(reflectNormal);
+            return;
+        }
 
         if (collision != null && collision.gameObject.CompareTag("Bubble"))
         {

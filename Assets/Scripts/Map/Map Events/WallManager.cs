@@ -10,6 +10,7 @@ public class WallManager : MapEvent
     private int currentFormation = -1;
     private bool wallsActive = false;
 
+#if UNITY_EDITOR
     void Update()
     {
         if (NetworkManager.Singleton && !NetworkManager.Singleton.IsServer) return;
@@ -29,6 +30,7 @@ public class WallManager : MapEvent
             SinkWalls();
         }
     }
+#endif
     private void RiseWalls()
     {
         if (!NetworkManager.Singleton.IsServer) return;
